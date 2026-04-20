@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,19 +43,21 @@
  * @file    test_nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of nxp_mc3377x.c
  * @details TODO
- *
  */
+
+/* cspell:ignore BUSFW COMTODISABLE DEEPSLEEP */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mocknxp_mc3377x-ll.h"
+#include "Mocknxp_mc3377x_alarm.h"
 #include "Mocknxp_mc3377x_balancing.h"
 #include "Mocknxp_mc3377x_cfg.h"
 #include "Mocknxp_mc3377x_database.h"
@@ -191,6 +193,7 @@ void N77x_Initialize_Expects(N77X_STATE_s *n77xTestState, uint16_t *uid, uint16_
             i, 3u, 3u, MC3377X_SYS_UID_LOW_OFFSET, uid, n77xTestState, N77X_COMMUNICATION_OK);
     }
 
+    N77x_InitializeAlarm_Expect(n77xTestState);
     N77x_StartMeasurement_Expect(n77xTestState);
     N77x_InitializeI2c_Expect(n77xTestState);
     N77x_BalanceSetup_Expect(n77xTestState);
@@ -429,7 +432,7 @@ void testN77x_ResetStringSequence(void) {
             .pConfig  = &spi_kNxp77xDataConfigTx[0u],
             .pNode    = spiREG1,
             .pGioPort = &(spiREG1->PC3),
-            .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN,
+            .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN_STRING_0,
             .csType   = SPI_CHIP_SELECT_HARDWARE,
         },
     };
@@ -440,7 +443,7 @@ void testN77x_ResetStringSequence(void) {
             .pConfig  = &spi_kNxp77xDataConfigRx[0u],
             .pNode    = spiREG4,
             .pGioPort = &(spiREG4->PC3),
-            .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN,
+            .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN_STRING_0,
             .csType   = SPI_CHIP_SELECT_HARDWARE,
         },
     };
@@ -483,4 +486,8 @@ void testN77x_Measure(void) {
     TEST_ASSERT_FAIL_ASSERT(N77x_Measure(NULL_PTR));
 
     /* No routine test since the measurement runs in a logic while(1) loop, only interrupted by the OS */
+}
+
+void testN77x_IdentifyAfes(void) {
+    N77x_IdentifyAfes();
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -181,6 +181,7 @@ LTC_STATE_s ltc_stateBase = {
     .ltcData.usedCellIndex     = ltc_used_cells_index,
     .currentString             = 0u,
     .requestedString           = 0u,
+    .serialId                  = 0u,
 };
 
 static uint16_t ltc_cmdWRCFG[4] = {0x00, 0x01, 0x3D, 0x6E};
@@ -288,6 +289,8 @@ static STD_RETURN_TYPE_e LTC_ReadRegister(
 
 static uint32_t LTC_GetSpiClock(SPI_INTERFACE_CONFIG_s *pSpiInterface);
 static void LTC_SetTransferTimes(LTC_STATE_s *ltc_state);
+
+static void LTC_SetSerialId(LTC_STATE_s *ltc_state, uint8_t stringNumber, uint8_t moduleNumber);
 
 static LTC_RETURN_TYPE_e LTC_CheckStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s statereq);
 
@@ -747,6 +750,11 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT);
                 } else if (ltc_state->substate == LTC_EXIT_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
+                    for (uint16_t m = 0; m < LTC_N_LTC; m++) {
+                        LTC_SetSerialId(ltc_state, ltc_state->currentString, m);
+                    }
                     ++ltc_state->spiSeqPtr;
                     ++ltc_state->currentString;
                     if (ltc_state->spiSeqPtr >= ltc_state->spiSeqEndPtr) {
@@ -1241,7 +1249,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         }
                     }
 
-                    /* data sheet page 28: "for all values of n from 1 to 36: If CELL Delta(n+1) < -200mV then C(n) is
+                    /* datasheet page 28: "for all values of n from 1 to 36: If CELL Delta(n+1) < -200mV then C(n) is
                      * open" */
                     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                         /* ltc_state->ltcData.openWireDelta parsed from 1 to (BS_NR_OF_CELL_BLOCKS_PER_MODULE-1) */
@@ -1777,6 +1785,23 @@ extern void LTC_InitializeMonitoringPin(void) {
     PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_5);
     PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_6);
     PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_7);
+}
+
+/**
+ * @brief   sets serialId for all LTCs
+ * This function checks the validity of the responses PEC and
+ * sets the serialId enumerating or 0 in case of invalid PEC.
+ * @param  ltc_state:  state of the ltc state machine
+ * @param   stringNumber    string addressed
+ * @param moduleNumber module adressed
+ */
+static void LTC_SetSerialId(LTC_STATE_s *ltc_state, uint8_t stringNumber, uint8_t moduleNumber) {
+    ltc_state->serialId[stringNumber][moduleNumber] =
+        (uint64_t)(((stringNumber + 1u) << 8) | ((moduleNumber + 1u) & 0xFF));
+}
+
+extern uint64_t *LTC_IdentifyAfes(void) {
+    return &ltc_stateBase.serialId[0][0];
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

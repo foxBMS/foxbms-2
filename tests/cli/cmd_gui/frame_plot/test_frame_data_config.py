@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +40,11 @@
 """Testing file 'cli/cmd_gui/frame_plot/frame_data_config.py'."""
 
 import os
+import shutil
 import sys
 import tkinter as tk
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -53,7 +55,9 @@ except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
     from cli.cmd_gui.frame_plot.frame_data_config import Column, DataConfigFrame
     from cli.helpers.misc import PROJECT_BUILD_ROOT
+
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "data_config_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
@@ -61,6 +65,7 @@ class TestDataConfigFrame(unittest.TestCase):
     """Test of the DataConfigFrame class"""
 
     def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
         parent = tk.Tk()
         parent.withdraw()
         self.frame = DataConfigFrame(parent, parent)
@@ -70,6 +75,7 @@ class TestDataConfigFrame(unittest.TestCase):
         self.frame.root.destroy()
         if hasattr(self.frame, "file_stream"):
             self.frame.file_stream.close()
+        remove_data(self.start_time)
 
     def test_add_column_cb_name_invalid(self):
         """Test 'add_column_cb' function if column_name is not valid"""
@@ -150,7 +156,8 @@ class TestDataConfigFrame(unittest.TestCase):
 
     def test_generate_data_config_cb_not_integer(self):
         """Test 'generate_data_config_cb' function when input for
-        'precision' or 'skip' are invalid"""
+        'precision' or 'skip' are invalid
+        """
         self.frame.root.write_text = MagicMock()
         self.frame.file_path_entry.insert(0, "FilePath")
         self.frame.skip_entry.insert(0, "not_an_integer")
@@ -165,7 +172,7 @@ class TestDataConfigFrame(unittest.TestCase):
         self.frame.root.tab_plot = MagicMock()
         self.frame.root.write_text = MagicMock()
         self.frame.file_path_entry.delete(0, tk.END)
-        self.frame.file_path_entry.insert(0, __file__)
+        self.frame.file_path_entry.insert(0, Path(PATH_GUI / "data_config.txt"))
         self.frame.columns.append(Column("Header", "string"))
         self.frame.skip_entry.delete(0, tk.END)
         self.frame.precision_entry.delete(0, tk.END)
@@ -174,18 +181,24 @@ class TestDataConfigFrame(unittest.TestCase):
         with patch("builtins.open"):
             self.frame.generate_data_config_cb()
         self.frame.root.write_text.assert_called_once_with(
-            f"Data Configuration File has been saved in {__file__}\n"
+            f"Data Configuration File has been saved in {PATH_GUI / 'data_config.txt'}\n"
         )
         self.frame.root.tab_plot.data_config_entry.delete.assert_called_once_with(
             0, tk.END
         )
         self.frame.root.tab_plot.data_config_entry.insert.assert_called_once_with(
-            tk.END, str(__file__)
+            tk.END, str(PATH_GUI / "data_config.txt")
         )
 
 
 class TestDataConfigFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the DataConfigFrame class"""
+
+    def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+
+    def tearDown(self):
+        remove_data(self.start_time)
 
     def test_add_column_cb_name_invalid(self):
         """Test 'add_column_cb' function if column_name is not valid"""
@@ -278,7 +291,7 @@ class TestDataConfigFrameNoUiTestableMethods(unittest.TestCase):
         """Test 'generate_data_config_cb' function when no columns have been given"""
         mock_data_config_file = MagicMock()
         mock_data_config_file.root.write_text = MagicMock()
-        mock_data_config_file.file_path_entry.get.return_value = "file/path"
+        mock_data_config_file.file_path_entry.get.return_value = "file_path.txt"
         mock_data_config_file.columns = []
         DataConfigFrame.generate_data_config_cb(mock_data_config_file)
         mock_data_config_file.root.write_text.assert_called_once_with(
@@ -287,10 +300,11 @@ class TestDataConfigFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_generate_data_config_cb_not_integer(self):
         """Test 'generate_data_config_cb' function when input for
-        'precision' or 'skip' are invalid"""
+        'precision' or 'skip' are invalid
+        """
         mock_data_config_file = MagicMock()
         mock_data_config_file.root.write_text = MagicMock()
-        mock_data_config_file.file_path_entry.get.return_value = "file/path"
+        mock_data_config_file.file_path_entry.get.return_value = "file_path.txt"
         mock_data_config_file.skip_entry.get.return_value = "not_an_integer"
         mock_data_config_file.precision_entry.get.return_value = "not_an_integer"
         mock_data_config_file.columns = [Column("Header", "string")]
@@ -301,25 +315,49 @@ class TestDataConfigFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_generate_data_config_cb(self):
         """Test 'generate_data_config_cb' function with valid input"""
-        PROJECT_BUILD_ROOT.mkdir(exist_ok=True, parents=True)
+        PATH_GUI.mkdir(exist_ok=True, parents=True)
         mock_data_config_file = MagicMock()
         mock_data_config_file.root.write_text = MagicMock()
-        out = PROJECT_BUILD_ROOT / "file/path"
-        mock_data_config_file.file_path_entry.get.return_value = str(out)
+        file_path = PATH_GUI / "file_path.txt"
+        mock_data_config_file.file_path_entry.get.return_value = str(file_path)
         mock_data_config_file.skip_entry.get.return_value = "0"
         mock_data_config_file.precision_entry.get.return_value = "0"
         mock_data_config_file.columns = [Column("Header", "string")]
         with patch("builtins.open"):
             DataConfigFrame.generate_data_config_cb(mock_data_config_file)
         mock_data_config_file.root.write_text.assert_called_once_with(
-            f"Data Configuration File has been saved in {out}\n"
+            f"Data Configuration File has been saved in {file_path}\n"
         )
         mock_data_config_file.root.tab_plot.data_config_entry.delete.assert_called_once_with(
             0, tk.END
         )
         mock_data_config_file.root.tab_plot.data_config_entry.insert.assert_called_once_with(
-            tk.END, str(out)
+            tk.END, str(file_path)
         )
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = list(PATH_GUI.iterdir())
+            for child in children:
+                if get_birthtime(child) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

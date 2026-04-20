@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,11 +37,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for the 'install' command"""
+"""Click command definition for installation and prerequisite checks."""
 
 import click
 
 from ..cmd_install import install_impl
+from ..helpers import TOOL_NAME
 from ..helpers.click_helpers import HELP_NAMES, echo, verbosity_option
 
 
@@ -52,13 +53,27 @@ from ..helpers.click_helpers import HELP_NAMES, echo, verbosity_option
     is_flag=True,
     help="Check if the required software is installed.",
 )
+@click.option(
+    "--local/--no-local",
+    default=False,
+    is_flag=True,
+    help=f"Install this version of the '{TOOL_NAME}' on the host.",
+)
 @verbosity_option
 @click.pass_context
-def install(ctx: click.Context, check: bool, verbose: int = 0) -> None:
-    """Show installation instructions or check for required software."""
+def install(ctx: click.Context, check: bool, local: bool, verbose: int = 0) -> None:
+    """Installation information and instructions
+
+    This command allows to check whether the required software for using and
+    developing foxBMS is installed.
+    It further enables to install the 'fox CLI' on the host, to make the tools
+    available without having to rely on a foxBMS project.
+    """
     err = 0
     if check:
         err += install_impl.all_software_available()
+    elif local:
+        err += install_impl.install_fox_cli_tools_on_host()
     else:
         echo(install_impl.INSTALL_MESSAGE)
     ctx.exit(err)

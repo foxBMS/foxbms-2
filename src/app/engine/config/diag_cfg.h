@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -116,10 +116,9 @@ extern const DIAG_DATABASE_SHIM_s diag_kDatabaseShim;
 
 /** list of diag IDs */
 typedef enum {
-    DIAG_ID_FLASHCHECKSUM,     /*!< the checksum of the flashed software could not be validated */
     DIAG_ID_SYSTEM_MONITORING, /*!< the system monitoring module has detected a deviation from task timing limits */
     DIAG_ID_AFE_SPI,           /*!< issues with the SPI communication of the AFE */
-    DIAG_ID_AFE_COMMUNICATION_INTEGRITY, /*!< error on the communication integrity of the AFE, e.g. PEC error for LTC */
+    DIAG_ID_AFE_COMMUNICATION_INTEGRITY, /*!< error on the communication integrity of the AFE, e.g., PEC error for AFE */
     DIAG_ID_AFE_MUX,    /*!< the multiplexer that is connected to the AFE does not react in an expected way */
     DIAG_ID_AFE_CONFIG, /*!< the AFE driver has recognized a configuration error */
     DIAG_ID_CAN_TIMING, /*!< the BMS does not receive CAN messages at all or not within the expected time frame */
@@ -217,12 +216,13 @@ typedef enum {
     DIAG_ID_INSULATION_GROUND_ERROR,           /*!< insulation monitoring has detected a ground error */
     DIAG_ID_I2C_PEX_ERROR,                     /*!< general error with the port expanders */
     DIAG_ID_I2C_RTC_ERROR,                     /*!< i2c communication error with the RTC */
-    DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR,         /*!< clock integrity not garanteed error in RTC IC */
+    DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR,         /*!< clock integrity not guaranteed error in RTC IC */
     DIAG_ID_RTC_BATTERY_LOW_ERROR,             /*!< RTC IC battery low flag set */
     DIAG_ID_FRAM_READ_CRC_ERROR,               /*!< CRC does not match when reading from the FRAM */
     DIAG_ID_ALERT_MODE,                    /*!< Critical error while opening the contactors. Fuse has not triggered */
     DIAG_ID_AEROSOL_ALERT,                 /*!< high aerosol concentration detected */
     DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, /*!< Supply voltage of clamp 30C lost */
+    DIAG_ID_AFE_ALARM,                     /*!< Alarm line showed an error occurred */
     DIAG_ID_MAX,                           /*!< MAX indicator - do not change */
 } DIAG_ID_e;
 
@@ -255,17 +255,6 @@ typedef enum {
 #else
 #define DIAG_CAN_TIMING (DIAG_EVALUATION_DISABLED)
 #endif
-
-/**
- * @def     DIAG_CAN_SENSOR_PRESENT
- * @brief   Value that is written into the field that describes whether current
- *          sensor diag entries should be generated if it is not present
- */
-#if BS_CURRENT_SENSOR_PRESENT == true
-#define DIAG_CAN_SENSOR_PRESENT (DIAG_EVALUATION_ENABLED)
-#else /* BS_CURRENT_SENSOR_PRESENT == true */
-#define DIAG_CAN_SENSOR_PRESENT (DIAG_EVALUATION_DISABLED)
-#endif /* BS_CURRENT_SENSOR_PRESENT */
 
 /** diagnosis severity level */
 typedef enum {

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,11 +69,11 @@
 #include "database_cfg.h"
 
 #include "bal.h"
-#include "bal_strategy_voltage.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("bal_strategy_voltage.c")
+
 TEST_INCLUDE_PATH("../../src/app/application/bal")
-TEST_INCLUDE_PATH("../../src/app/application/bal/voltage")
 TEST_INCLUDE_PATH("../../src/app/application/bms")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/contactor")
@@ -106,10 +106,10 @@ void testCheckBalancingInitByDisablingBalancing(void) {
 
 void testBalancingGetState(void) {
     BAL_STATE_s *balancingState = TEST_BAL_GetBalancingState();
-    balancingState->state       = BAL_STATEMACH_UNINITIALIZED;
-    TEST_ASSERT_EQUAL(BAL_STATEMACH_UNINITIALIZED, BAL_GetState());
-    balancingState->state = BAL_STATEMACH_INITIALIZED;
-    TEST_ASSERT_EQUAL(BAL_STATEMACH_INITIALIZED, BAL_GetState());
+    balancingState->state       = BAL_FSM_UNINITIALIZED;
+    TEST_ASSERT_EQUAL(BAL_FSM_UNINITIALIZED, BAL_GetState());
+    balancingState->state = BAL_FSM_INITIALIZED;
+    TEST_ASSERT_EQUAL(BAL_FSM_INITIALIZED, BAL_GetState());
 }
 
 void testBalancingFinished(void) {

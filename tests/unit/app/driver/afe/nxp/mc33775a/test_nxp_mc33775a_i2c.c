@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_i2c.c
  * @author  foxBMS Team
  * @date    2025-03-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -52,6 +52,8 @@
  * @details TODO
  *
  */
+
+/* cspell:ignore CLKSEL */
 
 /*========== Includes =======================================================*/
 #include "unity.h"

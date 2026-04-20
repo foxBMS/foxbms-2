@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,6 +42,7 @@
 import sys
 from json import loads
 from pathlib import Path
+import shutil
 
 import pandas as pd
 
@@ -49,42 +50,78 @@ OUTPUT_DIR = Path(__file__).parent / "out"
 EXPECTED_OUTPUTS = {
     "filter-and-decode": {
         "Timestamp": 10.000,
-        "0x0241_MaximumCellVoltage_mV": 2006,
-        "0x0241_MinimumCellVoltage_mV": 1994,
-        "0x0241_MaximumCellTemperature_degC": 26.0,
-        "0x0241_MinimumCellTemperature_degC": 25.5,
+        "0x0241_SensorMinimumCellTemperature_None": "1",
+        "0x0241_SensorMaximumCellTemperature_None": "15",
+        "0x0241_ModuleMinimumCellTemperature_None": "5",
+        "0x0241_ModuleMaximumCellTemperature_None": "8",
+        "0x0241_MaximumCellTemperature_degC": 62.0,
+        "0x0241_MinimumCellTemperature_degC": -47.5,
     },
     "table_one_one": {
-        "Date": ["2025-01-01 00:00:10.000000"],
-        "0x0241_MaximumCellVoltage_mV": [2006],
-        "0x0241_MinimumCellVoltage_mV": [1994],
-        "0x0241_MaximumCellTemperature_degC": [26],
-        "0x0241_MinimumCellTemperature_degC": [25.5],
+        "Date": ["2025-01-01 00:00:10.000000+0000"],
+        "0x0241_SensorMinimumCellTemperature_None": [1],
+        "0x0241_SensorMaximumCellTemperature_None": [15],
+        "0x0241_ModuleMinimumCellTemperature_None": [5],
+        "0x0241_ModuleMaximumCellTemperature_None": [8],
+        "0x0241_MaximumCellTemperature_degC": [62.0],
+        "0x0241_MinimumCellTemperature_degC": [-47.5],
     },
     "table_many_one": {
-        "Date": ["2025-01-01 00:00:10.000000"],
-        "0x0241_MaximumCellVoltage_mV": [2006],
-        "0x0241_MinimumCellVoltage_mV": [1994],
-        "0x0241_MaximumCellTemperature_degC": [26],
-        "0x0241_MinimumCellTemperature_degC": [25.5],
+        "Date": ["2025-01-01 00:00:10.000000+0000"],
+        "0x0241_MaximumCellTemperature_degC": [62.0],
+        "0x0241_MinimumCellTemperature_degC": [-47.5],
+        "0x0241_ModuleMaximumCellTemperature_None": [8],
+        "0x0241_ModuleMinimumCellTemperature_None": [5],
+        "0x0241_SensorMaximumCellTemperature_None": [15],
+        "0x0241_SensorMinimumCellTemperature_None": [1],
+        "0x0243_Current_A": [0.0],
+        "0x0243_Power_kW": [0.0],
         "0x0243_Voltage_V": [63.93],
-        "0x0243_Current_A": [0],
-        "0x0243_Power_kW": [0],
     },
     "table_many_many": {
-        "f_StringMinimumMaximumValues_Mux_String0": {
-            "Date": ["2025-01-01 00:00:10.000000"],
-            "0x0241_MaximumCellVoltage_mV": [2006],
-            "0x0241_MinimumCellVoltage_mV": [1994],
-            "0x0241_MaximumCellTemperature_degC": [26],
-            "0x0241_MinimumCellTemperature_degC": [25.5],
+        "f_StringMinMaxCellTemperature_Mux_String0": {
+            "Date": ["2025-01-01 00:00:10.000000+0000"],
+            "0x0241_SensorMinimumCellTemperature_None": [1],
+            "0x0241_SensorMaximumCellTemperature_None": [15],
+            "0x0241_ModuleMinimumCellTemperature_None": [5],
+            "0x0241_ModuleMaximumCellTemperature_None": [8],
+            "0x0241_MaximumCellTemperature_degC": [62.0],
+            "0x0241_MinimumCellTemperature_degC": [-47.5],
         },
         "f_StringValuesP0_Mux_String0": {
-            "Date": ["2025-01-01 00:00:01.000000", "2025-01-01 00:01:01.000000"],
+            "Date": [
+                "2025-01-01 00:00:01.000000+0000",
+                "2025-01-01 00:01:01.000000+0000",
+            ],
             "0x0243_Voltage_V": [63.93, 63.93],
-            "0x0243_Current_A": [0, 0],
-            "0x0243_Power_kW": [0, 0],
+            "0x0243_Current_A": [0.0, 0.0],
+            "0x0243_Power_kW": [0.0, 0.0],
         },
+    },
+    "table_separator": {
+        "Date": ["2025-01-01 00:00:10.000000+0000"],
+        "0x0241_SensorMinimumCellTemperature_None": [1],
+        "0x0241_SensorMaximumCellTemperature_None": [15],
+        "0x0241_ModuleMinimumCellTemperature_None": [5],
+        "0x0241_ModuleMaximumCellTemperature_None": [8],
+        "0x0241_MaximumCellTemperature_degC": [62.0],
+        "0x0241_MinimumCellTemperature_degC": [-47.5],
+    },
+    "table_outer_join": {
+        "Date": [
+            "2025-01-01 00:00:01.000000+0000",
+            "2025-01-01 00:00:10.000000+0000",
+            "2025-01-01 00:01:01.000000+0000",
+        ],
+        "0x0241_MaximumCellTemperature_degC": [None, 62.0, 62.0],
+        "0x0241_MinimumCellTemperature_degC": [None, -47.5, -47.5],
+        "0x0241_ModuleMaximumCellTemperature_None": [None, 8.0, 8.0],
+        "0x0241_ModuleMinimumCellTemperature_None": [None, 5.0, 5.0],
+        "0x0241_SensorMaximumCellTemperature_None": [None, 15.0, 15.0],
+        "0x0241_SensorMinimumCellTemperature_None": [None, 1.0, 1.0],
+        "0x0243_Current_A": [0.0, 0.0, 0.0],
+        "0x0243_Power_kW": [0.0, 0.0, 0.0],
+        "0x0243_Voltage_V": [63.93, 63.93, 63.93],
     },
 }
 
@@ -106,6 +143,9 @@ def main():
             for i in OUTPUT_DIR.glob("*.csv"):
                 dfs.append(pd.read_csv(i))
             expected_df = pd.DataFrame.from_dict(EXPECTED_OUTPUTS[sys.argv[1]])
+            # print(dfs[0])
+            # print(expected_df)
+            # sys.exit(1)
             if not expected_df.equals(dfs[0]):
                 print("Expected_df: ", expected_df.to_string())
                 print("Expected_df: ", expected_df.dtypes)
@@ -139,9 +179,37 @@ def main():
                     print("Current_df: ", current_df.dtypes)
                     print(f"Differences: {expected_df.compare(current_df)}")
                     sys.exit(f"Unexpected output for testcase {sys.argv[1]}.")
+        case "table_separator":
+            dfs = []
+            for i in OUTPUT_DIR.glob("*.csv"):
+                dfs.append(pd.read_csv(i, sep="|"))
+            expected_df = pd.DataFrame.from_dict(EXPECTED_OUTPUTS[sys.argv[1]])
+            if not expected_df.equals(dfs[0]):
+                print("Expected_df: ", expected_df.to_string())
+                print("Expected_df: ", expected_df.dtypes)
+                print("Current_df: ", dfs[0].to_string())
+                print("Current_df: ", dfs[0].dtypes)
+                print(f"Differences: {expected_df.compare(dfs[0])}")
+                sys.exit(f"Unexpected output for testcase {sys.argv[1]}.")
+        case "table_outer_join":
+            dfs = []
+            for i in OUTPUT_DIR.glob("*.csv"):
+                dfs.append(pd.read_csv(i))
+            expected_df = pd.DataFrame.from_dict(EXPECTED_OUTPUTS[sys.argv[1]])
+            expected_df.head()
+            if not expected_df.equals(dfs[0]):
+                print("Expected_df: ", expected_df.to_string())
+                print("Expected_df: ", expected_df.dtypes)
+                print("Current_df: ", dfs[0].to_string())
+                print("Current_df: ", dfs[0].dtypes)
+                print(f"Differences: {expected_df.compare(dfs[0])}")
+                sys.exit(f"Unexpected output for testcase {sys.argv[1]}.")
+
         case _:
             print("No default case defined")
             sys.exit(1)
+    # Remove out directory to avoid test interdependencies
+    shutil.rmtree(OUTPUT_DIR)
 
 
 if __name__ == "__main__":

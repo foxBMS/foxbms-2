@@ -111,7 +111,7 @@ Removed
 - The Cppcheck support and its configuration files as well as the respective
   build and clean commands have been removed.
   The static program analysis of the embedded software is done by Axivion
-  Bauhaus Suite (see :ref:`AXIVION_BAUHAUS_SUITE`).
+  Bauhaus Suite.
 
 Fixed
 =====

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -56,8 +56,8 @@ def check_file(files: list[Path]) -> int:
     Args:
         files: List of file paths to check.
 
-    Return:
-        The number of lines of all provided files containing C++-style comments.
+    Returns:
+        Number of lines containing C++-style comments across all files.
 
     """
     err = 0
@@ -76,8 +76,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     Args:
         argv: Optional sequence of command-line arguments.
 
-    Return:
-        Exit code. 0 if no issues, up to 255 if issues were found.
+    Returns:
+        Exit code (``0`` if no issues, up to ``255`` otherwise).
 
     """
     parser = argparse.ArgumentParser()

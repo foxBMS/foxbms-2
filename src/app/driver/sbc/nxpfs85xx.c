@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,16 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
  * @brief   Driver for the FS85xx module
  * @details It must always be used when creating new c source files.
  */
+
+/* cspell:ignore ERRMON GOTOSTBY */
 
 /*========== Includes =======================================================*/
 #include "nxpfs85xx.h"

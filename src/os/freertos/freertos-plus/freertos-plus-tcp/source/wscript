@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,69 +37,442 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the FreeRTOS Plus TCP library"""
 
-def build(bld):
-    """Build the FreeRTOS Plus TCP library"""
-    source = [
-        "FreeRTOS_ARP.c",
-        "FreeRTOS_BitConfig.c",
-        "FreeRTOS_DHCP.c",
-        "FreeRTOS_DHCPv6.c",
-        "FreeRTOS_DNS.c",
-        "FreeRTOS_DNS_Cache.c",
-        "FreeRTOS_DNS_Callback.c",
-        "FreeRTOS_DNS_Networking.c",
-        "FreeRTOS_DNS_Parser.c",
-        "FreeRTOS_ICMP.c",
-        "FreeRTOS_IP.c",
-        "FreeRTOS_IP_Timers.c",
-        "FreeRTOS_IP_Utils.c",
-        "FreeRTOS_IPv4.c",
-        "FreeRTOS_IPv4_Sockets.c",
-        "FreeRTOS_IPv4_Utils.c",
-        "FreeRTOS_IPv6.c",
-        "FreeRTOS_IPv6_Sockets.c",
-        "FreeRTOS_IPv6_Utils.c",
-        "FreeRTOS_ND.c",
-        "FreeRTOS_RA.c",
-        "FreeRTOS_Routing.c",
-        "FreeRTOS_Sockets.c",
-        "FreeRTOS_Stream_Buffer.c",
-        "FreeRTOS_TCP_IP.c",
-        "FreeRTOS_TCP_IP_IPv4.c",
-        "FreeRTOS_TCP_IP_IPv6.c",
-        "FreeRTOS_TCP_Reception.c",
-        "FreeRTOS_TCP_State_Handling.c",
-        "FreeRTOS_TCP_State_Handling_IPv4.c",
-        "FreeRTOS_TCP_State_Handling_IPv6.c",
-        "FreeRTOS_TCP_Transmission.c",
-        "FreeRTOS_TCP_Transmission_IPv4.c",
-        "FreeRTOS_TCP_Transmission_IPv6.c",
-        "FreeRTOS_TCP_Utils.c",
-        "FreeRTOS_TCP_Utils_IPv4.c",
-        "FreeRTOS_TCP_Utils_IPv6.c",
-        "FreeRTOS_TCP_WIN.c",
-        "FreeRTOS_Tiny_TCP.c",
-        "FreeRTOS_UDP_IP.c",
-        "FreeRTOS_UDP_IPv4.c",
-        "FreeRTOS_UDP_IPv6.c",
-        "portable/BufferManagement/BufferAllocation_1.c"
+def build(bld):  # pylint: disable=too-many-statements
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    bld.recurse("portable")
+
+    # When ipconfigUSE_TCP_WIN is set to 0, some static functions are not called.
+    # This is why diag_suppress=179 has to be used on FreeRTOS_TCP_WIN.c.
+    includes_win = [
+        "include",
+        "portable/Compiler/CCS",
+        "../../../../../app/main/include",
+        "../../../../../app/task/os",
     ]
+    includes_win.extend(bld.env.FOXBMS_INCLUDES_RTOS_KERNEL)
+
+    if bld.env.FOXBMS_UART_SUPPORT:
+        includes_win.append("../../../../../app/driver/uart")
+
+    source = "FreeRTOS_TCP_WIN"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS + ["--diag_suppress=179"],
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    # All other source files require the same includes and flags
     includes = [
         "include",
         "portable/Compiler/CCS",
+        "../../../../../app/driver/phy",
+        "../../../../../app/driver/emac",
+        "../../../../../app/driver/config",
+        "../../../../../app/driver/foxmath",
+        "../../../../../app/driver/mcu",
+        "../../../../../app/engine/database",
+        "../../../../../app/engine/config",
+        "../../../../../app/application/config",
+        "../../../../../app/main/include",
+        "../../../../../app/task/os",
+    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+
+    if bld.env.FOXBMS_UART_SUPPORT:
+        includes.append("../../../../../app/driver/uart")
+
+    source = "FreeRTOS_ARP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_BitConfig"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DHCP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DHCPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DNS"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DNS_Cache"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DNS_Callback"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DNS_Networking"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_DNS_Parser"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_ICMP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IP_Timers"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IP_Utils"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IPv4"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IPv4_Sockets"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IPv4_Utils"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IPv6_Sockets"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_IPv6_Utils"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_ND"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_RA"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_Routing"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_Sockets"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_Stream_Buffer"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_IP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_IP_IPv4"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_IP_IPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Reception"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_State_Handling"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_State_Handling_IPv4"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_State_Handling_IPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Transmission"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Transmission_IPv4"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Transmission_IPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Utils"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Utils_IPv4"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_TCP_Utils_IPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_Tiny_TCP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_UDP_IP"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_UDP_IPv4"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "FreeRTOS_UDP_IPv6"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "trace_macros"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes_win,
+        cflags=bld.env.CFLAGS_OS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    use = [
+        f"{op}BufferAllocation_1",
+        f"{op}NetworkInterface",
+        f"{op}FreeRTOS_TCP_WIN",
+        f"{op}FreeRTOS_ARP",
+        f"{op}FreeRTOS_BitConfig",
+        f"{op}FreeRTOS_DHCP",
+        f"{op}FreeRTOS_DHCPv6",
+        f"{op}FreeRTOS_DNS",
+        f"{op}FreeRTOS_DNS_Cache",
+        f"{op}FreeRTOS_DNS_Callback",
+        f"{op}FreeRTOS_DNS_Networking",
+        f"{op}FreeRTOS_DNS_Parser",
+        f"{op}FreeRTOS_ICMP",
+        f"{op}FreeRTOS_IP",
+        f"{op}FreeRTOS_IP_Timers",
+        f"{op}FreeRTOS_IP_Utils",
+        f"{op}FreeRTOS_IPv4",
+        f"{op}FreeRTOS_IPv4_Sockets",
+        f"{op}FreeRTOS_IPv4_Utils",
+        f"{op}FreeRTOS_IPv6",
+        f"{op}FreeRTOS_IPv6_Sockets",
+        f"{op}FreeRTOS_IPv6_Utils",
+        f"{op}FreeRTOS_ND",
+        f"{op}FreeRTOS_RA",
+        f"{op}FreeRTOS_Routing",
+        f"{op}FreeRTOS_Sockets",
+        f"{op}FreeRTOS_Stream_Buffer",
+        f"{op}FreeRTOS_TCP_IP",
+        f"{op}FreeRTOS_TCP_IP_IPv4",
+        f"{op}FreeRTOS_TCP_IP_IPv6",
+        f"{op}FreeRTOS_TCP_Reception",
+        f"{op}FreeRTOS_TCP_State_Handling",
+        f"{op}FreeRTOS_TCP_State_Handling_IPv4",
+        f"{op}FreeRTOS_TCP_State_Handling_IPv6",
+        f"{op}FreeRTOS_TCP_Transmission",
+        f"{op}FreeRTOS_TCP_Transmission_IPv4",
+        f"{op}FreeRTOS_TCP_Transmission_IPv6",
+        f"{op}FreeRTOS_TCP_Utils",
+        f"{op}FreeRTOS_TCP_Utils_IPv4",
+        f"{op}FreeRTOS_TCP_Utils_IPv6",
+        f"{op}FreeRTOS_Tiny_TCP",
+        f"{op}FreeRTOS_UDP_IP",
+        f"{op}FreeRTOS_UDP_IPv4",
+        f"{op}FreeRTOS_UDP_IPv6",
+        f"{op}trace_macros",
+        f"{lp}os",
     ]
-    includes.extend(bld.env.INCLUDES_RTOS)
 
-    target = f"{bld.env.APPNAME.lower()}-tcp"
-    use = f"{bld.env.APPNAME.lower()}-os"
-    cflags = bld.env.C
-
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
+    bld(
+        features="c cstlib",
         use=use,
-        target=target,
+        target=f"{lp}tcp",
     )

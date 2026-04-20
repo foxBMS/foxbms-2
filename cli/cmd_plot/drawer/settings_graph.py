@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +40,9 @@
 """Implementation of the classes that contain data for LineGraphDrawer."""
 
 import sys
+from collections.abc import Iterator
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Iterator
+from datetime import UTC, datetime
 
 from ...helpers.click_helpers import recho
 
@@ -58,6 +58,7 @@ class LinesSettings:
     factor: float = 1
 
     def __post_init__(self) -> None:
+        """Ensure labels exists."""
         if self.labels is None:
             self.labels = iter(self.input)
         else:
@@ -77,7 +78,7 @@ class GraphSettings:
 
 
 @dataclass(frozen=False, slots=True)
-class Mapping:
+class Mapping:  # pylint: disable=too-many-instance-attributes
     """Class that contains all information about the Mapping of the plot."""
 
     x: str
@@ -85,7 +86,11 @@ class Mapping:
     y2: LinesSettings | None = None
     y3: LinesSettings | None = None
     date_format: str | None = None
+    start_date: str | None = None
+    time_factor: int | None = None
     x_ticks_count: int = 2
+    start: int = 0
+    end: int | None = None
 
     def __post_init__(self) -> None:
         """Init the LineSettings for the y axes"""
@@ -97,7 +102,7 @@ class Mapping:
             # will cause Tkinter exception, which can not be
             # catched easily.
             if self.date_format is not None:
-                date_str = datetime.now().strftime(self.date_format)
+                date_str = datetime.now(tz=UTC).strftime(self.date_format)
                 # This if clause is needed on Linux, because strftime will
                 # silently accept wrong date format strings. If the date
                 # format string is wrong strftime returns the date format

@@ -35,7 +35,7 @@ The packages include:
 .. note::
 
     To manufacture the printed circuit boards, the BOM (Microsoft Excel file)
-    and the ODB++ files in each corresponding folder should be used.
+    and the ODB++ files in each corresponding directory should be used.
     Before sending the board layout to a PCB manufacturer, the layout files
     must be checked against the design rules provided by this manufacturer,
     since some board layout settings may depend on its specific design rules

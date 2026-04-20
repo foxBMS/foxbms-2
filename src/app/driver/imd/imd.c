@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    imd.c
  * @author  foxBMS Team
  * @date    2021-11-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -74,8 +74,7 @@
 #define IMD_FSM_SHORT_TIME (1u)
 
 /*========== Static Constant and Variable Definitions =======================*/
-static DATA_BLOCK_INSULATION_MONITORING_s imd_tableInsulationMonitoring = {
-    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+static DATA_BLOCK_INSULATION_s imd_tableInsulation = {.header.uniqueId = DATA_BLOCK_ID_INSULATION};
 
 /** global IMD state */
 static IMD_STATE_s imd_state = {
@@ -90,7 +89,7 @@ static IMD_STATE_s imd_state = {
     .previousSubstate                      = IMD_FSM_SUBSTATE_DUMMY,
     .information.isStateMachineInitialized = false,
     .information.switchImdDeviceOn         = false,
-    .pTableImd                             = &imd_tableInsulationMonitoring,
+    .pTableImd                             = &imd_tableInsulation,
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -184,12 +183,11 @@ static STD_RETURN_TYPE_e IMD_RunStateMachine(IMD_STATE_s *pImdState);
  * @brief   Evaluates measurement perform by IMD driver
  * @details This function evaluates the insulation measurement performed by the
  *          selected IMD driver and updates the database entry.
- * @param[in,out] pTableInsulationMonitoring pointer to insulation monitoring
+ * @param[in,out] pTableInsulation pointer to insulation monitoring
  *                                           database entry
  * @return  Always #IMD_REQUEST_OK
  */
-static STD_RETURN_TYPE_e IMD_EvaluateInsulationMeasurement(
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+static STD_RETURN_TYPE_e IMD_EvaluateInsulationMeasurement(DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /*========== Static Function Implementations ================================*/
 static IMD_RETURN_TYPE_e IMD_SetStateRequest(IMD_STATE_s *pImdState, IMD_STATE_REQUEST_e stateRequest) {
@@ -391,7 +389,7 @@ static STD_RETURN_TYPE_e IMD_RunStateMachine(IMD_STATE_s *pImdState) {
             if (nextState == IMD_FSM_STATE_IMD_ENABLE) {
                 /* Set flag, that IMD is deactivated. Update database entry */
                 pImdState->pTableImd->isImdRunning = false;
-                (void)DATA_WRITE_DATA(&imd_tableInsulationMonitoring);
+                (void)DATA_WRITE_DATA(&imd_tableInsulation);
                 IMD_SetState(pImdState, IMD_FSM_STATE_IMD_ENABLE, IMD_FSM_SUBSTATE_ENTRY, IMD_FSM_SHORT_TIME);
             } else if (nextState == IMD_FSM_STATE_ERROR) {
                 IMD_SetState(pImdState, IMD_FSM_STATE_ERROR, IMD_FSM_SUBSTATE_ENTRY, IMD_FSM_SHORT_TIME);
@@ -417,16 +415,15 @@ static STD_RETURN_TYPE_e IMD_RunStateMachine(IMD_STATE_s *pImdState) {
     return ranStateMachine;
 }
 
-static STD_RETURN_TYPE_e IMD_EvaluateInsulationMeasurement(
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
-    FAS_ASSERT(pTableInsulationMonitoring != NULL_PTR);
+static STD_RETURN_TYPE_e IMD_EvaluateInsulationMeasurement(DATA_BLOCK_INSULATION_s *pTableInsulation) {
+    FAS_ASSERT(pTableInsulation != NULL_PTR);
     /* Assume resistance value as good if no valid measurement values are detected */
     bool lowResistanceDetected = false;
 
     /* Check if measured resistance value is valid */
-    if (pTableInsulationMonitoring->isInsulationMeasurementValid == true) {
+    if (pTableInsulation->isMeasurementValid == true) {
         (void)DIAG_Handler(DIAG_ID_INSULATION_MEASUREMENT_VALID, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
-        if (pTableInsulationMonitoring->insulationResistance_kOhm < IMD_ERROR_THRESHOLD_INSULATION_RESISTANCE_kOhm) {
+        if (pTableInsulation->insulationResistance_kOhm < IMD_ERROR_THRESHOLD_INSULATION_RESISTANCE_kOhm) {
             lowResistanceDetected = true;
         }
     } else {
@@ -434,11 +431,11 @@ static STD_RETURN_TYPE_e IMD_EvaluateInsulationMeasurement(
     }
 
     /* Check if flags of IMD are valid, e.g. status pin */
-    if (pTableInsulationMonitoring->areDeviceFlagsValid == true) {
-        if (pTableInsulationMonitoring->dfIsCriticalResistanceDetected == true) {
+    if (pTableInsulation->areDeviceFlagsValid == true) {
+        if (pTableInsulation->dfIsCriticalResistanceDetected == true) {
             lowResistanceDetected = true;
         }
-        if (pTableInsulationMonitoring->dfIsChassisFaultDetected == true) {
+        if (pTableInsulation->dfIsChassisFaultDetected == true) {
             (void)DIAG_Handler(DIAG_ID_INSULATION_GROUND_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
         } else {
             (void)DIAG_Handler(DIAG_ID_INSULATION_GROUND_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
@@ -453,14 +450,14 @@ static STD_RETURN_TYPE_e IMD_EvaluateInsulationMeasurement(
     }
 
     /* Set warning threshold flag depending on flag */
-    if (pTableInsulationMonitoring->dfIsWarnableResistanceDetected == true) {
+    if (pTableInsulation->dfIsWarnableResistanceDetected == true) {
         (void)DIAG_Handler(DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
     } else {
         (void)DIAG_Handler(DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     }
 
     /* Write database entry */
-    DATA_WRITE_DATA(pTableInsulationMonitoring);
+    DATA_WRITE_DATA(pTableInsulation);
 
     /* Issue: 621 */
 

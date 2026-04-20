@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -82,7 +82,7 @@ class TestBootloaderBinaryFile(unittest.TestCase):
     def test_init(
         self, mock_read_text, mock_loads, mock_genfromtxt, mock_get_sha256_file_hash_str
     ):
-        """test the init function"""
+        """Test the init function"""
         program = {
             "len_of_program_in_bytes": 16,
             "len_of_program_in_8_bytes": 2,

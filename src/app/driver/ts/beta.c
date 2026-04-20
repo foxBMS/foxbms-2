@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    beta.c
  * @author  foxBMS Team
  * @date    2020-01-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  BETA
  *
@@ -138,7 +138,7 @@ extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
 extern int16_t BETA_TemperatureFromResistance(float_t resistance_Ohm) {
     int16_t temperature_ddegC = 0;
     if (resistance_Ohm > 0.0f) {
-        float_t temperature_degC = (1.0f / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETACOEFFICIENT) +
+        float_t temperature_degC = (1.0f / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETA_COEFFICIENT) +
                                             (1.0f / (BETA_T_REF_C + BETA_KELVIN)))) -
                                    BETA_KELVIN;
         temperature_ddegC = (int16_t)(10.0f * temperature_degC); /* Convert to deci &deg;C */
@@ -152,8 +152,8 @@ extern int16_t BETA_TemperatureFromResistance(float_t resistance_Ohm) {
 extern float_t BETA_ResistanceFromTemperature(int16_t temperature_ddegC) {
     float_t resistance_Ohm = 0.0f;
     resistance_Ohm         = BETA_R_REF_Ohm *
-                     exp(BETA_BETACOEFFICIENT * ((1.0f / (((float_t)temperature_ddegC / 10.0f) + BETA_KELVIN)) -
-                                                 (1.0f / (BETA_T_REF_C + BETA_KELVIN))));
+                     exp(BETA_BETA_COEFFICIENT * ((1.0f / (((float_t)temperature_ddegC / 10.0f) + BETA_KELVIN)) -
+                                                  (1.0f / (BETA_T_REF_C + BETA_KELVIN))));
     return resistance_Ohm;
 }
 

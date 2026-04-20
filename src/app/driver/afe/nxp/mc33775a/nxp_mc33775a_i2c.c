@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,16 @@
  * @file    nxp_mc33775a_i2c.c
  * @author  foxBMS Team
  * @date    2025-02-03 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
  * @brief   I2C functions of the MC33775A analog front-end driver.
  * @details TODO
  */
+
+/* cspell:ignore CLKSEL NACKRCV */
 
 /*========== Includes =======================================================*/
 #include "nxp_mc3377x_i2c.h"

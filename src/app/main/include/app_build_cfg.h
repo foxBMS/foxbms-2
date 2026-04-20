@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    app_build_cfg.h
  * @author  foxBMS Team
  * @date    2024-10-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  VER
  *
@@ -72,24 +72,25 @@ typedef enum {
     /* Higher two hexadecimal digits are the different manufacturers
     * and the lower two digits are the specific AFE type */
 
-    /* DEBUG Default */
-    DEBUG_DEFAULT = 0x0000,
+    /* DEBUG: 0x0000 - 0x0099 */
+    AFE_DEBUG_DEFAULT = 0x0000,
+    AFE_DEBUG_CAN     = 0x0001,
     /* LTC: 0x0100 - 0x0199 */
-    LTC_LTC6804_1 = 0x0100,
-    LTC_LTC6806   = 0x0101,
-    LTC_LTC6811_1 = 0x0102,
-    LTC_LTC6812_1 = 0x0103,
-    LTC_LTC6813_1 = 0x0104,
+    AFE_LTC_LTC6804_1 = 0x0100,
+    AFE_LTC_LTC6806   = 0x0101,
+    AFE_LTC_LTC6811_1 = 0x0102,
+    AFE_LTC_LTC6812_1 = 0x0103,
+    AFE_LTC_LTC6813_1 = 0x0104,
     /* NXP: 0x0200 - 0x0299 */
-    NXP_MC33775A = 0x0200,
+    AFE_NXP_MC33775A = 0x0200,
     /* MAXIM: 0x0300 - 0x0399 */
-    MAXIM_MAX17852 = 0x0300,
+    AFE_MAXIM_MAX17852 = 0x0300,
     /* ADI: 0x0400 - 0x0499 */
-    ADI_ADES1830 = 0x0400,
+    AFE_ADI_ADES1830 = 0x0400,
     /* TI: 0x0500 - 0x0599 */
-    TI_DUMMY = 0x0501,
+    AFE_TI_DUMMY = 0x0501,
     /* Current Limit -> 0xFFFF (4 digits) */
-} VER_AFES_e;
+} VER_AFE_e;
 /** @} */
 
 /** @{
@@ -99,6 +100,7 @@ typedef enum {
     SOC_ALGORITHM_NONE,
     SOC_ALGORITHM_DEBUG,
     SOC_ALGORITHM_COUNTING,
+    SOC_ALGORITHM_LOOKUP_TABLE,
     SOC_ALGORITHM_INVALID,
 } VER_SOC_ALGORITHM_e;
 /** @} */
@@ -148,8 +150,8 @@ typedef enum {
  */
 typedef enum {
     IMD_NONE,
-    IMD_BENDER_ISO_165C,
-    IMD_BENDER_IR_155,
+    IMD_BENDER_ISO165C,
+    IMD_BENDER_IR155,
 } VER_IMD_e;
 /** @} */
 
@@ -157,8 +159,8 @@ typedef enum {
  *  rtos enum
  */
 typedef enum {
-    FREERTOS,
-    SAFERTOS,
+    RTOS_FREERTOS,
+    RTOS_SAFERTOS,
 } VER_RTOS_e;
 /** @} */
 
@@ -166,8 +168,8 @@ typedef enum {
  *  temperature sensor method enum
  */
 typedef enum {
-    POLYNOMIAL,
-    LOOKUP_TABLE,
+    TEMPERATURE_SENSOR_METHOD_POLYNOMIAL,
+    TEMPERATURE_SENSOR_METHOD_LOOKUP_TABLE,
 } VER_TEMPERATURE_SENSOR_METHOD_e;
 /** @} */
 
@@ -175,16 +177,18 @@ typedef enum {
  *  temperature sensors enum
  */
 typedef enum {
-    FAK00,
-    EPC00,
-    EPC01,
-    MUR00,
-    SEM00,
-    VIS00,
-    VIS01,
-    VIS02,
-    TDK00,
-} VER_TEMPERATURE_SENSORS_e;
+    TEMPERATURE_SENSOR_FAK00,
+    TEMPERATURE_SENSOR_EPC00,
+    TEMPERATURE_SENSOR_EPC01,
+    TEMPERATURE_SENSOR_EPC02,
+    TEMPERATURE_SENSOR_MUR00,
+    TEMPERATURE_SENSOR_SEM00,
+    TEMPERATURE_SENSOR_VIS00,
+    TEMPERATURE_SENSOR_VIS01,
+    TEMPERATURE_SENSOR_VIS02,
+    TEMPERATURE_SENSOR_TDK00,
+    TEMPERATURE_SENSOR_TDK01,
+} VER_TEMPERATURE_SENSOR_e;
 /** @} */
 
 /** struct type that describes the build configuration of the system */
@@ -193,11 +197,11 @@ typedef struct {
     const VER_SOE_ALGORITHM_e soeAlgorithm;                        /*!< state estimator for soe*/
     const VER_SOF_ALGORITHM_e sofAlgorithm;                        /*!< state estimator for sof*/
     const VER_SOH_ALGORITHM_e sohAlgorithm;                        /*!< state estimator for soh*/
-    const VER_IMD_e imdName;                                       /*!< name of the imd*/
+    const VER_IMD_e imd;                                           /*!< name of the imd*/
     const VER_BALANCING_STRATEGY_e balancingStrategy;              /*!< balancing strategy*/
     const VER_RTOS_e rtos;                                         /*!< used rtos*/
-    const VER_AFES_e afeName;                                      /*!< name of the afe*/
-    const VER_TEMPERATURE_SENSORS_e temperatureSensorName;         /*!< name of the temperature sensor*/
+    const VER_AFE_e afe;                                           /*!< name of the afe*/
+    const VER_TEMPERATURE_SENSOR_e temperatureSensor;              /*!< name of the temperature sensor*/
     const VER_TEMPERATURE_SENSOR_METHOD_e temperatureSensorMethod; /*!< method of the temperature sensor*/
 } VER_BUILD_CONFIGURATION_s;
 

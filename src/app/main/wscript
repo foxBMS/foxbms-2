@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,60 +37,85 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Builds the application main binary"""
-
 
 def build(bld):
-    """runs the main build by linking the previously built libraries
-    and the objects built within this wscript"""
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
     target = bld.env.APPNAME.lower()
-    source = [
-        "fassert.c",
-        "fstartup.c",
-        "main.c",
-    ]
+
+    cflags = bld.env.CFLAGS_FOXBMS
+    source = "fassert"
+    bld.objects(
+        source=f"{source}.c",
+        includes="include",
+        cflags=cflags,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "fstartup"
+    bld.objects(
+        source=f"{source}.c",
+        includes="include",
+        cflags=cflags,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
     linker_script_elf = bld.path.find_node("app.cmd")
     linker_script_hex = bld.path.find_node("app_hex.cmd")
-    includes = [
-        "include",
-        "../application/config",
-        "../driver/adc",
-        "../driver/checksum",
-        "../driver/config",
-        "../driver/contactor",
-        "../driver/dma",
-        "../driver/foxmath",
-        "../driver/i2c",
-        "../driver/io",
-        "../driver/led",
-        "../driver/meas",
-        "../driver/pwm",
-        "../driver/spi",
-        "../driver/sps",
-        "../driver/mcu",
-        "../engine/config",
-        "../engine/database",
-        "../engine/diag",
-        "../engine/hw_info",
-        "../task/os",
-        "../task/config",
-        "../../version",
-    ]
-    includes.extend(
-        bld.env.INCLUDES_RTOS + bld.env.INCLUDES_RTOS_ADDONS + bld.env.INCLUDES_AFE
+    includes = (
+        [
+            "include",
+            "../application/config",
+            "../driver/adc",
+            "../driver/config",
+            "../driver/contactor",
+            "../driver/dma",
+            "../driver/emac",
+            "../driver/foxmath",
+            "../driver/i2c",
+            "../driver/io",
+            "../driver/led",
+            "../driver/meas",
+            "../driver/pwm",
+            "../driver/spi",
+            "../driver/sps",
+            "../driver/mcu",
+            "../engine/config",
+            "../engine/database",
+            "../engine/diag",
+            "../engine/hw_info",
+            "../task/os",
+            "../task/config",
+            "../../version",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL_ADDONS
     )
-    cflags = bld.env.CFLAGS_FOXBMS
-    use = [
-        f"{bld.env.APPNAME.lower()}-application",
-        f"{bld.env.APPNAME.lower()}-task",
-        f"{bld.env.APPNAME.lower()}-engine",
-        f"{bld.env.APPNAME.lower()}-driver",
-        f"{bld.env.APPNAME.lower()}-os",
-        f"{bld.env.APPNAME.lower()}-hal",
-    ]
 
+    if bld.env.FOXBMS_TCP_SUPPORT:
+        includes.append("../application/ethernet")
+    if bld.env.FOXBMS_UART_SUPPORT:
+        includes.append("../driver/uart")
+
+    use = [
+        f"{op}fassert",
+        f"{op}fstartup",
+        f"{lp}application",
+        f"{lp}task",
+        f"{lp}engine",
+        f"{lp}driver",
+        f"{lp}os",
+        f"{lp}hal",
+        f"{lp}tcp",
+    ]
+    source = "main"
     bld.tiprogram(
-        source=source,
+        source=f"{source}.c",
         linker_script=linker_script_elf,
         linker_script_hex=linker_script_hex,
         includes=includes,
@@ -98,4 +123,5 @@ def build(bld):
         use=use,
         target=target,
         app_build_cfg=True,
+        idx=1,
     )

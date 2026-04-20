@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_afe.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -79,7 +79,7 @@ extern void DIAG_ErrorAfe(
         (diagId == DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) ||
         (diagId == DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) ||
         (diagId == DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT) ||
-        (diagId == DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT));
+        (diagId == DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT) || (diagId == DIAG_ID_AFE_ALARM));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
@@ -125,6 +125,13 @@ extern void DIAG_ErrorAfe(
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->redundancy0CellTemperatureMeasurementTimeoutError = true;
+        }
+    } else if (diagId == DIAG_ID_AFE_ALARM) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->afeAlarmLineError = false;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->afeAlarmLineError = true;
         }
     }
 }

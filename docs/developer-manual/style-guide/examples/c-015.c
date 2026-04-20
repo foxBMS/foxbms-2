@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,16 @@
  * @file    c-015.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
  * @brief   Example code to show the application of the C coding guidelines
  * @details This code implements an example for C:015
  */
+
+/* cspell:ignore AXIVION */
 
 /*========== Includes =======================================================*/
 #include "c-015.h"

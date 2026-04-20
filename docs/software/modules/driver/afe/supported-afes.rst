@@ -10,16 +10,4 @@ Supported Analog Front-Ends
 shows.
 This is achieved by drivers that follow the :ref:`ANALOG_FRONT_END_API`.
 
-.. toctree::
-    :maxdepth: 1
-    :caption: List of supported AFEs
-
-    ./adi/adi_ades1830.rst
-    ./ltc/6804-1.rst
-    ./ltc/6806.rst
-    ./ltc/6811-1.rst
-    ./ltc/6812-1.rst
-    ./ltc/6813-1.rst
-    ./maxim/max1785x.rst
-    ./nxp/mc33775a.rst
-    ./debug/default.rst
+.. include:: ./../../../../../build/docs/supported_afes.txt

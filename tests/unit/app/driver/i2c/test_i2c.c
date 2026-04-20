@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_i2c.c
  * @author  foxBMS Team
  * @date    2021-07-23 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -194,18 +194,18 @@ void testI2c_Initialize(void) {
 void testI2C_Read(void) {
     i2cBASE_t validI2cInterface;
     uint32_t validSlaveAddress = 0u;
-    uint32_t validnrBytesWrite = 1u;
+    uint32_t validNrBytesWrite = 1u;
     uint8_t validReadData      = 1u;
 
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/4: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(I2C_Read(NULL_PTR, validSlaveAddress, validnrBytesWrite, &validReadData));
+    TEST_ASSERT_FAIL_ASSERT(I2C_Read(NULL_PTR, validSlaveAddress, validNrBytesWrite, &validReadData));
     /* ======= AT2/4: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(I2C_Read(&validI2cInterface, 128u, validnrBytesWrite, &validReadData));
+    TEST_ASSERT_FAIL_ASSERT(I2C_Read(&validI2cInterface, 128u, validNrBytesWrite, &validReadData));
     /* ======= AT3/4: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_Read(&validI2cInterface, validSlaveAddress, 0u, &validReadData));
     /* ======= AT4/4: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(I2C_Read(&validI2cInterface, validSlaveAddress, validnrBytesWrite, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(I2C_Read(&validI2cInterface, validSlaveAddress, validNrBytesWrite, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
     i2cBASE_t pI2cInterface = {0};
@@ -240,16 +240,16 @@ void testI2C_Read(void) {
 void testI2C_Write(void) {
     i2cBASE_t validI2cInterface;
     uint32_t validSlaveAddress = 0u;
-    uint32_t validnrBytesWrite = 1u;
+    uint32_t validNrBytesWrite = 1u;
     uint8_t validWriteData     = 1u;
     /* ======= AT1/4: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(I2C_Write(NULL_PTR, validSlaveAddress, validnrBytesWrite, &validWriteData));
+    TEST_ASSERT_FAIL_ASSERT(I2C_Write(NULL_PTR, validSlaveAddress, validNrBytesWrite, &validWriteData));
     /* ======= AT2/4: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, 130u, validnrBytesWrite, &validWriteData));
+    TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, 130u, validNrBytesWrite, &validWriteData));
     /* ======= AT3/4: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, validSlaveAddress, 0u, &validWriteData));
     /* ======= AT4/4: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, validSlaveAddress, validnrBytesWrite, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, validSlaveAddress, validNrBytesWrite, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
     i2cBASE_t pI2cInterface = {0};
@@ -288,28 +288,28 @@ void testI2C_WriteRead(void) {
     /* ======= Assertion tests ============================================= */
     i2cBASE_t validI2cInterface;
     uint32_t validSlaveAddress = 0u;
-    uint32_t validnrBytesWrite = 1u;
+    uint32_t validNrBytesWrite = 1u;
     uint8_t validWriteData     = 1u;
-    uint32_t validnrBytesRead  = 2u;
+    uint32_t validNrBytesRead  = 2u;
     uint8_t validReadData      = 1u;
     /* ======= AT1/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteRead(
-        NULL_PTR, validSlaveAddress, validnrBytesWrite, &validWriteData, validnrBytesRead, &validReadData));
+        NULL_PTR, validSlaveAddress, validNrBytesWrite, &validWriteData, validNrBytesRead, &validReadData));
     /* ======= AT2/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(
-        I2C_WriteRead(&validI2cInterface, 130u, validnrBytesWrite, &validWriteData, validnrBytesRead, &validReadData));
+        I2C_WriteRead(&validI2cInterface, 130u, validNrBytesWrite, &validWriteData, validNrBytesRead, &validReadData));
     /* ======= AT3/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(
-        I2C_WriteRead(&validI2cInterface, validSlaveAddress, 0u, &validWriteData, validnrBytesRead, &validReadData));
+        I2C_WriteRead(&validI2cInterface, validSlaveAddress, 0u, &validWriteData, validNrBytesRead, &validReadData));
     /* ======= AT4/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteRead(
-        &validI2cInterface, validSlaveAddress, validnrBytesWrite, NULL_PTR, validnrBytesRead, &validReadData));
+        &validI2cInterface, validSlaveAddress, validNrBytesWrite, NULL_PTR, validNrBytesRead, &validReadData));
     /* ======= AT5/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(
-        I2C_WriteRead(&validI2cInterface, validSlaveAddress, validnrBytesWrite, &validWriteData, 0u, &validReadData));
+        I2C_WriteRead(&validI2cInterface, validSlaveAddress, validNrBytesWrite, &validWriteData, 0u, &validReadData));
     /* ======= AT6/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteRead(
-        &validI2cInterface, validSlaveAddress, validnrBytesWrite, &validWriteData, validnrBytesRead, NULL_PTR));
+        &validI2cInterface, validSlaveAddress, validNrBytesWrite, &validWriteData, validNrBytesRead, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
     i2cBASE_t pI2cInterface = {0};
@@ -354,28 +354,28 @@ void testI2C_WriteReadDma(void) {
     /* ======= Assertion tests ============================================= */
     i2cBASE_t validI2cInterface;
     uint32_t validSlaveAddress = 0u;
-    uint32_t validnrBytesWrite = 1u;
+    uint32_t validNrBytesWrite = 1u;
     uint8_t validWriteData     = 1u;
-    uint32_t validnrBytesRead  = 2u;
+    uint32_t validNrBytesRead  = 2u;
     uint8_t validReadData      = 1u;
     /* ======= AT1/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteReadDma(
-        NULL_PTR, validSlaveAddress, validnrBytesWrite, &validWriteData, validnrBytesRead, &validReadData));
+        NULL_PTR, validSlaveAddress, validNrBytesWrite, &validWriteData, validNrBytesRead, &validReadData));
     /* ======= AT2/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteReadDma(
-        &validI2cInterface, 130u, validnrBytesWrite, &validWriteData, validnrBytesRead, &validReadData));
+        &validI2cInterface, 130u, validNrBytesWrite, &validWriteData, validNrBytesRead, &validReadData));
     /* ======= AT3/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(
-        I2C_WriteReadDma(&validI2cInterface, validSlaveAddress, 0u, &validWriteData, validnrBytesRead, &validReadData));
+        I2C_WriteReadDma(&validI2cInterface, validSlaveAddress, 0u, &validWriteData, validNrBytesRead, &validReadData));
     /* ======= AT4/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteReadDma(
-        &validI2cInterface, validSlaveAddress, validnrBytesWrite, NULL_PTR, validnrBytesRead, &validReadData));
+        &validI2cInterface, validSlaveAddress, validNrBytesWrite, NULL_PTR, validNrBytesRead, &validReadData));
     /* ======= AT5/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteReadDma(
-        &validI2cInterface, validSlaveAddress, validnrBytesWrite, &validWriteData, 1u, &validReadData));
+        &validI2cInterface, validSlaveAddress, validNrBytesWrite, &validWriteData, 1u, &validReadData));
     /* ======= AT6/6: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_WriteReadDma(
-        &validI2cInterface, validSlaveAddress, validnrBytesWrite, &validWriteData, validnrBytesRead, NULL_PTR));
+        &validI2cInterface, validSlaveAddress, validNrBytesWrite, &validWriteData, validNrBytesRead, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/x: Test implementation */

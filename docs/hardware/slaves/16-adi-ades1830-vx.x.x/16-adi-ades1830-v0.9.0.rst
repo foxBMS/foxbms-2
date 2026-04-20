@@ -29,7 +29,7 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR`.
 
 ---------------
 Pinout Overview
@@ -117,8 +117,9 @@ The cell voltage sense lines are input on the connector J400.
 The pinout is described in
 :numref:`Table %s <adi_ades1830_slave_16cell_v0.9.0_cell_sense_connector>`.
 
-.. figure:: ./../../img/molex_connector-24pin.png
-   :width: 50 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: Cell voltage sense connector
    :name: adi_ades1830_slave_16cell_v0.9.0_cell_sense_connector
@@ -159,8 +160,9 @@ The cell temperature sensors are connected to the connectors J403.
 The pinout is described in
 :numref:`Table %s <adi_ades1830_slave_16cell_v0.9.0_temp_sense_connector>`.
 
-.. figure:: ./../../img/molex_connector-20pin.png
-   :width: 30 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_20pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: Temperature sensor connector
    :name: adi_ades1830_slave_16cell_v0.9.0_temp_sense_connector
@@ -196,9 +198,9 @@ The pinout of the isoSPI connectors is described in
 and
 :numref:`Table %s <adi_ades1830_slave_16cell_v0.9.0_daisy_output_connectors>`.
 
-.. figure:: ./../../img/molex_connector-2pin.png
-   :width: 5 %
-
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
+   :format: svg
+   :width: 300px
 .. csv-table:: isoSPI Daisy Chain Input Connectors
    :name: adi_ades1830_slave_16cell_v0.9.0_daisy_input_connectors
    :header-rows: 1

@@ -1,0 +1,5 @@
+File Name                     ; Content Description
+``cli.py``                    ; Registers all commands.
+``foxbms_version.py``         ; Reads the |foxbms| version information from the ``version.py``.
+``version.py``                ; Contains the numeric version of the |foxbms|.
+``helpers/package/helpers.py``; Defines helper functions and constants for the |fox-cli-package|.

@@ -43,7 +43,7 @@ safe operating area, as the long-term availability of the battery packs is of
 major importance.
 
 Different estimation algorithms for |soc|, |soe| and |soh| can be selected via
-the battery system configuration file (`bms.json`).
+the battery system configuration file (|bms-config-file|).
 
 .. toctree::
     :maxdepth: 1

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,7 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -81,7 +81,10 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         try:
             self._draw(data)
         except KeyError as e:
-            recho(f"Error plot config file: Column {str(e)} is not known")
+            recho(f"Error plot config file: Column {e!s} is not known")
+            sys.exit(1)
+        except ValueError as e:
+            recho(f"Some provided values can't be handled properly: {e!s}")
             sys.exit(1)
         except IndexError:
             recho(
@@ -117,7 +120,8 @@ class LineGraphDrawer(LineGraphDrawerInterface):
 
     def _draw(self, data: pd.DataFrame) -> None:
         """Private method which draws the specified graph, without
-        error handling"""
+        error handling
+        """
         # x_values should be numerical or date values because many string
         # values will cause problems with the x-axis of the plot
         x_values = data.loc[:, self._mapping.x].to_numpy()
@@ -132,7 +136,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
                 "yellow",
             )
         # Draw all lines in Mapping
-        plots: list[matplotlib.lines.Line2D] = []
+        plots: list[mpl.lines.Line2D] = []
         for i, ax_name in enumerate(["y1", "y2", "y3"]):
             line_settings = getattr(self._mapping, ax_name)
             if isinstance(line_settings, LinesSettings):
@@ -157,6 +161,8 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         self._axes.xaxis.set_major_locator(
             ticker.LinearLocator(self._mapping.x_ticks_count)
         )
+        # Ensures that the line start and ends at the plot edge without padding
+        self._axes.margins(x=0)
 
     def _draw_line(
         self,
@@ -164,11 +170,21 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         x_values: np.ndarray,
         y_values: np.ndarray,
         settings: LinesSettings,
-    ) -> list[matplotlib.lines.Line2D]:
+    ) -> list[mpl.lines.Line2D]:
         """Draws the specified line"""
+        x_values = x_values[self._mapping.start : self._mapping.end]
+        y_values = y_values[self._mapping.start : self._mapping.end]
         if not (y_values.dtype.type is np.str_ or y_values.dtype.type is np.object_):
             x_values = x_values[~np.isnan(y_values)]
             y_values = y_values[~np.isnan(y_values)]
+
+        if self._mapping.time_factor is not None:
+            x_values = x_values // self._mapping.time_factor
+
+        if self._mapping.start_date is not None:
+            deltas = x_values - x_values[0]
+            x_values = np.datetime64(self._mapping.start_date, "s") + deltas
+
         scaley = True
         if (settings.min is not None) and (settings.max is not None):
             if y_values.dtype.type is np.str_ or y_values.dtype.type is np.object_:
@@ -183,7 +199,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
             scaled_y_values = y_values
         else:
             scaled_y_values = y_values * settings.factor
-        label = next(settings.labels)  # type: ignore
+        label = next(settings.labels)  # type: ignore[arg-type]
         return axis.plot(
             x_values,
             scaled_y_values,

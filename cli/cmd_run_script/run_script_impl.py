@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,6 +41,7 @@
 
 import sys
 from pathlib import Path
+from typing import IO, Any
 
 from ..helpers.click_helpers import echo
 from ..helpers.misc import PROJECT_ROOT
@@ -48,12 +49,26 @@ from ..helpers.spr import SubprocessResult, run_process
 
 
 def run_python_script(
-    python_args: list[str], cwd: str | Path = PROJECT_ROOT, stderr=None, stdout=None
+    python_args: list[str],
+    cwd: str | Path = PROJECT_ROOT,
+    stderr: int | IO[Any] | None = None,
+    stdout: int | IO[Any] | None = None,
 ) -> SubprocessResult:
-    """Run the waf binary with the provided arguments."""
+    """Run a Python script with the active interpreter.
+
+    Args:
+        python_args: Script path and optional script arguments.
+        cwd: Working directory used when executing the subprocess.
+        stderr: Optional stream configuration for standard error.
+        stdout: Optional stream configuration for standard output.
+
+    Returns:
+        A :class:`SubprocessResult` with execution details. If
+        ``python_args`` is empty, an empty result is returned and a user-facing
+        message is emitted.
+    """
     if not python_args:
         echo("No Arguments provided.")
         return SubprocessResult()
     cmd = [sys.executable] + python_args
-    err = run_process(cmd, cwd=cwd, stdout=stdout, stderr=stderr)
-    return err
+    return run_process(cmd, cwd=cwd, stdout=stdout, stderr=stderr)

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -58,7 +58,7 @@
 /*========== Includes =======================================================*/
 #include "diag.h"
 
-#include "can_cbs_tx_fatal-error.h"
+#include "can_cbs_tx_f_fatal-error.h"
 #include "fstd_types.h"
 #include "os.h"
 #include "timer.h"
@@ -127,7 +127,7 @@ static void DIAG_Reset(void) {
     for (uint32_t i = 0u; i < sizeof(diag.entry_cnt); i++) {
         diag.entry_cnt[i] = 0;
     }
-    diag.errcnttotal = 0;
+    diag.totalErrorCount = 0;
 
     /* Reset occurrence counter */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
@@ -331,21 +331,21 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
     /* counts of (new) diagnosis entry records which is still not been read by
      * external Tool which will reset this value to 0 after having read all
      * new entries which means <acknowledged by user> */
-    ++diag.errcntreported;
-    ++diag.errcnttotal; /* total counts of diagnosis entry records */
+    ++diag.reportedErrorCount;
+    ++diag.totalErrorCount; /* total counts of diagnosis entry records */
     diag.entry_event[eventID] = event;
 
     return ret_val;
 }
 
 DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data) {
-    DIAG_RETURNTYPE_e ret_val      = DIAG_HANDLER_RETURN_UNKNOWN;
-    uint32_t *u32ptr_errCodemsk    = NULL_PTR;
-    uint32_t *u32ptr_warnCodemsk   = NULL_PTR;
-    uint16_t *u16ptr_threshcounter = NULL_PTR;
-    uint16_t cfg_threshold         = 0;
-    uint16_t err_enable_idx        = 0;
-    uint32_t err_enable_bitmask    = 0;
+    DIAG_RETURNTYPE_e ret_val    = DIAG_HANDLER_RETURN_UNKNOWN;
+    uint32_t *u32ptr_errCodemsk  = NULL_PTR;
+    uint32_t *u32ptr_warnCodemsk = NULL_PTR;
+    uint16_t *pThresholdCounter  = NULL_PTR;
+    uint16_t cfg_threshold       = 0;
+    uint16_t err_enable_idx      = 0;
+    uint32_t err_enable_bitmask  = 0;
 
     DIAG_EVALUATE_e evaluate_enabled;
 
@@ -381,25 +381,25 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
     err_enable_idx     = diagId / 32;        /* array index of diag.err_enableflag[..] */
     err_enable_bitmask = 1 << (diagId % 32); /* bit number (mask) of diag.err_enableflag[idx] */
 
-    u32ptr_errCodemsk    = &diag.errflag[err_enable_idx];
-    u32ptr_warnCodemsk   = &diag.warnflag[err_enable_idx];
-    u16ptr_threshcounter = &diag.occurrenceCounter[stringID][diagId];
-    cfg_threshold        = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].threshold;
-    evaluate_enabled     = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].enable_evaluate;
+    u32ptr_errCodemsk  = &diag.errflag[err_enable_idx];
+    u32ptr_warnCodemsk = &diag.warnflag[err_enable_idx];
+    pThresholdCounter  = &diag.occurrenceCounter[stringID][diagId];
+    cfg_threshold      = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].threshold;
+    evaluate_enabled   = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].enable_evaluate;
 
     if (event == DIAG_EVENT_OK) {
         if ((diag.err_enableflag[err_enable_idx] & err_enable_bitmask) > 0u) {
-            /* if (((*u16ptr_threshcounter) == 0) && (*u32ptr_errCodemsk == 0)) */
-            if (((*u16ptr_threshcounter) == 0)) {
+            /* if (((*pThresholdCounter) == 0) && (*u32ptr_errCodemsk == 0)) */
+            if (((*pThresholdCounter) == 0)) {
                 /* everything ok, nothing to be handled */
-            } else if ((*u16ptr_threshcounter) > 1) {
-                (*u16ptr_threshcounter)--; /* Error did not occur, decrement Error-Counter */
-            } else if ((*u16ptr_threshcounter) == 1) {
-                /* else if ((*u16ptr_threshcounter) <= 1) */
+            } else if ((*pThresholdCounter) > 1) {
+                (*pThresholdCounter)--; /* Error did not occur, decrement Error-Counter */
+            } else if ((*pThresholdCounter) == 1) {
+                /* else if ((*pThresholdCounter) <= 1) */
                 /* Error did not occur, now decrement to zero and clear Error- or Warning-Flag and make recording if enabled */
                 *u32ptr_errCodemsk &= ~err_enable_bitmask;  /* ERROR:   clear corresponding bit in errflag[idx] */
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
-                (*u16ptr_threshcounter) = 0;
+                (*pThresholdCounter) = 0;
                 /* Make entry in error-memory (error disappeared) */
                 DIAG_EntryWrite(diagId, event, data);
                 /* Check if error would have been fatal and send clear CAN message*/
@@ -418,12 +418,12 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
         ret_val = DIAG_HANDLER_RETURN_OK; /* Function does not return an error-message! */
     } else if (event == DIAG_EVENT_NOT_OK) {
         if ((diag.err_enableflag[err_enable_idx] & err_enable_bitmask) > 0u) {
-            if ((*u16ptr_threshcounter) < cfg_threshold) {
-                (*u16ptr_threshcounter)++;        /* error-threshold not exceeded yet, increment Error-Counter */
+            if ((*pThresholdCounter) < cfg_threshold) {
+                (*pThresholdCounter)++;           /* error-threshold not exceeded yet, increment Error-Counter */
                 ret_val = DIAG_HANDLER_RETURN_OK; /* Function does not return an error-message! */
-            } else if ((*u16ptr_threshcounter) == cfg_threshold) {
+            } else if ((*pThresholdCounter) == cfg_threshold) {
                 /* Error occurred AND error-threshold exceeded */
-                (*u16ptr_threshcounter)++;
+                (*pThresholdCounter)++;
                 *u32ptr_errCodemsk |= err_enable_bitmask;   /* ERROR:   set corresponding bit in errflag[idx] */
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
 
@@ -443,7 +443,7 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
                 }
                 /* Function returns an error-message! */
                 ret_val = DIAG_HANDLER_RETURN_ERR_OCCURRED;
-            } else if (((*u16ptr_threshcounter) > cfg_threshold)) {
+            } else if (((*pThresholdCounter) > cfg_threshold)) {
                 /* error-threshold already exceeded, nothing to be handled */
                 ret_val = DIAG_HANDLER_RETURN_ERR_OCCURRED;
             }
@@ -458,7 +458,7 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
             /* clear counter, Error-, Warning-Flag and make recording if enabled */
             *u32ptr_errCodemsk &= ~err_enable_bitmask;  /* ERROR:   clear corresponding bit in errflag[idx] */
             *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
-            (*u16ptr_threshcounter) = 0;
+            (*pThresholdCounter) = 0;
             /* Make entry in error-memory (error disappeared) if error was recorded before */
             DIAG_EntryWrite(diagId, event, data);
 
@@ -506,8 +506,8 @@ bool DIAG_IsAnyFatalErrorSet(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_DIAG_SetDiagerrcnttotal(uint16_t errors) {
-    diag.errcnttotal = errors;
+extern void TEST_DIAG_SetDiagTotalErrorCount(uint16_t errors) {
+    diag.totalErrorCount = errors;
 }
 
 extern void TEST_DIAG_SetDiagOccurrenceCounter(uint16_t errors) {

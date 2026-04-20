@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    plausibility.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  PL
  *
@@ -69,7 +69,7 @@
 
 /*========== Extern Function Prototypes =====================================*/
 /**
- * @brief Pack voltage plausibility check between LTC and current sensor values
+ * @brief Pack voltage plausibility check between AFE and current sensor values
  *
  * @param  voltageAfe_mV            pack voltage measured by AFE
  * @param  voltageCurrentSensor_mV  pack voltage measured by current sensor

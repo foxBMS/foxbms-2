@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_pec.c
  * @author  foxBMS Team
  * @date    2022-11-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,6 +69,7 @@ TEST_SOURCE_FILE("adi_ades183x_pec.c")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/ades1830")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/config")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/diag")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/pec")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
 TEST_INCLUDE_PATH("../../src/app/driver/config")

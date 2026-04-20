@@ -20,10 +20,8 @@ Waf Tools Implementation Documentation
     :maxdepth: 1
 
     ./ti-arm-compiler-tools
-    ./f_axivion.rst
     ./f_bootstrap_library_project.rst
     ./f_hcg.rst
     ./f_lauterbach.rst
-    ./f_sphinx_build.rst
-    ./f_unit_test.rst
+    ./sphinx_build.rst
     ./f_vscode.rst

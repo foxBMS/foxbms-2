@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -55,7 +55,10 @@
 #ifndef FOXBMS__SPI_CFG_H_
 #define FOXBMS__SPI_CFG_H_
 
+/* cspell:ignore SPIFLG */
+
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 
 #include "battery_system_cfg.h"
 
@@ -104,14 +107,14 @@
 /** SBC MCU chip select pin */
 #define SPI_SBC_MCU_CHIP_SELECT_PIN (0u)
 
-/** enum for spi interface state */
+/** SPI interface state */
 typedef enum {
     SPI_IDLE,
     SPI_BUSY,
 } SPI_BUSY_STATE_e;
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-cs-type-start-include */
-/** type of chip select for spi */
+/** type of chip select for SPI */
 typedef enum {
     SPI_CHIP_SELECT_HARDWARE,
     SPI_CHIP_SELECT_SOFTWARE,
@@ -133,34 +136,52 @@ typedef struct {
 /* -------------- SPI Configurations --------------------------------------- */
 #if defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1)
 /** ADI chip select pin */
-#define SPI_ADI_CHIP_SELECT_PIN (1u)
-#endif
+#define SPI_ADI_CHIP_SELECT_PIN_STRING_0 (1u)
+#if BS_NR_OF_STRINGS > 1
+#define SPI_ADI_CHIP_SELECT_PIN_STRING_1 (2u)
+#endif /* BS_NR_OF_STRINGS > 1 */
+#if BS_NR_OF_STRINGS > 2
+#define SPI_ADI_CHIP_SELECT_PIN_STRING_2 (0u)
+#endif /* BS_NR_OF_STRINGS > 2 */
+#if BS_NR_OF_STRINGS > 3
+#define SPI_ADI_CHIP_SELECT_PIN_STRING_3 (1u)
+#endif /* BS_NR_OF_STRINGS > 3 */
+#endif /* FOXBMS_AFE_DRIVER_ADI */
 
 #if defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)
 /** LTC chip select pin */
-#define SPI_LTC_CHIP_SELECT_PIN (1u)
-#endif
+#define SPI_LTC_CHIP_SELECT_PIN_STRING_0 (1u)
+#if BS_NR_OF_STRINGS > 1
+#define SPI_LTC_CHIP_SELECT_PIN_STRING_1 (2u)
+#endif /* BS_NR_OF_STRINGS > 1 */
+#if BS_NR_OF_STRINGS > 2
+#define SPI_LTC_CHIP_SELECT_PIN_STRING_2 (0u)
+#endif /* BS_NR_OF_STRINGS > 2 */
+#if BS_NR_OF_STRINGS > 3
+#define SPI_LTC_CHIP_SELECT_PIN_STRING_3 (1u)
+#endif /* BS_NR_OF_STRINGS > 3 */
+#endif /* FOXBMS_AFE_DRIVER_LTC */
 
 #if defined(FOXBMS_AFE_DRIVER_MAXIM) && (FOXBMS_AFE_DRIVER_MAXIM == 1)
 /** Maxim chip select pin */
-#define SPI_MAXIM_CHIP_SELECT_PIN (0u)
-#endif
+#define SPI_MAXIM_CHIP_SELECT_PIN_STRING_0 (0u)
+#endif /* FOXBMS_AFE_DRIVER_MAXIM */
 
 #if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
 /** NXP chip select pin @{ */
-#define SPI_NXP_TX_CHIP_SELECT_PIN (1u)
-#define SPI_NXP_RX_CHIP_SELECT_PIN (0u)
+#define SPI_NXP_TX_CHIP_SELECT_PIN_STRING_0 (1u)
+#define SPI_NXP_RX_CHIP_SELECT_PIN_STRING_0 (0u)
 /**@}*/
-#endif
+#endif /* FOXBMS_AFE_DRIVER_NXP */
 
 #if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
 /** ST chip select pin */
-#define SPI_ST_CHIP_SELECT_PIN (0u)
-#endif
+#define SPI_ST_CHIP_SELECT_PIN_STRING_0 (0u)
+#endif /* FOXBMS_AFE_DRIVER_ST */
 
 #if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
 /* currently not supported */
-#endif
+#endif /* FOXBMS_AFE_DRIVER_TI */
 
 /** FRAM chip select pin */
 #define SPI_FRAM_CHIP_SELECT_PIN (1u)
@@ -174,26 +195,27 @@ typedef struct {
 /*========== Extern Constant and Variable Declarations ======================*/
 #if defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1)
 extern SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS];
-#endif
+#endif /* FOXBMS_AFE_DRIVER_ADI */
 #if defined(FOXBMS_AFE_DRIVER_DEBUG) && (FOXBMS_AFE_DRIVER_DEBUG == 1)
 /* not needed */
-#endif
+#endif /* FOXBMS_AFE_DRIVER_DEBUG */
 #if defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)
 extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
-#endif
+#endif /* FOXBMS_AFE_DRIVER_LTC */
 #if defined(FOXBMS_AFE_DRIVER_MAXIM) && (FOXBMS_AFE_DRIVER_MAXIM == 1)
 extern SPI_INTERFACE_CONFIG_s spi_mxmInterface;
-#endif
+#endif /* FOXBMS_AFE_DRIVER_MAXIM */
 #if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
 extern SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS];
-#endif
+#endif /* FOXBMS_AFE_DRIVER_NXP */
 #if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
 extern SPI_INTERFACE_CONFIG_s spi_stInterface[BS_NR_OF_STRINGS];
-#endif
+#endif /* FOXBMS_AFE_DRIVER_ST */
 #if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
 /* currently not supported */
-#endif
+#endif /* FOXBMS_AFE_DRIVER_TI */
+
 extern SPI_INTERFACE_CONFIG_s spi_framInterface;
 extern SPI_INTERFACE_CONFIG_s spi_spsInterface;
 extern SPI_INTERFACE_CONFIG_s spi_sbcMcuInterface;
@@ -204,14 +226,14 @@ extern const uint8_t spi_nrBusyFlags;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
- * @brief Switch the SPS spi handle to high speed
- * @param[out]  pSpiSpsInterface    handle of the SPS spi config
+ * @brief Switch the SPS SPI handle to high speed
+ * @param[out]  pSpiSpsInterface handle of the SPS SPI config
  */
 extern void SPI_SpsInterfaceSwitchToHighSpeed(SPI_INTERFACE_CONFIG_s *pSpiSpsInterface);
 
 /**
- * @brief Switch the SPS spi handle to low speed
- * @param[out]  pSpiSpsInterface    handle of the SPS spi config
+ * @brief Switch the SPS SPI handle to low speed
+ * @param[out]  pSpiSpsInterface handle of the SPS SPI config
  */
 extern void SPI_SpsInterfaceSwitchToLowSpeed(SPI_INTERFACE_CONFIG_s *pSpiSpsInterface);
 

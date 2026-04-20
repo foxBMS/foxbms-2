@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fram_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -143,8 +143,8 @@ typedef struct {
     float_t minimumSoc_perc[BS_NR_OF_STRINGS];        /*!< minimum SOC */
     float_t maximumSoc_perc[BS_NR_OF_STRINGS];        /*!< maximum SOC */
     float_t averageSoc_perc[BS_NR_OF_STRINGS];        /*!< average SOC */
-    float_t chargeThroughput_As[BS_NR_OF_STRINGS];    /*!<  Charge througput */
-    float_t dischargeThroughput_As[BS_NR_OF_STRINGS]; /*!< Discharge througput */
+    float_t chargeThroughput_As[BS_NR_OF_STRINGS];    /*!<  Charge throughput */
+    float_t dischargeThroughput_As[BS_NR_OF_STRINGS]; /*!< Discharge throughput */
 } FRAM_SOC_s;
 
 /**

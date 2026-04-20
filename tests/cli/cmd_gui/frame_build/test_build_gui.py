@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,12 +39,13 @@
 
 """Testing file 'cli/cmd_gui/frame_build/build_gui.py'."""
 
+import importlib
 import os
 import shutil
 import sys
 import tkinter as tk
 import unittest
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
@@ -57,32 +58,30 @@ except ModuleNotFoundError:
     from cli.helpers.misc import PROJECT_BUILD_ROOT
 
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "build_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
 class TestBuildFrame(unittest.TestCase):
     """Test of the BuildFrame class"""
 
+    @classmethod
+    def setUpClass(cls):
+        importlib.reload(build_gui)
+
     def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+        build_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
         self.frame = build_gui.BuildFrame(self.root, text)
-        self.start_time = datetime.now()
 
     def tearDown(self):
         self.root.update()
         self.root.destroy()
-        file_output = Path(PROJECT_BUILD_ROOT / "output_gui_build.txt")
-        if file_output.exists():
-            file_output.unlink()
-        gui_directory = Path(PROJECT_BUILD_ROOT / "gui")
-        if gui_directory.is_dir():
-            if (
-                datetime.fromtimestamp(gui_directory.stat().st_birthtime)
-                >= self.start_time
-            ):
-                shutil.rmtree(gui_directory)
+        build_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
+        remove_data(self.start_time)
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
@@ -132,7 +131,8 @@ class TestBuildFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
     def test_check_thread_dead_empty(self, mock_write_text: MagicMock):
         """Test 'check_thread' function
-        when the Thread is not alive and there is no object in the queue"""
+        when the Thread is not alive and there is no object in the queue
+        """
         self.frame.file_path.write_text("New content.", encoding="utf-8")
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
@@ -151,7 +151,8 @@ class TestBuildFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
     def test_check_thread_dead_success(self, mock_write_text: MagicMock):
         """Test 'check_thread' function
-        when the Thread is not alive and the build was successful"""
+        when the Thread is not alive and the build was successful
+        """
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
         self.frame.queue = MagicMock()
@@ -178,7 +179,8 @@ class TestBuildFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
     def test_check_thread_dead_failure(self, mock_write_text: MagicMock):
         """Test 'check_thread' function
-        when the Thread is not alive and the build was not successful"""
+        when the Thread is not alive and the build was not successful
+        """
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
         self.frame.queue = MagicMock()
@@ -208,7 +210,8 @@ class TestBuildFrame(unittest.TestCase):
         self, mock_generate_list: MagicMock, mock_write_text: MagicMock
     ):
         """Test 'check_thread' function
-        when generating the command list"""
+        when generating the command list
+        """
         self.frame.current_command = "Generate Command List"
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
@@ -264,17 +267,12 @@ class TestBuildFrame(unittest.TestCase):
         self.frame.file_path.write_text("New content.", encoding="utf-8")
         self.frame.save_command_cb()
         with open(
-            Path(PROJECT_BUILD_ROOT / "gui" / "command_new.txt"),
+            Path(PATH_GUI / "gui" / "command_new.txt"),
             encoding="utf-8",
         ) as f:
             self.assertEqual("New content.", f.read())
         with open(self.frame.file_path, encoding="utf-8") as f:
             self.assertEqual("New content.", f.read())
-        gui_directory = Path(PROJECT_BUILD_ROOT / "gui")
-        if gui_directory.is_dir():
-            test_file = Path(gui_directory / "command_new.txt")
-            if test_file.exists():
-                test_file.unlink()
 
     def test_generate_command_list(self):
         """Test 'generate_command_list' function"""
@@ -333,27 +331,24 @@ class TestBuildFrame(unittest.TestCase):
 class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the BuildFrame class"""
 
+    @classmethod
+    def setUpClass(cls):
+        importlib.reload(build_gui)
+
     def setUp(self):
-        self.start_time = datetime.now()
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        self.start_time = datetime.now(tz=UTC)
+        build_gui.PROJECT_BUILD_ROOT = PATH_GUI
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        for file_path in PROJECT_BUILD_ROOT.glob("output_build_*"):
-            if file_path.suffix == ".txt" and file_path.exists():
-                file_path.unlink()
-        gui_directory = Path(PROJECT_BUILD_ROOT / "gui")
-        if gui_directory.is_dir():
-            if (
-                datetime.fromtimestamp(os.path.getctime(gui_directory))
-                >= self.start_time
-            ):
-                shutil.rmtree(gui_directory)
+        build_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
+        remove_data(self.start_time)
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
         mock_build_frame = MagicMock()
         mock_build_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_build_write_text_empty.txt"
+            PATH_GUI / "output_build_write_text_empty.txt"
         )
         mock_build_frame.text = MagicMock()
         mock_build_frame.text_index = MagicMock()
@@ -364,9 +359,7 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
     def test_write_text(self):
         """Test 'write_text' function when the file is not empty"""
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_build_write_text.txt"
-        )
+        mock_build_frame.file_path = Path(PATH_GUI / "output_build_write_text.txt")
         mock_build_frame.text = MagicMock()
         mock_build_frame.text_index = MagicMock()
         mock_build_frame.current_command = "command"
@@ -389,10 +382,11 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_dead_empty(self):
         """Test 'check_thread' function
-        when the Thread is not alive and there is no object in the queue"""
+        when the Thread is not alive and there is no object in the queue
+        """
         mock_build_frame = MagicMock()
         mock_build_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_build_check_thread_empty.txt"
+            PATH_GUI / "output_build_check_thread_empty.txt"
         )
         mock_build_frame.file_path.write_text("New content.", encoding="utf-8")
         mock_build_frame.build_process = MagicMock()
@@ -408,7 +402,8 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_dead_success(self):
         """Test 'check_thread' function
-        when the Thread is not alive and the build was successful"""
+        when the Thread is not alive and the build was successful
+        """
         mock_build_frame = MagicMock()
         mock_build_frame.build_process = MagicMock()
         mock_build_frame.build_process.is_alive.return_value = False
@@ -426,7 +421,8 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_dead_failure(self):
         """Test 'check_thread' function
-        when the Thread is not alive and the build was not successful"""
+        when the Thread is not alive and the build was not successful
+        """
         mock_build_frame = MagicMock()
         mock_build_frame.build_process = MagicMock()
         mock_build_frame.build_process.is_alive.return_value = False
@@ -444,7 +440,8 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_command_list(self):
         """Test 'check_thread' function
-        when generating the command list"""
+        when generating the command list
+        """
         mock_build_frame = MagicMock()
         mock_build_frame.build_process = MagicMock()
         mock_build_frame.build_process.is_alive.return_value = False
@@ -481,32 +478,23 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
     def test_save_command(self, mock_time: MagicMock):
         """Test 'save_command' function"""
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_build_save_command.txt"
-        )
+        mock_build_frame.file_path = Path(PATH_GUI / "output_build_save_command.txt")
         mock_time.return_value = "new"
         mock_build_frame.current_command = "command"
         mock_build_frame.file_path.write_text("New content.", encoding="utf-8")
         build_gui.BuildFrame.save_command_cb(mock_build_frame)
         with open(
-            Path(PROJECT_BUILD_ROOT / "gui" / "command_new.txt"),
+            Path(PATH_GUI / "gui" / "command_new.txt"),
             encoding="utf-8",
         ) as f:
             self.assertEqual("New content.", f.read())
         with open(mock_build_frame.file_path, encoding="utf-8") as f:
             self.assertEqual("New content.", f.read())
-        gui_directory = Path(PROJECT_BUILD_ROOT / "gui")
-        if gui_directory.is_dir():
-            test_file = Path(gui_directory / "command_new.txt")
-            if test_file.exists():
-                test_file.unlink()
 
     def test_generate_command_list(self):
         """Test 'generate_command_list' function"""
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_build_command_list.txt"
-        )
+        mock_build_frame.file_path = Path(PATH_GUI / "output_build_command_list.txt")
         mock_build_frame.commands = []
         with open(mock_build_frame.file_path, mode="w", encoding="utf-8") as f:
             f.write("Main commands \ncommand :\ncommand : 1:\ncommand 2\noptions:")
@@ -526,9 +514,7 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
         """Test 'generate_command_list_command_cb' function"""
         mock_thread.return_value = MagicMock()
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_build_list_cb.txt"
-        )
+        mock_build_frame.file_path = Path(PATH_GUI / "output_build_list_cb.txt")
         build_gui.BuildFrame.generate_command_list_command_cb(mock_build_frame)
         mock_build_frame.file_stream.close()
         mock_build_frame.check_thread.assert_called_once()
@@ -555,6 +541,45 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
                 call(tk.END, "Command_3  ()"),
             ]
         )
+
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+class TestBuildImport(unittest.TestCase):
+    """Test import of build_gui"""
+
+    @patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False)
+    def test_no_project(self):
+        """Test import when ROOT_IS_PROJECT is False"""
+        importlib.reload(build_gui)
+
+    @patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True)
+    def test_project(self):
+        """Test import when ROOT_IS_PROJECT is True"""
+        importlib.reload(build_gui)
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = PATH_GUI.iterdir()
+            for child in children:
+                if get_birthtime(child) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

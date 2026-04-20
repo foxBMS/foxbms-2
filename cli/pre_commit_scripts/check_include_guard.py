@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,7 +41,7 @@
 
 This script verifies that each given C header file (.h) contains a correctly
 formatted and ordered include guard using the foxBMS naming convention.
-It reports missing, duplicate, or misordered guard markers and checks
+It reports missing, duplicate, or mis-ordered guard markers and checks
 for the expected formatting pattern.
 It is intended for use with pre-commit.
 """
@@ -64,7 +64,7 @@ def run_check(filename: Path) -> int:
     Args:
         filename (Path): Path to the C header file.
 
-    Return:
+    Returns:
         Number of detected include guard issues.
 
     """
@@ -112,7 +112,7 @@ def check_include_guard(files: Sequence[Path]) -> int:
     Args:
         files: Iterable of files to check.
 
-    Return:
+    Returns:
         Total number of issues found.
 
     """
@@ -130,7 +130,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     Args:
         argv: Optional sequence of command-line arguments.
 
-    Return:
+    Returns:
         Number of include guard violations found (exit code).
 
     """

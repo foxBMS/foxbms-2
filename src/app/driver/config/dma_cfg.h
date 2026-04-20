@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -64,8 +64,11 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/* Position of initial frame counter in channel configuration register */
+/** Position of initial frame counter in channel configuration register */
 #define DMA_INITIAL_FRAME_COUNTER_POSITION (16u)
+
+/** Maximum value the initial frame count can take on */
+#define DMA_INITIAL_FRAME_COUNTER_MAX_VALUE (0x1FFFu)
 
 /** defines for the DMA channels */
 /**@{*/
@@ -83,6 +86,9 @@
 #define DMA_CHANNEL_I2C1_RX (DMA_CH11)
 #define DMA_CHANNEL_I2C2_TX (DMA_CH12)
 #define DMA_CHANNEL_I2C2_RX (DMA_CH13)
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#define DMA_CHANNEL_SCI4_TX (DMA_CH14)
+#endif
 /**@}*/
 
 /** defines for the DMA request lines */
@@ -101,6 +107,9 @@
 #define DMA_REQ_LINE_I2C1_RX (DMA_REQ10)
 #define DMA_REQ_LINE_I2C2_TX (DMA_REQ33)
 #define DMA_REQ_LINE_I2C2_RX (DMA_REQ32)
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#define DMA_REQ_LINE_SCI4_TX (DMA_REQ43)
+#endif
 /**@}*/
 
 /** define for the shift of an address for big endian 8bit */

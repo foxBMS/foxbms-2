@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2025-02-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -121,6 +121,11 @@ extern STD_RETURN_TYPE_e NXP_RequestEepromWrite(uint8_t string) {
 extern STD_RETURN_TYPE_e NXP_RequestOpenWireCheck(uint8_t string) {
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
     return retVal;
+}
+
+extern uint64_t *NXP_IdentifyAfes(void) {
+    /* Returns only correctly when pAdiState->measurementStarted == true (measurement initialized) */
+    return N77x_IdentifyAfes();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

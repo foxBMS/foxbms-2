@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -55,6 +55,7 @@ except ModuleNotFoundError:
     from cli.helpers.misc import PROJECT_BUILD_ROOT
 
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "gui"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
@@ -77,7 +78,7 @@ class TestRunPlotFrame(unittest.TestCase):
         """Test 'open_output_directory_cb' function"""
         mock_askdirectory.return_value = "Directory"
         self.assertEqual(
-            f"{PROJECT_BUILD_ROOT}",
+            f"{PATH_GUI}",
             self.frame.output_entry.get().strip(),
         )
         self.frame.open_output_directory_cb()
@@ -158,6 +159,37 @@ class TestRunPlotFrameNoUiTestableMethods(unittest.TestCase):
         mock_plot_frame.data_config_entry.insert.assert_called_once_with(
             tk.END, "Data Configuration"
         )
+
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+class TestRunPlotFrameInit(unittest.TestCase):
+    """Test initialization of the RunPlotFrame class"""
+
+    def setUp(self):
+        self.parent = tk.Tk()
+        self.parent.withdraw()
+
+    def tearDown(self):
+        self.parent.update()
+        self.parent.destroy()
+
+    @patch("cli.cmd_gui.frame_plot.frame_run_plot.Path.is_file")
+    def test_files(self, mock_is_file: MagicMock):
+        """Test initialization when the files exist"""
+        mock_is_file.return_value = True
+        run_plot_frame = RunPlotFrame(self.parent, self.parent)
+        self.assertNotEqual("", run_plot_frame.data_source_entry.get().strip())
+        self.assertNotEqual("", run_plot_frame.data_config_entry.get().strip())
+        self.assertNotEqual("", run_plot_frame.plot_config_entry.get().strip())
+
+    @patch("cli.cmd_gui.frame_plot.frame_run_plot.Path.is_file")
+    def test_no_files(self, mock_is_file: MagicMock):
+        """Test initialization when the files do not exist"""
+        mock_is_file.return_value = False
+        run_plot_frame = RunPlotFrame(self.parent, self.parent)
+        self.assertEqual("", run_plot_frame.data_source_entry.get().strip())
+        self.assertEqual("", run_plot_frame.data_config_entry.get().strip())
+        self.assertEqual("", run_plot_frame.plot_config_entry.get().strip())
 
 
 if __name__ == "__main__":

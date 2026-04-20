@@ -1,0 +1,15 @@
+{
+  "name": "INR18650-MJ1",
+  "manufacturer": "LG Chem",
+  "shape": "cylindrical",
+  "chemistry": "NMC",
+  "height": 65.3,
+  "length": 18.4,
+  "width": 18.4,
+  "weight": 48.5,
+  "temperature_max": 60.0,
+  "temperature_min": -20.0,
+  "voltage_min": 2.5,
+  "voltage_max": 4.2,
+  "voltage_nom": 3.7
+}

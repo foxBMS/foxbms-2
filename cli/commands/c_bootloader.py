@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,30 +37,62 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for the 'bootloader' command"""
+"""Click commands for interacting with the embedded bootloader."""
+
+from pathlib import Path
 
 import click
 
 from ..cmd_bootloader import bootloader_impl
 from ..helpers.click_helpers import HELP_NAMES, verbosity_option
 from ..helpers.fcan import CanBusConfig, common_can_options
+from ..helpers.path_options import (
+    FoxbmsFiles,
+    app_dbc_file_option,
+    bootloader_dbc_file_option,
+    foxbms_files_option,
+)
 
 
 @click.group(context_settings=HELP_NAMES)
 def bootloader() -> None:
-    """Command line tool to interact with the embedded bootloader."""
+    """Bootloader command group entry point."""
 
 
 @bootloader.command("run-app")
 @common_can_options
+@bootloader_dbc_file_option
+@app_dbc_file_option
+@foxbms_files_option
 @verbosity_option
 @click.pass_context
 def cmd_run_app(
-    ctx: click.Context, interface: str, channel: str, bitrate: int, verbose: int
+    ctx: click.Context,
+    interface: str,
+    channel: str,
+    bitrate: int,
+    bootloader_dbc: Path,
+    app_dbc: Path,
+    foxbms_bin: Path,
+    foxbms_app_crc: Path,
+    foxbms_app_info: Path,
+    verbose: int,
 ) -> None:
-    """Run the BMS application."""
+    """Start the BMS application via bootloader communication."""
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
-    ctx.exit(bootloader_impl.run_app(bus_cfg=bus_cfg))
+    foxbms_files = FoxbmsFiles(
+        foxbms_app_crc_file=foxbms_app_crc,
+        foxbms_app_info_file=foxbms_app_info,
+        foxbms_bin_file=foxbms_bin,
+    )
+    ctx.exit(
+        bootloader_impl.run_app(
+            bus_cfg=bus_cfg,
+            app_dbc=app_dbc,
+            bootloader_dbc=bootloader_dbc,
+            foxbms_files=foxbms_files,
+        )
+    )
 
 
 @bootloader.command("load-app")
@@ -72,6 +104,9 @@ def cmd_run_app(
     help="Timeout in seconds",
 )
 @common_can_options
+@bootloader_dbc_file_option
+@app_dbc_file_option
+@foxbms_files_option
 @verbosity_option
 @click.pass_context
 def cmd_load_app(
@@ -80,11 +115,29 @@ def cmd_load_app(
     interface: str,
     channel: str,
     bitrate: int,
+    bootloader_dbc: Path,
+    app_dbc: Path,
+    foxbms_bin: Path,
+    foxbms_app_crc: Path,
+    foxbms_app_info: Path,
     verbose: int,
 ) -> None:
-    """Load the application program on the BMS."""
+    """Load the application program onto the BMS target."""
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
-    ctx.exit(bootloader_impl.load_app(bus_cfg=bus_cfg, timeout=timeout))
+    foxbms_files = FoxbmsFiles(
+        foxbms_app_crc_file=foxbms_app_crc,
+        foxbms_app_info_file=foxbms_app_info,
+        foxbms_bin_file=foxbms_bin,
+    )
+    ctx.exit(
+        bootloader_impl.load_app(
+            bus_cfg=bus_cfg,
+            timeout=timeout,
+            app_dbc=app_dbc,
+            bootloader_dbc=bootloader_dbc,
+            foxbms_files=foxbms_files,
+        )
+    )
 
 
 @bootloader.command("reset")
@@ -96,6 +149,9 @@ def cmd_load_app(
     help="Timeout in seconds",
 )
 @common_can_options
+@bootloader_dbc_file_option
+@app_dbc_file_option
+@foxbms_files_option
 @verbosity_option
 @click.pass_context
 def cmd_reset(
@@ -104,21 +160,62 @@ def cmd_reset(
     interface: str,
     channel: str,
     bitrate: int,
+    bootloader_dbc: Path,
+    app_dbc: Path,
+    foxbms_bin: Path,
+    foxbms_app_crc: Path,
+    foxbms_app_info: Path,
     verbose: int,
 ) -> None:
-    """Reset the bootloader."""
+    """Reset the bootloader and verify expected state transition."""
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
-    ctx.exit(bootloader_impl.reset_bootloader(bus_cfg=bus_cfg, timeout=timeout))
+    foxbms_files = FoxbmsFiles(
+        foxbms_app_crc_file=foxbms_app_crc,
+        foxbms_app_info_file=foxbms_app_info,
+        foxbms_bin_file=foxbms_bin,
+    )
+    ctx.exit(
+        bootloader_impl.reset_bootloader(
+            bus_cfg=bus_cfg,
+            timeout=timeout,
+            app_dbc=app_dbc,
+            bootloader_dbc=bootloader_dbc,
+            foxbms_files=foxbms_files,
+        )
+    )
 
 
 @bootloader.command("check")
 @common_can_options
+@bootloader_dbc_file_option
+@app_dbc_file_option
+@foxbms_files_option
 @verbosity_option
 @click.pass_context
 def cmd_check(
-    ctx: click.Context, interface: str, channel: str, bitrate: int, verbose: int
+    ctx: click.Context,
+    interface: str,
+    channel: str,
+    bitrate: int,
+    bootloader_dbc: Path,
+    app_dbc: Path,
+    foxbms_bin: Path,
+    foxbms_app_crc: Path,
+    foxbms_app_info: Path,
+    verbose: int,
 ) -> None:
-    """Check the state of bootloader."""
-
+    """Check whether the bootloader is reachable and in expected state."""
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
-    ctx.exit(bootloader_impl.check_bootloader(bus_cfg))
+    foxbms_files = FoxbmsFiles(
+        foxbms_app_crc_file=foxbms_app_crc,
+        foxbms_app_info_file=foxbms_app_info,
+        foxbms_bin_file=foxbms_bin,
+    )
+    ctx.exit(
+        bootloader_impl.check_bootloader(
+            cfg=bus_cfg,
+            app_dbc=app_dbc,
+            bootloader_dbc=bootloader_dbc,
+            foxbms_files=foxbms_files,
+        )
+    )

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bal.c
  * @author  foxBMS Team
  * @date    2020-08-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -75,8 +75,8 @@ BAL_STATE_s initState;
 void setUp(void) {
     initState.timer                  = 0;
     initState.stateRequest           = BAL_STATE_NO_REQUEST;
-    initState.lastState              = BAL_STATEMACH_UNINITIALIZED;
-    initState.state                  = BAL_STATEMACH_UNINITIALIZED;
+    initState.lastState              = BAL_FSM_UNINITIALIZED;
+    initState.state                  = BAL_FSM_UNINITIALIZED;
     initState.lastSubstate           = BAL_ENTRY;
     initState.substate               = BAL_ENTRY;
     initState.triggerEntry           = 0;
@@ -94,18 +94,18 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testNoStateChanged(void) {
     BAL_SaveLastStates(&initState);
-    TEST_ASSERT_EQUAL(initState.lastState, BAL_STATEMACH_UNINITIALIZED);
-    TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_UNINITIALIZED);
+    TEST_ASSERT_EQUAL(initState.lastState, BAL_FSM_UNINITIALIZED);
+    TEST_ASSERT_EQUAL(initState.state, BAL_FSM_UNINITIALIZED);
     TEST_ASSERT_EQUAL(initState.lastSubstate, BAL_ENTRY);
     TEST_ASSERT_EQUAL(initState.substate, BAL_ENTRY);
 }
 
 void testStateChanged(void) {
-    initState.lastState = BAL_STATEMACH_UNINITIALIZED;
-    initState.state     = BAL_STATEMACH_INITIALIZATION;
+    initState.lastState = BAL_FSM_UNINITIALIZED;
+    initState.state     = BAL_FSM_INITIALIZATION;
     BAL_SaveLastStates(&initState);
-    TEST_ASSERT_EQUAL(initState.lastState, BAL_STATEMACH_INITIALIZATION);
-    TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_INITIALIZATION);
+    TEST_ASSERT_EQUAL(initState.lastState, BAL_FSM_INITIALIZATION);
+    TEST_ASSERT_EQUAL(initState.state, BAL_FSM_INITIALIZATION);
     TEST_ASSERT_EQUAL(initState.lastSubstate, BAL_ENTRY);
     TEST_ASSERT_EQUAL(initState.substate, BAL_ENTRY);
 }
@@ -114,8 +114,8 @@ void testSubstateChanged(void) {
     initState.lastSubstate = BAL_ENTRY;
     initState.substate     = BAL_CHECK_IMBALANCES;
     BAL_SaveLastStates(&initState);
-    TEST_ASSERT_EQUAL(initState.lastState, BAL_STATEMACH_UNINITIALIZED);
-    TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_UNINITIALIZED);
+    TEST_ASSERT_EQUAL(initState.lastState, BAL_FSM_UNINITIALIZED);
+    TEST_ASSERT_EQUAL(initState.state, BAL_FSM_UNINITIALIZED);
     TEST_ASSERT_EQUAL(initState.lastSubstate, BAL_CHECK_IMBALANCES);
     TEST_ASSERT_EQUAL(initState.substate, BAL_CHECK_IMBALANCES);
 }
@@ -174,14 +174,14 @@ void testFiniteStateMachineCheckStateRequestFunction4(void) {
 }
 void testFiniteStateMachineCheckStateRequestFunction5(void) {
     BAL_RETURN_TYPE_e returnValue = BAL_OK;
-    initState.state               = BAL_STATEMACH_UNINITIALIZED;
+    initState.state               = BAL_FSM_UNINITIALIZED;
     returnValue                   = BAL_CheckStateRequest(&initState, BAL_STATE_INIT_REQUEST);
     TEST_ASSERT_EQUAL(returnValue, BAL_OK);
 }
 
 void testFiniteStateMachineCheckStateRequestFunction6(void) {
     BAL_RETURN_TYPE_e returnValue = BAL_OK;
-    initState.state               = BAL_STATEMACH_INITIALIZED;
+    initState.state               = BAL_FSM_INITIALIZED;
     returnValue                   = BAL_CheckStateRequest(&initState, BAL_STATE_INIT_REQUEST);
     TEST_ASSERT_EQUAL(returnValue, BAL_ALREADY_INITIALIZED);
 }
@@ -196,8 +196,8 @@ void testFiniteStateMachineCheckStateRequestFunction7(void) {
 
 void testProcessStateUninitialized0(void) {
     BAL_ProcessStateUninitialized(&initState, BAL_STATE_INIT_REQUEST);
-    TEST_ASSERT_EQUAL(initState.timer, BAL_STATEMACH_SHORTTIME_100ms);
-    TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_INITIALIZATION);
+    TEST_ASSERT_EQUAL(initState.timer, BAL_FSM_SHORTTIME_100ms);
+    TEST_ASSERT_EQUAL(initState.state, BAL_FSM_INITIALIZATION);
     TEST_ASSERT_EQUAL(initState.substate, BAL_ENTRY);
 }
 
@@ -213,15 +213,15 @@ void testProcessStateUninitialized2(void) {
 
 void testProcessStateInitialization(void) {
     BAL_ProcessStateInitialization(&initState);
-    TEST_ASSERT_EQUAL(initState.timer, BAL_STATEMACH_SHORTTIME_100ms);
-    TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_INITIALIZED);
+    TEST_ASSERT_EQUAL(initState.timer, BAL_FSM_SHORTTIME_100ms);
+    TEST_ASSERT_EQUAL(initState.state, BAL_FSM_INITIALIZED);
     TEST_ASSERT_EQUAL(initState.substate, BAL_ENTRY);
 }
 
 void testProcessStateInitialized(void) {
     BAL_ProcessStateInitialized(&initState);
     TEST_ASSERT_EQUAL(initState.initializationFinished, STD_OK);
-    TEST_ASSERT_EQUAL(initState.timer, BAL_STATEMACH_SHORTTIME_100ms);
-    TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_CHECK_BALANCING);
+    TEST_ASSERT_EQUAL(initState.timer, BAL_FSM_SHORTTIME_100ms);
+    TEST_ASSERT_EQUAL(initState.state, BAL_FSM_CHECK_BALANCING);
     TEST_ASSERT_EQUAL(initState.substate, BAL_ENTRY);
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -57,6 +57,7 @@
 #define FOXBMS__CAN_CFG_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 
 #include "HL_can.h"
 
@@ -78,12 +79,14 @@ typedef struct {
 #define CAN_NODE_1 ((CAN_NODE_s *)&can_node1)
 #define CAN_NODE_2 ((CAN_NODE_s *)&can_node2Isolated)
 
-#define CAN_NODE_DEBUG_MESSAGE        (CAN_NODE_1)
-#define CAN_NODE_IMD                  (CAN_NODE_1)
-#define CAN_NODE_FATAL_ERROR_MESSAGE  (CAN_NODE_1)
-#define CAN_NODE_CURRENT_SENSOR       (CAN_NODE_1)
+#define CAN_NODE_DEBUG_MESSAGE       (CAN_NODE_1)
+#define CAN_NODE_IMD                 (CAN_NODE_1)
+#define CAN_NODE_FATAL_ERROR_MESSAGE (CAN_NODE_1)
+#define CAN_NODE_CURRENT_SENSOR      (CAN_NODE_1)
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 #define CAN_NODE_RX_CELL_VOLTAGES     (CAN_NODE_1)
 #define CAN_NODE_RX_CELL_TEMPERATURES (CAN_NODE_1)
+#endif
 /**@}*/
 
 /**
@@ -110,10 +113,14 @@ typedef struct {
 #define CAN_FOXBMS_MESSAGES_DEFAULT_DLC (8u)
 /** One bit length for configuration of can message layout */
 #define CAN_BIT (1u)
+
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** The number of cell voltages received per can message */
 #define CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG (4u)
 /** The number of cell temperatures received per can message */
 #define CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG (6u)
+#endif
+
 /** An offset of zero for can signal preparation */
 #define CAN_SIGNAL_OFFSET_0 (0.0f)
 
@@ -185,42 +192,51 @@ typedef struct {
     uint8_t data[CAN_MAX_DLC];    /*!< payload of the CAN message */
 } CAN_BUFFER_ELEMENT_s;
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** data unit to be transferred in ftsk_canToAfeCellTemperaturesQueue */
 typedef struct {
     uint8_t muxValue;
     bool invalidFlag[CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG];
     int16_t cellTemperature[CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG];
 } CAN_CAN2AFE_CELL_TEMPERATURES_QUEUE_s;
-
 /** data unit to be transferred in ftsk_canToAfeCellVoltagesQueue */
 typedef struct {
     uint8_t muxValue;
     bool invalidFlag[CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG];
     uint16_t cellVoltage[CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG];
 } CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s;
+#endif
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {
-    OS_QUEUE *pQueueImd;                                    /*!< handle of the message queue */
-    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;           /*!< database table with cell voltages */
-    DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature;   /*!< database table with cell temperatures */
-    DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor;       /*!< database table with current sensor measurements */
-    DATA_BLOCK_ERROR_STATE_s *pTableErrorState;             /*!< database table with error state variables */
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulation;   /*!< database table with insulation monitoring info */
-    DATA_BLOCK_MIN_MAX_s *pTableMinMax;                     /*!< database table with min/max values */
-    DATA_BLOCK_MOL_FLAG_s *pTableMol;                       /*!< database table with MOL flags */
-    DATA_BLOCK_MSL_FLAG_s *pTableMsl;                       /*!< database table with MSL flags */
-    DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;                 /*!< database table with open wire status */
-    DATA_BLOCK_PACK_VALUES_s *pTablePackValues;             /*!< database table with pack values */
-    DATA_BLOCK_RSL_FLAG_s *pTableRsl;                       /*!< database table with RSL flags */
-    DATA_BLOCK_SOC_s *pTableSoc;                            /*!< database table with SOC values */
-    DATA_BLOCK_SOE_s *pTableSoe;                            /*!< database table with SOE values */
-    DATA_BLOCK_SOF_s *pTableSof;                            /*!< database table with SOF values */
-    DATA_BLOCK_SOH_s *pTableSoh;                            /*!< database table with SOH values */
-    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;         /*!< database table with state requests */
-    DATA_BLOCK_AEROSOL_SENSOR_s *pTableAerosolSensor;       /*!< database table with aerosol sensor measurements */
-    DATA_BLOCK_BALANCING_CONTROL_s *pTableBalancingControl; /*!< database table with balancing information */
-    DATA_BLOCK_PHY_s *pTablePhy;                            /*!< database table with phy information */
+    OS_QUEUE *pQueueImd;                                  /*!< handle of the message queue */
+    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;         /*!< database entry: cell voltages */
+    DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature; /*!< database entry: cell temperatures */
+    DATA_BLOCK_CURRENT_s *pTableCurrent;                  /*!< database entry: current measurements */
+    DATA_BLOCK_CURRENT_SENSOR_TEMPERATURE_s
+        *pTableCurrentSensorTemperature;                    /*!< database entry: current sensor temperature */
+    DATA_BLOCK_POWER_s *pTablePower;                        /*!< database entry: power measurements */
+    DATA_BLOCK_CURRENT_COUNTER_s *pTableCurrentCounter;     /*!< database entry: current counting */
+    DATA_BLOCK_ENERGY_COUNTER_s *pTableEnergyCounter;       /*!< database entry: energy counting */
+    DATA_BLOCK_SYSTEM_VOLTAGE_1_s *pTableSystemVoltage1;    /*!< database entry: system voltage U1 measurement */
+    DATA_BLOCK_SYSTEM_VOLTAGE_2_s *pTableSystemVoltage2;    /*!< database entry: voltage U1 measurement */
+    DATA_BLOCK_SYSTEM_VOLTAGE_3_s *pTableSystemVoltage3;    /*!< database entry: voltage U1 measurement */
+    DATA_BLOCK_ERROR_STATE_s *pTableErrorState;             /*!< database entry: error state variables */
+    DATA_BLOCK_INSULATION_s *pTableInsulation;              /*!< database entry: insulation monitoring info */
+    DATA_BLOCK_MIN_MAX_s *pTableMinMax;                     /*!< database entry: min/max values */
+    DATA_BLOCK_MOL_FLAG_s *pTableMol;                       /*!< database entry: MOL flags */
+    DATA_BLOCK_MSL_FLAG_s *pTableMsl;                       /*!< database entry: MSL flags */
+    DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;                 /*!< database entry: open wire status */
+    DATA_BLOCK_PACK_VALUES_s *pTablePackValues;             /*!< database entry: pack values */
+    DATA_BLOCK_RSL_FLAG_s *pTableRsl;                       /*!< database entry: RSL flags */
+    DATA_BLOCK_SOC_s *pTableSoc;                            /*!< database entry: SOC values */
+    DATA_BLOCK_SOE_s *pTableSoe;                            /*!< database entry: SOE values */
+    DATA_BLOCK_SOF_s *pTableSof;                            /*!< database entry: SOF values */
+    DATA_BLOCK_SOH_s *pTableSoh;                            /*!< database entry: SOH values */
+    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;         /*!< database entry: state requests */
+    DATA_BLOCK_AEROSOL_SENSOR_s *pTableAerosolSensor;       /*!< database entry: aerosol sensor measurements */
+    DATA_BLOCK_BALANCING_CONTROL_s *pTableBalancingControl; /*!< database entry: balancing information */
+    DATA_BLOCK_PHY_s *pTablePhy;                            /*!< database entry: PHY information */
 } CAN_SHIM_s;
 
 /** definition of a CAN message (without data) */

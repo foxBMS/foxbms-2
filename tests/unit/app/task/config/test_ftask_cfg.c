@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_ftask_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -67,11 +67,11 @@
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockdiag_cfg.h"
-#include "Mockdp83869.h"
 #include "Mockfram.h"
 #include "Mockhtsensor.h"
 #include "Mocki2c.h"
 #include "Mockimd.h"
+#include "Mockinfinite-loop-helper.h"
 #include "Mockinterlock.h"
 #include "Mockled.h"
 #include "Mockmaster_info.h"
@@ -203,8 +203,7 @@ void testFTSK_InitializeUserCodePreCyclicTasks(void) {
     SPS_Initialize_Expect();
     MEAS_Initialize_ExpectAndReturn(STD_OK);
     MRC_Initialize_ExpectAndReturn(STD_OK);
-    MDIOInit_Expect(0xFCF78900u, 100.00f * 1000000.00f, 1000000u);
-    PHY_Initialize_ExpectAndReturn(0xFCF78900u, STD_OK);
+
     /* ======= RT1/2: Call function under test */
     TEST_ASSERT_FAIL_ASSERT(FTSK_InitializeUserCodePreCyclicTasks());
 
@@ -217,8 +216,6 @@ void testFTSK_InitializeUserCodePreCyclicTasks(void) {
     SPS_Initialize_Expect();
     MEAS_Initialize_ExpectAndReturn(STD_OK);
     MRC_Initialize_ExpectAndReturn(STD_OK);
-    MDIOInit_Expect(0xFCF78900u, 100.00f * 1000000.00f, 1000000u);
-    PHY_Initialize_ExpectAndReturn(0xFCF78900u, STD_OK);
 
     LED_SetToggleTime_Expect(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
     /* ======= RT2/2: Call function under test */
@@ -233,6 +230,53 @@ void testFTSK_RunUserCodeCyclic1ms(void) {
 }
 
 void testFTSK_RunUserCodeCyclic10ms(void) {
+    SYSM_UpdateFramData_Expect();
+    SYS_Trigger_ExpectAndReturn(&sys_state, STD_OK);
+
+    ILCK_Trigger_Expect();
+    ADC_Control_Expect();
+    SPS_Ctrl_Expect();
+    CAN_MainFunction_Expect();
+    SOF_Calculation_Expect();
+    ALGO_MonitorExecutionTime_Expect();
+    SBC_Trigger_Expect(&sbc_stateMcuSupervisor);
+
+    BMS_Trigger_Expect();
+    FTSK_RunUserCodeCyclic10ms();
+
+    for (uint8_t i = 0u; i < 4u; i++) {
+        SYSM_UpdateFramData_Expect();
+        SYS_Trigger_ExpectAndReturn(&sys_state, STD_OK);
+
+        ILCK_Trigger_Expect();
+        ADC_Control_Expect();
+        SPS_Ctrl_Expect();
+        CAN_MainFunction_Expect();
+        SOF_Calculation_Expect();
+        ALGO_MonitorExecutionTime_Expect();
+        SBC_Trigger_Expect(&sbc_stateMcuSupervisor);
+
+        BMS_Trigger_Expect();
+
+        FTSK_RunUserCodeCyclic10ms();
+    }
+
+    SYSM_UpdateFramData_Expect();
+    SYS_Trigger_ExpectAndReturn(&sys_state, STD_OK);
+
+    ILCK_Trigger_Expect();
+    ADC_Control_Expect();
+    SPS_Ctrl_Expect();
+    CAN_MainFunction_Expect();
+    SOF_Calculation_Expect();
+    ALGO_MonitorExecutionTime_Expect();
+    SBC_Trigger_Expect(&sbc_stateMcuSupervisor);
+
+    MRC_ValidateAfeMeasurement_ExpectAndReturn(STD_OK);
+    MRC_ValidatePackMeasurement_ExpectAndReturn(STD_OK);
+    BMS_Trigger_Expect();
+
+    FTSK_RunUserCodeCyclic10ms();
 }
 
 void testFTSK_RunUserCodeCyclic100ms(void) {
@@ -270,8 +314,4 @@ void testFTSK_RunUserCodeI2c(void) {
     uint32_t currentTime = 2u;
     OS_DelayTaskUntil_Expect(&currentTime, 2u);
     FTSK_RunUserCodeI2c();
-}
-
-void testFTSK_RunUserCodeAfe(void) {
-    FTSK_RunUserCodeAfe();
 }

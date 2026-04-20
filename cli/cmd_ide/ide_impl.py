@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,10 +39,10 @@
 
 """Implements the functionalities behind the 'ide' command"""
 
-import logging
 import shutil
 from pathlib import Path
 
+from ..helpers.logger import logger
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import run_process
 
@@ -81,10 +81,10 @@ def open_ide(wd: Path = PROJECT_ROOT) -> int:
     """Open VS Code for the provided path."""
     vs_code = shutil.which("code")
     if not vs_code:
-        logging.error("Could not find 'code' binary.")
+        logger.error("Could not find 'code' binary.")
         return -1
     if not wd.is_dir():
-        logging.error("Working directory '%s' does not exist.", wd.absolute())
+        logger.error("Working directory '%s' does not exist.", wd.absolute())
         return -1
     ret = run_process(cmd=[vs_code, str(wd)], cwd=wd)
     return ret.returncode

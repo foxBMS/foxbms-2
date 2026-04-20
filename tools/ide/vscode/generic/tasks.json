@@ -117,10 +117,10 @@
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
-        "waf",
-        "build_app_host_unit_test",
-        "-c",
-        "yes"
+        "ceedling",
+        "--project",
+        "app",
+        "test:all"
       ],
       "problemMatcher": [
         "$gcc"
@@ -135,11 +135,10 @@
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
-        "waf",
-        "build_app_host_unit_test",
-        "--coverage",
-        "-c",
-        "yes"
+        "ceedling",
+        "--project",
+        "app",
+        "gcov:all"
       ],
       "problemMatcher": [
         "$gcc"
@@ -186,10 +185,10 @@
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
-        "waf",
-        "build_app_host_unit_test",
-        "-c",
-        "yes"
+        "ceedling",
+        "--project",
+        "app",
+        "clobber"
       ],
       "problemMatcher": [],
       "options": {

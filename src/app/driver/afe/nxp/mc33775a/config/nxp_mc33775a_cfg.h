@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_cfg.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N77X
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__NXP_MC33775A_CFG_H_
 
 /*========== Includes =======================================================*/
+#include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
 
 #include "spi.h"
@@ -64,10 +65,35 @@
 
 /*========== Macros and Definitions =========================================*/
 #define N77X_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS (14u)
+#if SLV_USE_MUX_FOR_TEMP == false
+#define N77X_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS (8u)
+#else
+#define N77X_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS (16u)
+#endif
 
 #if BS_NR_OF_CELL_BLOCKS_PER_MODULE > N77X_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS
 #error "Number of cell blocks per module cannot be higher than maximum number of supported cells per IC"
 #endif
+
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > N77X_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS
+#error "Number of temp sensors per module cannot be higher than maximum number of supported temp sensors per IC/Slave"
+#endif
+
+/* Alarm over and undervoltage checking: If the measured voltage on one of the
+   enabled pins is over the OV or under one of the UV voltages, an alarm occurs */
+
+/* Enable all pins for OV & UV alarm checks */
+#define N77X_PRMM_VC_OV_UV_CFG (0x3fff)
+
+#define N77X_OV_UV_CONVERSION_FACTOR (154.0e-6f)
+
+/* Alarm thresholds in (V / 154uV) */
+/** Overvoltage threshold */
+#define N77X_PRMM_VC_OV_TH_CFG ((uint16_t)((BC_VOLTAGE_MAX_MOL_mV / 1000.0f) / N77X_OV_UV_CONVERSION_FACTOR))
+/** Individual undervoltage threshold */
+#define N77X_PRMM_VC_UV0_TH_CFG ((uint16_t)((BC_VOLTAGE_MIN_MOL_mV / 1000.0f) / N77X_OV_UV_CONVERSION_FACTOR))
+/** Global undervoltage threshold */
+#define N77X_PRMM_VC_UV1_TH_CFG ((uint16_t)((BC_VOLTAGE_MIN_MOL_mV / 1000.0f) / N77X_OV_UV_CONVERSION_FACTOR))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

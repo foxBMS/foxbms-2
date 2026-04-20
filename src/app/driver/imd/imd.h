@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -127,18 +127,18 @@ typedef struct {
 
 /** This struct describes the state of the monitoring instance */
 typedef struct {
-    uint8_t counter;                               /*!< general purpose counter */
-    uint16_t timer;                                /*!< timer of the state */
-    uint8_t triggerEntry;                          /*!< trigger entry of the state */
-    IMD_STATE_REQUEST_e stateRequest;              /*!< current state request made to the state machine */
-    IMD_FSM_STATES_e nextState;                    /*!< next state of the FSM */
-    IMD_FSM_STATES_e currentState;                 /*!< current state of the FSM */
-    IMD_FSM_STATES_e previousState;                /*!< previous state of the FSM */
-    IMD_FSM_SUBSTATES_e nextSubstate;              /*!< next substate of the FSM */
-    IMD_FSM_SUBSTATES_e currentSubstate;           /*!< current substate of the FSM */
-    IMD_FSM_SUBSTATES_e previousSubstate;          /*!< previous substate of the FSM */
-    IMD_INFORMATION_s information;                 /*!< Some information to be stored */
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableImd; /*!< Pointer to IMD database entry */
+    uint8_t counter;                      /*!< general purpose counter */
+    uint16_t timer;                       /*!< timer of the state */
+    uint8_t triggerEntry;                 /*!< trigger entry of the state */
+    IMD_STATE_REQUEST_e stateRequest;     /*!< current state request made to the state machine */
+    IMD_FSM_STATES_e nextState;           /*!< next state of the FSM */
+    IMD_FSM_STATES_e currentState;        /*!< current state of the FSM */
+    IMD_FSM_STATES_e previousState;       /*!< previous state of the FSM */
+    IMD_FSM_SUBSTATES_e nextSubstate;     /*!< next substate of the FSM */
+    IMD_FSM_SUBSTATES_e currentSubstate;  /*!< current substate of the FSM */
+    IMD_FSM_SUBSTATES_e previousSubstate; /*!< previous substate of the FSM */
+    IMD_INFORMATION_s information;        /*!< Some information to be stored */
+    DATA_BLOCK_INSULATION_s *pTableImd;   /*!< Pointer to IMD database entry */
 } IMD_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -204,13 +204,13 @@ extern IMD_FSM_STATES_e IMD_ProcessEnableState(void);
 /**
  * @brief   Processes the running state
  * @details This function needs to be implemented in the dedicated driver
- * @param   pTableInsulationMonitoring   pointer to insulation monitoring
+ * @param   pTableInsulation   pointer to insulation monitoring
  *                                       database entry
  * @return  #IMD_FSM_STATE_RUNNING if measurement works as expected, otherwise
  *          #IMD_FSM_STATE_ERROR if an error is detected that prohibits a
  *          further execution of the IMD driver.
  */
-extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /**
  * @brief   Processes the shutdown state

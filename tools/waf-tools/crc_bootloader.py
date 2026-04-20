@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -132,7 +132,7 @@ class BootloaderBinaryFile:
     for bootloader usage (e.g., calculate a CRC for of the application binary).
     """
 
-    def __init__(self, app_file: Path, crc64_table: Path, info_file: Path):
+    def __init__(self, app_file: Path, crc64_table: Path, info_file: Path) -> None:
         """Initialization function
 
         Args:
@@ -225,12 +225,12 @@ class BootloaderBinaryFile:
 
     def _parse_binary_file(self) -> bytearray:
         """Parse the binary file into a byte array.
+
         Returns:
             byte array of the application binary
         """
         with open(self.app_file, "rb") as file:
-            bin_array_in_bytes = bytearray(file.read())
-        return bin_array_in_bytes
+            return bytearray(file.read())
 
     def _calculate_crc64_for_vector_table(self) -> int:
         """Calculates the 64-bits CRC signature of the vector table.
@@ -251,7 +251,6 @@ class BootloaderBinaryFile:
         Returns:
             numpy array of the CRC table
         """
-
         list_csv = []
         list_name = [""] + list(self.crc_table_column_idx.keys())
         list_csv.append(list_name)
@@ -279,8 +278,7 @@ class BootloaderBinaryFile:
                 ]
             )
         # Create a Numpy array from the list of CRC
-        crc64 = np.array(list_csv)
-        return crc64
+        return np.array(list_csv)
 
     @staticmethod
     def _check_app_size(app_size_input: int) -> bool:
@@ -301,6 +299,7 @@ class BootloaderBinaryFile:
 
         Args:
             app_size_input: the size of application that needs to be checked.
+
         Returns:
             True if the app size is valid, False otherwise.
         """

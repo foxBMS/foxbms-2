@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -81,7 +81,7 @@ class TestRunUncrustify(unittest.TestCase):
 
     @patch("cli.cmd_misc.run_uncrustify.run_process")
     def test_run_uncrustify_process(self, mock_run_process):
-        """test function run uncrustify process"""
+        """Test function run uncrustify process"""
         mock_run_process.return_value = SubprocessResult(0)
         uncrustify = ""
         args = [""]
@@ -95,14 +95,14 @@ class TestRunUncrustify(unittest.TestCase):
 
     @patch("cli.cmd_misc.run_uncrustify.which", return_value="uncrustify")
     def test_lint_freertos_without_files(self, _):
-        """test run uncrustify without files"""
+        """Test run uncrustify without files"""
         run_uncrustify.FREERTOS_FILES = []
         result = run_uncrustify.lint_freertos()
         self.assertEqual(result, 0)
 
     @patch("cli.cmd_misc.run_uncrustify.which", return_value="uncrustify")
     def test_lint_freertos_argument(self, _):
-        """test run uncrustify with an argument"""
+        """Test run uncrustify with an argument"""
         run_uncrustify.FREERTOS_FILES = []
         result = run_uncrustify.lint_freertos(False)
         self.assertEqual(result, 0)
@@ -110,7 +110,7 @@ class TestRunUncrustify(unittest.TestCase):
     @patch("sys.platform", new="linux")
     @patch("cli.cmd_misc.run_uncrustify.which", return_value=None)
     def test_lint_freertos_no_uncrustify_linux(self, _):
-        """test could not find uncrustify"""
+        """Test could not find uncrustify"""
         err = io.StringIO()
         with redirect_stderr(err):
             result = run_uncrustify.lint_freertos()
@@ -120,7 +120,7 @@ class TestRunUncrustify(unittest.TestCase):
     @patch("sys.platform", new="win32")
     @patch("cli.cmd_misc.run_uncrustify.which", return_value=None)
     def test_lint_freertos_no_uncrustify_win32(self, _):
-        """test could not find uncrustify"""
+        """Test could not find uncrustify"""
         buf = io.StringIO()
         with redirect_stderr(buf):
             result = run_uncrustify.lint_freertos()
@@ -140,19 +140,19 @@ class TestRunUncrustify(unittest.TestCase):
         mock_f2 = MagicMock()
         mock_f2.result.return_value = DummyFuture(0)
         mock_executor.submit.side_effect = [mock_f1, mock_f2]
-        with self.assertLogs("root", level="DEBUG") as log:
+        with self.assertLogs("fox.py", level="DEBUG") as log:
             ret = run_uncrustify.lint_freertos()
         self.assertEqual(ret, 0)
         self.assertEqual(
             [
-                "DEBUG:root:Start worker for file 'foo'",
-                "DEBUG:root:Start worker for file 'bar'",
-                "DEBUG:root:exitcode: 0",
-                "DEBUG:root:stdout: ",
-                "DEBUG:root:stderr: ",
-                "DEBUG:root:exitcode: 0",
-                "DEBUG:root:stdout: ",
-                "DEBUG:root:stderr: ",
+                "DEBUG:fox.py:Start worker for file 'foo'",
+                "DEBUG:fox.py:Start worker for file 'bar'",
+                "DEBUG:fox.py:exitcode: 0",
+                "DEBUG:fox.py:stdout: ",
+                "DEBUG:fox.py:stderr: ",
+                "DEBUG:fox.py:exitcode: 0",
+                "DEBUG:fox.py:stdout: ",
+                "DEBUG:fox.py:stderr: ",
             ],
             log.output,
         )
@@ -170,17 +170,17 @@ class TestRunUncrustify(unittest.TestCase):
         mock_f2 = MagicMock()
         mock_f2.result.return_value = DummyFuture(1)
         mock_executor.submit.side_effect = [mock_f1, mock_f2]
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = run_uncrustify.lint_freertos()
         self.assertEqual(ret, 2)
         self.assertEqual(
             [
-                "ERROR:root:exitcode: 1",
-                "ERROR:root:stdout: ",
-                "ERROR:root:stderr: ",
-                "ERROR:root:exitcode: 1",
-                "ERROR:root:stdout: ",
-                "ERROR:root:stderr: ",
+                "ERROR:fox.py:exitcode: 1",
+                "ERROR:fox.py:stdout: ",
+                "ERROR:fox.py:stderr: ",
+                "ERROR:fox.py:exitcode: 1",
+                "ERROR:fox.py:stdout: ",
+                "ERROR:fox.py:stderr: ",
             ],
             log.output,
         )

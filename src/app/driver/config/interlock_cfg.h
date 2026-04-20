@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    interlock_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ILCK
  *
@@ -54,6 +54,8 @@
 
 #ifndef FOXBMS__INTERLOCK_CFG_H_
 #define FOXBMS__INTERLOCK_CFG_H_
+
+/* cspell:ignore SLVSD */
 
 /*========== Includes =======================================================*/
 
@@ -92,7 +94,7 @@
  * Conversion factor for interlock current IL_HS_CS
  * 2k49 ohm is the resistance through which sense current flows
  * 80 is the (output current / sense current) ratio of high-side power switch
- * TPS2H000-Q1 data sheet SLVSD72D - DECEMBER 2015 - REVISED DECEMBER 2019 p.8
+ * TPS2H000-Q1 datasheet SLVSD72D - DECEMBER 2015 - REVISED DECEMBER 2019 p.8
  */
 #define ILCK_FACTOR_IL_HS_CS_1_ohm (80.0f / 2049.0f)
 

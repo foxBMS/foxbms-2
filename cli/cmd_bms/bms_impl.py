@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,28 +39,28 @@
 
 """Implementation of the functionalities behind the 'bms' command"""
 
+# we need this as long as we are on Python3.12 due to the annotation parsing
+# of Queue[Message]
+from __future__ import annotations
+
 from dataclasses import asdict
-from datetime import datetime
+from datetime import UTC, datetime
 from multiprocessing import Process, Queue, managers, synchronize
 from pathlib import Path
 from queue import Empty
 from signal import SIG_IGN, SIGINT, signal
 from time import sleep, time
-from typing import cast
 
 from can import Bus, CanInitializationError, CanOperationError, Message
 from can.io import SizedRotatingLogger
 from cantools import database
 from cantools.database.can.database import Database
 
-from cli.helpers.misc import APP_DBC_FILE, PROJECT_BUILD_ROOT
-
 from ..helpers.click_helpers import recho, secho
 from ..helpers.fcan import CanBusConfig
+from ..helpers.misc import PROJECT_BUILD_ROOT
 
-APP_DBC: Database = cast(Database, database.load_file(APP_DBC_FILE))
 MAX_CAN_OPERATION_ERRORS_PER_HOUR = 10
-MESSAGE: database.can.message.Message = APP_DBC.get_message_by_name("f_Debug")
 MUX_NAME = "f_Debug_Mux"
 MUX_VALUES = {
     "VersionInfo": 0x00,
@@ -72,11 +72,12 @@ MUX_VALUES = {
 }
 
 
-class StopShell(Exception):
+class StopShellError(Exception):
     """Stop the shell"""
 
 
 def log_can_message(
+    app_dbc: Database,
     msg: Message,
     msg_arr: managers.ListProxy,
     logger: SizedRotatingLogger,
@@ -86,20 +87,20 @@ def log_can_message(
     if msg.arbitration_id not in msg_arr[0]:
         return
     idx = msg_arr[0].index(msg.arbitration_id)
-    array_0 = msg_arr[0]
-    array_1 = msg_arr[1]
-    array_2 = msg_arr[2]
+    id_array = msg_arr[0]
+    amount_array = msg_arr[1]
+    output_array = msg_arr[2]
     if msg_arr[1][idx] > 0:
         if not msg_arr[2][idx]:
             logger(msg)
         else:
-            raw_msg = APP_DBC.get_message_by_frame_id(msg_arr[0][idx])
+            raw_msg = app_dbc.get_message_by_frame_id(msg_arr[0][idx])
             decoded_msg = raw_msg.decode(msg.data)
             if isinstance(decoded_msg, dict):
-                for key in decoded_msg.keys():
+                for key in decoded_msg:
                     if (
                         ("shortHashHigh7" in key) or ("shortHashLow7" in key)
-                    ) and isinstance(decoded_msg[key], (int, str)):
+                    ) and isinstance(decoded_msg[key], int | str):
                         msg_string = str(hex(decoded_msg[key]))[2:]  # type: ignore[arg-type]
                         decoded_msg[key] = "".join(
                             [
@@ -108,28 +109,28 @@ def log_can_message(
                             ]
                         )
             secho(f"Message ID {hex(msg_arr[0][idx])}: {decoded_msg}")
-        array_1[idx] -= 1
-        if array_1[idx] == 0:
+        amount_array[idx] -= 1
+        if amount_array[idx] == 0:
             secho(
-                f"All messages with ID {hex(array_0[idx])} have been logged.",
+                f"All messages with ID {hex(id_array[idx])} have been logged.",
                 fg="green",
             )
             secho(prompt, nl=False)
-            array_0.pop(idx)
-            array_1.pop(idx)
-            array_2.pop(idx)
+            id_array.pop(idx)
+            amount_array.pop(idx)
+            output_array.pop(idx)
     else:
-        array_0.pop(idx)
-        array_1.pop(idx)
-        array_2.pop(idx)
-    msg_arr[0] = array_0
-    msg_arr[1] = array_1
-    msg_arr[2] = array_2
+        id_array.pop(idx)
+        amount_array.pop(idx)
+        output_array.pop(idx)
+    msg_arr[0] = id_array
+    msg_arr[1] = amount_array
+    msg_arr[2] = output_array
 
 
 def receive_send_can_message(
-    rec_q: "Queue[Message]",
-    send_q: "Queue[Message]",
+    rec_q: Queue[Message],  # pylint: disable=unsubscriptable-object
+    send_q: Queue[Message],  # pylint: disable=unsubscriptable-object
     bus_cfg: CanBusConfig,
     network_ok: synchronize.Event,
 ) -> None:
@@ -150,7 +151,7 @@ def receive_send_can_message(
                         except Empty:
                             pass
                         if not network_ok.is_set():
-                            raise StopShell
+                            raise StopShellError
                 except CanOperationError:
                     err_time = time()
                     op_errs = [i for i in op_errs if not (err_time - i) > 3600] + [
@@ -160,17 +161,18 @@ def receive_send_can_message(
                         recho(
                             "Too many errors occurred while receiving and sending messages."
                         )
-                        raise StopShell  # pylint: disable=raise-missing-from
+                        raise StopShellError from None
     except CanInitializationError:
         recho("Could not initialize CAN bus.")
-    except StopShell:
+    except StopShellError:
         secho("Stop receiving and sending messages.")
     network_ok.clear()
 
 
 def read_can_message(
+    app_dbc: Database,
     prompt: str,
-    rec_q: "Queue[Message]",
+    rec_q: Queue[Message],  # pylint: disable=unsubscriptable-object
     network_ok: synchronize.Event,
     msg_arr: managers.ListProxy,
 ) -> None:
@@ -188,7 +190,13 @@ def read_can_message(
                 msg = rec_q.get(block=False)
                 first_timestamp = msg.timestamp
                 msg.timestamp = 0
-                log_can_message(msg=msg, msg_arr=msg_arr, logger=logger, prompt=prompt)
+                log_can_message(
+                    app_dbc,
+                    msg=msg,
+                    msg_arr=msg_arr,
+                    logger=logger,
+                    prompt=prompt,
+                )
                 break
             except Empty:
                 pass
@@ -196,7 +204,13 @@ def read_can_message(
             try:
                 msg = rec_q.get(block=False)
                 msg.timestamp = msg.timestamp - first_timestamp
-                log_can_message(msg=msg, msg_arr=msg_arr, logger=logger, prompt=prompt)
+                log_can_message(
+                    app_dbc,
+                    msg=msg,
+                    msg_arr=msg_arr,
+                    logger=logger,
+                    prompt=prompt,
+                )
             except Empty:
                 pass
     finally:
@@ -204,7 +218,13 @@ def read_can_message(
             while not rec_q.empty():
                 msg = rec_q.get(block=False)
                 msg.timestamp = msg.timestamp - first_timestamp
-                log_can_message(msg=msg, msg_arr=msg_arr, logger=logger, prompt=prompt)
+                log_can_message(
+                    app_dbc,
+                    msg=msg,
+                    msg_arr=msg_arr,
+                    logger=logger,
+                    prompt=prompt,
+                )
         logger.stop()
 
 
@@ -212,19 +232,19 @@ def initialize_logger() -> SizedRotatingLogger:
     """Creates a SizedRotatingLogger object."""
     output: Path = PROJECT_BUILD_ROOT / Path("logs")
     output.mkdir(parents=True, exist_ok=True)
-    logger = SizedRotatingLogger(
+    return SizedRotatingLogger(
         base_filename=output / Path("foxBMS_CAN_bms_log.txt"),
         max_bytes=200000,
         encoding="utf-8",
         rollover_count=0,
     )
-    return logger
 
 
-def initialization(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+def initialization(  # noqa: PLR0913
+    app_dbc: Database,
     prompt: str,
-    rec_q: "Queue[Message]",
-    send_q: "Queue[Message]",
+    rec_q: Queue[Message],  # pylint: disable=unsubscriptable-object
+    send_q: Queue[Message],  # pylint: disable=unsubscriptable-object
     bus_cfg: CanBusConfig,
     network_ok: synchronize.Event,
     msg_arr: managers.ListProxy,
@@ -251,7 +271,7 @@ def initialization(  # pylint: disable=too-many-arguments, too-many-positional-a
     )
     p_read = Process(
         target=read_can_message,
-        args=(prompt, rec_q, network_ok, msg_arr),
+        args=(app_dbc, prompt, rec_q, network_ok, msg_arr),
         name="p_read",
     )
     try:
@@ -285,21 +305,31 @@ def shutdown(p_recv: Process, p_read: Process, network_ok: synchronize.Event) ->
     secho("Shutdown...")
 
 
-def set_debug_message(msg_data: dict[str, int]) -> Message:
+def set_debug_message(
+    msg_data: dict[str, int], message: database.can.message.Message
+) -> Message:
     """Sets the debug message"""
-    data = MESSAGE.encode(msg_data, padding=True)
-    return Message(arbitration_id=MESSAGE.frame_id, data=data, is_extended_id=False)
+    data = message.encode(msg_data, padding=True)
+    return Message(arbitration_id=message.frame_id, data=data, is_extended_id=False)
 
 
-def reinitialize_fram(send_q: "Queue[Message]") -> None:
+def reinitialize_fram(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to reinitialize FRAM"""
     msg_data = {MUX_NAME: MUX_VALUES["FramInitialization"], "InitializeFram": 1}
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def set_rtc_time(send_q: "Queue[Message]") -> None:
+def set_rtc_time(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to set the rtc to the current time"""
-    date = datetime.now()
+    date = datetime.now(tz=UTC)
     msg_data = {
         MUX_NAME: MUX_VALUES["Rtc"],
         "SetDay": date.day,
@@ -311,42 +341,59 @@ def set_rtc_time(send_q: "Queue[Message]") -> None:
         "SetWeekday": date.isoweekday() % 7,
         "SetYear": (date.year - 2000),
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_rtc_time(send_q: "Queue[Message]") -> None:
+def get_rtc_time(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to get rtc time"""
     msg_data = {
         MUX_NAME: MUX_VALUES["TimeInfo"],
         "RequestRtcTime": 1,
         "RequestBootTimestamp": 0,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_boot_timestamp(send_q: "Queue[Message]") -> None:
+def get_boot_timestamp(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to get Boot Timestamp"""
     msg_data = {
         MUX_NAME: MUX_VALUES["TimeInfo"],
         "RequestRtcTime": 0,
         "RequestBootTimestamp": 1,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def reset_software(send_q: "Queue[Message]") -> None:
+def reset_software(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to reset the software"""
     msg_data = {MUX_NAME: MUX_VALUES["SoftwareReset"], "TriggerSoftwareReset": 1}
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_uptime(send_q: "Queue[Message]") -> None:
+# pylint: disable-next=unsubscriptable-object
+def get_uptime(send_q: Queue[Message], message: database.can.message.Message) -> None:
     """Creates message to get uptime"""
     msg_data = {MUX_NAME: MUX_VALUES["UptimeInfo"], "RequestUptime": 1}
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_build_configuration(send_q: "Queue[Message]") -> None:
+def get_build_configuration(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to get build configuration"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
@@ -357,10 +404,14 @@ def get_build_configuration(send_q: "Queue[Message]") -> None:
         "GetMcuUniqueDieId": 0,
         "GetBmsSoftwareVersion": 0,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_commit_hash(send_q: "Queue[Message]") -> None:
+def get_commit_hash(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to get commit hash"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
@@ -371,10 +422,14 @@ def get_commit_hash(send_q: "Queue[Message]") -> None:
         "GetMcuUniqueDieId": 0,
         "GetBmsSoftwareVersion": 0,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_mcu_wafer_info(send_q: "Queue[Message]") -> None:
+def get_mcu_wafer_info(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to get MCU Wafer information"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
@@ -385,11 +440,15 @@ def get_mcu_wafer_info(send_q: "Queue[Message]") -> None:
         "GetMcuUniqueDieId": 0,
         "GetBmsSoftwareVersion": 0,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_mcu_lot_number(send_q: "Queue[Message]") -> None:
-    """creates message to get MCU lot number"""
+def get_mcu_lot_number(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
+    """Creates message to get MCU lot number"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 0,
@@ -399,10 +458,11 @@ def get_mcu_lot_number(send_q: "Queue[Message]") -> None:
         "GetMcuUniqueDieId": 0,
         "GetBmsSoftwareVersion": 0,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_mcu_id(send_q: "Queue[Message]") -> None:
+# pylint: disable-next=unsubscriptable-object
+def get_mcu_id(send_q: Queue[Message], message: database.can.message.Message) -> None:
     """Creates message to get MCU ID"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
@@ -413,10 +473,14 @@ def get_mcu_id(send_q: "Queue[Message]") -> None:
         "GetMcuUniqueDieId": 1,
         "GetBmsSoftwareVersion": 0,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))
 
 
-def get_software_version(send_q: "Queue[Message]") -> None:
+def get_software_version(
+    # pylint: disable-next=unsubscriptable-object
+    send_q: Queue[Message],
+    message: database.can.message.Message,
+) -> None:
     """Creates message to get BMS software version"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
@@ -427,4 +491,4 @@ def get_software_version(send_q: "Queue[Message]") -> None:
         "GetMcuUniqueDieId": 0,
         "GetBmsSoftwareVersion": 1,
     }
-    send_q.put(set_debug_message(msg_data))
+    send_q.put(set_debug_message(msg_data, message))

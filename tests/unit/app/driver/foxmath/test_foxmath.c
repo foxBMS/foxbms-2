@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_foxmath.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -110,45 +110,45 @@ void test_linearInterpolation_extrapolateFromX1AndX2(void) {
 }
 
 void test_allZeros_swap16(void) {
-    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint16_t(val16));
+    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint16(val16));
 }
 
 void test_allZeros_swap32(void) {
-    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint32_t(val32));
+    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint32(val32));
 }
 
 void test_allZeros_swap64(void) {
-    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint64_t(val64));
+    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint64(val64));
 }
 
 void test_swap16(void) {
     val16 = 786u; /* any random value */
-    TEST_ASSERT_EQUAL(4611u, MATH_SwapBytesUint16_t(val16));
+    TEST_ASSERT_EQUAL(4611u, MATH_SwapBytesUint16(val16));
 }
 
 void test_swap32(void) {
     val32 = 0xFFFF0000u; /* any random value */
-    TEST_ASSERT_EQUAL(0x0000FFFFu, MATH_SwapBytesUint32_t(val32));
+    TEST_ASSERT_EQUAL(0x0000FFFFu, MATH_SwapBytesUint32(val32));
 }
 
 void test_swap64(void) {
     val64 = 123u; /* 0x007B */
-    TEST_ASSERT_EQUAL(0x7B00000000000000u, MATH_SwapBytesUint64_t(val64));
+    TEST_ASSERT_EQUAL(0x7B00000000000000u, MATH_SwapBytesUint64(val64));
 }
 
 void test_swap16_MAX(void) {
     val16 = UINT16_MAX;
-    TEST_ASSERT_EQUAL(UINT16_MAX, MATH_SwapBytesUint16_t(val16));
+    TEST_ASSERT_EQUAL(UINT16_MAX, MATH_SwapBytesUint16(val16));
 }
 
 void test_swap32_MAX(void) {
     val32 = UINT32_MAX;
-    TEST_ASSERT_EQUAL(UINT32_MAX, MATH_SwapBytesUint32_t(val32));
+    TEST_ASSERT_EQUAL(UINT32_MAX, MATH_SwapBytesUint32(val32));
 }
 
 void test_swap64_MAX(void) {
     val64 = UINT64_MAX;
-    TEST_ASSERT_EQUAL(UINT64_MAX, MATH_SwapBytesUint64_t(val64));
+    TEST_ASSERT_EQUAL(UINT64_MAX, MATH_SwapBytesUint64(val64));
 }
 
 void test_minimumOfTwoFloats(void) {

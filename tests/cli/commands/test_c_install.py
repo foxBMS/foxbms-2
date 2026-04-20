@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -59,7 +59,6 @@ class TestFoxCliMainCommandInstall(unittest.TestCase):
 
     def test_install(self):
         """Test 'fox.py install' command."""
-
         runner = CliRunner()
         result = runner.invoke(main, ["install"])
         self.assertEqual(0, result.exit_code)
@@ -70,6 +69,14 @@ class TestFoxCliMainCommandInstall(unittest.TestCase):
         mock_install_impl.all_software_available.return_value = 0
         runner = CliRunner()
         result = runner.invoke(main, ["install", "--check"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_install.install_impl")
+    def test_install_local(self, mock_install_impl: MagicMock):
+        """Test 'fox.py install --check' command."""
+        mock_install_impl.install_fox_cli_tools_on_host.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(main, ["install", "--local"])
         self.assertEqual(0, result.exit_code)
 
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -109,6 +109,11 @@ extern void ADI_MeasurementCycle(ADI_STATE_s *pAdiState);
  * @return  true if a first measurement cycle was made, false otherwise
  */
 extern bool ADI_IsFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState);
+
+/**
+ * @brief   Gets the serialids of identified AFEs
+ */
+extern uint64_t *ADI_IdentifyAfes(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

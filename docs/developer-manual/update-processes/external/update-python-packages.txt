@@ -12,7 +12,9 @@
             # Activate the new virtual environment by running
             C:\foxbms\envs\<name-of-the-new-env>\Scripts\activate.ps1
             # Determine outdated packages
-            .\fox.ps1 run-program python -m pip list --outdated
+            python -m pip list --outdated
+            # Update outdated packages, most likely only pip
+            # python -m pip install ...
 
       .. group-tab:: Win32/Git bash
 
@@ -24,7 +26,9 @@
             # Activate the new virtual environment by running
             source /C/foxbms/envs/<name-of-the-new-env>/Scripts/activate
             # Determine outdated packages
-            ./fox.sh run-program python -m pip list --outdated
+            python -m pip list --outdated
+            # Update outdated packages, most likely only pip
+            # python -m pip install ...
 
       .. group-tab:: Linux
 
@@ -35,7 +39,9 @@
             # Activate the new virtual environment by running
             source /opt/foxbms/envs/<name-of-the-new-env>/bin/activate
             # Determine outdated packages
-            ./fox.sh run-program python -m pip list --outdated
+            python3 -m pip list --outdated
+            # Update outdated packages, most likely only pip
+            # python3 -m pip install ...
 
 - Install the required packages in the environment using
   ``python -m pip install ...``
@@ -55,4 +61,4 @@
   The changelog entry **SHALL** inform the user that environment update is
   mandatory.
 - |snippet_commit|
-  ``Dependency update: <XXXX>/Q<Y>: Python packages <newline><comma-separated-list-of-package-names-including-version-number>``.
+  ``Update dependency: <XXXX>/Q<Y>: Python packages<linebreak><linebreak><linebreak-separated-list-of-package-names-including-version-number>``.

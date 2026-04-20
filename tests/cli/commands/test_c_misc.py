@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,42 +48,40 @@ from click.testing import CliRunner
 
 try:
     from cli.cli import main
-    from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cli import main
-    from cli.helpers.spr import SubprocessResult
 
 
 class TestFoxCliMainCommandMisc(unittest.TestCase):
     """Test of the 'misc' commands and options."""
 
-    @patch("cli.commands.c_misc.run_crc_build")
-    def test_misc_build_crc_code(self, mock_run_crc_build: MagicMock):
-        """build CRC example code"""
-        mock_run_crc_build.return_value = SubprocessResult(0, "", "")
+    def test_misc_without_subcommand_prints_help(self):
+        """Test 'fox.py misc' command shows help text."""
         runner = CliRunner()
-        result = runner.invoke(main, ["misc", "build-crc-code"])
+        result = runner.invoke(main, ["misc"])
         self.assertEqual(0, result.exit_code)
+        self.assertIn("Usage:", result.stdout)
 
-    @patch("cli.commands.c_misc.run_doc_build")
-    def test_misc_build_doc_code(self, mock_run_doc_build: MagicMock):
-        """build documentation example code"""
-        mock_run_doc_build.return_value = SubprocessResult(0, "", "")
+    @patch("cli.commands.c_misc.get_prefixes")
+    def test_misc_list_prefixes(self, mock_get_prefixes: MagicMock):
+        """Test 'fox.py misc --list-prefixes' command."""
+        mock_get_prefixes.return_value = ["ABC", "DEF"]
         runner = CliRunner()
-        result = runner.invoke(main, ["misc", "build-doc-code"])
+        result = runner.invoke(main, ["misc", "--list-prefixes"])
         self.assertEqual(0, result.exit_code)
+        self.assertEqual("ABC\nDEF\n", result.stdout)
 
     @patch("cli.commands.c_misc.lint_freertos")
     def test_misc_uncrustify_freertos(self, mock_lint_freertos: MagicMock):
-        """build documentation example code"""
+        """Build documentation example code"""
         mock_lint_freertos.return_value = 0
         runner = CliRunner()
         result = runner.invoke(main, ["misc", "uncrustify-freertos"])
         self.assertEqual(0, result.exit_code)
 
     def test_misc_verify_checksum_no_files(self):
-        """build documentation example code"""
+        """Build documentation example code"""
         runner = CliRunner()
         result = runner.invoke(main, ["misc", "verify-checksum", "xyz"])
         self.assertEqual(1, result.exit_code)
@@ -91,7 +89,7 @@ class TestFoxCliMainCommandMisc(unittest.TestCase):
 
     @patch("cli.commands.c_misc.verify")
     def test_misc_verify_checksum(self, mock_verify: MagicMock):
-        """build documentation example code"""
+        """Build documentation example code"""
         mock_verify.return_value = 0
         runner = CliRunner()
         result = runner.invoke(
@@ -99,12 +97,12 @@ class TestFoxCliMainCommandMisc(unittest.TestCase):
         )
         self.assertEqual(0, result.exit_code)
 
-    @patch("cli.commands.c_misc.check_for_test_files")
-    def test_check_for_test_files(self, mock_check_for_test_files: MagicMock):
-        """Test 'fox.py misc check-for-test-files' command."""
-        mock_check_for_test_files.return_value = SubprocessResult(0, "", "")
+    @patch("cli.commands.c_misc.check_repository_depth")
+    def test_check_repository_depth(self, mock_check_repository_depth: MagicMock):
+        """Test 'fox.py misc check-repository-depth' command."""
+        mock_check_repository_depth.return_value = 0
         runner = CliRunner()
-        result = runner.invoke(main, ["misc", "check-for-test-files"])
+        result = runner.invoke(main, ["misc", "check-repository-depth"])
         self.assertEqual(0, result.exit_code)
 
 

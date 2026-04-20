@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,8 +46,6 @@ from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
-from pyarrow import ArrowInvalid
-
 try:
     from cli.cmd_plot.data_handling.csv_handler import CSVHandler
 except ModuleNotFoundError:
@@ -58,10 +56,9 @@ PATH_EXECUTION = Path(__file__).parent.parent / "test_execution"
 PATH_DATA = Path(__file__).parent.parent / "test_data"
 
 
-@patch("cli.cmd_plot.data_handling.csv_handler.pandas.read_csv")
-@patch("cli.cmd_plot.data_handling.csv_handler.pandas.read_parquet")
-@patch("cli.cmd_plot.data_handling.csv_handler.FileTracker")
-@patch("cli.cmd_plot.data_handling.csv_handler.TmpHandler")
+@patch("cli.cmd_plot.data_handling.csv_handler.pd.read_csv")
+@patch("cli.cmd_plot.data_handling.csv_handler.CSVHandler.get_tmp_data")
+@patch("cli.cmd_plot.data_handling.csv_handler.CSVHandler.write_tmp_file")
 class TestGetData(unittest.TestCase):
     """Class to test the get_data method of the CSVHandler class"""
 
@@ -73,136 +70,115 @@ class TestGetData(unittest.TestCase):
 
     def test_get_data_no_tmp(
         self,
-        mock_tmp_handler: Mock,
-        mock_file_tracker: Mock,
-        mock_read_parquet: Mock,
+        write_tmp_file: Mock,
+        get_tmp_data: Mock,
         mock_read_csv: Mock,
     ) -> None:
         """Tests the get_data with valid file"""
         file_path = Path("test_file")
         no_tmp = True
-        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
-            "test.parquet"
-        )
-        mock_file_tracker.return_value.check_file_changed.return_value = False
-        mock_tmp_handler.return_value.tmp_dir.__truediv__.return_value = Path("new_tmp")  # pylint: disable=W0106
+        get_tmp_data.return_value = None
         self.csv_handler_obj.get_data(file_path, no_tmp)
-        mock_read_parquet.assert_not_called()
         mock_read_csv.assert_called_once_with(
             file_path,
             usecols=["current", "date"],
             dtype=self.csv_handler_obj.columns,
             skiprows=self.csv_handler_obj.skip,
             parse_dates=["date"],
+            na_values="NULL",
         )
         mock_read_csv.return_value.round.assert_called_once_with(
             self.csv_handler_obj.precision
         )
-        mock_read_csv.return_value.round.return_value.to_parquet.assert_called_once_with(
-            Path("new_tmp"), engine="pyarrow"
-        )
-        mock_tmp_handler.return_value.get_hash_name.assert_called_once_with(
-            file_path, "parquet"
-        )
+        write_tmp_file.assert_called_once()
 
-    def test_get_data_with_tmp(
+    def test_get_data_with_tmp_data_not_none(
         self,
-        mock_tmp_handler: Mock,
-        mock_file_tracker: Mock,
-        mock_read_parquet: Mock,
+        write_tmp_file: Mock,
+        get_tmp_data: Mock,
         mock_read_csv: Mock,
     ) -> None:
         """Tests the get_data with valid file"""
         file_path = Path("test_file")
-        no_tmp = False
-        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
-            "test.parquet"
-        )
-        mock_file_tracker.return_value.check_file_changed.return_value = False
-        self.csv_handler_obj.get_data(file_path, no_tmp)
-        mock_read_parquet.assert_called_once_with(
-            Path("test.parquet"), engine="pyarrow"
-        )
+        no_tmp = True
+        get_tmp_data.return_value = "TEST"
+        data = self.csv_handler_obj.get_data(file_path, no_tmp)
+        self.assertEqual(data, "TEST")
         mock_read_csv.assert_not_called()
-        mock_tmp_handler.get_hash_name.assert_not_called()
+        mock_read_csv.return_value.round.assert_not_called()
+        write_tmp_file.assert_not_called()
 
-    def test_get_data_string_column(
+    def test_get_data_permission_error(
         self,
-        *mocks: list[Mock],
+        write_tmp_file: Mock,
+        get_tmp_data: Mock,
+        mock_read_csv: Mock,
     ) -> None:
         """Tests the get_data with valid file"""
         file_path = Path("test_file")
         no_tmp = True
-        mock_read_csv = mocks[3]
+        get_tmp_data.return_value = None
+        mock_read_csv.side_effect = PermissionError
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            self.csv_handler_obj.get_data(file_path, no_tmp)
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("Can not access file", buf.getvalue())
+        write_tmp_file.assert_not_called()
+
+    def test_get_data_string_column(
+        self,
+        write_tmp_file: Mock,
+        get_tmp_data: Mock,
+        mock_read_csv: Mock,
+    ) -> None:
+        """Tests the get_data with valid file"""
+        file_path = Path("test_file")
+        no_tmp = True
+        get_tmp_data.return_value = None
         data_mock = MagicMock()
         mock_read_csv.return_value = data_mock
         self.csv_handler_obj.columns = {"string_column": "string"}
         self.csv_handler_obj.get_data(file_path, no_tmp)
         # pylint: disable=C2801
         data_mock.__getitem__().fillna.assert_called_with("NULL")
-
-    def test_get_data_invalid_parquet(
-        self,
-        mock_tmp_handler: Mock,
-        mock_file_tracker: Mock,
-        mock_read_parquet: Mock,
-        _: Mock,
-    ) -> None:
-        """Tests the get_data with invalid parquet file."""
-        file_path = Path("test_file")
-        no_tmp = False
-        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
-            "test.parquet"
-        )
-        mock_file_tracker.return_value.check_file_changed.return_value = False
-        mock_read_parquet.side_effect = ArrowInvalid()
-        buf = io.StringIO()
-        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            self.csv_handler_obj.get_data(file_path, no_tmp)
-        self.assertEqual(cm.exception.code, 1)
-        self.assertIn("Parquet Error", buf.getvalue())
+        write_tmp_file.assert_called_once()
 
     def test_get_data_column_not_matched(
         self,
-        mock_tmp_handler: Mock,
-        mock_file_tracker: Mock,
-        _: Mock,
+        write_tmp_file: Mock,
+        get_tmp_data: Mock,
         mock_read_csv: Mock,
     ) -> None:
         """Tests the get_data column not matched"""
         file_path = Path("test_file")
         no_tmp = True
-        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
-            "test.parquet"
-        )
-        mock_file_tracker.return_value.check_file_changed.return_value = False
+        get_tmp_data.return_value = None
         mock_read_csv.side_effect = ValueError("do not match columns: test")
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
             self.csv_handler_obj.get_data(file_path, no_tmp)
         self.assertEqual(cm.exception.code, 1)
         self.assertIn("desired columns test not found", buf.getvalue())
+        write_tmp_file.assert_not_called()
 
     def test_get_data_bad_column_type(
         self,
-        mock_tmp_handler: Mock,
-        mock_file_tracker: Mock,
-        _: Mock,
+        write_tmp_file: Mock,
+        get_tmp_data: Mock,
         mock_read_csv: Mock,
     ) -> None:
         """Tests the get_data with bad column type"""
         file_path = Path("test_file")
         no_tmp = True
-        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
-            "test.parquet"
-        )
-        mock_file_tracker.return_value.check_file_changed.return_value = False
+        get_tmp_data.return_value = None
         mock_read_csv.side_effect = ValueError()
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
             self.csv_handler_obj.get_data(file_path, no_tmp)
         self.assertEqual(cm.exception.code, 1)
         self.assertIn("Error in data config file", buf.getvalue())
+        write_tmp_file.assert_not_called()
 
 
 class TestValidateConfig(unittest.TestCase):

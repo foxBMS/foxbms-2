@@ -1,6 +1,8 @@
-Repository; Version; SPDX short identifier; License
-https://github.com/pre-commit/pre-commit-hooks; v5.0.0; MIT; The MIT License
-https://github.com/astral-sh/ruff-pre-commit; v0.11.11;Apache-2.0, MIT;Apache License, Version 2.0, The MIT License
-https://github.com/asottile/pyupgrade; v3.20.0;MIT;The MIT License
-https://github.com/pre-commit/mirrors-clang-format; v20.1.5; MIT; The MIT License
-https://github.com/shellcheck-py/shellcheck-py; v0.10.0.1; MIT; The MIT License
+Repository;                                         Version;    SPDX short identifier;  License
+https://github.com/citation-file-format/cffconvert  b6045d78aac9e02b039703b030588d54d53262ac; Apache-2.0; Apache License, Version 2.0
+https://github.com/streetsidesoftware/cspell-cli;   v9.2.0;     MIT;                    The MIT License
+https://github.com/pre-commit/mirrors-clang-format; v21.1.1;    MIT;                    The MIT License
+https://github.com/pre-commit/pre-commit-hooks;     v6.0.0;     MIT;                    The MIT License
+https://github.com/astral-sh/ruff-pre-commit;       v0.13.2;    Apache-2.0, MIT;        Apache License, Version 2.0, The MIT License
+https://github.com/shellcheck-py/shellcheck-py;     v0.11.0.1;  MIT;                    The MIT License
+https://github.com/asottile/pyupgrade;              v3.20.0;    MIT;                    The MIT License

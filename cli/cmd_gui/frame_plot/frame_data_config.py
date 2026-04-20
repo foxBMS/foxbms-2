@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,10 +44,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from tkinter import filedialog as fd
 from tkinter import ttk
+from typing import TYPE_CHECKING
 
 from yaml import safe_dump, safe_load
 
 from ...helpers.misc import PROJECT_BUILD_ROOT
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .plot_gui import PlotFrame
 
 
 @dataclass
@@ -62,7 +66,7 @@ class Column:
 class DataConfigFrame(ttk.Frame):
     """PlotConfig Frame"""
 
-    def __init__(self, parent, root) -> None:
+    def __init__(self, parent: ttk.Notebook, root: "PlotFrame") -> None:
         super().__init__(parent)
         self.root = root
         self.columns: list[Column] = []
@@ -97,7 +101,7 @@ class DataConfigFrame(ttk.Frame):
         )
         self.file_path_entry = ttk.Entry(self, width=10)
         self.file_path_entry.insert(
-            tk.END, str(PROJECT_BUILD_ROOT / "data_config.yaml")
+            tk.END, str(PROJECT_BUILD_ROOT / "gui" / "data_config.yaml")
         )
         self.file_path_entry.grid(
             in_=file_frame, column=1, columnspan=2, row=0, pady=(10, 0), sticky="we"

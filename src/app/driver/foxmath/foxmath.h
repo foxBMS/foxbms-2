@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -118,19 +118,19 @@ extern float_t MATH_LinearInterpolation(
  * @brief Swap bytes of uint16_t value
  * @param   val:    value to swap bytes: 0x1234 -> 0x3412
  */
-extern uint16_t MATH_SwapBytesUint16_t(const uint16_t val);
+extern uint16_t MATH_SwapBytesUint16(const uint16_t val);
 
 /**
  * @brief   Swap bytes of uint32_t value
  * @param   val:    value to swap bytes: 0x12345678 -> 0x78563412
  */
-extern uint32_t MATH_SwapBytesUint32_t(const uint32_t val);
+extern uint32_t MATH_SwapBytesUint32(const uint32_t val);
 
 /**
  * @brief   Swap bytes  of uint64_t value
  * @param   val:    value to swap bytes: 0x1122334455667788 -> 0x8877665544332211
  */
-extern uint64_t MATH_SwapBytesUint64_t(const uint64_t val);
+extern uint64_t MATH_SwapBytesUint64(const uint64_t val);
 
 /**
  * @brief   Returns the minimum of the passed float values

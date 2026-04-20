@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -58,7 +58,7 @@
 
 #include "HL_sys_core.h"
 
-#include "can_cbs_tx_crash-dump.h"
+#include "can_cbs_tx_f_crash-dump.h"
 #include "ftask.h"
 
 #include <stdint.h>
@@ -258,6 +258,25 @@ extern OS_STD_RETURN_e OS_NotifyIndexedFromIsr(
     return notification;
 }
 
+extern uint32_t OS_NotifyGive(TaskHandle_t taskToNotify) {
+    FAS_ASSERT(taskToNotify != NULL_PTR);
+    return xTaskNotifyGive(taskToNotify);
+}
+
+extern void OS_NotifyGiveFromIsr(TaskHandle_t taskToNotify, BaseType_t *pHigherPriorityTaskWoken) {
+    FAS_ASSERT(taskToNotify != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: *pHigherPriorityTaskWoken: parameter accepts whole range */
+    /* Just pass the parameters */
+    vTaskNotifyGiveFromISR(taskToNotify, pHigherPriorityTaskWoken);
+}
+
+extern uint32_t OS_NotifyTake(BaseType_t clearCountOnExit, TickType_t ticksToWait) {
+    FAS_ASSERT((clearCountOnExit == pdFALSE) || (clearCountOnExit == pdTRUE));
+    /* AXIVION Routine Generic-MissingParameterAssert: ticksToWait: parameter accepts whole range */
+    /* Just pass the function. */
+    return ulTaskNotifyTake(clearCountOnExit, ticksToWait);
+}
+
 extern OS_STD_RETURN_e OS_ClearNotificationIndexed(uint32_t indexToClear) {
     /* AXIVION Routine Generic-MissingParameterAssert: indexToClear: parameter accepts whole range */
 
@@ -327,10 +346,35 @@ extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue) {
     return (uint32_t)numberOfMessages;
 }
 
-extern void OS_TaskNotifyGiveFromISR(TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPriorityTaskWoken) {
-    FAS_ASSERT(xTaskToNotify != NULL_PTR);
-    /* AXIVION Routine Generic-MissingParameterAssert: *pxHigherPriorityTaskWoken: parameter accepts whole range */
-    vTaskNotifyGiveFromISR(xTaskToNotify, pxHigherPriorityTaskWoken);
+extern void OS_SemaphoreGive(OS_SEMAPHORE_HANDLE xSemaphore) {
+    FAS_ASSERT(xSemaphore != NULL_PTR);
+    (void)xSemaphoreGive(xSemaphore);
+}
+
+extern void OS_SemaphoreGiveFromIsr(OS_SEMAPHORE_HANDLE xSemaphore, BaseType_t *const pxHigherPriorityTaskWoken) {
+    FAS_ASSERT(xSemaphore != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert:
+     * pxHigherPriorityTaskWoken: pxHigherPriorityTaskWoken is an optional
+     * parameter and can therefore be NULL or any valid address */
+    (void)xSemaphoreGiveFromISR(xSemaphore, pxHigherPriorityTaskWoken);
+}
+
+extern OS_STD_RETURN_e OS_SemaphoreTake(OS_SEMAPHORE_HANDLE xSemaphore, TickType_t ticksToWait) {
+    FAS_ASSERT(xSemaphore != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: ticksToWait: parameter
+     * accepts whole range */
+
+    OS_STD_RETURN_e acquiredSemaphoreSuccessfully = OS_FAIL;
+
+    BaseType_t xSemaphoreTakeSuccess = xSemaphoreTake(xSemaphore, ticksToWait);
+
+    /* xSemaphoreTake returns pdTRUE if the semaphore was obtained.
+     * (Otherwise pdFALSE) */
+    if (xSemaphoreTakeSuccess == pdTRUE) {
+        acquiredSemaphoreSuccessfully = OS_SUCCESS;
+    }
+
+    return acquiredSemaphoreSuccessfully;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

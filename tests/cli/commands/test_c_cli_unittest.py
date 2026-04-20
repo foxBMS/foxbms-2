@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -82,7 +82,8 @@ class TestFoxCliMainCommandCliUnittest(unittest.TestCase):
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_unittest_module")
     def test_cli_unittest_3(self, mock_run_unittest_module: MagicMock):
         """Test 'fox.py cli-unittest discover -s tests/cli' command, i.e.
-        arbitrary unittest command."""
+        arbitrary unittest command.
+        """
         mock_run_unittest_module.return_value = SubprocessResult(0)
         runner = CliRunner()
         result = runner.invoke(main, ["cli-unittest", "discover", "-s", "tests/cli"])

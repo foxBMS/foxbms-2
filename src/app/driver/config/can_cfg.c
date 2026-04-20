@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
@@ -76,12 +76,19 @@ const CAN_NODE_s can_node2Isolated = {
 
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
-static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
-static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor     = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
-static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
-static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
-    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
+static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+static DATA_BLOCK_CURRENT_s can_tableCurrent               = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+static DATA_BLOCK_CURRENT_SENSOR_TEMPERATURE_s can_tableCurrentSensorTemperature = {
+    .header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR_TEMPERATURE};
+static DATA_BLOCK_POWER_s can_tablePower                        = {.header.uniqueId = DATA_BLOCK_ID_POWER};
+static DATA_BLOCK_CURRENT_COUNTER_s can_tableCurrentCounter     = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_COUNTER};
+static DATA_BLOCK_ENERGY_COUNTER_s can_tableEnergyCounter       = {.header.uniqueId = DATA_BLOCK_ID_ENERGY_COUNTER};
+static DATA_BLOCK_SYSTEM_VOLTAGE_1_s can_tableSystemVoltage1    = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_1};
+static DATA_BLOCK_SYSTEM_VOLTAGE_2_s can_tableSystemVoltage2    = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_2};
+static DATA_BLOCK_SYSTEM_VOLTAGE_3_s can_tableSystemVoltage3    = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_3};
+static DATA_BLOCK_ERROR_STATE_s can_tableErrorState             = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
+static DATA_BLOCK_INSULATION_s can_tableInsulation              = {.header.uniqueId = DATA_BLOCK_ID_INSULATION};
 static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues       = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
 static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
@@ -99,26 +106,33 @@ static DATA_BLOCK_PHY_s can_tablePhy                            = {.header.uniqu
 /**@}*/
 
 const CAN_SHIM_s can_kShim = {
-    .pQueueImd              = &ftsk_imdCanDataQueue,
-    .pTableCellTemperature  = &can_tableTemperatures,
-    .pTableCellVoltage      = &can_tableCellVoltages,
-    .pTableCurrentSensor    = &can_tableCurrentSensor,
-    .pTableErrorState       = &can_tableErrorState,
-    .pTableInsulation       = &can_tableInsulation,
-    .pTableMinMax           = &can_tableMinimumMaximumValues,
-    .pTableMol              = &can_tableMolFlags,
-    .pTableMsl              = &can_tableMslFlags,
-    .pTableOpenWire         = &can_tableOpenWire,
-    .pTablePackValues       = &can_tablePackValues,
-    .pTableRsl              = &can_tableRslFlags,
-    .pTableSoc              = &can_tableSoc,
-    .pTableSoe              = &can_tableSoe,
-    .pTableSof              = &can_tableSof,
-    .pTableSoh              = &can_tableSoh,
-    .pTableStateRequest     = &can_tableStateRequest,
-    .pTableAerosolSensor    = &can_tableAerosolSensor,
-    .pTableBalancingControl = &can_tableBalancingControl,
-    .pTablePhy              = &can_tablePhy,
+    .pQueueImd                      = &ftsk_imdCanDataQueue,
+    .pTableCellTemperature          = &can_tableTemperatures,
+    .pTableCellVoltage              = &can_tableCellVoltages,
+    .pTableCurrent                  = &can_tableCurrent,
+    .pTableCurrentSensorTemperature = &can_tableCurrentSensorTemperature,
+    .pTablePower                    = &can_tablePower,
+    .pTableCurrentCounter           = &can_tableCurrentCounter,
+    .pTableEnergyCounter            = &can_tableEnergyCounter,
+    .pTableSystemVoltage1           = &can_tableSystemVoltage1,
+    .pTableSystemVoltage2           = &can_tableSystemVoltage2,
+    .pTableSystemVoltage3           = &can_tableSystemVoltage3,
+    .pTableErrorState               = &can_tableErrorState,
+    .pTableInsulation               = &can_tableInsulation,
+    .pTableMinMax                   = &can_tableMinimumMaximumValues,
+    .pTableMol                      = &can_tableMolFlags,
+    .pTableMsl                      = &can_tableMslFlags,
+    .pTableOpenWire                 = &can_tableOpenWire,
+    .pTablePackValues               = &can_tablePackValues,
+    .pTableRsl                      = &can_tableRslFlags,
+    .pTableSoc                      = &can_tableSoc,
+    .pTableSoe                      = &can_tableSoe,
+    .pTableSof                      = &can_tableSof,
+    .pTableSoh                      = &can_tableSoh,
+    .pTableStateRequest             = &can_tableStateRequest,
+    .pTableAerosolSensor            = &can_tableAerosolSensor,
+    .pTableBalancingControl         = &can_tableBalancingControl,
+    .pTablePhy                      = &can_tablePhy,
 };
 
 /*========== Static Function Prototypes =====================================*/

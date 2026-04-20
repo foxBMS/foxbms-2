@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pwm.c
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -73,7 +73,7 @@
 /** upper threshold permill */
 #define PWM_UPPER_THRESHOLD_PERM (999u)
 
-/** full period in promill */
+/** full period in permill */
 #define PWM_FULL_PERIOD_PERM (1000u)
 
 /** stores the initialization states of the different parts of the module */
@@ -211,6 +211,11 @@ extern PWM_SIGNAL_s PWM_GetPwmData(void) {
 #ifdef UNITY_UNIT_TEST
 extern int16_t TEST_PWM_GetLinearOffset(void) {
     return pwm_kLinearOffset;
+}
+
+extern void TEST_PWM_GetInitializedBools(bool *ecap, bool *etpwm) {
+    *ecap  = pwm_state.ecapInitialized;
+    *etpwm = pwm_state.etpwmInitialized;
 }
 #endif
 

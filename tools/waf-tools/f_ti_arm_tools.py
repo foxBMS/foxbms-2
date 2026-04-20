@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,7 +41,8 @@
 have a separate tool where they get configured.
 
 This tool is loaded in the configure step of the main compiler tool
-:py:meth:`f_ti_arm_cgt.configure`. and is not meant to be used standalone."""
+:py:meth:`f_ti_arm_cgt.configure`. and is not meant to be used standalone.
+"""
 
 from waflib import Utils
 from waflib.Configure import ConfigurationContext, conf

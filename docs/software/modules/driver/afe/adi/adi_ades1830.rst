@@ -291,7 +291,7 @@ It has four parameters:
 
 - a ``uint16_t`` pointer.
   As commands sent to the AFE are made out of 2 bytes, it must point to two
-  bytes, corresponding to the used command as defined in the data sheet.
+  bytes, corresponding to the used command as defined in the datasheet.
   One of the commands defined as explained above must be used.
 - a pointer to the ``ADI_STATE_s`` structure.
 
@@ -745,7 +745,7 @@ Then for each string:
 - Set all PWM balancing values to 0.
 - Clear all flags in Status Register Group C with the ``CLRFLAG`` command.
 - Issue an ``ADCV`` command to set continuous measurements of C-ADCs and
-  S-ADCS (S-ADCs are redundant measurements).
+  S-ADCs (S-ADCs are redundant measurements).
 - Read revision of all AFEs in the daisy-chain.
 
 Measurement sequence

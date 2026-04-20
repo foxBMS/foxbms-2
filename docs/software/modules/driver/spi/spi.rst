@@ -20,6 +20,10 @@ Configuration
 
 - ``src/app/driver/config/spi_cfg.c``
 - ``src/app/driver/config/spi_cfg.h``
+- ``src/app/driver/config/spi_cfg_adi.c``
+- ``src/app/driver/config/spi_cfg_generic.c``
+- ``src/app/driver/config/spi_cfg_mxm.c``
+- ``src/app/driver/config/spi_cfg_nxp.c``
 - ``src/app/driver/spi/spi_cfg-helper.h``
 
 Unit Test
@@ -27,9 +31,46 @@ Unit Test
 
 - ``tests/unit/app/driver/spi/test_spi.c``
 - ``tests/unit/app/driver/config/test_spi_cfg.c``
+- ``tests/unit/app/driver/config/test_spi_cfg_adi.c``
+- ``tests/unit/app/driver/config/test_spi_cfg_generic.c``
+- ``tests/unit/app/driver/config/test_spi_cfg_mxm.c``
+- ``tests/unit/app/driver/config/test_spi_cfg_nxp.c``
+- ``tests/unit/app/driver/sbc/test_nxpfs85xx_mcu_spi_transfer_data.c``
+- ``tests/unit/app/driver/spi/test_spi.c``
+- ``tests/unit/app/driver/spi/test_spi_adi.c``
+- ``tests/unit/app/driver/spi/test_spi_debug.c``
+- ``tests/unit/app/driver/spi/test_spi_ltc.c``
+- ``tests/unit/app/driver/spi/test_spi_mxm.c``
+- ``tests/unit/app/driver/spi/test_spi_nxp.c``
+- ``tests/unit/app/driver/spi/test_spi_spi_notification.c``
+- ``tests/unit/app/driver/spi/test_spi_st.c``
+- ``tests/unit/app/driver/spi/test_spi_ti.c``
+
 
 Description
 -----------
+
+Initialization
+^^^^^^^^^^^^^^
+
+The driver implements an initialization function, i.e., ``SPI_Initialize``.
+This function takes care of the low-level initialization at register level.
+There are 5 SPI available on the |ti-tms570|, where 2 SPI (SPI1 and SPI4)
+are used for the |bms-slaves|.
+These two SPI must be specifically initialized dependent of the used
+|bms-slave|.
+Therefore specific initialization implementations for SPI1 and SPI4 are
+provided in
+- ``src/app/driver/config/spi_cfg_adi.c``
+- ``src/app/driver/config/spi_cfg_mxm.c``
+- ``src/app/driver/config/spi_cfg_nxp.c``
+where as the generic SPI initialization for AFE-independent resources (SPI2,
+SPI3, SPI5) are implemented in ``src/app/driver/config/spi_cfg_generic.c``.
+The correct implementation is automatically chosen by the build system based on
+the selected |bms-slave| (see ``src/app/driver/config/wscript``).
+
+Functionalities
+^^^^^^^^^^^^^^^
 
 There are three main functions in the SPI API:
 

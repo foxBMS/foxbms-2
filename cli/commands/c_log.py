@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for the 'log' command"""
+"""Click command definition for CAN traffic logging."""
 
 from pathlib import Path
 
@@ -63,7 +63,7 @@ from ..helpers.misc import PROJECT_BUILD_ROOT
 @common_can_options
 @verbosity_option
 @click.pass_context
-def log(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def log(
     ctx: click.Context,
     output: Path,
     log_file_size: int,
@@ -72,7 +72,7 @@ def log(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     bitrate: str,
     verbose: int = 0,
 ) -> None:
-    """Log CAN traffic."""
+    """Log CAN traffic to rolling output files."""
     bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
     ctx.exit(log_impl.log(bus_cfg, output, log_file_size))

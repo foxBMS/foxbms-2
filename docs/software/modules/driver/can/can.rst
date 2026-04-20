@@ -14,7 +14,6 @@ Driver
 
 - ``src/app/driver/can/can.c``
 - ``src/app/driver/can/can.h``
-- ``src/app/driver/can/cbs/can_cbs.h``
 - ``src/app/driver/can/cbs/can_helper.c``
 - ``src/app/driver/can/cbs/can_helper.h``
 
@@ -22,38 +21,45 @@ Configuration
 ^^^^^^^^^^^^^
 
 - ``src/app/driver/can/cbs/rx/can_cbs_rx.h``
-- ``src/app/driver/can/cbs/rx/can_cbs_rx_aerosol-sensor.c``
-- ``src/app/driver/can/cbs/rx/can_cbs_rx_bms-state-request.c``
-- ``src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c``
-- ``src/app/driver/can/cbs/rx/can_cbs_rx_debug.c``
-- ``src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.c``
-- ``src/app/driver/can/cbs/rx/can_cbs_rx_imd-response.c``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_crash-dump.c``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_crash-dump.h``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-build-configuration.c``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-build-configuration.h``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.c``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.h``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-unsupported-multiplexer-values.c``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-unsupported-multiplexer-values.h``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_imd-request.c``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_imd-request.h``
-- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_imd-request.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_bms-state-details.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_bms-state.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cell-temperatures.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cell-voltages.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_afe_cell-temperatures.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_afe_cell-voltages.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_as_honeywell-bas6c-x00.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_cs_isabellenhuette-ivt-s.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_cs_lem-cab500.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_f_bms-state-request.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_f_debug.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-info.c``
+- ``src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-response.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_crash-dump.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_crash-dump.h``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-build-configuration.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-build-configuration.h``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-identify-hardware.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-identify-hardware.h``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.h``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-unsupported-multiplexer-values.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-unsupported-multiplexer-values.h``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_fatal-error.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_fatal-error.h``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_imd_bender-iso165c-request.c``
+- ``src/app/driver/can/cbs/tx-async/can_cbs_tx_imd_bender-iso165c-request.h``
 - ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-limits.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-minimum-maximum-values.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-state-estimation.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-values-p0.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-values-p1.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-minimum-maximum-values.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-state-estimation.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-state.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-values-p0.c``
-- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-values-p1.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_bms-state-details.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_bms-state.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_cell-temperatures.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_cell-voltages.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_pack-limits.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_pack-minimum-maximum-values.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_pack-state-estimation.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_pack-values-p0.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_pack-values-p1.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_string-minimum-maximum-values.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_string-state-estimation.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_string-state.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_string-values-p0.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_string-values-p1.c``
+- ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_sys-state.c``
 - ``src/app/driver/config/can_cfg.c``
 - ``src/app/driver/config/can_cfg.h``
 - ``src/app/driver/config/can_cfg_rx-message-definitions.h``
@@ -65,36 +71,46 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_aerosol-sensor.c``
-- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_bms-state-request.c``
-- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_current-sensor.c``
-- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_debug.c``
-- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_imd-info.c``
-- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_imd-response.c``
-- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_crash-dump.c``
-- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_debug-build-configuration.c``
-- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_debug-response.c``
-- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_debug-unsupported-multiplexer-values.c``
-- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_imd-request.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_afe_cell-temperatures.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_afe_cell-voltages.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_as_honeywell-bas6c-x00.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_cs_isabellenhuette-ivt-s.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_cs_lem-cab500.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_f_bms-state-request.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_f_debug.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_imd_bender-iso165c-info.c``
+- ``tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_imd_bender-iso165c-response.c``
 - ``tests/unit/app/driver/can/cbs/test_can_helper.c``
-- ``tests/unit/app/driver/can/cbs/test_can_helper.h``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_bms-state-details.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_bms-state.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_cell-temperatures.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_cell-voltages.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_pack-limits.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_pack-minimum-maximum-values.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_pack-state-estimation.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_pack-values-p0.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_pack-values-p1.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_string-minimum-maximum-values.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_string-state-estimation.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_string-state.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_string-values-p0.c``
-- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_string-values-p1.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_f_crash-dump.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_f_debug-build-configuration.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_f_debug-identify-hardware.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_f_debug-response.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_f_debug-unsupported-multiplexer-values.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_f_fatal-error.c``
+- ``tests/unit/app/driver/can/cbs/tx-async/test_can_cbs_tx_imd_bender-iso165c-request.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_bms-state-details.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_bms-state.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_cell-temperatures.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_cell-temperatures_1-temp-sensor.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_cell-temperatures_3-temp-sensors.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_cell-temperatures_4-temp-sensors.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_cell-temperatures_5-temp-sensors.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_cell-voltages.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_pack-limits.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_pack-minimum-maximum-values.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_pack-state-estimation.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_pack-values-p0.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_pack-values-p1.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_string-minimum-maximum-values.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_string-state-estimation.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_string-state.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_string-values-p0.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_string-values-p1.c``
+- ``tests/unit/app/driver/can/cbs/tx-cyclic/test_can_cbs_tx_f_sys-state.c``
 - ``tests/unit/app/driver/can/test_can.c``
 - ``tests/unit/app/driver/can/test_can_1.c``
 - ``tests/unit/app/driver/can/test_can_2.c``
+- ``tests/unit/app/driver/can/test_can_can_message_notification.c``
 - ``tests/unit/app/driver/config/test_can_cfg.c``
 - ``tests/unit/app/driver/config/test_can_cfg_rx.c``
 - ``tests/unit/app/driver/config/test_can_cfg_tx_cyclic.c``
@@ -151,7 +167,8 @@ Once the CAN message is ready, the function
 It will store the CAN message in the variable used by the low-level driver for
 the actual transmission.
 
-The function ``CAN_PeriodicTransmit()`` is called every 10ms by the 10ms task.
+The function ``CAN_PeriodicTransmit()`` is called every 10ms by the
+|10ms-task|.
 It parses all the elements of ``can_txMessages[]``.
 If the time has been reached to send the messages, the corresponding callback
 function is called.
@@ -161,10 +178,11 @@ The function ``CAN_DataSend()`` can also be used to send a CAN message directly
 anywhere else in the code.
 
 If all mailboxes on the CAN are full when the message is sent, it cannot be
-transmitted. In this case, it will be stored in the queue
-``ftsk_canTxUnsentMessagesQueue``. With the next call of the function
-``CAN_PeriodicTransmit()``, the unsent messages will be pulled from this queue
-and resent with the function ``CAN_DataSend()``.
+transmitted.
+In this case, it will be stored in the queue ``ftsk_canTxUnsentMessagesQueue``.
+With the next call of the function ``CAN_PeriodicTransmit()``, the unsent
+messages will be pulled from this queue and resent with the function
+``CAN_DataSend()``.
 
 Messages to receive
 ^^^^^^^^^^^^^^^^^^^
@@ -199,11 +217,12 @@ A receive queue called ``ftsk_canRxQueue`` is used as shown in
    :name: queue-can-receive-code-vars
 
 When CAN messages are received, the CAN interrupt callback calls
-``CAN_RxInterrupt()``. The message received is sent to the queue.
-The function ``CAN_ReadRxBuffer()`` is called every 1ms by the 1ms task.
+``CAN_RxInterrupt()``.
+The message received is sent to the queue.
+The function ``CAN_ReadRxBuffer()`` is called every 1ms by the |1ms-task|.
 For each element in the queue, it checks if the CAN message ID matches
-an ID of the RX message list ``can_rxMessages[]``. If this is the case,
-the corresponding callback function is called.
+an ID of the RX message list ``can_rxMessages[]``.
+If this is the case, the corresponding callback function is called.
 
 In the callback function, a ``uint64_t variable`` must be defined, which
 represents the CAN message. The helper function
@@ -257,7 +276,7 @@ Using the CAN1 mailbox 42
 -------------------------
 
 Additionally, there is a bug in |ti-halcogen| regarding the CAN1 mailbox 42 as
-described in :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
+described in :ref:`TI_HALCOGEN_TOOL`.
 The missing configuration for this mailbox is also done in function
 ``CAN_ConfigureRxMailboxesForExtendedIdentifiers()``.
 Mailbox 42 is configured to receive all CAN messages with a standard 11-bit
@@ -268,7 +287,7 @@ Using the CAN4 interface
 
 If the CAN Module should be extended to the CAN4 interface, a workaround for a
 bug in |ti-halcogen| has to be applied.
-For details, please refer to :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
+For details, please refer to :ref:`TI_HALCOGEN_TOOL`.
 
 Callback definition
 ^^^^^^^^^^^^^^^^^^^

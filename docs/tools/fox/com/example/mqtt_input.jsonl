@@ -1,0 +1,9 @@
+{"topic":"fox/topic", "data": "msg_1"}
+{"topic":"fox/topic", "data": "msg_2"}
+{"topic":"fox/another", "data": "msg_3"}
+{"topic":"fox/another", "data": "msg_4"}
+{"topic":"fox/topic", "data": "msg_5"}
+{"topic":"fox/topic", "data": "msg_6"}
+{"topic":"fox/another", "data": "msg_7"}
+{"topic":"fox/topic", "data": "msg_8"}
+{"topic":"fox/another", "data": "msg_9"}

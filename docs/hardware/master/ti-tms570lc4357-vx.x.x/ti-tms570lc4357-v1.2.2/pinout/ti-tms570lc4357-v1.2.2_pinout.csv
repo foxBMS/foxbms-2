@@ -2,6 +2,7 @@ Connector ID    ; Functionality                         ; Pinout
 J3008           ; Debugger                              ; :ref:`ti-tms570lc4357-v1.2.2_pinout_debug_connector`
 J2009           ; Supply                                ; :ref:`ti-tms570lc4357-v1.2.2_pinout_supply`
 J2000           ; Smart Power Switch 0 (Contactor 0)    ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2010           ; RJ45 Ethernet Connector
 J2002           ; Smart Power Switch 1 (Contactor 1)    ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
 J2003           ; Smart Power Switch 2 (Contactor 2)    ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
 J2004           ; Smart Power Switch 3 (Contactor 3)    ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`

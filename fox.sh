@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -84,15 +84,15 @@ function InstallHelper() {
     fi
 
     # we have at least some 'py' executable.
-    FALLBACK_SCRIPT="$SCRIPTDIR/cli/fallback/fallback.py"
-    $PYTHON "$FALLBACK_SCRIPT" "$env_dir"
+    PYTHON_SETUP_SCRIPT="$SCRIPT_DIR/cli/helper/python_setup.py"
+    $PYTHON "$PYTHON_SETUP_SCRIPT" "$env_dir"
     popd > /dev/null
     exit 1
 }
 
 # Push into the repository root
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-pushd "$SCRIPTDIR" > /dev/null
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+pushd "$SCRIPT_DIR" > /dev/null
 
 # foxBMS-prefix for installed tools
 # Define prefix Linux
@@ -104,7 +104,7 @@ elif [ "$IsWindows" = "1" ] ; then
 fi
 
 # Name of the Python environment
-ENV_NAME="2025-06-pale-fox"
+ENV_NAME="2025-11-pale-fox"
 
 FOXBMS_PYTHON_ENV_DIRECTORY="${PREFIX}/envs/${ENV_NAME}"
 
@@ -167,7 +167,7 @@ if [ "$IsWindows" = "1" ] ; then
                 # to use PowerShell.
                 echo "Use PowerShell and the PowerShell wrapper script 'fox.ps1' to start the GUI. "
             else
-                ${USE_PYTHON} "${SCRIPTDIR}/fox.py" "$@"
+                ${USE_PYTHON} "${SCRIPT_DIR}/fox.py" "$@"
             fi
             deactivate
             popd > /dev/null
@@ -179,7 +179,7 @@ fi
 
 # Run fox.py, after running the command, deactivate the environment and exit
 # with the fox.py exit code
-python "${SCRIPTDIR}/fox.py" "$@" || rc="$?"
+python "${SCRIPT_DIR}/fox.py" "$@" || rc="$?"
 deactivate
 popd > /dev/null
 exit $((rc))

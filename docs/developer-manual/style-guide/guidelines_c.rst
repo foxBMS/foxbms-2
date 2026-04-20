@@ -950,10 +950,16 @@ C Comment style (``C:029``)
 General note and common mistakes (``C:030``)
 --------------------------------------------
 
+..
+  _spell: cSpell:disable
+
 For both, *camel Case* and *Pascal Case*, the general rules of the English
 language apply.
 This means that the correct version for a variable about the cell voltage
 is ``abc_cellVoltage`` (**not** ``abc_cellvoltage``).
+
+..
+  _spell: cSpell:enable
 
 .. _rule_c_formatting:
 

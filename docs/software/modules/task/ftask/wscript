@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,19 +37,18 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the 'ftask' example
+# !!! This build script is not meant to be reused !!!
 
-This build script is not meant to be reused!"""
+
+# cSpell:ignore DCLR,DSET,PULDIS
 
 
 def build(bld):
-    """Build the database object"""
     source = ["ftask_how-to.c"]
     includes = [
         ".",
         "../../../../../src/app/main/include",
     ]
-    cflags = bld.env.CFLAGS_FOXBMS
     bld.path.find_or_declare("HL_gio.h").write(
         "/* dummy file */\n"
         "#include <stdint.h>\n"
@@ -73,5 +72,6 @@ def build(bld):
         features="c",
         source=source,
         includes=includes,
-        cflags=(cflags + ["--diag_suppress=179", "--diag_suppress=552"]),
+        cflags=["--diag_suppress=179", "--diag_suppress=552"],
+        use="DOCUMENTATION FOXBMS",
     )

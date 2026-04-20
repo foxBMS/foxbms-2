@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,18 +37,18 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Mark this module as not callable."""
+"""Entry point for running the CLI package as a module."""
 
 import sys  # pragma: no cover
 from pathlib import Path  # pragma: no cover
 
 from .cli import main  # pragma: no cover
+from .helpers.misc import ROOT_IS_PROJECT  # pragma: no cover
 
 if __name__ == "__main__":
     cwd = Path.cwd()
     expected_cwd = Path(__file__).parent.parent
-    if cwd != expected_cwd:
-        sys.exit(
-            f"This script needs to be run in the root of the repository ({expected_cwd})."
-        )
+    if cwd != expected_cwd and ROOT_IS_PROJECT:
+        err_msg = f"This script needs to be run in the root of the repository ({expected_cwd})."
+        sys.exit(err_msg)
     main.main()

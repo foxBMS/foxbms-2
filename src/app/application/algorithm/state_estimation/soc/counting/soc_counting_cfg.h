@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soc_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -68,7 +68,7 @@
 
 /**
  * Cell capacity used for SOC calculation, in this case Ah counting
- * Specified once according to data sheet of cell usually.
+ * Specified once according to datasheet of cell usually.
  */
 #define SOC_STRING_CAPACITY_mAh ((float_t)(BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK * BC_CAPACITY_mAh))
 

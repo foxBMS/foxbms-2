@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,6 @@ needs.
 For information on VS Code see https://code.visualstudio.com/.
 """
 
-# pylint: disable=too-many-locals,too-many-statements
-
 import copy
 import json
 import os
@@ -63,24 +61,14 @@ if Utils.is_win32:
 else:
     BAUHAUS_DIR = Path(os.environ.get("HOME", "/")) / "bauhaus-suite"
 
-COMMON_WAF_BASE_DIR = "waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d"
+COMMON_WAF_BASE_DIR = "waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033"
 
 
-def dump_json_to_node(node: Node, cfg: dict):
+def dump_json_to_node(node: Node, cfg: dict) -> None:
     """Dump dictionary to node"""
     Path(node.abspath()).write_text(
         json.dumps(cfg, indent=2, sort_keys=False), encoding="utf-8"
     )
-
-
-def get_axivion_modules(ax_modules_rel: Path, cafecc: str = "") -> list[str]:
-    """Prepares the Axivion Modules path"""
-    axivion_modules = []
-    if BAUHAUS_DIR.is_dir():
-        axivion_modules.append((BAUHAUS_DIR / ax_modules_rel).as_posix())
-    if cafecc:
-        axivion_modules.append((Path(cafecc).parent.parent / ax_modules_rel).as_posix())
-    return axivion_modules
 
 
 def default_includes(
@@ -118,7 +106,7 @@ def get_vscode_relevant_defines(compiler_builtin_defines: list[str]) -> list[str
 
 
 def get_hcg_includes(halcogen: list) -> list[str]:
-    """get HALCoGen includes"""
+    """Get HALCoGen includes"""
     try:
         return [
             Path(
@@ -134,7 +122,7 @@ def get_hcg_includes(halcogen: list) -> list[str]:
         return []
 
 
-def write_tasks_json(ctx: ConfigurationContext, vscode_dir: Node):
+def write_tasks_json(ctx: ConfigurationContext, vscode_dir: Node) -> None:
     """Write the specific task.json file"""
     tasks_node = vscode_dir.find_node("tasks.json")
     if not tasks_node:
@@ -165,8 +153,8 @@ def write_tasks_json(ctx: ConfigurationContext, vscode_dir: Node):
 
 
 @conf
-def get_fox_py_wrapper_executable(ctx: ConfigurationContext):
-    """check which fox.py-wrapper to use (.ps1 or .sh)"""
+def get_fox_py_wrapper_executable(ctx: ConfigurationContext) -> None:
+    """Check which fox.py-wrapper to use (.ps1 or .sh)"""
     ctx.start_msg("Checking for 'fox.py' wrapper:")
     if Utils.is_win32:
         ctx.find_program("pwsh", var="VS_CODE_SHELL", mandatory=False)
@@ -209,7 +197,7 @@ def find_vscode(ctx: ConfigurationContext) -> bool:
 
 
 @conf
-def valid_configuration_files(ctx: ConfigurationContext, base_cfg_dir: Node):
+def valid_configuration_files(ctx: ConfigurationContext, base_cfg_dir: Node) -> None:
     """Validate, that all VS configuration files are valid json files"""
     err = 0
     for i in base_cfg_dir.ant_glob("**/*.json"):
@@ -224,10 +212,9 @@ def valid_configuration_files(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node) -> None:
     """Setup the generic VS Code configuration"""
     # Setup requires:
-    # - copy cspell.json verbatim
     # - copy c_cpp_properties.json and adapt paths
     # - copy settings.json and adapt paths
     # - copy tasks.json and adapt paths
@@ -240,7 +227,6 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     vscode_dir = ctx.path.make_node(".vscode")
     vscode_dir.mkdir()
 
-    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
     for i in base_cfg_dir.ant_glob("generic/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
@@ -280,23 +266,41 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     inc_state = f"{inc_app}/application/algorithm/state_estimation"
     include_path.extend(
         [
-            f"{inc_state}/soc/{ctx.env.state_estimator_soc}",
-            f"{inc_state}/soe/{ctx.env.state_estimator_soe}",
-            f"{inc_state}/sof/{ctx.env.state_estimator_sof}",
-            f"{inc_state}/soh/{ctx.env.state_estimator_soh}",
-            f"{inc_app}/driver/imd/{ctx.env.imd_manufacturer}",
-            f"{inc_app}/task/ftask/{ctx.env.RTOS_NAME[0]}",
-            f"{inc_app}/task/os/{ctx.env.RTOS_NAME[0]}",
-            f"{inc_app}/application/bal/{ctx.env.balancing_strategy}",
+            f"{inc_state}/soc/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOC}",
+            f"{inc_state}/soe/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOE}",
+            f"{inc_state}/sof/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOF}",
+            f"{inc_state}/soh/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOH}",
+            f"{inc_app}/driver/imd/{ctx.env.FOXBMS_IMD_MANUFACTURER}",
+            f"{inc_app}/task/ftask/{ctx.env.FOXBMS_RTOS_NAME}",
+            f"{inc_app}/task/os/{ctx.env.FOXBMS_RTOS_NAME}",
+            f"{inc_app}/application/bal/{ctx.env.FOXBMS_BALANCING_STRATEGY}",
             (
-                f"{inc_app}/driver/ts/{ctx.env.temperature_sensor_manuf}/"
-                f"{ctx.env.temperature_sensor_model}/{ctx.env.temperature_sensor_meth}"
+                f"{inc_app}/driver/ts/{ctx.env.FOXBMS_BMS_SLAVE_TEMPERATURE_SENSOR_MANUFACTURER}/"
+                f"{ctx.env.FOXBMS_BMS_SLAVE_TEMPERATURE_SENSOR_MODEL}/"
+                f"{ctx.env.FOXBMS_BMS_SLAVE_TEMPERATURE_SENSOR_METHOD}"
             ),
+        ]
+    )
+    if ctx.env.FOXBMS_UART_SUPPORT:
+        include_path.append(f"{inc_app}/driver/uart")
+    if ctx.env.FOXBMS_TCP_SUPPORT:
+        include_path.extend(
+            [
+                f"{inc_app}/application/ethernet",
+                f"{inc_app}/driver/phy",
+                f"{inc_app}/driver/emac",
+            ]
+        )
+    include_path.extend(
+        [
+            f"{inc_base}/os/{ctx.env.FOXBMS_RTOS_NAME}/{ctx.env.FOXBMS_RTOS_NAME}",
         ]
     )
     p = []
     for i in (
-        ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_RTOS_ADDONS + ctx.env.INCLUDES_AFE
+        ctx.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        + ctx.env.FOXBMS_INCLUDES_RTOS_KERNEL_ADDONS
+        + ctx.env.FOXBMS_INCLUDES_AFE
     ):
         k = Path(ctx.root.find_node(i).path_from(ctx.path)).as_posix()
         p.append(k)
@@ -327,10 +331,8 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
-        **{
-            ".vscode/**": True,
-            "opt/**": True,
-        },
+        ".vscode/**": True,
+        "opt/**": True,
     }
 
     dump_json_to_node(settings_node, settings)
@@ -342,10 +344,9 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_cli(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_cli(ctx: ConfigurationContext, base_cfg_dir: Node) -> None:
     """Setup the 'CLI' VS Code configuration"""
     # Setup requires:
-    # - copy cspell.json verbatim
     # - copy settings.json and adapt paths
 
     # First copy everything from the configuration directory to the actual
@@ -356,7 +357,6 @@ def setup_cli(ctx: ConfigurationContext, base_cfg_dir: Node):
     vscode_dir = ctx.path.make_node("cli/.vscode")
     vscode_dir.mkdir()
 
-    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
     for i in base_cfg_dir.ant_glob("cli/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
@@ -377,10 +377,9 @@ def setup_cli(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node) -> None:
     """Setup the src/app VS Code configuration"""
     # Setup requires:
-    # - copy cspell.json verbatim
     # - copy c_cpp_properties.json and adapt paths
     # - copy settings.json and adapt paths
     # - copy tasks.json and adapt paths
@@ -393,7 +392,6 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     vscode_dir = ctx.path.make_node("src/app/.vscode")
     vscode_dir.mkdir()
 
-    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
     for i in base_cfg_dir.ant_glob("app/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
@@ -432,35 +430,41 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     inc_state = f"{inc_app}/application/algorithm/state_estimation"
     include_path.extend(
         [
-            f"{inc_state}/soc/{ctx.env.state_estimator_soc}",
-            f"{inc_state}/soe/{ctx.env.state_estimator_soe}",
-            f"{inc_state}/sof/{ctx.env.state_estimator_sof}",
-            f"{inc_state}/soh/{ctx.env.state_estimator_soh}",
-            f"{inc_app}/driver/imd/{ctx.env.imd_manufacturer}",
-            f"{inc_app}/task/ftask/{ctx.env.RTOS_NAME[0]}",
-            f"{inc_app}/task/os/{ctx.env.RTOS_NAME[0]}",
-            f"{inc_app}/application/bal/{ctx.env.balancing_strategy}",
+            f"{inc_state}/soc/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOC}",
+            f"{inc_state}/soe/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOE}",
+            f"{inc_state}/sof/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOF}",
+            f"{inc_state}/soh/{ctx.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOH}",
+            f"{inc_app}/driver/imd/{ctx.env.FOXBMS_IMD_MANUFACTURER}",
+            f"{inc_app}/task/ftask/{ctx.env.FOXBMS_RTOS_NAME}",
+            f"{inc_app}/task/os/{ctx.env.FOXBMS_RTOS_NAME}",
+            f"{inc_app}/application/bal/{ctx.env.FOXBMS_BALANCING_STRATEGY}",
             (
-                f"{inc_app}/driver/ts/{ctx.env.temperature_sensor_manuf}/"
-                f"{ctx.env.temperature_sensor_model}/{ctx.env.temperature_sensor_meth}"
+                f"{inc_app}/driver/ts/{ctx.env.FOXBMS_BMS_SLAVE_TEMPERATURE_SENSOR_MANUFACTURER}/"
+                f"{ctx.env.FOXBMS_BMS_SLAVE_TEMPERATURE_SENSOR_MODEL}/"
+                f"{ctx.env.FOXBMS_BMS_SLAVE_TEMPERATURE_SENSOR_METHOD}"
             ),
         ]
     )
-    if ctx.env.RTOS_NAME[0] == "freertos":
+    if ctx.env.FOXBMS_UART_SUPPORT:
+        include_path.append(f"{inc_app}/driver/uart")
+    if ctx.env.FOXBMS_TCP_SUPPORT:
         include_path.extend(
             [
-                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/{ctx.env.RTOS_NAME[0]}",
+                f"{inc_app}/application/ethernet",
+                f"{inc_app}/driver/phy",
+                f"{inc_app}/driver/emac",
             ]
         )
-    else:
-        include_path.extend(
-            [
-                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/",
-            ]
-        )
+    include_path.extend(
+        [
+            f"{inc_base}/os/{ctx.env.FOXBMS_RTOS_NAME}/{ctx.env.FOXBMS_RTOS_NAME}",
+        ]
+    )
     p = []
     for i in (
-        ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_RTOS_ADDONS + ctx.env.INCLUDES_AFE
+        ctx.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        + ctx.env.FOXBMS_INCLUDES_RTOS_KERNEL_ADDONS
+        + ctx.env.FOXBMS_INCLUDES_AFE
     ):
         k = Path(ctx.root.find_node(i).path_from(ctx.path)).as_posix()
         p.append(k)
@@ -495,9 +499,7 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
-        **{
-            ".vscode/**": True,
-        },
+        ".vscode/**": True,
     }
 
     dump_json_to_node(settings_node, settings)
@@ -509,10 +511,9 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node) -> None:
     """Setup the src/app VS Code configuration"""
     # Setup requires:
-    # - copy cspell.json verbatim
     # - copy c_cpp_properties.json and adapt paths
     # - copy settings.json and adapt paths
     # - copy tasks.json and adapt paths
@@ -525,7 +526,6 @@ def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
     vscode_dir = ctx.path.make_node("src/bootloader/.vscode")
     vscode_dir.mkdir()
 
-    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
     for i in base_cfg_dir.ant_glob("bootloader/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
@@ -591,10 +591,8 @@ def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
-        **{
-            ".vscode/**": True,
-            "opt/**": True,
-        },
+        ".vscode/**": True,
+        "opt/**": True,
     }
 
     dump_json_to_node(settings_node, settings)
@@ -606,10 +604,9 @@ def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node) -> None:
     """Setup the embedded unit test VS Code configuration"""
     # Setup requires:
-    # - copy cspell.json verbatim
     # - copy c_cpp_properties.json and adapt paths
     # - copy launch.json and adapt paths
     # - copy settings.json and adapt paths
@@ -623,7 +620,6 @@ def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     vscode_dir = ctx.path.make_node("tests/unit/app/.vscode")
     vscode_dir.mkdir()
 
-    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
     for i in base_cfg_dir.ant_glob("embedded-test-app/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
@@ -687,13 +683,10 @@ def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
-        **{
-            "**/build/**": True,
-            "**/.lock-waf_*_build": True,
-            ".vscode/**": True,
-            "axivion/**": True,
-            "gen_hcg/**": True,
-        },
+        "**/build/**": True,
+        "**/.lock-waf_*_build": True,
+        ".vscode/**": True,
+        "gen_hcg/**": True,
     }
 
     dump_json_to_node(settings_node, settings)
@@ -705,10 +698,11 @@ def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_embedded_unit_test_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_embedded_unit_test_bootloader(
+    ctx: ConfigurationContext, base_cfg_dir: Node
+) -> None:
     """Setup the embedded unit test VS Code configuration"""
     # Setup requires:
-    # - copy cspell.json verbatim
     # - copy c_cpp_properties.json and adapt paths
     # - copy launch.json and adapt paths
     # - copy settings.json and adapt paths
@@ -722,7 +716,6 @@ def setup_embedded_unit_test_bootloader(ctx: ConfigurationContext, base_cfg_dir:
     vscode_dir = ctx.path.make_node("tests/unit/bootloader/.vscode")
     vscode_dir.mkdir()
 
-    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
     for i in base_cfg_dir.ant_glob("embedded-test-bootloader/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
@@ -786,13 +779,10 @@ def setup_embedded_unit_test_bootloader(ctx: ConfigurationContext, base_cfg_dir:
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
-        **{
-            "**/build/**": True,
-            "**/.lock-waf_*_build": True,
-            ".vscode/**": True,
-            "axivion/**": True,
-            "gen_hcg/**": True,
-        },
+        "**/build/**": True,
+        "**/.lock-waf_*_build": True,
+        ".vscode/**": True,
+        "gen_hcg/**": True,
     }
 
     dump_json_to_node(settings_node, settings)
@@ -803,11 +793,12 @@ def setup_embedded_unit_test_bootloader(ctx: ConfigurationContext, base_cfg_dir:
     ctx.end_msg(vscode_dir)
 
 
-def configure(ctx: ConfigurationContext):  # pylint: disable=too-many-branches
-    """configuration step of the VS Code waf tool:
+def configure(ctx: ConfigurationContext) -> None:
+    """Configure VS Code:
 
     - Find code
-    - configure a project if code was found"""
+    - configure a project if code was found
+    """
     # create a VS Code workspace if code is installed on this platform
     if not ctx.find_vscode():
         return

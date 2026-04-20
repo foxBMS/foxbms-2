@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,54 +39,100 @@
 
 """Testing file 'cli/cli.py'."""
 
+import importlib
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from click.testing import CliRunner
 
 try:
-    from cli.cli import get_program_config, main
+    from cli import cli
     from cli.foxbms_version import __version__
+    from cli.helpers.package_helpers import PACKAGE_COMMANDS
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[2]))
-    from cli.cli import get_program_config, main
+    from cli import cli
     from cli.foxbms_version import __version__
+    from cli.helpers.package_helpers import PACKAGE_COMMANDS
 
 
+@patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True)
 class TestFoxCliMain(unittest.TestCase):
-    """Test of the main entry point"""
+    """Test of the main entry point, when it is in the foxBMS project"""
+
+    @classmethod
+    def setUpClass(cls):
+        importlib.reload(cli)
 
     def test_get_program_config(self):
-        """test '--show-config' option"""
-        foxbms_config = get_program_config()
+        """Test '--show-config' option"""
+        foxbms_config = cli.get_program_config()
         self.assertEqual({"foxBMS 2": __version__}, foxbms_config)
 
     def test_main_no_args(self):
-        """test main entry point, when no commands are provided"""
+        """Test main entry point, when no commands are provided"""
         runner = CliRunner()
-        result = runner.invoke(main)
+        result = runner.invoke(cli.main)
         self.assertEqual(0, result.exit_code)
 
     def test_main_show_config(self):
-        """test main entry point, when no commands are provided"""
+        """Test main entry point, when no commands are provided"""
         runner = CliRunner()
-        result = runner.invoke(main, ["--show-config"])
+        result = runner.invoke(cli.main, ["--show-config"])
         self.assertEqual(0, result.exit_code)
 
     def test_install(self):
-        """check installation message"""
+        """Check installation message"""
         runner = CliRunner()
-        result = runner.invoke(main, ["install"])
+        result = runner.invoke(cli.main, ["install"])
         self.assertEqual(0, result.exit_code)
 
     def test_install_check(self):
-        """check installation '--check'-option"""
+        """Check installation '--check'-option"""
         runner = CliRunner()
-        runner.invoke(main, ["install", "--check"])
+        runner.invoke(cli.main, ["install", "--check"])
         # the exit code may vary depending on the actually installed tools
         # therefore we can not check the exit code of this command; as long as
         # no exception is raised, everything is fine.
+
+    def test_no_project(self):
+        """Check main entry point, when it is not a foxBMS project"""
+        runner = CliRunner()
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+            importlib.reload(cli)
+            result = runner.invoke(cli.main, ["--help"])
+            self.assertEqual(0, result.exit_code)
+            for command in PACKAGE_COMMANDS["unsupported"]:
+                self.assertTrue((" " + command + " ") not in result.output)
+            for command in PACKAGE_COMMANDS["supported"]:
+                self.assertTrue((" " + command + " ") in result.output)
+
+
+class TestFoxCliMainProject(unittest.TestCase):
+    """Test configuration of the main entry point"""
+
+    def test_no_project(self):
+        """Check configuration when ROOT_IS_PROJECT is False"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+            importlib.reload(cli)
+            command_names = cli.main.commands
+            for command in PACKAGE_COMMANDS["unsupported"]:
+                self.assertTrue(command not in command_names)
+            for command in PACKAGE_COMMANDS["supported"]:
+                self.assertTrue(command in command_names)
+
+    def test_project(self):
+        """Check configuration ROOT_IS_PROJECT is True"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True):
+            importlib.reload(cli)
+            command_names = cli.main.commands
+            for command in PACKAGE_COMMANDS["unsupported"]:
+                if command != "ci":  # command is hidden
+                    self.assertTrue(command in command_names)
+            for command in PACKAGE_COMMANDS["supported"]:
+                self.assertTrue(command in command_names)
 
 
 if __name__ == "__main__":

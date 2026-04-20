@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,7 +57,7 @@
 #include "unity.h"
 #include "Mockcan.h"
 #include "Mockcan_cbs_rx.h"
-#include "Mockcan_cbs_tx_imd-request.h"
+#include "Mockcan_cbs_tx_imd_bender-iso165c-request.h"
 #include "Mockcan_cfg.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
@@ -127,7 +127,7 @@ void testMessageComposition(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckResponse(command, NULL_PTR));
 
     /* Check that response ID corresponds to awaited acknowledge */
-    canMessage.id       = CANRX_IMD_RESPONSE_ID;
+    canMessage.id       = CANRX_IMD_BENDER_ISO165C_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
     OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
@@ -135,7 +135,7 @@ void testMessageComposition(void) {
     TEST_ASSERT_EQUAL(1u, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response ID does not correspond to awaited acknowledge */
-    canMessage.id       = CANRX_IMD_RESPONSE_ID;
+    canMessage.id       = CANRX_IMD_BENDER_ISO165C_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
     for (uint8_t i = 0; i < 5; i++) {
@@ -144,8 +144,8 @@ void testMessageComposition(void) {
     }
     TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
-    /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, even if response matches command */
-    canMessage.id       = CANRX_IMD_INFO_ID;
+    /* Check that response failed if ID is not CANRX_IMD_BENDER_ISO165C_RESPONSE_ID, even if response matches command */
+    canMessage.id       = CANRX_IMD_BENDER_ISO165C_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
     for (uint8_t i = 0; i < 5; i++) {
@@ -154,8 +154,8 @@ void testMessageComposition(void) {
     }
     TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
-    /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, if response does not match command */
-    canMessage.id       = CANRX_IMD_INFO_ID;
+    /* Check that response failed if ID is not CANRX_IMD_BENDER_ISO165C_RESPONSE_ID, if response does not match command */
+    canMessage.id       = CANRX_IMD_BENDER_ISO165C_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
     for (uint8_t i = 0; i < 5; i++) {
@@ -187,7 +187,7 @@ void testMessageComposition(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, &tries, NULL_PTR));
 
     /* Acknowledge arrived */
-    canMessage.id       = CANRX_IMD_RESPONSE_ID;
+    canMessage.id       = CANRX_IMD_BENDER_ISO165C_RESPONSE_ID;
     tries               = 0u;
     command             = 0xA;
     canMessage.data[0]  = 0xA;
@@ -200,7 +200,7 @@ void testMessageComposition(void) {
     TEST_ASSERT_EQUAL(0u, tries);
 
     /* Acknowledge not arrived, increment try counter */
-    canMessage.id      = CANRX_IMD_RESPONSE_ID;
+    canMessage.id      = CANRX_IMD_BENDER_ISO165C_RESPONSE_ID;
     tries              = 0u;
     command            = 0xA;
     canMessage.data[0] = 0xB;

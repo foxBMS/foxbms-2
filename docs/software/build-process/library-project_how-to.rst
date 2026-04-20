@@ -35,13 +35,13 @@ Bootstrapping a minimal development Project
 
         .. code-block:: shell
 
-           ./fox.ps1 waf bootstrap-library-project
+           ./fox.sh waf bootstrap-library-project
 
      .. group-tab:: Linux
 
         .. code-block:: shell
 
-           ./fox.ps1 waf bootstrap-library-project
+           ./fox.sh waf bootstrap-library-project
 
 - **Partner A** shares the archive ``library-project.tar.gz`` with
   **Partner B**.
@@ -68,13 +68,13 @@ Building a Library
 
         .. code-block:: shell
 
-           ./fox.ps1 waf build
+           ./fox.sh waf build
 
      .. group-tab:: Linux
 
         .. code-block:: shell
 
-           ./fox.ps1 waf build
+           ./fox.sh waf build
 
 - **Partner B** shares the library and accompanying headers with **Partner A**.
 
@@ -90,7 +90,7 @@ Including the Library
 
       LIBRARY_PATHS:
          win32:
-         - ..\..\src\app\driver\<library folder name>
+         - ..\..\src\app\driver\<library directory name>
          linux:
 
 - In the section libraries the name of the library has to be added:
@@ -102,6 +102,6 @@ Including the Library
          - <name>
 
 - For the changes to take effect execute:
-  ./fox.ps1 waf configure
+  ./fox.sh waf configure
 - Now the project should build with:
-  ./fox.ps1 waf build_app_embedded
+  ./fox.sh waf build_app_embedded

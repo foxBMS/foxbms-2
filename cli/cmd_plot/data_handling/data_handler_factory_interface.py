@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,14 +40,20 @@
 """DataHandlerFactory Interface"""
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from .csv_handler import CSVHandler
 from .data_source_types import DataSourceTypes
+from .parquet_handler import PARQUETHandler
 
 
 class DataHandlerFactoryInterface(ABC):  # pylint: disable=too-few-public-methods
-    """Interface class to read the create a CSVHandler object and return it"""
+    """Interface class of the DataHandlerFactory which returns a
+    data handler object.
+    """
 
     @abstractmethod
-    def get_object(self, handler: DataSourceTypes, config: dict) -> CSVHandler:
+    def get_object(
+        self, handler: DataSourceTypes, config: Path
+    ) -> CSVHandler | PARQUETHandler:
         """Creates a DataHandler object if handler_type is 'CSV'"""

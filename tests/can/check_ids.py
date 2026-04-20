@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,12 +38,13 @@
 # - "This product is derived from foxBMS®"
 
 """Python script to check if all callbacks defined in the .dbc file are
-implemented in callback functions."""
+implemented in callback functions.
+"""
 
 import argparse
 import dataclasses
 import json
-import logging
+import logging  # noqa: TID251
 import os
 import re
 import sys
@@ -51,6 +52,7 @@ from enum import Enum, auto
 from pathlib import Path
 
 import cantools
+from cantools.database.can.message import Message
 from git import Repo
 from git.exc import InvalidGitRepositoryError
 
@@ -59,7 +61,7 @@ FILE_RE_COMPILED = re.compile(FILE_RE)
 
 
 def get_git_root(path: str) -> str:
-    """helper function to find the repository root
+    """Helper function to find the repository root
 
     Args:
         path (string): path of file in git repository
@@ -104,8 +106,8 @@ TX_ASYNC_MESSAGES = (
 class RxTx(Enum):
     """Defines whether a message is to be received or transmitted"""
 
-    Tx = auto()  # pylint: disable=invalid-name
-    Rx = auto()  # pylint: disable=invalid-name
+    Tx = auto()
+    Rx = auto()
 
 
 @dataclasses.dataclass
@@ -116,13 +118,13 @@ class ExpectedCanMessageDefines:  # pylint: disable=too-many-instance-attributes
     dbc_id: str
     dbc_direction: RxTx
     dbc_cyclic: bool
-    exp_id_macro: list[str, str]
-    exp_id_type_macro: list[str, str]
-    exp_period_macro: list[str, str]
-    exp_phase_macro: list[str, str]
-    exp_endianness_macro: list[str, str]
-    exp_dlc_macro: list[str, str]
-    exp_full_msg_macro: list[str, str]
+    exp_id_macro: tuple[str, str]
+    exp_id_type_macro: tuple[str, str]
+    exp_period_macro: tuple[str, str]
+    exp_phase_macro: tuple[str, str]
+    exp_endianness_macro: tuple[str, str]
+    exp_dlc_macro: tuple[str, str]
+    exp_full_msg_macro: tuple[str, str]
 
 
 @dataclasses.dataclass
@@ -135,7 +137,7 @@ class FoundCanMessageDefine:
     cyclic: bool = True
 
 
-def construct_msg_define(msg) -> ExpectedCanMessageDefines:
+def construct_msg_define(msg: Message) -> ExpectedCanMessageDefines:
     """Create the base expected define name for the message"""
     define_name: str = msg.name
     if define_name.lower().startswith("f_"):
@@ -144,9 +146,9 @@ def construct_msg_define(msg) -> ExpectedCanMessageDefines:
     message_macro = basic_define_name
     # Split define name
     for i, char in enumerate(define_name[1:]):
-        if define_name[i].islower() and char.isupper():  # i!!!
-            message_macro = message_macro + "_"
-        elif define_name[i].isnumeric() and char.isupper():  # i!!!
+        if (define_name[i].islower() and char.isupper()) or (
+            define_name[i].isnumeric() and char.isupper()
+        ):  # i!!!
             message_macro = message_macro + "_"
         message_macro = message_macro + char.upper()
     # fmt: off
@@ -160,7 +162,7 @@ def construct_msg_define(msg) -> ExpectedCanMessageDefines:
     # fmt: on
 
     # once we are here, we know that this regex will match
-    m = FILE_RE_COMPILED.search(msg.comment)  # pylint: disable=invalid-name
+    m = FILE_RE_COMPILED.search(msg.comment)
     if m.group(3).lower() == "rx":
         direction = RxTx.Rx
         pref = "CANRX_"
@@ -236,8 +238,7 @@ def get_defines_from_file(
         found_define = FoundCanMessageDefine(
             line[1], line[2][1:-1], f"{file_to_check}:{i + 1}"
         )
-        if found_define.msg_id.endswith("u"):
-            found_define.msg_id = found_define.msg_id[:-1]
+        found_define.msg_id = found_define.msg_id.removesuffix("u")
         found_define.cyclic = cyclic
         defines.append(found_define)
         logging.debug(found_define)
@@ -254,7 +255,7 @@ def log_found_msgs(
     logging.info("Implemented %s defines are:\n%s\n", selector, out_str)
 
 
-def log_found(expected_define_name, where) -> None:
+def log_found(expected_define_name: str, where: str) -> None:
     """Logging helper for found messages"""
     logging.debug("-> Found expected: %s @ %s", expected_define_name, where)
 
@@ -271,9 +272,10 @@ def log_not_found(exp: ExpectedCanMessageDefines, i: str, expected_file: str) ->
 
 
 # pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
-def main():
+def main() -> int:
     """This script checks that the CAN message IDs that are defined in the dbc
-    file are correctly implemented."""
+    file are correctly implemented.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",
@@ -326,10 +328,8 @@ def main():
         args.input_file = Path(args.input_file)
     input_file = args.input_file.absolute()
     can_db = cantools.database.load_file(input_file)
-    sorted_messages = []
-    for i in sorted(can_db.messages, key=lambda x: x.frame_id):
-        if i.name != "f_BootloaderVersionInfo":
-            sorted_messages.append(i)
+    msgs = sorted(can_db.messages, key=lambda x: x.frame_id)
+    sorted_messages = [i for i in msgs if i.name != "f_BootloaderVersionInfo"]
 
     errors = 0
     for i in sorted_messages:
@@ -347,7 +347,7 @@ def main():
             hex(i.frame_id),
             i.comment,
         )
-        m = FILE_RE_COMPILED.search(i.comment)  # pylint: disable=invalid-name
+        m = FILE_RE_COMPILED.search(i.comment)
         if not m:
             errors += 1
             logging.error(
@@ -428,7 +428,7 @@ def main():
     all_implemented_defines = implemented_tx_defines + implemented_rx_defines
     for message, values in dump.items():
         for i in all_implemented_defines:
-            if not values["exp_id_macro"][0] == i.define_name:
+            if values["exp_id_macro"][0] != i.define_name:
                 continue
             expected_id = int(values["dbc_id"], 16)
             implemented_id = int(i.msg_id, 16)
@@ -560,7 +560,7 @@ def main():
         if i.dbc_direction == "tx":
             message_re = (
                 start_re
-                + rf"\s+\.period\s+=\s+{i.exp_period_macro[0]},"
+                + rf"\s+\.period\s+=\s+{i.exp_period_macro[0]},(\s+\\\n|)"
                 + rf"\s+\.phase\s+=\s+{i.exp_phase_macro[0]}\s+\\\n"
                 + end_re
             )

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_imd.c
  * @author  foxBMS Team
  * @date    2021-11-15 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -60,7 +60,7 @@
 #include "Mockos.h"
 
 #include "imd.h"
-#include "no-imd.h"
+#include "none_none.h"
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
@@ -68,7 +68,7 @@ TEST_SOURCE_FILE("imd.c")
 
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/driver/imd/none")
+TEST_INCLUDE_PATH("../../src/app/driver/imd/none/none")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    foxmath.c
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -56,6 +56,7 @@
 #include "foxmath.h"
 
 #include "fassert.h"
+#include "fstd_types.h"
 #include "utils.h"
 
 #include <math.h>
@@ -113,19 +114,27 @@ extern float_t MATH_LinearInterpolation(
     return y_interpolate;
 }
 
-extern uint16_t MATH_SwapBytesUint16_t(const uint16_t val) {
+extern uint16_t MATH_SwapBytesUint16(const uint16_t val) {
+#ifdef __TI_ARM_V7R4__
+    return (uint16_t)__revsh((int32_t)val);
+#else
     return (val << UTIL_SHIFT_ONE_BYTE) | (val >> UTIL_SHIFT_ONE_BYTE);
+#endif
 }
 
-extern uint32_t MATH_SwapBytesUint32_t(const uint32_t val) {
+extern uint32_t MATH_SwapBytesUint32(const uint32_t val) {
+#ifdef __TI_ARM_V7R4__
+    return (uint32_t)__rev((int32_t)val);
+#else
     const uint32_t alternating2PatternStartFF = 0xFF00FF00u;
     const uint32_t alternating2PatternStart00 = 0x00FF00FFu;
     const uint32_t intermediate               = ((val << UTIL_SHIFT_ONE_BYTE) & alternating2PatternStartFF) |
                                   ((val >> UTIL_SHIFT_ONE_BYTE) & alternating2PatternStart00);
     return (intermediate << UTIL_SHIFT_TWO_BYTES) | (intermediate >> UTIL_SHIFT_TWO_BYTES);
+#endif
 }
 
-extern uint64_t MATH_SwapBytesUint64_t(const uint64_t val) {
+extern uint64_t MATH_SwapBytesUint64(const uint64_t val) {
     const uint64_t alternating2PatternStartFF   = 0xFF00FF00FF00FF00uLL;
     const uint64_t alternating2PatternStart00   = 0x00FF00FF00FF00FFuLL;
     const uint64_t alternating4PatternStartFFFF = 0xFFFF0000FFFF0000uLL;

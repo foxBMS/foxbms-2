@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,48 +37,55 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the TI-based dummy 'AFE'-driver."""
-
-import os
-
 
 def build(bld):
-    """Build the TI-based dummy 'AFE'-driver."""
-    source = [
-        os.path.join("ti_dummy.c"),
-        os.path.join("api", "ti_dummy_afe.c"),
-    ]
-    includes = [
-        os.path.join("..", "..", "..", "config"),
-        os.path.join("..", "..", "..", "dma"),
-        os.path.join("..", "..", "..", "io"),
-        os.path.join("..", "..", "..", "mcu"),
-        os.path.join("..", "..", "..", "rtc"),
-        os.path.join("..", "..", "..", "spi"),
-        os.path.join("..", "..", "..", "ts"),
-        os.path.join("..", "..", "..", "ts", "api"),
-        os.path.join("..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "task", "ftask"),
-        os.path.join("..", "..", "..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
-    includes.extend(bld.env.INCLUDES_RTOS)
-    use = [
-        f"{bld.env.APPNAME.lower()}-afe-ti-api",
-        f"{bld.env.APPNAME.lower()}-afe-ti-common",
-    ]
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver"
-    bld.stlib(
-        source=source,
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    bld.recurse("api")
+    includes = (
+        [
+            "../../../config",
+            "../../../dma",
+            "../../../io",
+            "../../../mcu",
+            "../../../rtc",
+            "../../../spi",
+            "../../../ts",
+            "../../../ts/api",
+            "../../../../application/config",
+            "../../../../engine/config",
+            "../../../../engine/database",
+            "../../../../engine/diag",
+            "../../../../main/include",
+            "../../../../task/config",
+            "../../../../task/config",
+            "../../../../task/ftask",
+            "../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+
+    source = "ti_dummy"
+    bld.objects(
+        source=f"{source}.c",
         includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+    )
+
+    use = [
+        f"{op}ti_afe",
+        f"{op}ti_dummy_afe",
+        f"{op}ti_dummy",
+        f"{op}ti_bq79xxx_afe_dma",
+    ]
+    bld(
+        features="c cstlib",
         use=use,
-        cflags=cflags,
-        target=target,
+        target=f"{lp}afe",
     )

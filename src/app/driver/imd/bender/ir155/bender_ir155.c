@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bender_ir155.c
  * @author  foxBMS Team
  * @date    2014-02-11 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -102,7 +102,7 @@
 static IMD_FSM_STATES_e IR155_InitializeModule(void);
 
 /** Acquire measurement results from Bender IR155 and write them into the database */
-static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /*========== Static Function Implementations ================================*/
 static IMD_FSM_STATES_e IR155_InitializeModule(void) {
@@ -111,16 +111,16 @@ static IMD_FSM_STATES_e IR155_InitializeModule(void) {
     return IMD_FSM_STATE_IMD_ENABLE;
 }
 
-static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
-    FAS_ASSERT(pTableInsulationMonitoring != NULL_PTR);
-    pTableInsulationMonitoring->isInsulationMeasurementValid   = true;
-    pTableInsulationMonitoring->insulationResistance_kOhm      = IR155_MINIMUM_INSULATION_RESISTANCE_kOhm;
-    pTableInsulationMonitoring->areDeviceFlagsValid            = true;
-    pTableInsulationMonitoring->dfIsCriticalResistanceDetected = false;
-    pTableInsulationMonitoring->dfIsChassisFaultDetected       = false;
-    pTableInsulationMonitoring->dfIsDeviceErrorDetected        = false;
+static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_s *pTableInsulation) {
+    FAS_ASSERT(pTableInsulation != NULL_PTR);
+    pTableInsulation->isMeasurementValid             = true;
+    pTableInsulation->insulationResistance_kOhm      = IR155_MINIMUM_INSULATION_RESISTANCE_kOhm;
+    pTableInsulation->areDeviceFlagsValid            = true;
+    pTableInsulation->dfIsCriticalResistanceDetected = false;
+    pTableInsulation->dfIsChassisFaultDetected       = false;
+    pTableInsulation->dfIsDeviceErrorDetected        = false;
     /* Bender IR155 does not support a digital warning threshold -> check measured insulation resistance */
-    pTableInsulationMonitoring->dfIsWarnableResistanceDetected = false;
+    pTableInsulation->dfIsWarnableResistanceDetected = false;
 
     /* Evaluate input pwm signal */
     ir155_state.measurement = IR155_GetMeasurementValues();
@@ -147,22 +147,22 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
     /* Evaluate if resistance measurement is valid or not */
     if (ir155_state.measurement.measurementState == IR155_MEASUREMENT_NOT_VALID) {
         /* Measurement result is not valid */
-        pTableInsulationMonitoring->isInsulationMeasurementValid = false;
+        pTableInsulation->isMeasurementValid = false;
     } else {
-        pTableInsulationMonitoring->isInsulationMeasurementValid = true;
+        pTableInsulation->isMeasurementValid = true;
     }
 
     /* Set measured resistance value */
-    pTableInsulationMonitoring->insulationResistance_kOhm = ir155_state.measurement.resistance_kOhm;
+    pTableInsulation->insulationResistance_kOhm = ir155_state.measurement.resistance_kOhm;
 
     /* Evaluate device state */
     if ((ir155_state.measurement.measurementState == IR155_IMD_ERROR_MEASUREMENT) ||
         (ir155_state.measurement.measurementState == IR155_IMD_ERROR_MEASUREMENT_UNKNOWN)) {
         /* Mark device flags and insulation measurement as invalid if a device error is detected */
-        pTableInsulationMonitoring->areDeviceFlagsValid          = false;
-        pTableInsulationMonitoring->isInsulationMeasurementValid = false;
+        pTableInsulation->areDeviceFlagsValid = false;
+        pTableInsulation->isMeasurementValid  = false;
     } else {
-        pTableInsulationMonitoring->areDeviceFlagsValid = true;
+        pTableInsulation->areDeviceFlagsValid = true;
     }
 
     /* Set error flag if Pin OHKS detects an error
@@ -172,9 +172,9 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
      *                 Undervoltage detected or device switched off
      */
     if (ir155_state.measurement.digitalStatusPin == STD_PIN_LOW) {
-        pTableInsulationMonitoring->dfIsCriticalResistanceDetected = true;
+        pTableInsulation->dfIsCriticalResistanceDetected = true;
     } else {
-        pTableInsulationMonitoring->dfIsCriticalResistanceDetected = false;
+        pTableInsulation->dfIsCriticalResistanceDetected = false;
     }
 
     /* Check for device error: invalid measurement period or duty-cycle detected */
@@ -182,25 +182,25 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
         (ir155_state.measurement.measurementState == IR155_RESISTANCE_ESTIMATION_UNKNOWN) ||
         (ir155_state.measurement.measurementState == IR155_UNDERVOLTAGE_MEASUREMENT_UNKNOWN) ||
         (ir155_state.measurement.measurementState == IR155_GROUND_ERROR_STATE_UNKNOWN)) {
-        pTableInsulationMonitoring->dfIsDeviceErrorDetected = true;
+        pTableInsulation->dfIsDeviceErrorDetected = true;
     } else {
-        pTableInsulationMonitoring->dfIsDeviceErrorDetected = false;
+        pTableInsulation->dfIsDeviceErrorDetected = false;
     }
 
     /* Check for chassis fault */
-    pTableInsulationMonitoring->dfIsChassisShortToHvPlus  = false; /* This feature is not supported by the device */
-    pTableInsulationMonitoring->dfIsChassisShortToHvMinus = false; /* This feature is not supported by the device */
+    pTableInsulation->dfIsChassisShortToHvPlus  = false; /* This feature is not supported by the device */
+    pTableInsulation->dfIsChassisShortToHvMinus = false; /* This feature is not supported by the device */
     if (ir155_state.measurement.measurementState == IR155_GROUND_ERROR_STATE) {
-        pTableInsulationMonitoring->dfIsChassisFaultDetected = true;
+        pTableInsulation->dfIsChassisFaultDetected = true;
     } else {
-        pTableInsulationMonitoring->dfIsDeviceErrorDetected = false;
+        pTableInsulation->dfIsDeviceErrorDetected = false;
     }
 
     /* No digital signal for warning threshold available for this device -> use measured insulation resistance */
-    if (pTableInsulationMonitoring->insulationResistance_kOhm <= IMD_WARNING_THRESHOLD_INSULATION_RESISTANCE_kOhm) {
-        pTableInsulationMonitoring->dfIsWarnableResistanceDetected = true;
+    if (pTableInsulation->insulationResistance_kOhm <= IMD_WARNING_THRESHOLD_INSULATION_RESISTANCE_kOhm) {
+        pTableInsulation->dfIsWarnableResistanceDetected = true;
     } else {
-        pTableInsulationMonitoring->dfIsWarnableResistanceDetected = false;
+        pTableInsulation->dfIsWarnableResistanceDetected = false;
     }
 
     /* TODO: bool dfIsMeasurementUpToDate; Check if measurement result is up to data */
@@ -218,9 +218,9 @@ extern IMD_FSM_STATES_e IMD_ProcessEnableState(void) {
     return IMD_FSM_STATE_RUNNING;
 }
 
-extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
-    FAS_ASSERT(pTableInsulationMonitoring != NULL_PTR);
-    return IR155_MeasureInsulation(pTableInsulationMonitoring);
+extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_s *pTableInsulation) {
+    FAS_ASSERT(pTableInsulation != NULL_PTR);
+    return IR155_MeasureInsulation(pTableInsulation);
 }
 
 extern IMD_FSM_STATES_e IMD_ProcessShutdownState(void) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,13 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Propagate the build process of the LTC6812-1-based 'AFE'-drivers."""
-
-import os
-
 
 def build(bld):
-    """Propagate the build process of the LTC6811-1-based 'AFE'-drivers.
-
-    The LTC6812-1 is a build variant of 6813-1 (just less cells)."""
-    bld.recurse(os.path.join("..", "6813-1"))
+    # The LTC6812-1 is a build variant of 6813-1 (just less cells).
+    bld.recurse("../6813-1")

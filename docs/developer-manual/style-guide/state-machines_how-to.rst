@@ -24,8 +24,7 @@ This example implements a simple state machine with the following states:
 An error in this example is an unrecoverable error.
 This gives the state flow diagram in :numref:`state-diagram`.
 
-.. drawio-figure:: state-machine-example/example_state-machine.drawio
-   :page-name: main-states
+.. drawio-figure:: state-machine-example/example_state-machine_main-states.drawio
    :format: svg
    :alt: States and their transitions
    :name: state-diagram
@@ -55,8 +54,7 @@ If this is the case, the state machine transitions from the substate to the
 state |state_error|.
 The full state machine graph is shown in :numref:`complete-state-diagram`.
 
-.. drawio-figure:: state-machine-example/example_state-machine.drawio
-   :page-name: main-states
+.. drawio-figure:: state-machine-example/example_state-machine_states-and-substates.drawio
    :format: svg
    :alt: States and substates and their transitions
    :name: complete-state-diagram
@@ -930,9 +928,8 @@ There are cases where an error during the processing of the state machine can
 occur and there are strategies to recover from them.
 The example from :numref:`state-diagram` is extended as follows:
 
-.. drawio-figure:: state-machine-example/example_state-machine.drawio
+.. drawio-figure:: state-machine-example/example_state-machine_recoverable-error.drawio
    :format: svg
-   :page-name: recoverable-error
    :alt: Example with recoverable error
    :name: state-diagram-recoverable
    :width: 400px

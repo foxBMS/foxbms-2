@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,36 +37,29 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements the command line interface to the 'cli' tool.'"""
+"""Define and register the foxBMS command-line interface commands."""
 
 import warnings
 
 import click
 import colorama
 
-from .commands.c_axivion import axivion
 from .commands.c_bms import bms
 from .commands.c_bootloader import bootloader
-from .commands.c_build import waf
-from .commands.c_ci import ci
-from .commands.c_cli_unittest import cli_unittest
-from .commands.c_embedded_ut import ceedling
+from .commands.c_com import com_test
+from .commands.c_db import db
 from .commands.c_etl import etl
 from .commands.c_gui import gui
-from .commands.c_ide import ide
-from .commands.c_install import install
 from .commands.c_log import log
-from .commands.c_misc import misc
 from .commands.c_plot import plot
-from .commands.c_pre_commit import pre_commit
-from .commands.c_release import release
 from .commands.c_run_program import run_program
 from .commands.c_run_script import run_script
 from .foxbms_version import __version__
 from .helpers.click_helpers import HELP_NAMES, echo
+from .helpers.logger import ignore_third_party_logging
 from .helpers.misc import (
+    ROOT_IS_PROJECT,
     create_pre_commit_file,
-    ignore_third_party_logging,
     initialize_path_variable_for_foxbms,
     set_other_environment_variables_for_foxbms,
 )
@@ -76,7 +69,7 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
 def get_program_config() -> dict[str, str]:
-    """Returns the current foxBMS repository configuration"""
+    """Return a mapping with high-level foxBMS configuration details."""
     return {
         "foxBMS 2": __version__,
     }
@@ -94,8 +87,12 @@ def get_program_config() -> dict[str, str]:
 )
 @click.pass_context
 def main(ctx: click.Context, show_config: bool) -> None:
-    """'fox.py' is a tool to interact with the foxBMS 2 repository.
-    It supports the following commands and options:"""
+    """Run the top-level ``fox.py`` command group.
+
+    Args:
+        ctx: Click context for command dispatch and help rendering.
+        show_config: If ``True``, print version/configuration information.
+    """
     ignore_third_party_logging()
     initialize_path_variable_for_foxbms()
     set_other_environment_variables_for_foxbms()
@@ -109,21 +106,32 @@ def main(ctx: click.Context, show_config: bool) -> None:
         echo(main.get_help(ctx))
 
 
-main.add_command(axivion)
+if ROOT_IS_PROJECT:
+    from .commands.c_build import waf
+    from .commands.c_cli_unittest import cli_unittest
+    from .commands.c_embedded_ut import ceedling
+    from .commands.c_ide import ide
+    from .commands.c_install import install
+    from .commands.c_misc import misc
+    from .commands.c_pre_commit import pre_commit
+    from .commands.c_release import release
+
+    main.add_command(ceedling)
+    main.add_command(cli_unittest)
+    main.add_command(ide)
+    main.add_command(install)
+    main.add_command(misc)
+    main.add_command(pre_commit)
+    main.add_command(release)
+    main.add_command(waf)
+
 main.add_command(bootloader)
 main.add_command(bms)
-main.add_command(ceedling)
-main.add_command(ci)
-main.add_command(cli_unittest)
+main.add_command(com_test)
+main.add_command(db)
 main.add_command(etl)
 main.add_command(gui)
-main.add_command(ide)
-main.add_command(install)
 main.add_command(log)
-main.add_command(misc)
 main.add_command(plot)
-main.add_command(pre_commit)
-main.add_command(release)
 main.add_command(run_program)
 main.add_command(run_script)
-main.add_command(waf)

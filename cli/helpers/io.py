@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,10 +38,7 @@
 # - "This product is derived from foxBMS®"
 
 
-"""Define stdout and stderr streams to be used by the application.
-
-Provides functions to retrieve these streams, which can be customized as needed.
-"""
+"""Centralized stdout/stderr stream references for CLI output."""
 
 from typing import IO, Any
 
@@ -52,7 +49,7 @@ STDERR: IO[Any] | None = None
 def get_stdout() -> IO[Any] | None:
     """Return the configured stdout stream.
 
-    Return:
+    Returns:
         The current stdout stream, or None if not set.
 
     """
@@ -62,7 +59,7 @@ def get_stdout() -> IO[Any] | None:
 def get_stderr() -> IO[Any] | None:
     """Return the configured stderr stream.
 
-    Return:
+    Returns:
         The current stderr stream, or None if not set.
 
     """

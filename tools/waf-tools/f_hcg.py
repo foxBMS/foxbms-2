@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,23 +43,28 @@ import binascii
 import os
 import pathlib
 import re
-import shutil
-from xml.etree import ElementTree
 
+import shutil
+from dataclasses import dataclass
+from xml.etree import ElementTree as ET
+
+from yaml import YAMLError, Loader, load
 from waflib import Errors, Logs, Task, TaskGen, Utils
 from waflib.Node import Node
 
 
-class ToolNotSupportedException(Exception):
+class ToolNotSupportedError(Exception):
     """Tool not supported by our toolchain"""
 
 
-class NodeStructure:  # pylint: disable=too-few-public-methods
+@dataclass
+class NodeStructure:
     """Holds all relevant information on generated files based on a HALCoGen
-    configuration file"""
+    configuration file
+    """
 
-    def __init__(self, xml_file_path):
-        self.root = ElementTree.parse(xml_file_path).getroot()
+    def __init__(self, xml_file_path) -> None:
+        self.root = ET.parse(xml_file_path).getroot()
         self.dil_file_name = self.root.find("DEVICE").find("dilfile").text
 
         self.uses_freertos = False
@@ -68,8 +73,9 @@ class NodeStructure:  # pylint: disable=too-few-public-methods
 
     def parse_xml(self):
         """Parses information on generated files from the HALCoGen
-        configuration file."""
-        for element in self.root:  # pylint: disable=too-many-nested-blocks
+        configuration file.
+        """
+        for element in self.root:
             if element.tag == "DEVICE":
                 self._parse_device(element.tag)
             else:
@@ -79,7 +85,8 @@ class NodeStructure:  # pylint: disable=too-few-public-methods
         for device_settings in self.root.iter(tag):
             for device_setting in device_settings:
                 if device_setting.tag == "tools" and device_setting.text != "ti":
-                    raise ToolNotSupportedException("tool not supported")
+                    err_msg = "tool not supported"
+                    raise ToolNotSupportedError(err_msg)
                 if (
                     device_setting.tag == "device"
                     and device_setting.text.lower().endswith("_freertos")
@@ -98,13 +105,13 @@ class NodeStructure:  # pylint: disable=too-few-public-methods
                                 self.headers.append(value_hal.text)
                             elif value_hal.text.endswith((".c", ".asm")):
                                 self.sources.append(value_hal.text)
-        self.headers = sorted(list(set(self.headers)))
-        self.sources = sorted(list(set(self.sources)))
+        self.headers = sorted(set(self.headers))
+        self.sources = sorted(set(self.sources))
 
 
 @TaskGen.extension(".hcg")
-def process_hcg(self, node):
-    """creates HALCoGen task if a hcg input file and a corresponding dil file
+def process_hcg(self: TaskGen.task_gen, node: Node):
+    """Creates HALCoGen task if a hcg input file and a corresponding dil file
     exists and binds it to the :py:class:`f_hcg.hcg_compiler` class.
 
     See :numref:`hcg-io-dep` for a simplified representation of how the input
@@ -156,16 +163,23 @@ def process_hcg(self, node):
     hcg = NodeStructure(node.abspath())
     try:
         hcg.parse_xml()
-    except ToolNotSupportedException:
+    except ToolNotSupportedError:
         self.bld.fatal("Unsupported tools selected in HALCoGen configuration file")
-    dil_path = os.path.join(
-        os.path.dirname(node.path_from(self.path)), hcg.dil_file_name
-    )
+        return
+    if not self.path or not hcg.dil_file_name:
+        self.bld.fatal("object error")
+        return
+    base_path = node.path_from(self.path)
+    if not base_path:
+        self.bld.fatal(f"Could determine base path of {self.path}")
+        return
+    dil_path = os.path.join(os.path.dirname(base_path), hcg.dil_file_name)
     dil_node = self.path.find_node(dil_path)
     if not dil_node:
         self.bld.fatal(
             f"No dil file '{hcg.dil_file_name}' to hcg file '{node.abspath()}'."
         )
+
     hcg_node = node
     hcg_sources = [hcg_node, dil_node]
 
@@ -175,6 +189,7 @@ def process_hcg(self, node):
         self.path.find_or_declare(dil_node.name),
     ]
     log_file = [self.path.find_or_declare(node.name.replace(node.suffix(), ".log"))]
+    cpu_clock_config_header = []
     if hcg.uses_freertos:
         cpu_clock_config_header = [
             self.path.find_or_declare("include/config_cpu_clock_hz.h")
@@ -186,33 +201,27 @@ def process_hcg(self, node):
         preliminary_tgt.extend(cpu_clock_config_header)
     preliminary_tgt.extend(gen_headers + gen_sources)
 
-    # OS files and some additionally provided files need to be removed
-    remove = [self.path.find_or_declare(i) for i in getattr(self, "remove", [])]
-    if hcg.uses_freertos:
-        remove.extend(
-            [
-                self.path.find_or_declare("include/FreeRTOSConfig.h"),
-                self.path.find_or_declare("include/FreeRTOS.h"),
-            ]
-        )
-
-    if hcg.uses_freertos:
-        for i in gen_headers + gen_sources:
-            if i.name.startswith("os_"):
-                remove.append(i)
+    # define remove files
+    remove_attr = getattr(self, "remove", "")
+    remove = []
+    with open(remove_attr.abspath(), encoding="utf-8") as f:
+        remove_txt = f.read()
+        try:
+            remove: list = load(remove_txt, Loader=Loader)
+        except YAMLError:
+            self.bld.fatal("Could not load remove configuration.")
+        except (FileNotFoundError, TypeError):
+            self.bld.fatal("Could not load remove configuration file.")
+    remove = [self.path.find_or_declare(i) for i in remove]
     err = 0
     for i in remove:
         if not isinstance(i, Node):
             Logs.error(f"{i} is not a 'waflib.Node.Node'.")
             err += 1
     if err:
-        self.bld.fatal("An instance provided in 'remove' is not a 'waflib.Node.Node'.")
-
+        self.bld.fatal("Could not find all need-to-be-removed files.")
     # create the actual target list
-    tgt = []
-    for i in preliminary_tgt:
-        if i not in remove:
-            tgt.append(i)
+    tgt = [i for i in preliminary_tgt if i not in remove]
 
     self.create_task(
         "hcg_compiler",
@@ -240,7 +249,7 @@ def process_hcg(self, node):
             self.includes = ["include"]
 
 
-class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
+class hcg_compiler(Task.Task):
     """Class to implement running the HALCoGen code generator"""
 
     #: list of string: variables this task depends on
@@ -253,7 +262,7 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
     ext_out = [".h", ".c", ".asm"]
 
     def keyword(self):
-        """displayed keyword when generating sources from a HALCoGen project"""
+        """Displayed keyword when generating sources from a HALCoGen project"""
         return "Compiling"
 
     def run(self):
@@ -269,7 +278,7 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
            directory are synchronized.
 
         """
-        for src, tgt in zip(self.inputs[:2], self.outputs[:2]):
+        for src, tgt in zip(self.inputs[:2], self.outputs[:2], strict=False):
             shutil.copy2(src.abspath(), tgt.abspath())
 
         cmd = Utils.subst_vars(
@@ -280,6 +289,8 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
             self.generator.bld.exec_command(cmd)
         except Errors.WafError:
             self.generator.bld.fatal("Could not generate HAL sources.")
+        # now we have all files that HALCoGen created, including the ones we
+        # do actually not need
 
         # get clock info from generated source 'FreeRTOSConfig.h'
         if self.uses_freertos:  # pylint: disable=no-member
@@ -290,6 +301,7 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
                 )
             except ValueError:
                 self.generator.bld.fatal("Could not find 'FreeRTOSConfig.h'.")
+
             # pylint: disable-next=no-member
             freertos_config = self.remove_files[freertos_file_id].read()
             frequency = None
@@ -318,6 +330,7 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
         if not startup_node:
             self.generator.bld.fatal("Could not find startup source.")
 
+        hl_sys_startup_file = None
         try:
             hl_sys_startup_file = self.outputs.index(startup_node)
             tmp = self.outputs
@@ -359,12 +372,12 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
         # HALCoGen alters the timestamp hardcoded in the copied file after it
         # generated the sources, we do not want that, therefore overwrite the
         # altered HALCoGen files with the "original" ones
-        for src, tgt in zip(self.inputs[:2], self.outputs[:2]):
+        for src, tgt in zip(self.inputs[:2], self.outputs[:2], strict=False):
             shutil.copy2(src.abspath(), tgt.abspath())
         return 0
 
 
-@TaskGen.feature("c")
+@TaskGen.feature("c", "asm")
 @TaskGen.after_method("apply_incpaths")
 def fix_gen_hal_incs(self):
     """Add path to HALCoGen generated header files to every build"""
@@ -375,7 +388,7 @@ def fix_gen_hal_incs(self):
 
 
 def configure(ctx):
-    """configuration step of the TI HALCoGen Code Generator.
+    """Configuration step of the TI HALCoGen Code Generator.
 
     #. checks whether the platform is Win32 or not, as HALCoGen is only
        supported on Win32.
@@ -386,14 +399,14 @@ def configure(ctx):
     ctx.start_msg("Checking for TI Code Generator (HALCoGen)")
     ctx.find_program("HALCOGEN", var="HALCOGEN", mandatory=False)
     if ctx.env.HALCOGEN:
-        incpath_halcogen = os.path.join(
+        include_path_halcogen = os.path.join(
             pathlib.Path(ctx.env.HALCOGEN[0]).parent.parent.parent,
             "F021 Flash API",
             "02.01.01",
             "include",
         )
-        if os.path.exists(incpath_halcogen):
-            ctx.env.append_unique("INCLUDES", incpath_halcogen)
+        if os.path.exists(include_path_halcogen):
+            ctx.env.append_unique("INCLUDES", include_path_halcogen)
 
         libpath_halcogen = os.path.join(
             pathlib.Path(ctx.env.HALCOGEN[0]).parent.parent.parent,
@@ -402,7 +415,7 @@ def configure(ctx):
         )
         if os.path.exists(libpath_halcogen):
             ctx.env.append_unique("STLIBPATH", libpath_halcogen)
-        ctx.env["HALCOGEN_SRC_INPUT"] = ["-i"]
+        ctx.env.HALCOGEN_SRC_INPUT = ["-i"]
     else:
         Logs.warn(
             "HALCogen is not available  and therefore the code generator can not run."

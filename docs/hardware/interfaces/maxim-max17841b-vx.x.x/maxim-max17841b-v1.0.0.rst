@@ -29,8 +29,8 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING` and
-   :ref:`CONVENTION_FOR_SAMTEC_EDGE_RATE_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR` and
+   :ref:`SAMTEC_EDGE_RATE_CONNECTOR`.
 
 The |bms-interface| is used to enable communication between the |bms-master|
 and the |bms-slaves|.

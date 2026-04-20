@@ -13,6 +13,7 @@
 !tests/variants/lib-build/lib-build.ps1
 !tests/variants/lib-build/lib-build_cc-options.yaml
 !tests/variants/lib-build/lib-build_main.c
+
 /conf/hcg/include/*
 /conf/hcg/source/*
 /conf/hcg/*_bak.dil
@@ -33,6 +34,8 @@ tools/utils/waf-sig*
 *.7z
 *.stats
 *.html
+
+!tests/fox-cmds/db/dummy_db.zip
 
 #
 libbuild/
@@ -78,10 +81,6 @@ __pycache__
 *.~$*
 ~$*
 
-**/foxbms-2_axivion_report*.json
-**/foxbms_spa_report*.json
-spa-artifacts/
-
 *.o
 *.obj
 *.exe
@@ -112,3 +111,8 @@ codeInfo.*
 # fox CLI plot related files
 **/hash.json
 *.parquet
+
+**/temp_data_fox_cli*/*
+
+**/_autosummary/*
+**/_autosummary_hash.json

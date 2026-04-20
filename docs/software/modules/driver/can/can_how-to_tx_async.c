@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_how-to_tx_async.c
  * @author  foxBMS Team
  * @date    2023-09-28 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
@@ -62,7 +62,7 @@
 
 #include "can_cfg.h"
 
-#include "can_cbs_tx_debug-response.h"
+#include "can_cbs_tx_f_debug-response.h"
 #include "fstd_types.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -93,6 +93,7 @@
 /* example-can-tx-asynchronous-messages-callback-definition-start */
 extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e action) {
     STD_RETURN_TYPE_e success = STD_NOT_OK;
+    (void)action; /* So something meaningful */
     /* Do message handling stuff */
     return success;
 }

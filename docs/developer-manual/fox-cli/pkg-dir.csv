@@ -1,0 +1,7 @@
+Directory Name  ; Long Name    ; Content Description
+``cmd_*``       ; Command_*    ; Actual implementation of the specific CLI command
+``com``         ; Communication; Actual implementation of the communication functionalities
+``commands``    ; Commands     ; Implementation of the command line interface of each tool
+``db``          ; Database     ; Implementation for ``db`` command
+``helpers``     ; Helpers      ; Helper functions that are used by several parts of the CLI tool
+``project_data``; Project Data ; Files that are necessary for |fox-cli| to work

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -93,6 +93,31 @@
 
 /** SYS state machine initialization timeout */
 #define SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS (200u)
+
+/**
+ * SYS state machine initialization timeout to wait for the first measurement
+ * add driver specified macros if it is required to wait longer than the default
+ * initialization timeout to receive the first measurement
+ */
+#if defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#elif defined(FOXBMS_AFE_DRIVER_DEBUG) && (FOXBMS_AFE_DRIVER_DEBUG == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#elif defined(FOXBMS_AFE_DRIVER_DTNXP) && (FOXBMS_AFE_DRIVER_DTNXP == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (1000)
+#elif defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#elif defined(FOXBMS_AFE_DRIVER_MAXIM) && (FOXBMS_AFE_DRIVER_MAXIM == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#elif defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#elif defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#elif defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#else
+#define SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS)
+#endif
 
 /** SYS state machine IMD initialization timeout */
 #define SYS_STATE_MACHINE_IMD_INITIALIZATION_TIMEOUT_MS (500u)

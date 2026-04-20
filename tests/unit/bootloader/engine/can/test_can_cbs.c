@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -1143,7 +1143,7 @@ void testCAN_RxCrc8Bytes(void) {
     CAN_RxCrc8Bytes(testMessage, testData);
     TEST_ASSERT_EQUAL(CAN_FSM_STATE_RECEIVED_8_BYTES_DATA, can_stateOfCanCommunication);
 
-    /* ======= RT3/7: isFinishedTransferCurrentSector = true,  isThisTheLastDataLoop = false */
+    /* ======= RT3/7: isFinishedTransferCurrentSector = true, isThisTheLastDataLoop = false */
     uint64_t crc8Bytes;
     can_stateOfCanCommunication                          = CAN_FSM_STATE_RECEIVED_8_BYTES_DATA;
     can_infoOfDataTransfer.programCurrentSectorAddressU8 = 0x00020000;
@@ -1169,7 +1169,7 @@ void testCAN_RxCrc8Bytes(void) {
     TEST_ASSERT_EQUAL(crc8Bytes, can_infoOfDataTransfer.programCrc8Bytes);
     TEST_ASSERT_EQUAL(CAN_FSM_STATE_RECEIVED_8_BYTES_CRC, can_stateOfCanCommunication);
 
-    /* ======= RT4/7: isFinishedTransferCurrentSector = true,  isThisTheLastDataLoop = true  */
+    /* ======= RT4/7: isFinishedTransferCurrentSector = true, isThisTheLastDataLoop = true  */
     can_stateOfCanCommunication                        = CAN_FSM_STATE_RECEIVED_8_BYTES_DATA;
     can_infoOfDataTransfer.numOfCurrentLoop            = 32768u;
     can_infoOfDataTransfer.totalNumOfDataTransferLoops = 32768u;
@@ -1193,7 +1193,7 @@ void testCAN_RxCrc8Bytes(void) {
     TEST_ASSERT_EQUAL(crc8Bytes, can_infoOfDataTransfer.programCrc8Bytes);
     TEST_ASSERT_EQUAL(CAN_FSM_STATE_RECEIVED_8_BYTES_CRC, can_stateOfCanCommunication);
 
-    /* ======= RT5/7: isFinishedTransferCurrentSector = false,  isThisTheLastDataLoop = true */
+    /* ======= RT5/7: isFinishedTransferCurrentSector = false, isThisTheLastDataLoop = true */
     can_stateOfCanCommunication                         = CAN_FSM_STATE_RECEIVED_8_BYTES_DATA;
     can_infoOfDataTransfer.sectorBufferCurrentAddressU8 = 0x08030000;
     can_infoOfDataTransfer.numOfCurrentLoop             = 32768u;

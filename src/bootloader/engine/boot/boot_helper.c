@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    boot_helper.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  BOOT
  *
@@ -52,6 +52,8 @@
  *          the functions that can assist the functions in boot.c and boot.h
  * @details TODO
  */
+
+/* cspell:ignore SYSECR */
 
 /*========== Includes =======================================================*/
 #include "boot_helper.h"
@@ -146,7 +148,7 @@ extern STD_RETURN_TYPE_e BOOT_UpdateProgramInfoIntoFlash(void) {
     CAN RX) */
     _disable_IRQ_interrupt_();
 
-    /* Check the variables that carry the vector tables again before writting
+    /* Check the variables that carry the vector tables again before writing
     them into the memory buffer, which will be later dumped into a flash sector:
     if any member of the vector tables is zero, the next steps will be not executed. */
     for (uint8_t i_vector = 0u; i_vector < BOOT_NUM_OF_VECTOR_TABLE_8_BYTES; i_vector++) {

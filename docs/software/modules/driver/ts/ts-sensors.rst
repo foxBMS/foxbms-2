@@ -18,6 +18,7 @@ implement the :ref:`temperature_sensor_api`.
 
     ./epcos/b57251v5103j060.rst
     ./epcos/b57861s0103f045.rst
+    ./epcos/b57332v5103f360.rst
     ./fake/none.rst
     ./murata/ncxxxxh103.rst
     ./semitec/103jt.rst

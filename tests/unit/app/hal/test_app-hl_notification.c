@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_app-hl_notification.c
  * @author  foxBMS Team
  * @date    2025-08-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,7 +72,6 @@
 #include "HL_eqep.h"
 #include "HL_ecap.h"
 #include "HL_epc.h"
-#include "HL_emac.h"
 #include "HL_sys_dma.h"
 #include "HL_hal_stdtypes.h"
 /* clang-format on */
@@ -137,10 +136,6 @@ void testlinNotification(void) {
     linNotification(NULL_PTR, 0u); /* arguments do not matter as unused */
 }
 
-void testsciNotification(void) {
-    sciNotification(NULL_PTR, 0u); /* arguments do not matter as unused */
-}
-
 void testspiEndNotification(void) {
     spiEndNotification(NULL_PTR); /* arguments do not matter as unused */
 }
@@ -179,12 +174,4 @@ void testepcCAMFullNotification(void) {
 
 void testepcFIFOFullNotification(void) {
     epcFIFOFullNotification(0u); /* arguments do not matter as unused */
-}
-
-void testemacTxNotification(void) {
-    emacTxNotification(NULL_PTR); /* arguments do not matter as unused */
-}
-
-void testemacRxNotification(void) {
-    emacRxNotification(NULL_PTR); /* arguments do not matter as unused */
 }

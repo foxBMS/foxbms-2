@@ -12,8 +12,8 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/imd/none/no-imd.c``
-- ``src/app/driver/imd/none/no-imd.h``
+- ``src/app/driver/imd/none/none/none_none.c``
+- ``src/app/driver/imd/none/none/none_none.h``
 
 Configuration
 ^^^^^^^^^^^^^
@@ -23,7 +23,7 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/imd/none/test_no-imd.c``
+- ``tests/unit/app/driver/imd/none/none/test_none_none.c``
 
 Description
 -----------

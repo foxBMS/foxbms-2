@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    version.h
  * @author  foxBMS Team
  * @date    2021-07-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  VER
  *
@@ -67,7 +67,7 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-/** maximum length of the string #VER_VERSION_s::gitRemote
+/** maximum length of the string #VER_VERSION_s::remote
  *
  * Has to be in line with the value in f_ti_arm_cgt.py!
  */
@@ -90,8 +90,8 @@ typedef struct {
     const uint8_t minor;                    /*!< minor release version */
     const uint8_t patch;                    /*!< patch release version */
     const uint16_t distanceFromLastRelease; /*!< distance in commits from the last tagged release in version control */
-    const char commitHash[VER_VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH];  /*!< hash of the last commit */
-    const char gitRemote[VER_VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH]; /*!< address of the git remote linked in the
+    const char commitHash[VER_VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH]; /*!< hash of the last commit */
+    const char remote[VER_VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH];   /*!< address of the git remote linked in the
                                                                               repository */
 } VER_VERSION_s;
 

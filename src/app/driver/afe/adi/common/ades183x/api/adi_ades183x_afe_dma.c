@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -54,6 +54,8 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "dma_cfg.h"
 
 #include "adi_ades183x.h"
@@ -78,8 +80,10 @@
 
 /* Function called on DMA complete interrupts (TX and RX). */
 void AFE_DmaCallback(uint8_t spiIndex) {
-    FAS_ASSERT(spiIndex == ADI_SPI_INDEX);
-    (void)OS_NotifyFromIsr(ftsk_taskHandleAfe, ADI_DMA_SPI_FINISHED_NOTIFICATION_VALUE);
+    FAS_ASSERT((spiIndex == SPI_GetSpiIndex(spiREG1)) || (spiIndex == SPI_GetSpiIndex(spiREG4)));
+    if (spiIndex == ADI_SPI_INDEX) {
+        (void)OS_NotifyFromIsr(ftsk_taskHandleAfe, ADI_DMA_SPI_FINISHED_NOTIFICATION_VALUE);
+    }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,7 +38,8 @@
 # - "This product is derived from foxBMS®"
 
 """Defines MCU and binary specific constants. These values shall be aligned
-with the embedded counterpart implementation of the bootloader."""
+with the embedded counterpart implementation of the bootloader.
+"""
 
 from dataclasses import dataclass
 

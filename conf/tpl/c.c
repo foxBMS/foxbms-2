@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -40,33 +40,40 @@
  */
 
 /**
- * @file    c.c
- * @author  foxBMS Team
- * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
- * @ingroup SOME_GROUP
- * @prefix  ABC
+ * @file    ${file_name}
+ * @author  ${author}
+ * @date    ${date}
+ * @updated ${updated}
+ * @version ${version}
+ * @ingroup ${ingroup}
+ * @prefix  ${prefix}
  *
- * @brief   Implementation of some software
- * @details Some detailed explanation
+ * @brief   ${brief}
+ * @details ${details}
  */
 
 /*========== Includes =======================================================*/
-#include "c.h"
+/* @include_directives@ */
 
 /*========== Macros and Definitions =========================================*/
+/* @macros_and_definitions@ */
 
 /*========== Static Constant and Variable Definitions =======================*/
+/* @static_constant_and_variable_definitions@ */
 
 /*========== Extern Constant and Variable Definitions =======================*/
+/* @extern_constant_and_variable_definitions@ */
 
 /*========== Static Function Prototypes =====================================*/
+/* @static_function_prototypes@ */
 
 /*========== Static Function Implementations ================================*/
+/* @static_function_implementations@ */
 
 /*========== Extern Function Implementations ================================*/
+/* @extern_function_implementations@ */
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+/* @unit_test_static_function_implementations@ */
 #endif

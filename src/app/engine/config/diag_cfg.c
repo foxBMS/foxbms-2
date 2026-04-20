@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -120,7 +120,6 @@ const DIAG_DATABASE_SHIM_s diag_kDatabaseShim = {
 /** variable tracking the state of the diag channels */
 DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     /* clang-format off */
-    {DIAG_ID_FLASHCHECKSUM,                                     DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_DummyCallback},
     {DIAG_ID_SYSTEM_MONITORING,                                 DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_ErrorSystemMonitoring},
     {DIAG_ID_INTERLOCK_FEEDBACK,                                DIAG_SEN_EVENT_10,  DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorInterlock},
     {DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST,                     DIAG_SEN_EVENT_3,   DIAG_FATAL_ERROR,   DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_SupplyVoltageClamp30c},
@@ -165,10 +164,10 @@ DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     {DIAG_ID_CAN_TIMING,                                        DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_200ms,   DIAG_CAN_TIMING,            DIAG_ErrorCanTiming},
     {DIAG_ID_CAN_RX_QUEUE_FULL,                                 DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_DISCARD, DIAG_EVALUATION_ENABLED,    DIAG_ErrorCanRxQueueFull},
     {DIAG_ID_CAN_TX_QUEUE_FULL,                                 DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_DISCARD, DIAG_EVALUATION_ENABLED,    DIAG_ErrorCanTxQueueFull},
-    {DIAG_ID_CURRENT_SENSOR_CC_RESPONDING,                      DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_2000ms,  DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorCurrentSensor},
-    {DIAG_ID_CURRENT_SENSOR_EC_RESPONDING,                      DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_2000ms,  DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorCurrentSensor},
-    {DIAG_ID_CURRENT_SENSOR_RESPONDING,                         DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_200ms,   DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorCurrentSensor},
-    {DIAG_ID_SBC_FIN_ERROR,                                     DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_Sbc},
+    {DIAG_ID_CURRENT_SENSOR_CC_RESPONDING,                      DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_2000ms,  DIAG_EVALUATION_ENABLED,    DIAG_ErrorCurrentSensor},
+    {DIAG_ID_CURRENT_SENSOR_EC_RESPONDING,                      DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_2000ms,  DIAG_EVALUATION_ENABLED,    DIAG_ErrorCurrentSensor},
+    {DIAG_ID_CURRENT_SENSOR_RESPONDING,                         DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_200ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorCurrentSensor},
+    {DIAG_ID_SBC_FIN_ERROR,                                     DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_Sbc},
     {DIAG_ID_SBC_RSTB_ERROR,                                    DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_Sbc},
     {DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE,                         DIAG_SEN_EVENT_10,  DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorPlausibility},
     {DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK,                   DIAG_SEN_EVENT_20,  DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_StringContactorFeedback},
@@ -189,10 +188,10 @@ DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     {DIAG_ID_CURRENT_MEASUREMENT_ERROR,                         DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorCurrentMeasurement},
     {DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE,                    DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_DISCARD, DIAG_EVALUATION_ENABLED,    DIAG_PrechargeProcess},
     {DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT,                    DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_DISCARD, DIAG_EVALUATION_ENABLED,    DIAG_PrechargeProcess},
-    {DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT,             DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorHighVoltageMeasurement},
-    {DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT,             DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorHighVoltageMeasurement},
-    {DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT,             DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorHighVoltageMeasurement},
-    {DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT,          DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorPowerMeasurement},
+    {DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT,             DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorHighVoltageMeasurement},
+    {DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT,             DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorHighVoltageMeasurement},
+    {DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT,             DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorHighVoltageMeasurement},
+    {DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT,          DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorPowerMeasurement},
     {DIAG_ID_POWER_MEASUREMENT_ERROR,                           DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorPowerMeasurement},
     {DIAG_ID_INSULATION_MEASUREMENT_VALID,                      DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_DISCARD, DIAG_EVALUATION_ENABLED,    DIAG_Insulation},
     {DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR,                   DIAG_SEN_EVENT_5,   DIAG_WARNING,       DIAG_DELAY_DISCARD, DIAG_EVALUATION_ENABLED,    DIAG_Insulation},
@@ -205,6 +204,7 @@ DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     {DIAG_ID_FRAM_READ_CRC_ERROR,                               DIAG_SEN_EVENT_1,   DIAG_INFO,          DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_FramError},
     {DIAG_ID_ALERT_MODE,                                        DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_AlertFlag},
     {DIAG_ID_AEROSOL_ALERT,                                     DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_AerosolAlert},
+    {DIAG_ID_AFE_ALARM,                                         DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_NO_DELAY,      DIAG_EVALUATION_ENABLED,    DIAG_ErrorAfe},
     /* clang-format on */
 };
 

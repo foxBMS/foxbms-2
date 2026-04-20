@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -36,7 +36,7 @@
 # - "This product uses parts of foxBMS®"
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
-"""Command line interface definition for waf"""
+"""Click command definition for invoking ``waf``."""
 
 import click
 
@@ -56,7 +56,7 @@ CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
 @click.argument("waf_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def waf(ctx: click.Context, cwd: str, waf_args: tuple[str]) -> None:
-    """Run the 'waf' tool."""
+    """Run the ``waf`` build tool."""
     if cwd:
         ret = build_impl.run_waf(list(waf_args), cwd=cwd, stdout=None, stderr=None)
     else:

@@ -18,3 +18,18 @@
 
 There are no changes that need a new documentation compared to v1.2.2,
 therefore see :ref:`TI_TMS570_BASED_BMS_MASTER_V1_2_2`.
+
+.. _REMOVING_THE_PULL_UP_RESISTOR_FOR_THE_PHY:
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Removing the Pull-up Resistor for the PHY
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In |bms-master| v1.2.3 and below, the PHY is enabled by default,
+which can cause issues when connecting the Ethernet cable.
+To avoid this, the pull-up resistors enabling the PHY should be removed.
+The image below shows the location of the pull-up resistors on the PCB.
+
+.. image:: ./ti-tms570lc4357-v1.2.3/img/ti-tms570lc4357-v1.2.3_pull_up_resistors.png
+   :alt: Pull-up resistors for the PHY
+   :name: ti-tms570lc4357-v1.2.3_pull_up_resistors

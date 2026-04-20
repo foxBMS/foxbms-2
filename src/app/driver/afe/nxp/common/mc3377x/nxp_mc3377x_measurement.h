@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x_measurement.h
  * @author  foxBMS Team
  * @date    2025-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -56,6 +56,8 @@
 #define FOXBMS__NXP_MC3377X_MEASUREMENT_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "nxp_mc3377x_cfg.h"
 
 #include "nxp_mc3377x-ll.h"
@@ -88,8 +90,8 @@ extern void TEST_N77x_InitMeasurement(N77X_STATE_s *pState);
 #if defined(FOXBMS_AFE_DRIVER_NXP_MC33775A)
 extern void TEST_N77x_RetrieveVoltages(N77X_STATE_s *pState, uint8_t m, uint16_t *primaryRawValues, bool *gpio03Error);
 extern void TEST_N77x_RetrieveTemperatures(N77X_STATE_s *pState, uint8_t m, bool *gpio03Error, bool *gpio47Error);
-extern void TEST_N77x_RetrieveMeasurement(N77X_STATE_s *pState);
 #endif
+extern void TEST_N77x_RetrieveMeasurement(N77X_STATE_s *pState);
 #endif
 
 #endif /* FOXBMS__NXP_MC3377X_MEASUREMENT_H_ */

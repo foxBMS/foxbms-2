@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -120,6 +120,7 @@ ADI_STATE_s adi_stateBase = {
     .firstMeasurementMade              = false,
     .firstDiagnosticMade               = false,
     .currentString                     = 0u,
+    .diagnosticType                    = {ADI_SM_START},
     .redundantAuxiliaryChannel         = {0u},
     .data.txBuffer                     = adi_bufferTxPec,
     .data.rxBuffer                     = adi_bufferRxPec,
@@ -418,6 +419,11 @@ extern void ADI_MeasurementCycle(ADI_STATE_s *pAdiState) {
         break;
 #endif
     }
+}
+
+extern uint64_t *ADI_IdentifyAfes(void) {
+    /* Return serial ids of AFE */
+    return &adi_stateBase.serialId[0][0];
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

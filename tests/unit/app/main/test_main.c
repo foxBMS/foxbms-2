@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_main.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,7 +64,6 @@
 #include "MockHL_sys_core.h"
 #include "MockHL_system.h" /* getResetSource */
 #include "Mockadc.h"
-#include "Mockchecksum.h"
 #include "Mockdiag.h"
 #include "Mockdiag_cfg.h"
 #include "Mockdma.h"
@@ -85,7 +84,6 @@
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/driver/adc")
-TEST_INCLUDE_PATH("../../src/app/driver/checksum")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/dma")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
@@ -142,7 +140,7 @@ void tearDown(void) {
 
 void testMain(void) {
     /* ======= Assertion tests ============================================= */
-    /* ======= AT1/3 ======= */
+    /* ======= AT1/2 ======= */
     getResetSource_ExpectAndReturn(POWERON_RESET);
     resetSource_t resetSource = POWERON_RESET;
     MINFO_SetResetSource_Expect(resetSource);
@@ -162,7 +160,7 @@ void testMain(void) {
     OS_CheckTimeHasPassedSelfTest_ExpectAndReturn(STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(unit_test_main());
 
-    /* ======= AT2/3 ======= */
+    /* ======= AT2/2 ======= */
     getResetSource_ExpectAndReturn(POWERON_RESET);
     resetSource = POWERON_RESET;
     MINFO_SetResetSource_Expect(resetSource);
@@ -183,32 +181,6 @@ void testMain(void) {
     OS_InitializeOperatingSystem_Expect();
     _enable_IRQ_interrupt__Expect();
     os_boot = OS_OFF; /* initialization of the OS failed */
-    TEST_ASSERT_FAIL_ASSERT(unit_test_main());
-
-    /* ======= AT3/3 ======= */
-    getResetSource_ExpectAndReturn(POWERON_RESET);
-    resetSource = POWERON_RESET;
-    MINFO_SetResetSource_Expect(resetSource);
-    muxInit_Expect();
-    gioInit_Expect();
-    SPI_Initialize_Expect();
-    adcInit_Expect();
-    hetInit_Expect();
-    etpwmInit_Expect();
-    crcInit_Expect();
-    LED_SetDebugLed_Expect();
-    I2C_Initialize_Expect();
-    DMA_Initialize_Expect();
-    PWM_Initialize_Expect();
-    DIAG_Initialize_ExpectAndReturn(&diag_device, STD_OK);
-    MATH_StartupSelfTest_Expect();
-    OS_CheckTimeHasPassedSelfTest_ExpectAndReturn(STD_OK);
-    OS_InitializeOperatingSystem_Expect();
-    os_boot = OS_INIT_PRE_OS; /* successful initialization of the OS */
-    _enable_IRQ_interrupt__Expect();
-    CHK_ValidateChecksum_ExpectAndReturn(STD_NOT_OK); /* checksum failed */
-    DIAG_Handler_ExpectAndReturn(
-        DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_ERR_OCCURRED);
     TEST_ASSERT_FAIL_ASSERT(unit_test_main());
 
     /* ======= Routine tests =============================================== */
@@ -234,7 +206,6 @@ void testMain(void) {
     OS_InitializeOperatingSystem_Expect();
     os_boot = OS_INIT_PRE_OS; /* successful initialization of the OS */
     _enable_IRQ_interrupt__Expect();
-    CHK_ValidateChecksum_ExpectAndReturn(STD_OK); /* checksum check successful */
     OS_GetTickCount_ExpectAndReturn(0u);
     OS_StartScheduler_Expect();
     /* ======= RT1/1: call function under test */

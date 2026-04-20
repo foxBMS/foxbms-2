@@ -5,6 +5,9 @@
 bms
 ===
 
+..
+   cspell:ignore getrtc mcuid mculotnumber mcuwaferinfo
+
 The bms tool provides a shell that enables communication with the |foxbms|
 through a CAN bus.
 This makes low-level debugging possible through only a terminal.

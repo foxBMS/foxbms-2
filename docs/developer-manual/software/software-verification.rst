@@ -16,12 +16,3 @@ software.
 
 Failing tests lead to a rejection of the feature branch until the test suite
 passes (see :numref:`SOFTWARE_DEVELOPMENT_PROCESS`).
-
-Software Analysis
------------------
-
-The source code is subject to a static program analysis. These tests are
-performed by Axivion Suite (see :numref:`AXIVION_BAUHAUS_SUITE`).
-
-The architecture is verified by the Axivion Suite (see
-:numref:`AXIVION_BAUHAUS_SUITE`)

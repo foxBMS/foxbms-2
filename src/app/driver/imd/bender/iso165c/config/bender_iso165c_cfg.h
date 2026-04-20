@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,21 +43,23 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
  * @brief   Headers for the configuration for the insulation monitoring
- * @details Please see the manual and data sheet for detailed information about
+ * @details Please see the manual and datasheet for detailed information about
  *          the specifications and defines used within this file.
  *
  *          docref: iso165C_C1_D00154_06_M_XXEN - 03/2021 - Manual
- *          docref: iso165Cx_D00154_04_D_XXEN - 03/2021 - Data sheet
+ *          docref: iso165Cx_D00154_04_D_XXEN - 03/2021 - Datasheet
  */
 
 #ifndef FOXBMS__BENDER_ISO165C_CFG_H_
 #define FOXBMS__BENDER_ISO165C_CFG_H_
+
+/* cspell:ignore MANUFACT RELAIS XXEN */
 
 /*========== Includes =======================================================*/
 
@@ -100,7 +102,7 @@
 #endif
 
 /** Measurement averaging factor */
-#define I165C_MEASUREMENT_AVERAGING_FACTOR (10u) /* Recommended value for EVs according to data sheet: 10 */
+#define I165C_MEASUREMENT_AVERAGING_FACTOR (10u) /* Recommended value for EVs according to datasheet: 10 */
 
 /** Number of attempts to get acknowledgement of message reception by i165c */
 #define I165C_TRANSMISSION_ATTEMPTS (3u)
@@ -114,7 +116,7 @@
 /** Maximum queue timeout time in milliseconds */
 #define I165C_QUEUE_TIMEOUT_ms ((TickType_t)0u)
 
-/** data sheet version: iso165C_D00154_03_M_XXEN/01.2019 */
+/** datasheet version: iso165C_D00154_03_M_XXEN/01.2019 */
 
 /**
  * frames have up to two data words
@@ -123,7 +125,7 @@
  * (1 data byte length = 8 bits)
  *
  * CAUTION: data word order is reversed !!!!!!!!!
- * (see data sheet page 15)
+ * (see datasheet page 15)
  */
 
 /** data word 1 is in first position */
@@ -144,11 +146,11 @@
 /** type of messages to communicate with I165C */
 
 /** cyclic message, transmitted every second */
-#define I165C_MESSAGE_TYPE_IMD_INFO (CANRX_IMD_INFO_ID)
+#define I165C_MESSAGE_TYPE_IMD_INFO (CANRX_IMD_BENDER_ISO165C_INFO_ID)
 /** message for requests (self test, reset, set values...) */
-#define I165C_MESSAGE_TYPE_IMD_REQUEST (CANTX_IMD_REQUEST_ID)
+#define I165C_MESSAGE_TYPE_IMD_REQUEST (CANTX_IMD_BENDER_ISO165C_REQUEST_ID)
 /** TX message identifier type */
-#define I165C_TX_MESSAGE_IDENTIFIER_TYPE (CANTX_IMD_REQUEST_ID_TYPE)
+#define I165C_TX_MESSAGE_IDENTIFIER_TYPE (CANTX_IMD_BENDER_ISO165C_REQUEST_ID_TYPE)
 
 /** control commands (CTL) */
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -53,12 +53,16 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "ftask_cfg.h"
 
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "HL_mdio.h"
-
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+#include "NetworkInterface_custom.h"
+#endif
 #include "adc.h"
 #include "algorithm.h"
 #include "bal.h"
@@ -68,7 +72,6 @@
 #include "database.h"
 #include "diag.h"
 #include "dma.h"
-#include "dp83869.h"
 #include "fram.h"
 #include "htsensor.h"
 #include "i2c.h"
@@ -87,6 +90,10 @@
 #include "state_estimation.h"
 #include "sys.h"
 #include "sys_mon.h"
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#include "os.h"
+#include "uart.h"
+#endif
 
 #include <stdint.h>
 
@@ -145,12 +152,32 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c = {
     FTSK_TASK_I2C_CYCLE_TIME,
     FTSK_TASK_I2C_STACK_SIZE_IN_BYTES,
     FTSK_TASK_I2C_PV_PARAMETERS};
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
     FTSK_TASK_AFE_PRIORITY,
     FTSK_TASK_AFE_PHASE,
     FTSK_TASK_AFE_CYCLE_TIME,
     FTSK_TASK_AFE_STACK_SIZE_IN_BYTES,
     FTSK_TASK_AFE_PV_PARAMETERS};
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+OS_TASK_DEFINITION_s ftsk_taskDefinitionUart = {
+    FTSK_TASK_UART_PRIORITY,
+    FTSK_TASK_UART_PHASE,
+    FTSK_TASK_UART_CYCLE_TIME,
+    FTSK_TASK_UART_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_UART_PV_PARAMETERS};
+#endif
+
+#if defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1)
+OS_TASK_DEFINITION_s ftsk_taskDefinitionEmac = {
+    FTSK_TASK_EMAC_PRIORITY,
+    FTSK_TASK_EMAC_PHASE,
+    FTSK_TASK_EMAC_CYCLE_TIME,
+    FTSK_TASK_EMAC_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_EMAC_PV_PARAMETERS};
+#endif
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -159,19 +186,13 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
 /*========== Extern Function Implementations ================================*/
 extern void FTSK_InitializeUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
-    /* See function definition doxygen comment for details */
+    /* See function declaration doxygen comment for details */
     STD_RETURN_TYPE_e retval = DATA_Initialize();
 
     if (retval == STD_NOT_OK) {
         FAS_ASSERT(FAS_TRAP);
     }
 
-    /* Suspend AFE task if unused, otherwise it will preempt all lower priority tasks */
-#if (FOXBMS_AFE_DRIVER_TYPE_FSM == 1)
-    OS_SuspendTask(ftsk_taskHandleAfe);
-#endif
-
-    /* Init FRAM */
     FRAM_Initialize();
 
     retval = SYSM_Initialize();
@@ -181,16 +202,16 @@ extern void FTSK_InitializeUserCodeEngine(void) {
     }
 
     /* Warning: Do not change the content of this function */
-    /* See function definition doxygen comment for details */
+    /* See function declaration doxygen comment for details */
 }
 
 extern void FTSK_RunUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
-    /* See function definition doxygen comment for details */
+    /* See function declaration doxygen comment for details */
     DATA_Task();               /* Call database manager */
     SYSM_CheckNotifications(); /* Check notifications from tasks */
                                /* Warning: Do not change the content of this function */
-                               /* See function definition doxygen comment for details */
+                               /* See function declaration doxygen comment for details */
 }
 
 extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
@@ -206,14 +227,10 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
 
     CONT_Initialize();
     SPS_Initialize();
-    (void)MEAS_Initialize(); /* cast to void as the return value is unused */
+    (void)MEAS_Initialize();
 
     /* Initialize redundancy module */
     (void)MRC_Initialize();
-
-    MDIOInit(PHY_MDIO_BASE, MDIO_FREQ_INPUT, MDIO_FREQ_OUTPUT);
-
-    (void)PHY_Initialize(PHY_MDIO_BASE);
 
     /* This function operates under the assumption that it is called when
      * the operating system is not yet running.
@@ -303,12 +320,29 @@ void FTSK_RunUserCodeI2c(void) {
     OS_DelayTaskUntil(&current_time, 2u);
 }
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 void FTSK_RunUserCodeAfe(void) {
     /* user code */
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
     MEAS_Control();
-#endif
 }
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+void FTSK_RunUserCodeUart(void) {
+    /* user code */
+
+    UART_HandleFlowControl();
+
+    (void)OS_NotifyTake(pdTRUE, portMAX_DELAY);
+}
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+void FTSK_RunUserCodeEmac(void) {
+    /* Reception of ethernet packets. */
+    NIC_Receive();
+}
+#endif
 
 extern void FTSK_RunUserCodeIdle(void) { /* user code */
 }

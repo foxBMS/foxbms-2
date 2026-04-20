@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    i2c.h
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -90,7 +90,7 @@
 /* Notification value sent when RX DMA interrupt comes. Arbitrary unique value. */
 #define I2C_RX_NOTIFIED_VALUE (0x61u)
 /* Notification value sent when RX DMA interrupt comes but last byte cannot be read. Arbitrary unique value. */
-#define I2C_RX_NOTCOME_VALUE (0x62u)
+#define I2C_RX_NOT_COME_VALUE (0x62u)
 /**
  * Time in ms to wait for DMA notification, after this delay the transaction
  * is considered to have failed

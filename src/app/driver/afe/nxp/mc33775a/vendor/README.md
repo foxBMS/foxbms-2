@@ -1,6 +1,6 @@
 # Vendored Sources and Headers for the NXP MC33775A Driver
 
-This directory contains vendored (i.e. unmodified) source and header files
+This directory contains vendored (i.e., unmodified) source and header files
 from NXP ([NXP Semiconductors N.V.](https://www.nxp.com)) which are needed to
 build the *Analog Front-End* (AFE)for the NXP MC33775A driver for foxBMS 2.
 

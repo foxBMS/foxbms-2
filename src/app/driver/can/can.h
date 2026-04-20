@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -131,7 +131,7 @@ extern void CAN_Initialize(void);
 /**
  * @brief   Enables periodic sending per CAN.
  * This is used to prevent sending uninitialized data per CAN
- * (e.g., before the first LTC measurement cycle was completed).
+ * (e.g., before the first AFE measurement cycle was completed).
  */
 extern void CAN_EnablePeriodic(bool command);
 
@@ -167,12 +167,10 @@ extern STD_RETURN_TYPE_e TEST_CAN_PeriodicTransmit(void);
 extern uint32_t TEST_CAN_CalculateCounterResetValue(void);
 extern void TEST_CAN_CheckCanTiming(void);
 extern bool TEST_CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex);
-#if BS_CURRENT_SENSOR_PRESENT == true
 extern void TEST_CAN_SetCurrentSensorPresent(bool command, uint8_t stringNumber);
 extern void TEST_CAN_SetCurrentSensorCcPresent(bool command, uint8_t stringNumber);
 extern void TEST_CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber);
 extern void TEST_CAN_CheckCanTimingOfCurrentSensor(void);
-#endif /* BS_CURRENT_SENSOR_PRESENT == true */
 extern void TEST_CAN_ConfigureRxMailboxesForExtendedIdentifiers(void);
 extern void TEST_CAN_InitializeTransceiver(void);
 extern CAN_NODE_s *TEST_CAN_GetNodeConfigurationStructFromRegisterAddress(canBASE_t *pNodeRegister);

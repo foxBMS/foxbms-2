@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_fram.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -91,7 +91,7 @@ VER_VERSION_s ver_versionInformation VER_VERSION_INFORMATION = {
     .patch                   = 122,
     .distanceFromLastRelease = 22,
     .commitHash              = "abcdefgh",
-    .gitRemote               = "git@remote-repo.de:foxbms-2.git",
+    .remote                  = "git@remote-repo.de:foxbms-2.git",
 };
 
 #define FRAM_WRITE_COMMAND        (0x02u)
@@ -234,13 +234,36 @@ void testFRAM_WriteData(void) {
     for (uint8_t i = 0u; i < (fram_databaseHeader[FRAM_BLOCK_ID_VERSION]).datalength; i++) {
         SPI_FramTransmitReceiveData_Expect(&spi_framInterface, &writeData, &read, 1u);
     }
-
     IO_PinSet_Expect(spi_framInterface.pGioPort, spi_framInterface.csPin);
     SPI_GetSpiIndex_ExpectAndReturn(spi_framInterface.pNode, SPI_SPI1_INDEX);
     SPI_Unlock_Expect(0u);
 
     FRAM_RETURN_TYPE_e retSuccess = FRAM_WriteData(FRAM_BLOCK_ID_VERSION);
     TEST_ASSERT_EQUAL(FRAM_ACCESS_OK, retSuccess);
+}
+
+/**
+ * @brief   Testing extern function #FRAM_ReinitializeAllEntries
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testFRAM_ReinitializeAllEntries(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+
+    /* ======= RT1/1: Test implementation */
+    uint64_t crc           = 0u;
+    uint8_t *write         = 0u;
+    uint32_t lengthInBytes = 0u;
+    for (uint8_t i = 0u; i < (uint8_t)FRAM_BLOCK_MAX; i++) {
+        crc           = 0u;
+        write         = (uint8_t *)(fram_databaseHeader[i]).blockptr;
+        lengthInBytes = (fram_databaseHeader[i]).datalength;
+        CRC_CalculateCrc_ExpectAndReturn(&crc, write, lengthInBytes, STD_NOT_OK);
+    }
+    FRAM_ReinitializeAllEntries();
 }
 
 /**

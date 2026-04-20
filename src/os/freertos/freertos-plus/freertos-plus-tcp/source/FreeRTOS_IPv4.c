@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.3.2
+ * FreeRTOS+TCP V4.3.3
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -82,7 +82,7 @@
 
         /* Map the buffer onto a IP-Packet struct to easily access the
          * fields of the IP packet. */
-        const IPPacket_t * const pxIPPacket = ( (  IPPacket_t *  ) pvEthernetBuffer );
+        const IPPacket_t * const pxIPPacket = ( ( const IPPacket_t * ) pvEthernetBuffer );
 
         DEBUG_DECLARE_TRACE_VARIABLE( BaseType_t, xLocation, 0 );
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_initialization.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockadi_ades183x_diagnostic.h"
 #include "Mockadi_ades183x_helpers.h"
 
 #include "adi_ades183x_buffers.h"  /* use the real command config */
@@ -73,6 +74,7 @@ TEST_INCLUDE_PATH("../../src/app/application/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/ades1830")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/config")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/diag")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/pec")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
@@ -600,6 +602,7 @@ void testADI_InitializeMeasurement(void) {
 
         ADI_Wait_Expect(ADI_TREFUP_ms);
 
+        ADI_InitializeDiagnosis_Expect(&adi_stateBase);
         ADI_WriteRegisterGlobal_Expect(adi_cmdWrpwma, adi_writeGlobal, ADI_PEC_NO_FAULT_INJECTION, &adi_stateBase);
         ADI_WriteRegisterGlobal_Expect(adi_cmdWrpwmb, adi_writeGlobal, ADI_PEC_NO_FAULT_INJECTION, &adi_stateBase);
         ADI_StoredConfigurationFillRegisterDataGlobal_Expect(
@@ -625,8 +628,9 @@ void testADI_InitializeMeasurement(void) {
             ADI_ReadDataBits_ReturnArrayThruPtr_pDataToRead(&flagComp, 1);
         }
 
-        /* Expects for Starting continuous cell voltage measurements */
+        /* Start continuous cell voltage measurements */
         ADI_StartContinuousCellVoltageMeasurements_Expects();
+
         /* Read serial ID */
         ADI_CopyCommandBytes_Expect(adi_cmdRdsid, adi_command);
         ADI_ReadRegister_Expect(adi_command, adi_dataReceive, &adi_stateBase);

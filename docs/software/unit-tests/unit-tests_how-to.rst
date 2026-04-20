@@ -14,22 +14,22 @@ Verify that the unit testing framework is working as expected:
 
       .. code-block:: powershell
 
-         .\fox.ps1 waf build_app_host_unit_test
-         .\fox.ps1 waf build_app_host_unit_test --coverage
+         .\fox.ps1 ceedling test:all
+         .\fox.ps1 ceedling gcov:all
 
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
-         ./fox.sh waf build_app_host_unit_test
-         ./fox.sh waf build_app_host_unit_test --coverage
+         ./fox.sh ceedling test:all
+         ./fox.sh ceedling gcov:all
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-         ./fox.sh waf build_app_host_unit_test
-         ./fox.sh waf build_app_host_unit_test --coverage
+         ./fox.sh ceedling test:all
+         ./fox.sh ceedling gcov:all
 
 Typical usage and more information on the unit tests can be found in
 :ref:`Unit tests <UNIT_TESTS>`.
@@ -62,8 +62,8 @@ Guidelines for the Unit Test Skeleton
 
    This example
 
-In this example a driver that resides in ``src/app/driver/abc/abc.c`` and
-``src/app/driver/abc/abc.h`` is added and therefore the accompanying unit tests
+In this example a driver that resides in ``src/app/driver/<driver>/<driver>.c`` and
+``src/app/driver/<driver>/<driver>.h`` is added and therefore the accompanying unit tests
 need to be added also.
 The module ``abc.c`` implements the public function
 ``extern uint8_t ABC_DoThis(void)`` and the static function
@@ -96,9 +96,9 @@ Static Function Tests
    ``extern uint8_t TEST_ABC_DoSomethingElse(uint8_t someArgument)`` (notice
    the ``TEST_`` prefix followed by the name of the static function).
 #. The declaration of the wrapper needs to be placed in the appropriate section
-   in the header of the driver (``src/app/driver/abc/abc.h``).
+   in the header of the driver (``src/app/driver/<driver>/<driver>.h``).
 #. The definition of the wrapper needs to be placed in the appropriate section
-   in the source of the driver (``src/app/driver/abc/abc.c``).
+   in the source of the driver (``src/app/driver/<driver>/<driver>.c``).
    The only thing this wrapper needs to do, is to verbatim pass all arguments
    to the original function (i.e., the static function) and return its result.
    The definition of the wrapper looks therefore like this
@@ -127,7 +127,7 @@ Result
    :linenos:
    :start-after: start-include-in-doc
    :end-before: stop-include-in-doc
-   :caption: Header of the ``abc``-driver (``src/app/driver/abc/abc.h``)
+   :caption: Header of the ``abc``-driver (``src/app/driver/<driver>/<driver>.h``)
 
 The wrapper function ``TEST_ABC_DoSomethingElse`` needs to be put inside the
 ``UNITY_UNIT_TEST`` guard, so that it is not build during target builds.
@@ -137,7 +137,7 @@ The wrapper function ``TEST_ABC_DoSomethingElse`` needs to be put inside the
    :linenos:
    :start-after: start-include-in-doc
    :end-before: stop-include-in-doc
-   :caption: Implementation of the ``abc``-driver (``src/app/driver/abc/abc.c``)
+   :caption: Implementation of the ``abc``-driver (``src/app/driver/<driver>/<driver>.c``)
 
 .. literalinclude:: ./test_abc.c
    :language: C
@@ -159,21 +159,9 @@ Additionally, the main wscript contains a mechanism that checks that every
 file has a corresponding test file in the proper location.
 Untested files have to be added to ``excl`` in ``check_test_files(ctx)``.
 
-Using ceedling directly
-=======================
+Using Ceedling
+==============
 
-.. warning::
-    Ceedling (the unit test runner that is used by this project) is wrapped by
-    the Waf toolchain.
-    The toolchain makes sure that the path handed to ceedling contains the
-    necessary applications and files, so without the wrapper extensive
-    knowledge of the project structure is helpful.
-
-    That being said, it is normally not necessary to directly execute ceedling
-    as the wrapper handles this.
-
-The wscript of this project executes always the complete unit test-suite.
-This can take some time.
 When developing or debugging a unit test, it might be beneficial to have finer
 control over which test is executed.
 
@@ -216,3 +204,17 @@ Internally it is tested with the following setup:
 - ``gcc --version``: gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-18)
 - ``ruby --version``: ruby 3.1.2p20 (2022-04-12 revision 4491bb740a)
   [x86_64-linux]
+
+
+Unit Test Macros
+================
+
+- ``UNITY_UNIT_TEST``: shall be used to exclude code that is not needed for the
+  target build, but required for unit testing (e.g., making a static function
+  testable).
+  It shall not be used to change functional behavior when compiling (some rare
+  exceptions to this rule can be found in the code, but it is generally not
+  preferred to do so, although sometimes it is needed.)
+- ``COMPILE_FOR_UNIT_TEST``: shall be used when code needs to be compiled
+  differently in oder to make it unit testable on the host.
+  Do **not** use ``UNITY_UNIT_TEST`` to achieve the same (see above).

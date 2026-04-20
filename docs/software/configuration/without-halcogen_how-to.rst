@@ -8,7 +8,7 @@ How to Use Generated Sources from HALCoGen
 
 .. note::
    A documentation of the tool |ti-halcogen| can be found in
-   :ref:`HALCOGEN_TOOL_DOCUMENTATION`, the Waf tool wrapper for this project in
+   :ref:`TI_HALCOGEN_TOOL`, the Waf tool wrapper for this project in
    :ref:`WAF_TOOL_HALCOGEN` and information on configuring |ti-halcogen| in the
    context of the toolchain of this project in :ref:`HAL_CONFIGURATION`.
 

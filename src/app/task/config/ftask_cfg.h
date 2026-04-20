@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__FTASK_CFG_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 
 #include "os.h"
 
@@ -167,6 +168,7 @@
 /** @brief pvParameters of the continuously running task for I2C  */
 #define FTSK_TASK_I2C_PV_PARAMETERS (NULL_PTR)
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /** @brief Stack size of continuously running task for AFEs */
 #define FTSK_TASK_AFE_STACK_SIZE_IN_BYTES (4096u)
 
@@ -181,6 +183,41 @@
 
 /** @brief pvParameters of the continuously running task for AFEs  */
 #define FTSK_TASK_AFE_PV_PARAMETERS (NULL_PTR)
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/** @brief Stack size of continuously running task for UART */
+#define FTSK_TASK_UART_STACK_SIZE_IN_BYTES (1024u)
+
+/** @brief Priority of continuously running task for UART */
+#define FTSK_TASK_UART_PRIORITY (OS_PRIORITY_NORMAL)
+
+/** @brief Phase of continuously running task for UART */
+#define FTSK_TASK_UART_PHASE (0u)
+
+/** @brief Cycle time of continuously running task for UART */
+#define FTSK_TASK_UART_CYCLE_TIME (0u)
+
+/** @brief pvParameters of the continuously running task for UART  */
+#define FTSK_TASK_UART_PV_PARAMETERS (NULL_PTR)
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+/** @brief Stack size of the task for EMAC */
+#define FTSK_TASK_EMAC_STACK_SIZE_IN_BYTES (2048u)
+
+/** @brief Priority of the task for EMAC */
+#define FTSK_TASK_EMAC_PRIORITY (OS_PRIORITY_ABOVE_NORMAL)
+
+/** @brief Phase of the task for EMAC */
+#define FTSK_TASK_EMAC_PHASE (10u)
+
+/** @brief Cycle time of the task for EMAC */
+#define FTSK_TASK_EMAC_CYCLE_TIME (0u)
+
+/** @brief pvParameters of the task for EMAC  */
+#define FTSK_TASK_EMAC_PV_PARAMETERS (NULL_PTR)
+#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /**
@@ -219,21 +256,56 @@ extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms;
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c;
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /**
  * @brief   Task configuration of the continuously running task for AFEs
  * @details Continuously running task for AFEs
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe;
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/**
+ * @brief   Task configuration of the task for UART flow control
+ * @details task for UART flow control handling
+ */
+extern OS_TASK_DEFINITION_s ftsk_taskDefinitionUart;
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+/**
+ * @brief   Task configuration of the  task for MCU EMAC communication
+ * @details  task for MCU EMAC communication
+ */
+extern OS_TASK_DEFINITION_s ftsk_taskDefinitionEmac;
+#endif
 
 /**
  * @brief Definition of task handles
  */
-extern TaskHandle_t ftsk_taskHandleI2c;
+extern OS_TASK_HANDLE ftsk_taskHandleI2c;
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /**
  * @brief Definition of task handles
  */
 extern OS_TASK_HANDLE ftsk_taskHandleAfe;
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/**
+ * @brief Definition of task handles
+ */
+extern OS_TASK_HANDLE ftsk_taskHandleUart;
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+/**
+ * @brief Definition of task handles
+ */
+
+extern OS_TASK_HANDLE ftsk_taskHandleEmac;
+#endif
 
 /*========== Extern Function Prototypes =====================================*/
 /**
@@ -293,11 +365,29 @@ extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void);
  */
 extern void FTSK_RunUserCodeI2c(void);
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /**
  * @brief   Continuously running task for AFEs
  * @details Implements the communications with AFEs without state machine.
  */
 extern void FTSK_RunUserCodeAfe(void);
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/**
+ * @brief   Continuously running task for Uart
+ * @details Implements the software flow control for UART
+ */
+extern void FTSK_RunUserCodeUart(void);
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+/**
+ * @brief   Continuously running task for EMAC
+ * @details Implements the MCU communication over TCP with EMAC
+ */
+extern void FTSK_RunUserCodeEmac(void);
+#endif
 
 /**
  * @brief   Idle task

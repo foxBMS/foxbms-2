@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    rti.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  RTI
  *
@@ -68,7 +68,7 @@
 #define RTI_CNT0_CPUC0_REG (0x00000009u)
 
 /** Maximum wait time in microseconds in order to limit the time spent in wait
- *  to avoid livelock in wait */
+ *  to avoid live lock in wait */
 #define RTI_WAIT_TIMEOUT_us (10000u)
 
 /** Ratio between 1 MHz and 1 Hz */
@@ -90,7 +90,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 /**
  * @brief   frequency of the FRC0 counter
- * @details refer to data sheet docref: SPNU563A-March 2018 p. 585 formula 23
+ * @details refer to datasheet docref: SPNU563A-March 2018 p. 585 formula 23
  */
 static const uint32_t rti_frcClock_Hz = (uint32_t)((RTI_FREQ)*RTI_RATIO_MHz_Hz) / ((RTI_CNT0_CPUC0_REG) + 1u);
 

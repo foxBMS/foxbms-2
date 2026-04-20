@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,19 +37,19 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the wrapper for TI-based 'AFE'-drivers."""
-
-import os
-
 
 def build(bld):
-    """Build the wrapper for TI-based 'AFE'-drivers."""
-    source = [os.path.join("ti_afe.c")]
+    op = f"{bld.env.APPNAME.lower()}-object-"
+
     includes = [
-        os.path.join("..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "main", "include"),
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
+        "../../../../application/config",
+        "../../../../main/include",
+    ] + [bld.root.find_node(i).path_from(bld.path) for i in bld.env.FOXBMS_INCLUDES_AFE]
     cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-ti-api"
-    bld.stlib(source=source, includes=includes, cflags=cflags, target=target)
+    source = "ti_afe"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=cflags,
+        target=f"{op}{source}",
+    )

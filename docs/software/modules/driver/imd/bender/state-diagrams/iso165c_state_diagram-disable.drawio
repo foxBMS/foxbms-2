@@ -1,0 +1,63 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram id="tAyKTaWDem4KAN7JR48c" name="disable">
+    <mxGraphModel dx="2074" dy="1197" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-1" value="&lt;b&gt;&lt;font style=&#39;font-size: 14.0px;&#39; face=&#39;Times,serif&#39; color=&#39;#000000&#39;&gt;Disable Start&lt;/font&gt;&lt;/b&gt;" style="ellipse;shape=doubleEllipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14.000000000000014" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-2" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Wait for&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;acknowledge&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14.000000000000014" y="150" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-3" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Request opening&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;of relays&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14.000000000000014" y="300" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-4" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Check negative&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;HV relay state&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14.000000000000014" y="450" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-5" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Check positive&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;HV&amp;nbsp;&lt;/font&gt;&lt;/b&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;relay state&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14.000000000000014" y="600" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-6" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="dmXLWlC4mmlpTYkLwg3B-1" target="dmXLWlC4mmlpTYkLwg3B-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="181.47" y="178.82000000000016" as="sourcePoint" />
+            <mxPoint x="181.47" y="220.10000000000014" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-7" value="&lt;b&gt;&lt;font style=&#39;font-size: 14.0px;&#39; face=&#39;Times,serif&#39; color=&#39;#000000&#39;&gt;Disable measurement&lt;/font&gt;&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=bottom;resizable=0;points=[];" parent="dmXLWlC4mmlpTYkLwg3B-6" vertex="1" connectable="0">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-8" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="dmXLWlC4mmlpTYkLwg3B-2" target="dmXLWlC4mmlpTYkLwg3B-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="181.47" y="490.26" as="sourcePoint" />
+            <mxPoint x="181.47" y="515.1500000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-9" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="dmXLWlC4mmlpTYkLwg3B-3" target="dmXLWlC4mmlpTYkLwg3B-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="181.47" y="837.0300000000001" as="sourcePoint" />
+            <mxPoint x="181.47" y="861.9100000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-10" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="dmXLWlC4mmlpTYkLwg3B-4" target="dmXLWlC4mmlpTYkLwg3B-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="181.47" y="1228.96" as="sourcePoint" />
+            <mxPoint x="181.47" y="1253.95" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dmXLWlC4mmlpTYkLwg3B-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;" parent="1" source="dmXLWlC4mmlpTYkLwg3B-2" target="dmXLWlC4mmlpTYkLwg3B-2" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="210" y="199" as="sourcePoint" />
+            <mxPoint x="260" y="149" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="167" y="186" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

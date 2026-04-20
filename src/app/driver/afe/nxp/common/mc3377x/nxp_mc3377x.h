@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -91,6 +91,11 @@ extern bool N77x_IsFirstMeasurementCycleFinished(N77X_STATE_s *pState);
  * @param   pState state of the N77X driver
  */
 extern void N77x_Measure(N77X_STATE_s *pState);
+
+/**
+ * @brief   Gets the serialids of identified AFEs
+ */
+extern uint64_t *N77x_IdentifyAfes(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

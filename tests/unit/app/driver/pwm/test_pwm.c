@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,7 @@
    stubs for the required functions (ecapInit, ecapGetCAP1, ecapGetCAP2,
    ecapGetCAP3). */
 #include "HL_ecap.h"
+#include "HL_reg_ecap.h"
 
 #include "pwm.h"
 #include "test_assert_helper.h"
@@ -72,6 +73,11 @@ TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/pwm")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+
+static uint32_t cap1ReturnValue = 0u;
+static uint32_t cap2ReturnValue = 0u;
+static uint32_t cap3ReturnValue = 0u;
+
 static uint8_t fsysRaisePrivilegeReturnValue = 0u;
 long FSYS_RaisePrivilege(void) {
     return fsysRaisePrivilegeReturnValue;
@@ -81,13 +87,13 @@ void ecapInit(void) { /* dummy implementation required for linking */
 }
 
 uint32_t ecapGetCAP1(ecapBASE_t *ecap) {
-    return ecap->CAP1;
+    return cap1ReturnValue;
 }
 uint32_t ecapGetCAP2(ecapBASE_t *ecap) {
-    return ecap->CAP2;
+    return cap2ReturnValue;
 }
 uint32_t ecapGetCAP3(ecapBASE_t *ecap) {
-    return ecap->CAP3;
+    return cap3ReturnValue;
 }
 /** wraps the duty cycle function for test
  *
@@ -142,12 +148,16 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-/** test pwm initialize */
 void testPWM_Initialize(void) {
     etpwmInit_Expect();
-
-    /* Call function under test*/
     PWM_Initialize();
+    bool ecapInit  = false;
+    bool etpwmInit = false;
+    TEST_PWM_GetInitializedBools(&ecapInit, &etpwmInit);
+    TEST_ASSERT_EQUAL(true, ecapInit);
+    TEST_ASSERT_EQUAL(true, etpwmInit);
+
+    TEST_ASSERT_EQUAL(ecapInit, PWM_IsEcapModuleInitialized());
 }
 
 /** test that the start function calls etPWM API */
@@ -176,6 +186,8 @@ void testPWM_StopPwm(void) {
 
 /** tests the duty cycle function */
 void testPWM_SetDutyCycle(void) {
+    TEST_ASSERT_FAIL_ASSERT(PWM_SetDutyCycle(((uint16_t)INT16_MAX) + 1));
+
     uint16_t timeBasePeriod = 999u;
     for (uint16_t duty = 1u; duty <= 999; duty = duty + 10) {
         PWM_SetDutyCycle_Test(timeBasePeriod, duty, calculateCounterValue(timeBasePeriod, duty));
@@ -187,4 +199,64 @@ void testPWM_SetDutyCycle(void) {
     for (uint16_t duty = 1u; duty <= 999; duty = duty + 10) {
         PWM_SetDutyCycle_Test(timeBasePeriod, duty, calculateCounterValue(timeBasePeriod, duty));
     }
+
+    timeBasePeriod = 4999;
+    duty           = (uint16_t)INT16_MIN;
+    PWM_SetDutyCycle_Test(timeBasePeriod, duty, calculateCounterValue(timeBasePeriod, duty));
+
+    timeBasePeriod = 4999;
+    duty           = 10000u;
+    PWM_SetDutyCycle_Test(timeBasePeriod, duty, calculateCounterValue(timeBasePeriod, duty));
+}
+
+void testPWM_ecapNotification(void) {
+    TEST_ASSERT_FAIL_ASSERT(ecapNotification(NULL_PTR, 0));
+
+    /* save */
+    uint32_t oldCap1ReturnValue = cap1ReturnValue;
+    uint32_t oldCap2ReturnValue = cap2ReturnValue;
+    uint32_t oldCap3ReturnValue = cap3ReturnValue;
+
+    ecapBASE_t ecap = {
+        .CAP1 = 10,
+        .CAP2 = 20,
+        .CAP3 = 30,
+    };
+
+    cap1ReturnValue = ecap.CAP1;
+    cap2ReturnValue = ecap.CAP2;
+    cap3ReturnValue = ecap.CAP3;
+
+    ecapBASE_t *ecap_ptr = &ecap;
+    ecapNotification(ecap_ptr, 0);
+    PWM_SIGNAL_s signal = PWM_GetPwmData();
+    TEST_ASSERT_EQUAL(5000000, signal.frequency_Hz);
+    TEST_ASSERT_EQUAL(50, signal.dutyCycle_perc);
+
+    /* restore */
+    cap1ReturnValue = oldCap1ReturnValue;
+    cap2ReturnValue = oldCap2ReturnValue;
+    cap3ReturnValue = oldCap3ReturnValue;
+
+    /* save */
+    oldCap1ReturnValue = cap1ReturnValue;
+    oldCap2ReturnValue = cap2ReturnValue;
+    oldCap3ReturnValue = cap3ReturnValue;
+
+    ecap.CAP1 = 10;
+    ecap.CAP3 = 10;
+
+    cap1ReturnValue = ecap.CAP1;
+    cap2ReturnValue = ecap.CAP2;
+    cap3ReturnValue = ecap.CAP3;
+
+    ecapNotification(ecap_ptr, 0);
+    signal = PWM_GetPwmData();
+    TEST_ASSERT_EQUAL(0, signal.frequency_Hz);
+    TEST_ASSERT_EQUAL(0, signal.dutyCycle_perc);
+
+    /* restore */
+    cap1ReturnValue = oldCap1ReturnValue;
+    cap2ReturnValue = oldCap2ReturnValue;
+    cap3ReturnValue = oldCap3ReturnValue;
 }

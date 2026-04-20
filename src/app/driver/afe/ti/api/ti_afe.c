@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ti_afe.c
  * @author  foxBMS Team
  * @date    2020-05-25 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -66,6 +66,8 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
+
+static uint64_t dummySerialIds[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING] = {0u};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -114,6 +116,10 @@ extern STD_RETURN_TYPE_e AFE_StartMeasurement(void) {
 
 extern bool AFE_IsFirstMeasurementCycleFinished(void) {
     return TI_IsFirstMeasurementCycleFinished();
+}
+
+extern uint64_t *AFE_IdentifyAfes(void) {
+    return &dummySerialIds[0][0];
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

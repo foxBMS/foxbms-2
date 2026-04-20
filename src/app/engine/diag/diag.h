@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -86,8 +86,8 @@ typedef enum {
 /** central state struct of the diag module */
 typedef struct {
     DIAG_MODULE_STATE_e state;                                 /*!< actual state of diagnosis module */
-    uint16_t errcnttotal;                                      /*!< total counts of diagnosis entry records*/
-    uint16_t errcntreported;                                   /*!< reported error counts to external tool*/
+    uint16_t totalErrorCount;                                  /*!< total counts of diagnosis entry records*/
+    uint16_t reportedErrorCount;                               /*!< reported error counts to external tool*/
     uint32_t entry_event[DIAG_ID_MAX];                         /*!< last detected entry event*/
     uint8_t entry_cnt[DIAG_ID_MAX];                            /*!< reported event counter used for limitation  */
     uint16_t occurrenceCounter[BS_NR_OF_STRINGS][DIAG_ID_MAX]; /*!< counter for the occurrence of diag events */
@@ -178,7 +178,7 @@ extern bool DIAG_IsAnyFatalErrorSet(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_DIAG_SetDiagerrcnttotal(uint16_t errors);
+extern void TEST_DIAG_SetDiagTotalErrorCount(uint16_t errors);
 extern DIAG_DIAGNOSIS_STATE_s *TEST_DIAG_GetDiag(void);
 extern void TEST_DIAG_Reset(void);
 extern uint8_t TEST_DIAG_GetFatalErrorCount(void);

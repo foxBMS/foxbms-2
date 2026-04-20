@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -87,7 +87,7 @@ class TestUnittestImpl(unittest.TestCase):
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_with_coverage(self, mock_run_process: MagicMock):
-        """test commands with coverage"""
+        """Test commands with coverage"""
         mock_run_process.return_value = SubprocessResult(0)
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -104,45 +104,40 @@ class TestUnittestImpl(unittest.TestCase):
                 "-s",
                 f"tests{os.sep}cli",
             ],
-            COVERAGE_MODULE_BASE_COMMAND
-            + [
-                "run",
-                "--parallel-mode",
-                PROJECT_ROOT / "tests/cli/fallback/test_fallback.py",
-            ],
-            COVERAGE_MODULE_BASE_COMMAND
-            + [
-                "run",
-                "--parallel-mode",
-                PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
-            ],
-            COVERAGE_MODULE_BASE_COMMAND + ["combine"],
-            COVERAGE_MODULE_BASE_COMMAND + ["report"],
-            COVERAGE_MODULE_BASE_COMMAND
-            + ["html", "-d", PROJECT_ROOT / "build/cli-selftest"],
-            COVERAGE_MODULE_BASE_COMMAND
-            + [
-                "xml",
-                "-o",
-                PROJECT_ROOT
-                / "build/cli-selftest"
-                / "CoberturaCoverageCliSelfTest.xml",
-            ],
         ]
+        files = [
+            PROJECT_ROOT / "tests/waf-tools/test_c_template.py",
+            PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
+            PROJECT_ROOT / "tests/waf-tools/test_create_app_build_cfg.py",
+            PROJECT_ROOT / "tests/waf-tools/test_create_version.py",
+            PROJECT_ROOT / "tests/waf-tools/test_misc_helpers.py",
+            PROJECT_ROOT / "tests/waf-tools/test_vcs_git.py",
+            PROJECT_ROOT / "tests/waf-tools/test_vcs.py",
+            PROJECT_ROOT / "tests/pkg/test_hatch_build.py",
+        ]
+
+        expected_cmd.extend(
+            COVERAGE_MODULE_BASE_COMMAND + ["run", "--parallel-mode", i] for i in files
+        )
+        expected_cmd.extend(
+            [
+                COVERAGE_MODULE_BASE_COMMAND + ["combine"],
+                COVERAGE_MODULE_BASE_COMMAND + ["report"],
+                COVERAGE_MODULE_BASE_COMMAND
+                + ["html", "-d", PROJECT_ROOT / "build/cli-selftest"],
+                COVERAGE_MODULE_BASE_COMMAND
+                + [
+                    "xml",
+                    "-o",
+                    PROJECT_ROOT
+                    / "build/cli-selftest/CoberturaCoverageCliSelfTest.xml",
+                ],
+            ]
+        )
         mock_run_process.assert_has_calls(
             [
-                unittest.mock.call(
-                    expected_cmd[0], cwd=PROJECT_ROOT, stdout=None, stderr=None
-                ),
-                unittest.mock.call(
-                    expected_cmd[1], cwd=PROJECT_ROOT, stdout=None, stderr=None
-                ),
-                unittest.mock.call(
-                    expected_cmd[2], cwd=PROJECT_ROOT, stdout=None, stderr=None
-                ),
-                unittest.mock.call(
-                    expected_cmd[3], cwd=PROJECT_ROOT, stdout=None, stderr=None
-                ),
+                unittest.mock.call(i, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+                for i in expected_cmd
             ],
             any_order=False,
         )
@@ -157,7 +152,7 @@ class TestUnittestImpl(unittest.TestCase):
     def test_run_script_tests_with_coverage_several_errors(
         self, mock_run_process: MagicMock
     ):
-        """test commands with coverage"""
+        """Test commands with coverage"""
         mock_run_process.return_value = SubprocessResult(1)
         err = io.StringIO()
         out = io.StringIO()
@@ -169,7 +164,7 @@ class TestUnittestImpl(unittest.TestCase):
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_without_coverage(self, mock_run_process: MagicMock):
-        """test command without coverage"""
+        """Test command without coverage"""
         mock_run_process.return_value = SubprocessResult(0)
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -191,7 +186,7 @@ class TestUnittestImpl(unittest.TestCase):
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_script_failure(self, mock_run_process: MagicMock):
-        """test command without coverage"""
+        """Test command without coverage"""
         mock_run_process.return_value = SubprocessResult(1)
         err = io.StringIO()
         out = io.StringIO()
@@ -216,7 +211,7 @@ class TestUnittestImpl(unittest.TestCase):
     def test_run_script_tests_cov_file_exists_and_tests_succeed(
         self, mock_tlp: MagicMock, mock_run_process: MagicMock, *_
     ):
-        """test commands with coverage"""
+        """Test commands with coverage"""
         mock_tlp.return_value = "foo"
         mock_run_process.return_value = SubprocessResult(0)
         out = io.StringIO()

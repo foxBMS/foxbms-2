@@ -8,8 +8,8 @@ First Steps on Hardware
 
 This section gives a brief walk-through on setting up a debugger connection to
 a |bms-master|.
-Aim of this section is to check that all crucial parts of the toolchain work
-and to recap the process of setting up the toolchain.
+The aim of this section is to check that all crucial parts of the toolchain
+work and to recap the process of setting up the toolchain.
 
 .. note::
 
@@ -17,21 +17,15 @@ and to recap the process of setting up the toolchain.
    embedded target, it is absolutely necessary to have these three
    components in place:
 
-   - the embedded device itself,
+   - a |bms-master|,
    - a power supply,
    - a debugger.
 
 Setup
 -----
 
-It is assumed, that all required software has been installed.
-Details on the software installation can be found in
+It is assumed, that all required software has been installed as described in
 :ref:`SOFTWARE_INSTALLATION`.
-Most notable parts of the toolchain are:
-
-- the Python `venv` environment,
-- the compiler toolchain,
-- and a debugger.
 
 Compilation
 -----------
@@ -63,13 +57,13 @@ The following steps should pass and result in the application being built.
 
       .. code-block:: shell
 
-        ./fox.ps1 waf configure build_app_embedded
+        ./fox.sh waf configure build_app_embedded
 
   .. group-tab:: Linux
 
       .. code-block:: shell
 
-        ./fox.ps1 waf configure build_app_embedded
+        ./fox.sh waf configure build_app_embedded
 
 If any error messages occurs, they have to be investigated before continuing.
 
@@ -127,13 +121,13 @@ The following steps are needed to flash the bootloader:
 
          .. code-block:: shell
 
-            ./fox.ps1 waf configure build_bootloader_embedded
+            ./fox.sh waf configure build_bootloader_embedded
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            ./fox.ps1 waf configure build_bootloader_embedded
+            ./fox.sh waf configure build_bootloader_embedded
 
 #. Flash the binary file of the bootloader into the |bms-master| using the
    debugger (e.g., `Lauterbach Trace32 debugger <http://www.lauterbach.com>`_):
@@ -277,7 +271,9 @@ Start the TRACE32 software using the shortcut |lauterbach-debugger-shortcut|
 that is generated during project configuration (only generated if Lauterbach is
 available), and click the **"Up" button (A)** to set the |bms-master| to its
 ``Up`` state.
-After that, click the **flash button (B)** to flash the |foxbms| application.
+After that, click the application **flash button (B)** to flash the |foxbms|
+application and bootloader **flash button (C)** to flash the embedded
+bootloader.
 
 .. figure:: ./img/trace32_power_view.png
    :alt: Lauterbach TRACE32 UI to flash the embedded software

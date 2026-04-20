@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,11 +38,12 @@
 # - "This product is derived from foxBMS®"
 
 """Calculates the checksum of file or directory and checks it against a known
-hash."""
+hash.
+"""
 
-import logging
 from pathlib import Path
 
+from ..helpers.logger import logger
 from ..helpers.misc import get_multiple_files_hash_str
 
 
@@ -63,15 +64,15 @@ def verify(files: str | Path | list[Path | str], known_hash: str) -> int:
             relevant_files.append(i)
         else:
             relevant_files.extend(j for j in i.rglob("*") if j.is_file())
-    logging.info("Known hash is:      %s", known_hash)
+    logger.info("Known hash is:      %s", known_hash)
     calculated_hash = get_multiple_files_hash_str(relevant_files)
-    logging.info("Calculated hash is: %s", calculated_hash)
+    logger.info("Calculated hash is: %s", calculated_hash)
     err = 0
-    if not known_hash == calculated_hash:
-        logging.error("Known hash is:      %s", known_hash)
-        logging.error("Calculated hash is: %s", calculated_hash)
-        logging.error("Hashes do not match.")
+    if known_hash != calculated_hash:
+        logger.error("Known hash is:      %s", known_hash)
+        logger.error("Calculated hash is: %s", calculated_hash)
+        logger.error("Hashes do not match.")
         err = 1
     else:
-        logging.debug("Hash matches.")
+        logger.debug("Hash matches.")
     return err

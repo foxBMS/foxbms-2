@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,14 +38,10 @@
 # - "This product is derived from foxBMS®"
 
 
-"""Build the HAL library for the bootloader."""
-
 from waflib import Logs, Utils
 
 
 def build(bld):
-    """Build the HAL library for the bootloader."""
-
     target = f"{bld.env.APPNAME.lower()}-bootloader-hal"
     cflags = bld.env.CFLAGS_HAL
     bld.env.append_unique("HCG_GEN_HAL_INC_PATHS", [bld.path.get_bld().relpath()])
@@ -54,21 +50,14 @@ def build(bld):
     startup_hash = None
     if Utils.is_win32 or bld.env.HALCOGEN:
         startup_hash = bld.path.find_node("bootloader-startup.hash")
-        remove = [
-            "source/HL_notification.c",
-            "source/HL_sys_main.c",
-            "source/HL_sys_startup.c",
-            "source/HL_sys_link.cmd",
-            "source/HL_emac.c",
-        ]
+        remove = bld.path.find_node("../../../conf/hcg/bootloader-remove.yml")
         source = ["../../../conf/hcg/bootloader.hcg"]
     else:
         hal_src_dir = bld.path.get_bld().find_dir("source")
         hal_inc_dir = bld.path.get_bld().find_dir("include")
         Logs.warn(
-            "HALCogen is not available and therefore the code generator "
-            "can not run. Assuming HAL sources are available at "
-            f"{hal_src_dir} and {hal_inc_dir}."
+            "HALCogen is not available and therefore the code generator can not run.\n"
+            f"Assuming HAL sources are available at {hal_src_dir} and {hal_inc_dir}."
         )
         if hal_src_dir:
             source = hal_src_dir.ant_glob("*.c") + hal_src_dir.ant_glob("*.asm")

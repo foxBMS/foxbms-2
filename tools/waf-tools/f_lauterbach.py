@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -61,7 +61,7 @@ from waflib import Utils
 from waflib.Configure import ConfigurationContext
 
 if Utils.is_win32:
-    import win32com.client  # pylint: disable=import-error
+    import win32com.client
 
 
 class AtTemplate(Template):
@@ -104,7 +104,7 @@ def options(opt):
 
 
 def configure(conf: ConfigurationContext):
-    """configuration step of the Lauterbach waf tool"""
+    """Configuration step of the Lauterbach waf tool"""
     if not Utils.is_win32:
         return
 

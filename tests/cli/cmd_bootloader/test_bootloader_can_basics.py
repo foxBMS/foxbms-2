@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,7 @@
 
 """Testing file 'cli/cmd_bootloader/bootloader_can_basics.py'."""
 
-import logging
+import logging  # noqa: TID251
 import sys
 import unittest
 from pathlib import Path
@@ -81,7 +81,7 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
     def test_dbc_file_does_not_exist(self, _: MagicMock):
         """DBC file needs to exist."""
         with self.assertRaises(SystemExit) as cm:
-            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path("."))
+            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertEqual(cm.exception.code, "File '.' does not exist.")
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
@@ -92,7 +92,7 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
             database.diagnostics.database.Database
         )
         with self.assertRaises(SystemExit) as cm:
-            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path("."))
+            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertRegex(
             cm.exception.code,  # type:ignore
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
@@ -107,7 +107,7 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
         m_database.return_value = create_autospec(database.can.database.Database)
         # mock does not contain messages, but that's okay for this test
         with self.assertRaises(SystemExit) as cm:
-            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path("."))
+            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertEqual(
             cm.exception.code, "There are no messages in the database file."
         )
@@ -116,7 +116,6 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
 @patch.object(logging, "info", return_value=None)
 @patch.object(logging, "warning", return_value=None)
 @patch.object(logging, "error", return_value=None)
-# pylint: disable-next=protected-access,unused-argument
 class TestBootloaderCanBasics(unittest.TestCase):
     """Class to test the class BootloaderCanBasics."""
 
@@ -148,14 +147,14 @@ class TestBootloaderCanBasics(unittest.TestCase):
             database.diagnostics.database.Database
         )
         with self.assertRaises(SystemExit) as cm:
-            self.bl.wait_can_message(0x110, dbc_file=Path("."))
+            self.bl.wait_can_message(0x110, dbc_file=Path())
         self.assertRegex(
             cm.exception.code,  # type:ignore
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
         )
 
     def test_wait_can_message(self, *_):
-        """Function to test function test_wait_can_message()."""
+        """Function to test function wait_can_message."""
         # Case 1: invalid dbc_file
         dbc_file = Path("./fake")
         with self.assertRaises(SystemExit) as cm:
@@ -457,7 +456,7 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
     def test_dbc_file_does_not_exist(self, _: MagicMock):
         """DBC file needs to exist."""
         with self.assertRaises(SystemExit) as cm:
-            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path("."))
+            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertEqual(cm.exception.code, "File '.' does not exist.")
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
@@ -468,7 +467,7 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
             database.diagnostics.database.Database
         )
         with self.assertRaises(SystemExit) as cm:
-            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path("."))
+            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertRegex(
             cm.exception.code,  # type:ignore
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
@@ -483,7 +482,7 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
         m_database.return_value = create_autospec(database.can.database.Database)
         # mock does not contain messages, but that's okay for this test
         with self.assertRaises(SystemExit) as cm:
-            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path("."))
+            BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertEqual(
             cm.exception.code, "There are no messages in the database file."
         )
@@ -508,7 +507,7 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
     def test_wait_can_message_dbc_file_does_not_exist(self, _):
         """DBC file needs to exist."""
         with self.assertRaises(SystemExit) as cm:
-            self.bl.wait_can_message(0x110, dbc_file=Path("."))
+            self.bl.wait_can_message(0x110, dbc_file=Path())
         self.assertEqual(cm.exception.code, "File '.' does not exist.")
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
@@ -519,7 +518,7 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
             database.diagnostics.database.Database
         )
         with self.assertRaises(SystemExit) as cm:
-            self.bl.wait_can_message(0x110, dbc_file=Path("."))
+            self.bl.wait_can_message(0x110, dbc_file=Path())
         self.assertRegex(
             cm.exception.code,  # type:ignore
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
@@ -553,7 +552,7 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
         )
 
     def test_wait_can_message(self):
-        """Function to test function test_wait_can_message()."""
+        """Function to test function wait_can_message."""
         msg = {
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,

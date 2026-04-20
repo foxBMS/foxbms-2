@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_fstartup.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,17 +61,17 @@
  *          configuration is required in
  *          'conf/unit/bootloader_project_posix.yml'.
  *          The esmREG is mocked through
- *          'tests/unit/bootloader/main/helper/mock_esm.h'. This requires, that
+ *          'tests/unit/bootloader/main/helper/m_esm.h'. This requires, that
  *          the test does **not** include 'MockHL_reg_esm.h', but only the
- *          mocked 'mock_esm.h'. This is achived by providing the include guard
+ *          mocked 'm_esm.h'. This is achived by providing the include guard
  *          of 'MockHL_reg_esm.h' as compiler argument
  *          (gcc ... -D__REG_ESM_H__ ...).
  *          This further requires, that in the driver implementation
- *          'fstartup.c' includes 'mock_esm.h' (guarded for only the unit test
+ *          'fstartup.c' includes 'm_esm.h' (guarded for only the unit test
  *          case) first. By that, and by providing '-D__REG_ESM_H__' the driver
  *          compiles for the target as well as for the unit test with the
  *          correct implementation.
- *          'mock_esm.h' just keeps a minimal type configuration, just detailed
+ *          'm_esm.h' just keeps a minimal type configuration, just detailed
  *          enough to mock all required registers, but not more.
  *          The function to get the reset source of the MCU
  *          (STU_GetResetSourceWithoutFlagReset) is not tested, as this is
@@ -81,11 +81,14 @@
  *          check all startup cases.
  */
 
+/* cspell:ignore SSWF plls */
+
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "mock_esm.h"
 
 #include "HL_hal_stdtypes.h"
+
+#include "m_esm.h"
 
 /* clang-format off */
 #include "MockHL_sys_common.h"

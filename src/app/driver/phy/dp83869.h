@@ -35,8 +35,8 @@
 /**
  * @file    dp83869.h
  * @date    2025-04-01 (date of creation)
- * @updated 2025-04-01 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  PHY
  *
@@ -88,9 +88,6 @@
 /* 10 BaseT ability*/
 #define PHY_NO_10BT (0x0000u)
 #define PHY_10BT    (0x0020u)
-
-/* TODO: This define belongs to the EMAC and will moved as the corresponding driver is added */
-#define PHY_MDIO_BASE 0xFCF78900u
 
 /* Structure to hold the values of the PHY Opmode Register. */
 typedef struct {
@@ -183,10 +180,9 @@ extern bool PHY_GetPartnerAbility(uint32_t mdioBaseAddress, uint32_t phyAddress,
  * @brief   Reads the link status of the PHY.
  * @param   mdioBaseAddress Base Address of the MDIO Module Registers.
  * @param   phyAddress      PHY Address.
- * @param   retries         The number of retries before indicating down status
  * @return  link status after reading
  **/
-extern STD_RETURN_TYPE_e PHY_GetLinkStatus(uint32_t mdioBaseAddress, uint32_t phyAddress, volatile uint32_t retries);
+extern STD_RETURN_TYPE_e PHY_GetLinkStatus(uint32_t mdioBaseAddress, uint32_t phyAddress);
 
 /**
  * @brief   Sets the PHY in MII mode.

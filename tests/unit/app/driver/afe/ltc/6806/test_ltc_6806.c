@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_ltc_6806.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -119,6 +119,12 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
     },
 };
 
+/** local definition of plausible cell voltage values for the LTC 6806 */
+static const AFE_PLAUSIBILITY_VALUES_s ltc_plausibleCellVoltages6806 = {
+    .maximumPlausibleVoltage_mV = 5000,
+    .minimumPlausibleVoltage_mV = -5000,
+};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -127,6 +133,77 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+void testLTC_SaveVoltages(void) {
+    STD_RETURN_TYPE_e cellVoltageMeasurementValid = STD_OK;
+
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            AFE_PlausibilityCheckVoltageMeasurementRange_ExpectAndReturn(
+                ltc_stateBase.ltcData.cellVoltage->cellVoltage_mV[0u][m][cb], ltc_plausibleCellVoltages6806, STD_OK);
+            (void)cellVoltageMeasurementValid;
+        }
+    }
+
+    DIAG_CheckEvent_ExpectAndReturn(
+        cellVoltageMeasurementValid, DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_STRING, 0u, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.cellVoltage, STD_OK);
+    LTC_SaveVoltages(&ltc_stateBase, 0u);
+}
+
+void testLTC_SaveTemperatures(void) {
+    STD_RETURN_TYPE_e cellTemperatureMeasurementValid = STD_OK;
+
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+            AFE_PlausibilityCheckTempMinMax_ExpectAndReturn(
+                ltc_stateBase.ltcData.cellTemperature->cellTemperature_ddegC[0u][m][ts], STD_OK);
+            (void)cellTemperatureMeasurementValid;
+        }
+    }
+
+    DIAG_CheckEvent_ExpectAndReturn(
+        cellTemperatureMeasurementValid, DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, DIAG_STRING, 0u, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.cellTemperature, STD_OK);
+    LTC_SaveTemperatures(&ltc_stateBase, 0u);
+}
+
+void testLTC_SaveAllGpioMeasurement(void) {
+    DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.allGpioVoltages, STD_OK);
+    LTC_SaveAllGpioMeasurement(&ltc_stateBase);
+}
+
+void testLTC_CheckReEntrance(void) {
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    LTC_STATE_s ltc_state = {0};
+    uint8_t retVal        = 0;
+    retVal                = TEST_LTC_CheckReEntrance(&ltc_state);
+    TEST_ASSERT_EQUAL_UINT8(0, retVal);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    ltc_state.triggerentry = 1;
+    retVal                 = TEST_LTC_CheckReEntrance(&ltc_state);
+    TEST_ASSERT_EQUAL_UINT8(0xFF, retVal);
+}
+
+void testLTC_GetStateRequest(void) {
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    LTC_GetStateRequest(&ltc_stateBase);
+}
+
+void testLTC_GetState(void) {
+    LTC_GetState(&ltc_stateBase);
+}
+
+void testLTC_IsFirstMeasurementCycleFinished(void) {
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    LTC_IsFirstMeasurementCycleFinished(&ltc_stateBase);
+}
+
 void testLTC_SetFirstMeasurementCycleFinished(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
@@ -134,4 +211,28 @@ void testLTC_SetFirstMeasurementCycleFinished(void) {
     test_ltc_state.first_measurement_made = false;
     TEST_LTC_SetFirstMeasurementCycleFinished(&test_ltc_state);
     TEST_ASSERT_EQUAL_UINT8(true, test_ltc_state.first_measurement_made);
+}
+
+void testLTC_InitializeMonitoringPin(void) {
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_1);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_2);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_3);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_4);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_5);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_6);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_7);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_1);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_2);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_3);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_4);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_5);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_6);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_7);
+    LTC_InitializeMonitoringPin();
+}
+
+void testLTC_IdentifyAfes(void) {
+    LTC_IdentifyAfes();
 }

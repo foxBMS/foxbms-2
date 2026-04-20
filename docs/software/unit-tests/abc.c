@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    abc.c
  * @author  foxBMS Team
  * @date    2022-12-13 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup SOME_GROUP
  * @prefix  ABC
  *
@@ -75,7 +75,7 @@ static uint8_t ABC_DoSomethingElse(uint8_t someArgument) {
 
 /*========== Extern Function Implementations ================================*/
 extern uint8_t ABC_DoThis(void) {
-    return 1u;
+    return ABC_DoSomethingElse(1);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

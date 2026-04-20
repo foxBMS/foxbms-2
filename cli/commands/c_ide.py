@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for VS Code"""
+"""Click command definition for opening VS Code workspaces."""
 
 import click
 
@@ -92,7 +92,7 @@ def ide(  # pylint:disable=too-many-arguments,too-many-positional-arguments
     bootloader: bool = False,
     cli: bool = False,
 ) -> None:
-    """Open pre-configured VS Code workspaces."""
+    """Open one or more pre-configured VS Code workspaces."""
     if generic:
         ide_impl.open_ide_generic()
     if embedded_unit_test_app:

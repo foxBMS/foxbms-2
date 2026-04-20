@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -53,8 +53,11 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "ftask.h"
 
+#include "infinite-loop-helper.h"
 #include "sys_mon.h"
 
 #include <stdint.h>
@@ -82,7 +85,7 @@ extern void FTSK_CreateTaskEngine(void *const pvParameters) {
 
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* notify system monitoring that task will be called */
         SYSM_Notify(SYSM_TASK_ID_ENGINE, SYSM_NOTIFY_ENTER, OS_GetTickCount());
         /* user code implementation */
@@ -101,7 +104,7 @@ extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters) {
     uint32_t currentTimeCreateTaskCyclic1ms = 0;
 
     /* AXIVION Next Codeline Style Generic-NoEmptyLoops: start cyclic 1ms task only when engine task is running */
-    while (os_boot != OS_ENGINE_RUNNING) {
+    while (os_boot != OS_ENGINE_RUNNING) { /* LCOV_EXCL_LINE */
     }
 
     FTSK_InitializeUserCodePreCyclicTasks();
@@ -112,7 +115,7 @@ extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters) {
     currentTimeCreateTaskCyclic1ms = OS_GetTickCount();
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* notify system monitoring that task will be called */
         SYSM_Notify(SYSM_TASK_ID_CYCLIC_1ms, SYSM_NOTIFY_ENTER, OS_GetTickCount());
         /* user code implementation */
@@ -134,14 +137,14 @@ extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters) {
 
     /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
        pre-cyclic initialization sequence  */
-    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) {
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) { /* LCOV_EXCL_LINE */
     }
 
     OS_DelayTaskUntil(&os_schedulerStartTime, ftsk_taskDefinitionCyclic10ms.phase);
     currentTimeCreateTaskCyclic10ms = OS_GetTickCount();
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* notify system monitoring that task will be called */
         SYSM_Notify(SYSM_TASK_ID_CYCLIC_10ms, SYSM_NOTIFY_ENTER, OS_GetTickCount());
         /* user code implementation */
@@ -163,14 +166,14 @@ extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters) {
 
     /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
        pre-cyclic initialization sequence  */
-    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) {
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) { /* LCOV_EXCL_LINE */
     }
 
     OS_DelayTaskUntil(&os_schedulerStartTime, ftsk_taskDefinitionCyclic100ms.phase);
     currentTimeCreateTaskCyclic100ms = OS_GetTickCount();
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* notify system monitoring that task will be called */
         SYSM_Notify(SYSM_TASK_ID_CYCLIC_100ms, SYSM_NOTIFY_ENTER, OS_GetTickCount());
         /* user code implementation */
@@ -192,7 +195,7 @@ extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters) {
 
     /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
        pre-cyclic initialization sequence  */
-    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) {
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) { /* LCOV_EXCL_LINE */
     }
 
     OS_DelayTaskUntil(&os_schedulerStartTime, ftsk_taskDefinitionCyclicAlgorithm100ms.phase);
@@ -200,7 +203,7 @@ extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters) {
     currentTimeCreateTaskCyclicAlgorithms100ms = OS_GetTickCount();
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* notify system monitoring that task will be called */
         SYSM_Notify(SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms, SYSM_NOTIFY_ENTER, OS_GetTickCount());
         /* user code implementation */
@@ -222,21 +225,44 @@ extern void FTSK_CreateTaskI2c(void *const pvParameters) {
 
     /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
        pre-cyclic initialization sequence  */
-    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) {
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) { /* LCOV_EXCL_LINE */
     }
 
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* user code implementation */
         FTSK_RunUserCodeI2c();
     }
 }
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler tell compiler this function is a task, context save not necessary */
 #pragma TASK(FTSK_CreateTaskAfe)
 extern void FTSK_CreateTaskAfe(void *const pvParameters) {
+    FAS_ASSERT(pvParameters == NULL_PTR);
+    OS_MarkTaskAsRequiringFpuContext();
+
+    /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
+       pre-cyclic initialization sequence  */
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) { /* LCOV_EXCL_LINE */
+    }
+
+    /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
+     * loop for the user code (see www.freertos.org/a00125.html)*/
+    while (FOREVER()) {
+        /* user code implementation */
+        FTSK_RunUserCodeAfe();
+    }
+}
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
+   compiler tell compiler this function is a task, context save not necessary */
+#pragma TASK(FTSK_CreateTaskUart)
+extern void FTSK_CreateTaskUart(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);
     OS_MarkTaskAsRequiringFpuContext();
 
@@ -249,9 +275,32 @@ extern void FTSK_CreateTaskAfe(void *const pvParameters) {
      * loop for the user code (see www.freertos.org/a00125.html)*/
     while (true) {
         /* user code implementation */
-        FTSK_RunUserCodeAfe();
+        FTSK_RunUserCodeUart();
     }
 }
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+/* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
+   compiler tell compiler this function is a task, context save not necessary */
+#pragma TASK(FTSK_CreateTaskEmac)
+extern void FTSK_CreateTaskEmac(void *const pvParameters) {
+    FAS_ASSERT(pvParameters == NULL_PTR);
+    OS_MarkTaskAsRequiringFpuContext();
+
+    /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
+          pre-cyclic initialization sequence  */
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) {
+    }
+
+    /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
+        * loop for the user code (see www.freertos.org/a00125.html)*/
+    while (FOREVER()) {
+        /* user code implementation */
+        FTSK_RunUserCodeEmac();
+    }
+}
+#endif
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST

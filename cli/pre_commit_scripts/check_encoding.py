@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,11 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Check the text encoding of specified files.
+"""Validate that files can be decoded with an extension-based text encoding.
 
-This script attempts to open one or more files with the specified encoding
-(default: UTF-8, other option: ASCII). It reports files that cannot be
-opened with the given encoding and returns an appropriate exit code.
+The script reads each provided file using an encoding selected by file
+extension (`ENCODING_MAP`) and falls back to UTF-8 otherwise.
 It is intended for use with pre-commit.
 """
 
@@ -50,37 +49,40 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+ENCODING_MAP = {
+    ".asm": "ascii",
+    ".c": "ascii",
+    ".h": "ascii",
+    ".dbc": "ascii",
+    ".sym": "ascii",
+}
+
+
+def _encoding_for_file(path: Path) -> str:
+    """Return expected file encoding based on suffix, defaulting to UTF-8."""
+    return ENCODING_MAP.get(path.suffix.lower(), "utf-8")
+
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Command-line interface to check file encodings.
-
-    Parses arguments, attempts to open each file using the specified encoding,
-    and reports errors for files that cannot be opened.
+    """Run the command-line interface for encoding validation.
 
     Args:
-        argv: Optional sequence of command-line arguments.
+        argv: Optional command-line arguments.
 
-    Return:
-        Exit code (0 if all files match encoding, up to 255 if errors).
-
+    Returns:
+        Exit code (``0`` if all files decode successfully, up to ``255`` otherwise).
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--encoding",
-        default="utf-8",
-        choices=["utf-8", "ascii"],
-        help="File encoding",
-    )
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)
     err = 0
     for i in args.files:
+        path = Path(i)
+        encoding = _encoding_for_file(path)
         try:
-            Path(i).read_text(encoding=args.encoding)
-        except ValueError:
-            msg = (
-                f"{Path(i).as_posix()}: Could not open file in '{args.encoding}' mode."
-            )
+            path.read_text(encoding=encoding)
+        except UnicodeDecodeError:
+            msg = f"{path.as_posix()}: Could not open file in '{encoding}' mode."
             print(msg, file=sys.stderr)
             err += 1
     return min(err, 255)

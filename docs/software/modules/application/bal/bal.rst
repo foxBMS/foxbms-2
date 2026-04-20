@@ -12,12 +12,11 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/application/bms/history/bal_strategy_history.c``
-- ``src/app/application/bms/none/bal_strategy_none.c``
-- ``src/app/application/bms/voltage/bal_strategy_voltage.c``
-- ``src/app/application/bms/voltage/bal_strategy_voltage.h``
-- ``src/app/application/bms/bal.c``
-- ``src/app/application/bms/bal.h``
+- ``src/app/application/bal/history/bal_strategy_history.c``
+- ``src/app/application/bal/none/bal_strategy_none.c``
+- ``src/app/application/bal/voltage/bal_strategy_voltage.c``
+- ``src/app/application/bal/bal.c``
+- ``src/app/application/bal/bal.h``
 
 Configuration
 ^^^^^^^^^^^^^

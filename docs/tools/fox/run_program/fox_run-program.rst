@@ -7,3 +7,5 @@ run-program
 
 Usage
 -----
+
+.. include:: ./../../../../build/docs/fox_run-program_help.txt

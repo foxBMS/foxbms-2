@@ -10,6 +10,9 @@
         },
         "precision": {
           "type": "integer"
+        },
+        "null value": {
+          "type": "string"
         }
       },
       "required": [

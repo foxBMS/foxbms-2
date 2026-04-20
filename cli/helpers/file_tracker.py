@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,8 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implementation of the FileTracker class to track the change of specified
-files"""
+"""Track file content changes using persisted SHA256 hashes."""
 
 import json
 import sys
@@ -49,10 +48,14 @@ from .misc import get_sha256_file_hash_str
 
 
 class FileTracker:  # pylint: disable=too-few-public-methods
-    """Class to track changes in files"""
+    """Track and persist hashes for selected files."""
 
     def __init__(self, tmp_dir: Path) -> None:
-        """Initialise the FileTracker"""
+        """Initialize the tracker and create its hash database if missing.
+
+        Args:
+            tmp_dir: Directory used to store the persistent hash JSON file.
+        """
         if not tmp_dir.exists():
             recho(f"FileTracker: Directory {tmp_dir} for hash file does not exist!")
             sys.exit(1)
@@ -61,28 +64,42 @@ class FileTracker:  # pylint: disable=too-few-public-methods
         if not self._path_to_hash_json.exists():
             self._update_hash_json({})
 
-    def check_file_changed(self, file_path: Path) -> bool:
-        """Checks whether the passed file was previously changed based
-        on hash values"""
-        file_path = file_path.resolve()
-        hash_dict = self._read_hash_json()
-        old_file_hash = hash_dict.get(str(file_path), None)
-        current_file_hash = get_sha256_file_hash_str(file_path=file_path)
-        if old_file_hash:
+    def check_file_changed(self, file_path: Path | None) -> bool:
+        """Return whether the given file changed since the last recorded hash.
+
+        Args:
+            file_path: File to check and track. ``None`` returns ``False``.
+
+        Returns:
+            ``True`` if changed/new, ``False`` if unchanged or ``None`` input.
+        """
+        if file_path is not None:
+            file_path = file_path.resolve()
+            hash_dict = self._read_hash_json()
+            old_file_hash = hash_dict.get(str(file_path), None)
+            current_file_hash = get_sha256_file_hash_str(file_path=file_path)
             if old_file_hash == current_file_hash:
                 return False
-        # Add current hash value to hash file to track changes
-        hash_dict[str(file_path)] = current_file_hash
-        self._update_hash_json(hash_dict)
-        return True
+            # Add current hash value to hash file to track changes
+            hash_dict[str(file_path)] = current_file_hash
+            self._update_hash_json(hash_dict)
+            return True
+        return False
 
     def _read_hash_json(self) -> dict:
-        """Reads the hash json containing the hash values of the tracked
-        files"""
+        """Read the persisted hash mapping from disk.
+
+        Returns:
+            Dictionary mapping absolute file paths to SHA256 hashes.
+        """
         with open(self._path_to_hash_json, encoding="utf-8") as f:
             return json.load(f)
 
     def _update_hash_json(self, hash_dict: dict) -> None:
-        """Updates the hash values in the hash json file"""
+        """Write an updated hash mapping to disk.
+
+        Args:
+            hash_dict: Mapping to persist as JSON.
+        """
         with open(self._path_to_hash_json, mode="w", encoding="utf-8") as f:
             json.dump(hash_dict, f)

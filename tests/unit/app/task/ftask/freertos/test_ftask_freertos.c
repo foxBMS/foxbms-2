@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_ftask_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,6 +56,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockftask_cfg.h"
+#include "Mockinfinite-loop-helper.h"
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 #include "Mocksys_mon.h"
@@ -90,10 +91,8 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 /** @brief Stack size of cyclic 100 ms task for algorithms in words */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_WORDS \
     FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES)
-/** @brief Stack size of continuously running task for AFEs */
-#define FTSK_TASK_AFE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_AFE_STACK_SIZE_IN_BYTES)
+#define FTSK_TASK_I2C_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_I2C_STACK_SIZE_IN_BYTES)
 
-OS_TASK_HANDLE ftsk_taskHandleAfe;
 OS_TASK_HANDLE ftsk_taskHandleI2c;
 
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
@@ -132,17 +131,74 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c = {
     FTSK_TASK_I2C_CYCLE_TIME,
     FTSK_TASK_I2C_STACK_SIZE_IN_BYTES,
     FTSK_TASK_I2C_PV_PARAMETERS};
-OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
-    FTSK_TASK_AFE_PRIORITY,
-    FTSK_TASK_AFE_PHASE,
-    FTSK_TASK_AFE_CYCLE_TIME,
-    FTSK_TASK_AFE_STACK_SIZE_IN_BYTES,
-    FTSK_TASK_AFE_PV_PARAMETERS};
 
 /** boot state of the OS */
 volatile OS_BOOT_STATE_e os_boot = OS_OFF;
 /** timestamp of the scheduler start */
 uint32_t os_schedulerStartTime = 0u;
+
+#define NUM_TASKCREATE_TESTS 8
+TaskHandle_t taskCreateExpectedResults[BS_NR_OF_STRINGS][NUM_TASKCREATE_TESTS] = {0};
+
+/*
+ * mock callback in order to provide custom values to current_tab
+ */
+TaskHandle_t MPU_xTaskCreateStatic_TestCallback(
+    TaskFunction_t pxTaskCode,
+    const char *const pcName,
+    const configSTACK_DEPTH_TYPE uxStackDepth,
+    void *const pvParameters,
+    UBaseType_t uxPriority,
+    StackType_t *const puxStackBuffer,
+    StaticTask_t *const pxTaskBuffer,
+    int num_calls) {
+
+    uint8_t currentTest = 0u;
+
+    /* determine a value depending on num_calls (has to be synchronized with test) */
+    switch (num_calls) {
+        case 0:
+            currentTest = 0u;
+            break;
+        case 1:
+            currentTest = 1u;
+            break;
+        case 2:
+            currentTest = 2u;
+            break;
+        case 3:
+            currentTest = 3u;
+            break;
+        case 4:
+            currentTest = 4u;
+            break;
+        case 5:
+            currentTest = 5u;
+            break;
+        case 6:
+            currentTest = 6u;
+            break;
+        case 7:
+            currentTest = 7u;
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Check code of stub. Something does not fit.");
+    }
+
+    /* when one of the buffers is a NULL_PTR the expected result is also NULL */
+    if ((puxStackBuffer == NULL_PTR) || (pxTaskBuffer == NULL_PTR)) {
+        taskCreateExpectedResults[0][currentTest] = NULL;
+    }
+
+    /* Copy test values for all strings */
+    for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t testNumber = 0; testNumber < NUM_TASKCREATE_TESTS; testNumber++) {
+            taskCreateExpectedResults[s][testNumber] = taskCreateExpectedResults[0][testNumber];
+        }
+    }
+
+    return taskCreateExpectedResults[0][currentTest];
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -152,21 +208,6 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-/** test correct queue creation */
-
-/* database queue */
-/*static uint8_t ftsk_databaseQueueStorageArea[FTSK_DATABASE_QUEUE_STORAGE_AREA] = {0};
-static StaticQueue_t ftsk_databaseQueueStructure                               = {0};
-void testFTSK_CreateQueues(void) {
-    MPU_xQueueCreateStatic_Expect(
-        FTSK_DATABASE_QUEUE_LENGTH,
-        FTSK_DATABASE_QUEUE_ITEM_SIZE_IN_BYTES,
-        ftsk_databaseQueueStorageArea,
-        &ftsk_databaseQueueStructure);
-}*/
-
-/** test correct task creation */
-
 /* Engine Task */
 static StaticTask_t ftsk_taskEngine                                       = {0};
 static StackType_t ftsk_stackEngine[FTSK_TASK_ENGINE_STACK_SIZE_IN_WORDS] = {0};
@@ -236,7 +277,7 @@ void testFTSK_CreateTasks(void) {
 
     /* Continuously running Task for I2C */
     static StaticTask_t ftsk_taskI2c                                        = {0};
-    static StackType_t ftsk_stackSizeI2c[FTSK_TASK_AFE_STACK_SIZE_IN_WORDS] = {0};
+    static StackType_t ftsk_stackSizeI2c[FTSK_TASK_I2C_STACK_SIZE_IN_WORDS] = {0};
     MPU_xTaskCreateStatic_ExpectAndReturn(
         (TaskFunction_t)FTSK_CreateTaskI2c,
         "TaskI2c",
@@ -247,17 +288,94 @@ void testFTSK_CreateTasks(void) {
         &ftsk_taskI2c,
         dummyHandleSuccess);
 
-    /* Continuously running Task for AFE */
-    static StaticTask_t ftsk_taskAfe                                        = {0};
-    static StackType_t ftsk_stackSizeAfe[FTSK_TASK_AFE_STACK_SIZE_IN_WORDS] = {0};
+    FTSK_CreateTasks();
+
+    /* ===========*/
+
+    OS_TASK_HANDLE dummyHandleFail                                                = (OS_TASK_HANDLE)NULL;
+    static StaticTask_t ftsk_taskEngineFail                                       = {NULL};
+    static StackType_t ftsk_stackEngineFail[FTSK_TASK_ENGINE_STACK_SIZE_IN_WORDS] = {0};
+    MPU_xTaskCreateStatic_AddCallback(MPU_xTaskCreateStatic_TestCallback);
     MPU_xTaskCreateStatic_ExpectAndReturn(
-        (TaskFunction_t)FTSK_CreateTaskAfe,
-        "TaskAfe",
-        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionAfe.stackSize_B),
-        (void *)ftsk_taskDefinitionAfe.pvParameters,
-        (UBaseType_t)ftsk_taskDefinitionAfe.priority,
-        ftsk_stackSizeAfe,
-        &ftsk_taskAfe,
-        dummyHandleSuccess);
+        (TaskFunction_t)FTSK_CreateTaskEngine,
+        "TaskEngine",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionEngine.stackSize_B),
+        (void *)ftsk_taskDefinitionEngine.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionEngine.priority,
+        ftsk_stackEngineFail,
+        &ftsk_taskEngineFail,
+        dummyHandleFail);
+    TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
+
+    /* Cyclic Task 1ms */
+    StaticTask_t ftsk_taskCyclic1msFail                                           = {NULL};
+    StackType_t ftsk_stackCyclic1msFail[FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_WORDS] = {0};
+    MPU_xTaskCreateStatic_ExpectAndReturn(
+        (TaskFunction_t)FTSK_CreateTaskCyclic1ms,
+        "TaskCyclic1ms",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclic1ms.stackSize_B),
+        (void *)ftsk_taskDefinitionCyclic1ms.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionCyclic1ms.priority,
+        ftsk_stackCyclic1msFail,
+        &ftsk_taskCyclic1msFail,
+        dummyHandleFail);
+    TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
+
+    /* Cyclic Task 10ms */
+    StaticTask_t ftsk_taskCyclic10msFail                                            = {NULL};
+    StackType_t ftsk_stackCyclic10msFail[FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_WORDS] = {0};
+    MPU_xTaskCreateStatic_ExpectAndReturn(
+        (TaskFunction_t)FTSK_CreateTaskCyclic10ms,
+        "TaskCyclic10ms",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclic10ms.stackSize_B),
+        (void *)ftsk_taskDefinitionCyclic10ms.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionCyclic10ms.priority,
+        ftsk_stackCyclic10msFail,
+        &ftsk_taskCyclic10msFail,
+        dummyHandleFail);
+    TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
+
+    /* Cyclic Task 100ms */
+    StaticTask_t ftsk_taskCyclic100msFail                                             = {NULL};
+    StackType_t ftsk_stackCyclic100msFail[FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_WORDS] = {0};
+    MPU_xTaskCreateStatic_ExpectAndReturn(
+        (TaskFunction_t)FTSK_CreateTaskCyclic100ms,
+        "TaskCyclic100ms",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclic100ms.stackSize_B),
+        (void *)ftsk_taskDefinitionCyclic100ms.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionCyclic100ms.priority,
+        ftsk_stackCyclic100msFail,
+        &ftsk_taskCyclic100msFail,
+        dummyHandleFail);
+    TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
+
+    /* Cyclic Task 100ms for algorithms */
+    StaticTask_t ftsk_taskCyclicAlgorithm100msFail                                                       = {NULL};
+    StackType_t ftsk_stackCyclicAlgorithm100msFail[FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_WORDS] = {0};
+    MPU_xTaskCreateStatic_ExpectAndReturn(
+        (TaskFunction_t)FTSK_CreateTaskCyclicAlgorithm100ms,
+        "TaskCyclicAlgorithm100ms",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclicAlgorithm100ms.stackSize_B),
+        (void *)ftsk_taskDefinitionCyclicAlgorithm100ms.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionCyclicAlgorithm100ms.priority,
+        ftsk_stackCyclicAlgorithm100msFail,
+        &ftsk_taskCyclicAlgorithm100msFail,
+        dummyHandleFail);
+    TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
+
+    /* Continuously running Task for I2C */
+    StaticTask_t ftsk_taskI2cFail                                        = {NULL};
+    StackType_t ftsk_stackSizeI2cFail[FTSK_TASK_I2C_STACK_SIZE_IN_WORDS] = {0};
+    MPU_xTaskCreateStatic_ExpectAndReturn(
+        (TaskFunction_t)FTSK_CreateTaskI2c,
+        "TaskI2c",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionI2c.stackSize_B),
+        (void *)ftsk_taskDefinitionI2c.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionI2c.priority,
+        ftsk_stackSizeI2cFail,
+        &ftsk_taskI2cFail,
+        dummyHandleFail);
+    TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
+
     FTSK_CreateTasks();
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,10 +40,11 @@
 """Testing file 'cli/cmd_gui/frame_bootloader/bootloader_gui.py'."""
 
 import os
+import shutil
 import sys
 import tkinter as tk
 import unittest
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -60,6 +61,7 @@ except ModuleNotFoundError:
     from cli.helpers.misc import PROJECT_BUILD_ROOT
 
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "bootloader_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
@@ -67,20 +69,20 @@ class TestBootloaderFrame(unittest.TestCase):
     """Test of the BootloaderFrame class"""
 
     def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+        bootloader_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
         self.frame = bootloader_gui.BootloaderFrame(self.root, text)
-        self.start_time = datetime.now()
 
     def tearDown(self):
-        self.root.update()
-        self.root.destroy()
         io.STDERR = None
         io.STDOUT = None
-        file_output = Path(PROJECT_BUILD_ROOT / "output_gui_bootloader.txt")
-        if file_output.exists():
-            file_output.unlink()
+        self.root.update()
+        self.root.destroy()
+        bootloader_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
+        remove_data(self.start_time)
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
@@ -112,7 +114,7 @@ class TestBootloaderFrame(unittest.TestCase):
         self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
         self.assertEqual(0, self.frame.text_index)
 
-    def test_write_text_input(self):
+    def test_write_text_string(self):
         """Test 'write_text' function when a string is passed"""
         mock_select = MagicMock()
         mock_select.return_value = self.frame
@@ -151,7 +153,8 @@ class TestBootloaderFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BootloaderFrame.write_text")
     def test_check_thread_dead_file_stream(self, mock_write_text: MagicMock):
         """Test 'check_thread' function when the Thread is not alive
-        and stdout and stderr have to be reset"""
+        and stdout and stderr have to be reset
+        """
         self.frame.bootloader_process = MagicMock()
         self.frame.bootloader_process.is_alive.return_value = False
         # pylint: disable-next=consider-using-with
@@ -177,6 +180,16 @@ class TestBootloaderFrame(unittest.TestCase):
         self.frame.bus_bitrate_combobox.insert(tk.END, "500000")
         self.frame.bus_interface_combobox.delete(0, tk.END)
         self.frame.bus_interface_combobox.insert(tk.END, "interface")
+        self.frame.bootloader_dbc_entry.delete(0, tk.END)
+        self.frame.bootloader_dbc_entry.insert(tk.END, "bootloader/dbc/file")
+        self.frame.app_dbc_entry.delete(0, tk.END)
+        self.frame.app_dbc_entry.insert(tk.END, "app/dbc/file")
+        self.frame.foxbms_bin_entry.delete(0, tk.END)
+        self.frame.foxbms_bin_entry.insert(tk.END, "foxbms/bin/file")
+        self.frame.foxbms_crc_csv_entry.delete(0, tk.END)
+        self.frame.foxbms_crc_csv_entry.insert(tk.END, "foxbms/crc/csv/file")
+        self.frame.foxbms_crc_json_entry.delete(0, tk.END)
+        self.frame.foxbms_crc_json_entry.insert(tk.END, "foxbms/crc/json/file")
 
         self.frame.load_app_command_cb()
         self.frame.file_stream.close()
@@ -190,6 +203,11 @@ class TestBootloaderFrame(unittest.TestCase):
                 "channel": "channel",
                 "timeout": None,
                 "bitrate": "500000",
+                "bootloader_dbc": "bootloader/dbc/file",
+                "app_dbc": "app/dbc/file",
+                "foxbms_bin": "foxbms/bin/file",
+                "foxbms_app_crc": "foxbms/crc/csv/file",
+                "foxbms_app_info": "foxbms/crc/json/file",
             },
             daemon=True,
         )
@@ -211,26 +229,38 @@ class TestBootloaderFrame(unittest.TestCase):
         self.frame.change_interface_cb(None)
         self.assertEqual(self.frame.bus_channel_combobox.get(), "channel")
 
+    @patch("tkinter.filedialog.askopenfilename")
+    def test_open_file_cb(self, mock_askopenfilename: MagicMock):
+        """Test 'open_file_cb' function"""
+        mock_askopenfilename.return_value = "File Path"
+        content = self.frame.bootloader_dbc_entry.get().strip()
+        self.frame.open_file_cb("type", self.frame.bootloader_dbc_entry)
+        new_content = self.frame.bootloader_dbc_entry.get().strip()
+        self.assertEqual("File Path", new_content)
+        self.assertNotEqual(content, new_content)
+        mock_askopenfilename.assert_called_once_with(
+            filetypes=[("TYPE Files", "*.type")]
+        )
+
 
 class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the BootloaderFrame class"""
 
     def setUp(self):
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
         io.STDERR = None
         io.STDOUT = None
-        for file_path in PROJECT_BUILD_ROOT.glob("output_bootloader_*"):
-            if file_path.suffix == ".txt" and file_path.exists():
-                file_path.unlink()
+        remove_data(self.start_time)
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
         mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame
+        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame  # pylint: disable=no-member,useless-suppression
         mock_bootloader_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_bootloader_write_text_empty.txt"
+            PATH_GUI / "output_bootloader_write_text_empty.txt"
         )
         mock_bootloader_frame.text = MagicMock()
         mock_bootloader_frame.text_index = 0
@@ -242,9 +272,9 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
     def test_write_text(self):
         """Test 'write_text' function when the file is not empty"""
         mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame
+        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame  # pylint: disable=no-member,useless-suppression
         mock_bootloader_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_bootloader_write_text.txt"
+            PATH_GUI / "output_bootloader_write_text.txt"
         )
         mock_bootloader_frame.text = MagicMock()
         mock_bootloader_frame.text_index = 0
@@ -258,9 +288,9 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
     def test_write_text_not_selected(self):
         """Test 'write_text' function when BootloaderFrame is not selected"""
         mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.select.return_value = ""
+        mock_bootloader_frame.parent.select.return_value = ""  # pylint: disable=no-member,useless-suppression
         mock_bootloader_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_bootloader_write_text.txt"
+            PATH_GUI / "output_bootloader_write_text_not_selected.txt"
         )
         mock_bootloader_frame.text = MagicMock()
         mock_bootloader_frame.text_index = 0
@@ -269,12 +299,12 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
         mock_bootloader_frame.text.insert.assert_not_called()
         self.assertEqual(mock_bootloader_frame.text_index, 0)
 
-    def test_write_text_input(self):
+    def test_write_text_string(self):
         """Test 'write_text' function when a string is passed"""
         mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame
+        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame  # pylint: disable=no-member,useless-suppression
         mock_bootloader_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_bootloader_write_text.txt"
+            PATH_GUI / "output_bootloader_write_text_input.txt"
         )
         mock_bootloader_frame.text = MagicMock()
         mock_bootloader_frame.text_index = 0
@@ -315,11 +345,18 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
         """Test 'load_app_command_cb' function"""
         mock_bootloader_frame = MagicMock()
         mock_bootloader_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_bootloader_load_app.txt"
+            PATH_GUI / "output_bootloader_load_app.txt"
         )
         mock_bootloader_frame.bus_channel_combobox.get.return_value = "channel"
         mock_bootloader_frame.bus_bitrate_combobox.get.return_value = "bitrate"
         mock_bootloader_frame.bus_interface_combobox.get.return_value = "interface"
+        mock_bootloader_frame.bootloader_dbc_file.get.return_value = (
+            "bootloader/dbc/file"
+        )
+        mock_bootloader_frame.app_dbc_file.get.return_value = "app/dbc/file"
+        mock_bootloader_frame.foxbms_bin_file.get.return_value = "foxbms/bin/file"
+        mock_bootloader_frame.foxbms_crc_csv.get.return_value = "foxbms/crc/csv/file"
+        mock_bootloader_frame.foxbms_crc_json.get.return_value = "foxbms/crc/json/file"
 
         bootloader_gui.BootloaderFrame.load_app_command_cb(mock_bootloader_frame)
         mock_bootloader_frame.file_stream.close()
@@ -356,33 +393,89 @@ class TestRunLoadApp(unittest.TestCase):
     def test_run_load_app(self, mock_load_app: MagicMock):
         """Test 'run_load_app' function"""
         mock_bootloader_frame = MagicMock()
-        kwargs = {"interface": "virtual", "channel": "channel", "bitrate": "500000"}
+        kwargs = {
+            "interface": "virtual",
+            "channel": "channel",
+            "bitrate": "500000",
+            "bootloader_dbc": "bootloader/dbc/file",
+            "app_dbc": "app/dbc/file",
+            "foxbms_bin": "foxbms/bin/file",
+            "foxbms_app_crc": "foxbms/crc/csv/file",
+            "foxbms_app_info": "foxbms/crc/json/file",
+        }
         bootloader_gui.BootloaderFrame.run_load_app(
-            mock_bootloader_frame, None, "virtual", "channel", "500000"
+            mock_bootloader_frame,
+            None,
+            "virtual",
+            "channel",
+            "500000",
+            "bootloader/dbc/file",
+            "app/dbc/file",
+            "foxbms/bin/file",
+            "foxbms/crc/csv/file",
+            "foxbms/crc/json/file",
         )
         mock_load_app.assert_called_once_with(**kwargs)
 
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
     def test_run_load_app_exit_0(self, mock_load_app: MagicMock):
         """'run_load_app' function throws an Exit exception with
-        return_code 0"""
+        return_code 0
+        """
         mock_bootloader_frame = MagicMock()
-        kwargs = {"interface": "virtual", "channel": "channel", "bitrate": "500000"}
+        kwargs = {
+            "interface": "virtual",
+            "channel": "channel",
+            "bitrate": "500000",
+            "bootloader_dbc": "bootloader/dbc/file",
+            "app_dbc": "app/dbc/file",
+            "foxbms_bin": "foxbms/bin/file",
+            "foxbms_app_crc": "foxbms/crc/csv/file",
+            "foxbms_app_info": "foxbms/crc/json/file",
+        }
         mock_load_app.side_effect = exceptions.Exit(0)
         bootloader_gui.BootloaderFrame.run_load_app(
-            mock_bootloader_frame, None, "virtual", "channel", "500000"
+            mock_bootloader_frame,
+            None,
+            "virtual",
+            "channel",
+            "500000",
+            "bootloader/dbc/file",
+            "app/dbc/file",
+            "foxbms/bin/file",
+            "foxbms/crc/csv/file",
+            "foxbms/crc/json/file",
         )
         mock_load_app.assert_called_once_with(**kwargs)
 
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
     def test_run_load_app_exit_1(self, mock_load_app: MagicMock):
         """'run_load_app' function throws an Exit exception with
-        return_code 1"""
+        return_code 1
+        """
         mock_bootloader_frame = MagicMock()
-        kwargs = {"interface": "virtual", "channel": "channel", "bitrate": "500000"}
+        kwargs = {
+            "interface": "virtual",
+            "channel": "channel",
+            "bitrate": "500000",
+            "bootloader_dbc": "bootloader/dbc/file",
+            "app_dbc": "app/dbc/file",
+            "foxbms_bin": "foxbms/bin/file",
+            "foxbms_app_crc": "foxbms/crc/csv/file",
+            "foxbms_app_info": "foxbms/crc/json/file",
+        }
         mock_load_app.side_effect = exceptions.Exit(1)
         bootloader_gui.BootloaderFrame.run_load_app(
-            mock_bootloader_frame, None, "virtual", "channel", "500000"
+            mock_bootloader_frame,
+            None,
+            "virtual",
+            "channel",
+            "500000",
+            "bootloader/dbc/file",
+            "app/dbc/file",
+            "foxbms/bin/file",
+            "foxbms/crc/csv/file",
+            "foxbms/crc/json/file",
         )
         mock_load_app.assert_called_once_with(**kwargs)
 
@@ -395,11 +488,106 @@ class TestRunLoadApp(unittest.TestCase):
             "interface": "virtual",
             "channel": "channel",
             "bitrate": "500000",
+            "bootloader_dbc": "bootloader/dbc/file",
+            "app_dbc": "app/dbc/file",
+            "foxbms_bin": "foxbms/bin/file",
+            "foxbms_app_crc": "foxbms/crc/csv/file",
+            "foxbms_app_info": "foxbms/crc/json/file",
         }
         bootloader_gui.BootloaderFrame.run_load_app(
-            mock_bootloader_frame, "timeout", "virtual", "channel", "500000"
+            mock_bootloader_frame,
+            "timeout",
+            "virtual",
+            "channel",
+            "500000",
+            "bootloader/dbc/file",
+            "app/dbc/file",
+            "foxbms/bin/file",
+            "foxbms/crc/csv/file",
+            "foxbms/crc/json/file",
         )
         mock_load_app.assert_called_once_with(**kwargs)
+
+    @patch("tkinter.filedialog.askopenfilename")
+    def test_open_file_cb(self, mock_askopenfilename: MagicMock):
+        """Test 'open_file_cb' function"""
+        mock_bootloader_frame = MagicMock()
+        mock_entry = MagicMock()
+        mock_askopenfilename.return_value = "File Path"
+        bootloader_gui.BootloaderFrame.open_file_cb(
+            mock_bootloader_frame, "type", mock_entry
+        )
+        mock_askopenfilename.assert_called_once_with(
+            filetypes=[("TYPE Files", "*.type")]
+        )
+        mock_entry.delete.assert_called_once_with(0, tk.END)
+        mock_entry.insert.assert_called_once_with(tk.END, "File Path")
+
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+class TestBootloaderFrameInit(unittest.TestCase):
+    """Test initialization of the BootloaderFrame class"""
+
+    def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+        bootloader_gui.PROJECT_BUILD_ROOT = PATH_GUI
+        self.root = tk.Tk()
+        self.root.withdraw()
+        self.text = tk.Text()
+
+    def tearDown(self):
+        io.STDERR = None
+        io.STDOUT = None
+        self.root.update()
+        self.root.destroy()
+        bootloader_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
+        remove_data(self.start_time)
+
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
+    def test_files(self, mock_is_file: MagicMock):
+        """Test initialization when the files exist"""
+        mock_is_file.return_value = True
+        bootloader_frame = bootloader_gui.BootloaderFrame(self.root, self.text)
+        self.assertNotEqual("", bootloader_frame.bootloader_dbc_entry.get().strip())
+        self.assertNotEqual("", bootloader_frame.app_dbc_entry.get().strip())
+        self.assertNotEqual("", bootloader_frame.foxbms_bin_entry.get().strip())
+        self.assertNotEqual("", bootloader_frame.foxbms_crc_csv_entry.get().strip())
+        self.assertNotEqual("", bootloader_frame.foxbms_crc_json_entry.get().strip())
+
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
+    def test_no_files(self, mock_is_file: MagicMock):
+        """Test initialization when the files do not exist"""
+        mock_is_file.return_value = False
+        bootloader_frame = bootloader_gui.BootloaderFrame(self.root, self.text)
+        self.assertEqual("", bootloader_frame.bootloader_dbc_entry.get().strip())
+        self.assertEqual("", bootloader_frame.app_dbc_entry.get().strip())
+        self.assertEqual("", bootloader_frame.foxbms_bin_entry.get().strip())
+        self.assertEqual("", bootloader_frame.foxbms_crc_csv_entry.get().strip())
+        self.assertEqual("", bootloader_frame.foxbms_crc_json_entry.get().strip())
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = list(PATH_GUI.iterdir())
+            for child in children:
+                if get_birthtime(child) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

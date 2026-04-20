@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,7 +57,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "Mockcan_cbs_tx_fatal-error.h"
+#include "Mockcan_cbs_tx_f_fatal-error.h"
 #include "Mockdatabase.h"
 #include "Mockdiag_cbs.h"
 #include "Mocktimer.h"
@@ -168,9 +168,9 @@ void testDIAG_ResetErrorCount(void) {
     /* ======= Assertion tests ============================================= */
 
     /* ======= AT1/1 ======= */
-    TEST_DIAG_SetDiagerrcnttotal(3u);
+    TEST_DIAG_SetDiagTotalErrorCount(3u);
     TEST_DIAG_Reset();
-    TEST_ASSERT_EQUAL(0u, TEST_DIAG_GetDiag()->errcnttotal);
+    TEST_ASSERT_EQUAL(0u, TEST_DIAG_GetDiag()->totalErrorCount);
 }
 
 void testDIAG_ResetOccurrenceCounter(void) {
@@ -188,23 +188,23 @@ void testDIAG_SetFatalErrorByIdOutOfRange(void) {
 }
 
 void testDIAG_SetFatalErrorByIdOnce(void) {
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
     TIMER_Start_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_SetFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_SetFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 1);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 1);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 1);
 }
 
 void testDIAG_SetFatalErrorByIdDoubled(void) {
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
     TIMER_Start_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_SetFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_SetFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 1);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 1);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 1);
 
-    TEST_DIAG_SetFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_SetFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 1);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 1);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 1);
 }
 
 void testDIAG_ClearFatalErrorByIdOutOfRange(void) {
@@ -212,57 +212,57 @@ void testDIAG_ClearFatalErrorByIdOutOfRange(void) {
 }
 
 void testDIAG_ClearFatalErrorByIdOnce(void) {
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
     TIMER_Start_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_SetFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_SetFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 1);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 1);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 1);
 
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_MAX, STD_OK);
     TIMER_Stop_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_ClearFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_ClearFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 0);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 0);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 0);
 }
 
 void testDIAG_ClearFatalErrorByIdDoubled(void) {
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
     TIMER_Start_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_SetFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_SetFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 1);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 1);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 1);
 
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_MAX, STD_OK);
     TIMER_Stop_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_ClearFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_ClearFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 0);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 0);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 0);
 
-    TEST_DIAG_ClearFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_ClearFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 0);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 0);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 0);
 }
 
 void testDIAG_ClearFatalErrorByIdNotSetBefore(void) {
-    TEST_DIAG_ClearFatalErrorById(DIAG_ID_FLASHCHECKSUM);
+    TEST_DIAG_ClearFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
     TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorCount(), 0);
-    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_FLASHCHECKSUM), 0);
+    TEST_ASSERT_EQUAL(TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_SYSTEM_MONITORING), 0);
 }
 
 void test_DIAG_ResendFatalErrorsThree(void) {
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
-    TIMER_Start_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
-    TEST_DIAG_SetFatalErrorById(DIAG_ID_FLASHCHECKSUM);
-
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
+    TIMER_Start_ExpectAndReturn(diag_fatalErrorResendTimer, 0u, STD_OK);
     TEST_DIAG_SetFatalErrorById(DIAG_ID_SYSTEM_MONITORING);
 
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_AFE_SPI, STD_OK);
     TEST_DIAG_SetFatalErrorById(DIAG_ID_AFE_SPI);
 
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, STD_OK);
+    TEST_DIAG_SetFatalErrorById(DIAG_ID_AFE_COMMUNICATION_INTEGRITY);
+
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_AFE_SPI, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, STD_OK);
     TEST_DIAG_ResendFatalErrors();
 }
 
@@ -275,6 +275,13 @@ void testDIAG_Initialize(void) {
 
     /* ======= AT1/1 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_Initialize(NULL_PTR));
+
+    /* ======= Routine tests ============================================= */
+    DIAG_ID_CFG_s entry = {.id = DIAG_ID_MAX};
+    DIAG_DEV_s dev_ptr  = {.nrOfConfiguredDiagnosisEntries = 1, .pConfigurationOfDiagnosisEntries = &entry};
+    /* ======= RT1/1 ======= */
+    TIMER_Create_Stub(MockTIMER_Create_Callback);
+    DIAG_Initialize(&dev_ptr);
 }
 
 void testDiag_UpdateFlags(void) {
@@ -299,10 +306,10 @@ void testDIAG_SendOneFatalError(void) {
     TEST_ASSERT_EQUAL(DIAG_Initialize(&diag_device), STD_OK);
     TEST_ASSERT_FALSE(DIAG_IsAnyFatalErrorSet());
 
-    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_FLASHCHECKSUM, STD_OK);
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_OK);
     TIMER_Start_Stub(MockTIMER_Start_Callback);
-    DIAG_DummyCallback_Expect(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, &diag_kDatabaseShim, 0);
-    DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
+    DIAG_ErrorSystemMonitoring_Expect(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, &diag_kDatabaseShim, 0);
+    DIAG_Handler(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
 
     TEST_ASSERT(DIAG_IsAnyFatalErrorSet());
 }
@@ -327,4 +334,29 @@ void testDIAG_SendMultipleFatalErrors(void) {
 
     TEST_ASSERT(DIAG_IsAnyFatalErrorSet());
     TEST_ASSERT_EQUAL(2, TEST_DIAG_GetFatalErrorCount());
+}
+
+void testDIAG_PrintErrors(void) {
+    DIAG_PrintErrors();
+}
+
+void testDIAG_CheckEvent(void) {
+    /* ======= Routine tests ============================================= */
+
+    /* ======= RT1/2 ======= */
+    /* Condition is STD_OK */
+    DIAG_ErrorSystemMonitoring_Expect(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_RESET, &diag_kDatabaseShim, 0u);
+    DIAG_CheckEvent(STD_OK, DIAG_ID_SYSTEM_MONITORING, DIAG_SYSTEM, 0u);
+
+    /* ======= RT2/2 ======= */
+    /* Condition is STD_NOT_OK */
+    CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_NOT_OK);
+    TIMER_Start_Stub(MockTIMER_Start_Callback);
+    DIAG_ErrorSystemMonitoring_Expect(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, &diag_kDatabaseShim, 0u);
+    DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_SYSTEM_MONITORING, DIAG_SYSTEM, 0u);
+}
+
+void testDIAG_GetDelay(void) {
+    TEST_ASSERT_FAIL_ASSERT(DIAG_GetDelay(DIAG_ID_MAX));
+    DIAG_GetDelay(DIAG_ID_SYSTEM_MONITORING);
 }

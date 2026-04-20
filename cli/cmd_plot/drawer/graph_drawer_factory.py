@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,13 +38,16 @@
 # - "This product is derived from foxBMS®"
 
 """Implementation of the GraphDrawerFactory class to create
-and return a LineGraphDrawer object for the given data."""
+and return a LineGraphDrawer object for the given data.
+"""
+
+# cspell:ignore scienceplots
 
 import sys
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import scienceplots  # pylint: disable=import-error,unused-import # noqa: F401
+import scienceplots  # pylint: disable=unused-import # noqa: F401
 
 from ...helpers.click_helpers import recho
 from .graph_drawer_factory_interface import (
@@ -73,9 +76,9 @@ class GraphDrawerFactory(GraphDrawerFactoryInterface):  # pylint: disable=too-fe
                 graph_settings = GraphSettings(**graph_config["graph"])
                 description = Description(**graph_config["description"])
                 plt.style.use(["science", "ieee", "no-latex"])
-                matplotlib.rc("font", size=16)
+                mpl.rc("font", size=16, family="serif", serif="Times New Roman")
                 # avoid overlap of x and y-axis values
-                matplotlib.rcParams["xtick.major.pad"] = 12
+                mpl.rcParams["xtick.major.pad"] = 12
                 fig, axes = plt.subplots(
                     figsize=(
                         graph_settings.width_px / graph_settings.dpi,
@@ -84,14 +87,13 @@ class GraphDrawerFactory(GraphDrawerFactoryInterface):  # pylint: disable=too-fe
                     dpi=graph_settings.dpi,
                 )
                 fig.set_layout_engine("tight")
-                line_graph_drawer = LineGraphDrawer(
+                return LineGraphDrawer(
                     graph=graph_settings,
                     descriptions=description,
                     mapping=mapping,
                     axes=axes,
                     name=graph_config["name"],
                 )
-                return line_graph_drawer
             case _:
                 recho("The given graph type hasn't been implemented.")
                 sys.exit(1)

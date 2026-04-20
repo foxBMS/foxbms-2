@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_debug_can.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -299,6 +299,8 @@ void testDECAN_ReceiveCanCellVoltages(void) {
     OS_ReceiveFromQueue_ExpectAndReturn(
         ftsk_canToAfeCellVoltagesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
 
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
     DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltage, STD_OK);
     DATA_Read1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
     DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
@@ -318,8 +320,60 @@ void testDECAN_ReceiveCanCellTemperatures(void) {
     OS_ReceiveFromQueue_ExpectAndReturn(
         ftsk_canToAfeCellTemperaturesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
 
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
     DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperature, STD_OK);
     DATA_Read1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
     DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, TEST_DECAN_ReceiveCanCellTemperatures());
+}
+
+/**
+ * @brief   Testing extern function DECAN_Initialize
+ * @details The following cases need to be tested:
+ *          - Routine tests:
+ *            - RT1/1: if function can be successfully run or not;
+ */
+void testDECAN_Initialize(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    OS_GetTickCount_ExpectAndReturn(0u);
+    uint32_t currentTime = 0u;
+    OS_DelayTaskUntil_Expect(&currentTime, 10u);
+
+    STD_RETURN_TYPE_e returnValue = STD_NOT_OK;
+    returnValue                   = DECAN_Initialize();
+    TEST_ASSERT_EQUAL(STD_OK, returnValue);
+}
+
+/**
+ * @brief   Testing extern function DECAN_TriggerAfe
+ * @details The following cases need to be tested:
+ *          - Routine tests:
+ *            - RT1/1: if function can be successfully run or not;
+ */
+void testDECAN_TriggerAfe(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    uint64_t messageData = 0u;
+    OS_ReceiveFromQueue_ExpectAndReturn(
+        ftsk_canToAfeCellVoltagesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltage, STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
+
+    messageData = 0u;
+    OS_ReceiveFromQueue_ExpectAndReturn(
+        ftsk_canToAfeCellTemperaturesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperature, STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
+
+    OS_GetTickCount_ExpectAndReturn(0u);
+    uint32_t currentTime = 0u;
+    OS_DelayTaskUntil_Expect(&currentTime, 10u);
+
+    STD_RETURN_TYPE_e returnValue = STD_NOT_OK;
+    returnValue                   = DECAN_TriggerAfe();
+    TEST_ASSERT_EQUAL(STD_OK, returnValue);
 }

@@ -1,11 +1,11 @@
 .. include:: ./../../macros.txt
 .. include:: ./../../units.txt
 
-.. _HALCOGEN_TOOL_DOCUMENTATION:
+.. _TI_HALCOGEN_TOOL:
 
-###########################
-HALCoGen tool documentation
-###########################
+##################
+|ti-halcogen| Tool
+##################
 
 .. note::
    A documentation of the tool |ti-halcogen| can be found in this section, the
@@ -18,7 +18,72 @@ HALCoGen tool documentation
 This part of the manual summarizes the usage of |ti-halcogen| and references
 important documents by TI.
 
-Release notes
+.. _UPDATING_THE_STARTUP_ROUTINE:
+
+Updating the Startup Routine
+============================
+
+|ti-halcogen| creates the source file ``HL_sys_startup.c`` which implements
+(a weak implementation of) the function ``_c_int00`` (the system's startup
+routine). |foxbms| provides its own **non**-weak implementation of ``_c_int00``
+in ``fstartup.c``.
+The |foxbms| implementation of ``_c_int00`` must be coupled to the the current
+|ti-halcogen| configuration.
+
+Most changes in the |ti-halcogen| project do not alter the startup behavior and
+no further action needs to be taken into account.
+However there are settings that alter the startup behavior.
+Such settings need to be ported to ``fstartup.c`` as this non-weak
+implementation of ``_c_int00`` outweighs the generated, new version of
+``_c_int00`` in ``HL_sys_startup.c``.
+Otherwise the startup function used by |foxbms| would not reflect the
+|ti-halcogen| configuration.
+The :ref:`WAF_TOOL_HALCOGEN` provides a mechanism to detected such changes.
+The hash of the current ``HL_sys_startup.c`` implementation is stored in
+``src/app/hal/app-startup.hash`` and compared to the actual hash of the
+generated ``HL_sys_startup.c`` file.
+If these are not the same, the build aborts with the following message:
+
+.. literalinclude:: fstartup.c-check.txt
+   :language: console
+   :caption: Example error message on hash mismatch of ``HL_sys_startup.c``
+   :name: halcogen-configuration-error
+
+The build aborts as the expected hash is
+``b'e2e61496edd65f44d7cc811b504ad1f2'`` while the actual hash is
+``b'1something-other234'``.
+Next, the function ``_c_int00`` in the two files (``fstartup.c``) and
+``HL_sys_startup.c`` needs to be compared by the developer and the developer
+needs to update the ``_c_int00`` implementation in the file ``fstartup.c`` to
+reflect the |ti-halcogen| startup routine.
+The concluding step is to update the hash value in
+``src/app/hal/app-startup.hash`` with ``1something-other``.
+Now the build toolchain knows, that the changes applied in the |ti-halcogen|
+are reflected in the dependencies and the build will not abort after the HAL
+sources are generated.
+
+The following paths exists, after |ti-halcogen| has run and generated the
+sources (``target`` is either ``app`` or ``bootloader`` respectively):
+
+- The hash of
+  ``build/<target>_embedded/src/<target>/hal/source/HL_sys_startup.c``
+  matches the expected hash in ``<target>-startup.hash``.
+  There is nothing to do and the build proceeds.
+- The hash of
+  ``build/<target>_embedded/src/<target>/hal/source/HL_sys_startup.c``
+  does **not** match the expected hash in
+  ``src/<target>/hal/<target>-startup.hash``.
+  The build process is aborted.
+
+  - The developer needs to check the generated ``HL_sys_startup.c`` source and
+    diff it against the file against ``src/<target>/main/fstartup.c``.
+  - The developer needs to decide which changes need to be ported to
+    ``src/<target>/main/fstartup.c`` and apply them.
+  - The developer needs to update the hash in
+    ``src/<target>/hal/<target>-startup.hash``.
+  - Re-run the build process.
+
+Release Notes
 =============
 
 When using |ti-halcogen| it is mandatory to be aware of the official
@@ -32,7 +97,7 @@ Moreover, the most recent revision of the
 `Hercules Safety MCU Resource Guide <https://software-dl.ti.com/hercules/hercules_docs/latest/hercules/>`_
 **SHALL** be read carefully.
 
-Additional known issues
+Additional Known Issues
 =======================
 
 In addition to the known issues described in the release notes we have
@@ -75,7 +140,7 @@ compilation of the HAL.
 This issue is fixed with the latter option in |foxbms| versions ``v1.1.0`` and
 upwards.
 
-Message definitions in CAN4
+Message Definitions in CAN4
 ---------------------------
 
 |ti-halcogen| has a bug that prevents it from generating a complete set of
@@ -108,7 +173,7 @@ The result should look like the content of :numref:`modify-can4-xml`.
       for(i=1;i &lt;= 64;i++)
             {
 
-Mailbox 42 configuration in CAN1
+Mailbox 42 Configuration in CAN1
 --------------------------------
 
 |ti-halcogen| has a bug that the initialization code of CAN1 mailbox 42 is not

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,7 +40,7 @@
 """Helper script to configure the CCS variants build"""
 
 import argparse
-import logging
+import logging  # noqa: TID251
 import os
 import shutil
 import sys
@@ -51,7 +51,7 @@ from git.exc import InvalidGitRepositoryError
 
 
 def get_git_root(path: str) -> str:
-    """helper function to find the repository root
+    """Helper function to find the repository root
 
     Args:
         path (string): path of file in git repository
@@ -71,7 +71,7 @@ def get_git_root(path: str) -> str:
 ROOT = Path(get_git_root(os.path.realpath(__file__)))
 
 
-def main():
+def main() -> None:
     """This script does this and that"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -133,7 +133,7 @@ def main():
         ROOT / "conf/env/env.json",
         ROOT / f"conf/env/paths_{plat}.txt",
     ]
-    for src, dest in zip(srcs, dests):
+    for src, dest in zip(srcs, dests, strict=False):
         shutil.copy(src, dest)
 
 

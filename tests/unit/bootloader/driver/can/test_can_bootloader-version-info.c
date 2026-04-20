@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_bootloader-version-info.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -95,7 +95,7 @@ VER_VERSION_s ver_versionInformation = {
     .patch                   = 7,
     .distanceFromLastRelease = 17,
     .commitHash              = "Test12deadbeef",
-    .gitRemote               = "onTheDarkSideOfTheMoon.git",
+    .remote                  = "onTheDarkSideOfTheMoon.git",
 };
 
 /*========== Setup and Teardown =============================================*/

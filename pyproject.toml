@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -35,6 +35,71 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
+
+[tool.hatch.metadata.hooks.custom]
+path = "hatch_build.py"
+
+[tool.hatch.build.targets.sdist]
+ignore-vcs = true
+only-include = ["cli", "conf/env", "docs/_static/favicon.ico"]
+exclude = ["cli/.vscode"]
+
+[tool.hatch.build.targets.wheel]
+ignore-vcs = true
+only-include = ["cli"]
+exclude = [ # Exclude all unsupported directories
+  "cli/.vscode",
+  "**/c*_build*",
+  "**/c*_ci*",
+  "**/c*_cli_unittest*",
+  "**/c*_embedded_ut*",
+  "**/c*_ide*",
+  "**/c*_install*",
+  "**/c*_misc*",
+  "**/c*_pre_commit*",
+  "**/c*_release*",
+  "cli/pre_commit_scripts",
+]
+sources = {"cli" = "fox_cli"} # Rename the package-directory
+# Configuration of 'project_data' directory
+force-include = {"conf/env" = "cli/project_data/env", "docs/_static/favicon.ico" = "cli/project_data/favicon.ico", "LICENSE.md" = "cli/project_data/LICENSE.md", "BSD-3-Clause.txt" = "cli/project_data/BSD-3-Clause.txt", "CC-BY-4.0.txt" = "cli/project_data/CC-BY-4.0.txt"}
+
+[project]
+name = "fox-cli"
+dynamic = ["version", "dependencies"]
+requires-python = ">=3.12"
+authors = [
+  {name = "foxBMS Team", email="info@foxbms.org"}
+]
+description = "CLI tools for foxBMS 2"
+keywords = ["battery", "foxBMS"]
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.md", "BSD-3-Clause.txt", "CC-BY-4.0.txt"]
+
+classifiers = [
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Embedded Systems",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://foxbms.org/"
+Documentation = "https://docs.foxbms.org/"
+Repository = "https://github.com/foxBMS/foxbms-2"
+
+[project.scripts]
+fox-cli = "fox_cli.cli:main" # Package entry point
+
 [tool.pyright]
 include = ["cli"]
 reportMissingImports = false
@@ -47,12 +112,12 @@ reportUndefinedVariable = false
 reportRedeclaration = false
 extraPaths = [
   "C:/Bauhaus/7.5.2/lib/scripts",
-  "tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d",
-  "tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d",
+  "tools/waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033",
+  "tools/.waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033",
   "tools/waf-tools",
   "tests/hil",
 ]
-exclude = ["**/waflib/**"]
+exclude = ["**/.*", "**/node_modules", "**/__pycache__", "**/waflib/**"]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -85,11 +150,8 @@ exclude = [
   "venv",
 ]
 extend-exclude = [
-  "tests/axivion/addon/*",
-  "tests/axivion/compiler-errata/*",
-  "tests/axivion/qualification-test/*",
-  "tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d/**",
-  "tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d/**",
+  "tools/waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033/**",
+  "tools/.waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033/**",
 ]
 
 # Same as Black.
@@ -99,42 +161,189 @@ indent-width = 4
 target-version = "py312" # minimal supported Python version
 
 [tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
-select = ["A", "ASYNC", "AIR", "ERA", "E4", "E7", "E9", "F", "YTT", "TID"]
+select = [
+  "A",
+  "ANN",
+  "AIR",
+  "ANN",
+  "ARG",
+  "ASYNC",
+  "B",
+  "BLE",
+  "C",
+  "COM",
+  "D",
+  "DJ",
+  "DTZ",
+  "E",
+  "EM",
+  "ERA",
+  "EXE",
+  "F",
+  "FA",
+  "FAST",
+  "FIX",
+  "FLY",
+  "FURB",
+  "G",
+  "ICN",
+  "INP",
+  "INT",
+  "ISC",
+  "LOG",
+  "N",
+  "NPY",
+  "PD",
+  "PERF",
+  "PGH",
+  "PIE",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "PTH",
+  "PYI",
+  "Q",
+  "RET",
+  "RSE",
+  "RUF",
+  "S",
+  "SIM",
+  "SLF",
+  "SLOT",
+  "T",
+  "TC",
+  "TD",
+  "TID",
+  "TRY",
+  "UP",
+  "W",
+  "YTT",
+]
 ignore = [
-  "ANN001",  # annotate everything sometimes later
-  "COM812",  # do not always use a trailing comma
+  "ANN003",  # Missing type annotation for `**kwargs`
+  "ARG001",  # checked by pylint, maybe change later
   "C901",    # Reduce McCabe complexity at a later time
+  "COM812",  # do not always use a trailing comma
+  "D105",    # docstring on magic methods; maybe fix later
+  "D203",    # our style is 'no blank lines'
+  "D205",
+  "D212",    # we need to define whether we want D212 or D213
+  "D213",    # we need to define whether we want D212 or D213
+  "D400",
+  "D401",
+  "D404",
+  "D107",    # fix later
+  "D413",    # our style is 'no blank lines'
+  "D415",    # fix later
+  "D417",
+  "E501",    # Line too long
   "ERA001",  # too many false positives
-  "S603",    # we do not run Popen on user input except it is actually requested in run-program
-  "TID251",  # for now
-  "TID252",  # we use relative imports in packages
+  "PLR0911", # Too many return statements
   "PLR0912", # too many branches; fix later
   "PLR0915", # too many statements; fix later
-  "LOG015",  # add custom fox logger later
-  "ARG001",  # checked by pylint, maybe change later
+  "PLR2004", # Magic value used in comparison
+  "PLW2901",
+  "PTH118",
+  "PTH123",
+  "RUF005",
+  "RUF015",
+  "S301",
+  "S314",
+  "S506",
+  "S603",    # we do not run Popen on user input except it is actually requested in run-program
+  "SIM102",  # fix later
+  "TC001",   # rather import even when only typechecking
   "TC002",   # rather import even when only typechecking
-  #"TRY003",  # custom Exceptions
+  "TC003",
+  "TC006",
+  "TRY301",  # fix later
+  "TID252",  # we use relative imports in packages
 ]
+
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = []
 
 # Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|event|verbose)$"
 
 [tool.ruff.lint.flake8-tidy-imports]
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "click.echo".msg = "Use 'cli.helpers.click_helpers.echo' instead."
 "click.secho".msg = "Use 'cli.helpers.click_helpers.secho' instead."
+"logging".msg = "Use 'cli.helpers.logger' instead."
 # "typing.cast".msg = "Do not use typing.cast."
-# "typing.Optional".msg = "Use '<Var> | None' instead."
-# "typing.List".msg = "Use 'list' instead."
-# "typing.Dict".msg = "Use 'dict' instead."
-# "typing.Tuple".msg = "Use 'tuple' instead."
+"typing.Optional".msg = "Use '<Var> | None' instead."
+"typing.List".msg = "Use 'list' instead."
+"typing.Dict".msg = "Use 'dict' instead."
+"typing.Tuple".msg = "Use 'tuple' instead."
+
+[tool.ruff.lint.per-file-ignores]
+"cli/commands/c_*.py" = ["PLR0913"]
+"**/*test_*.py" = ["ANN002", "ANN201", "ANN202", "ANN204", "ANN206"]
+"tools/waf-tools/f_hcg.py" = ["D105"]
+"tools/waf-tools/f_ti_arm_cgt.py" = ["D105"]
+"**wscript" = [
+  "ANN001",
+  "ANN201",
+  "ANN202",
+  "B007",
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  "FIX002",
+  "N801",
+  "PTH",
+  "RET",
+  "SIM",
+  "TD",
+]
+"cli/helpers/python_setup.py" = ["T201"]
+"cli/pre_commit_scripts/*" = ["T201"]
+"conf/tpl/python_script.py" = ["T201"]
+"docs/conf.py" = ["TID251", "LOG015", "T201"]
+"docs/developer-manual/fox-cli/foo.py" = ["T201"]
+"docs/developer-manual/style-guide/examples/python-006.py" = ["T201"]
+"docs/developer-manual/style-guide/examples/python-007.py" = ["ANN001", "ANN201"]
+"tests/can/*" = ["LOG015", "PTH120"]
+"tests/ccs/ccs_build_helper.py" = ["LOG015", "PTH120"]
+"tests/ccs/expect-failure/test_expect_configure_failure.py" = ["T201"]
+"tests/cli/*" = [
+  "ANN001",
+  "ARG002",
+  "D102",
+  "SLF001",
+  "PLW1508",
+  "PTH106",
+  "PTH107",
+  "PGH",
+  "EM101",
+  "SIM",
+  "TD",
+  "FIX",
+  "N801",
+]
+"tests/c-std/c-std-test.py" = ["LOG015"]
+"tests/dbc/*" = ["ALL"]
+"tests/dbc/**" = ["ANN"]
+"tests/fox-cmds/*" = ["ALL"]
+"tests/hil/*" = ["LOG015"]
+"tests/hil/**" = ["ALL"]
+"tests/unit/wscript" = ["ALL"]
+"tests/waf-tools/**" = ["D101", "D102", "SLF001"]
+"tools/**" = ["ANN", "LOG015", "T201"]
+"tools/precharge/precharge_dimensioning.ipynb"= ["N816"]
+"tools/utils/*" = ["S112", "PTH", "T201"]
+"tools/waf-tools/*" = ["EM", "FIX002", "FLY", "PTH", "RUF", "S", "SIM", "TD", "T201", "N801", "PLR"]
+"tools/waf-tools/**" = ["ANN002", "ANN201", "ANN202"]
+
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
@@ -169,7 +378,6 @@ disable_error_code = "import-untyped" # TODO
 exclude = [
   '^build/.*',
   '.*c4che.*',
-  '^tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/.*\.py',
   '^tests/cli/.*',                                               # TODO
   '^tests/hil/server/pi_pico/fault_injector/.*\.py',
   '^tests/hil/server/pi_pico/interface_switchboard/.*\.py',
@@ -177,16 +385,16 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-module = "waflib.*,axivion.*,bauhaus.*"
+module = "waflib.*"
 ignore_missing_imports = true
 
 [tool.coverage.run]
 branch = true
 omit = [
   "*/test_*",
-  "*/axivion_impl.py",
   "*/check_coverage.py",
   "*/create_readme.py",
+  "*/tools/waf3*/waflib/*.py",
 ]
 [tool.coverage.report]
 fail_under = 100.0
@@ -209,7 +417,7 @@ exclude_also = ["if __name__ == .__main__.:"]
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code.
-extension-pkg-allow-list = "axivion"
+extension-pkg-allow-list = []
 
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
@@ -220,7 +428,7 @@ extension-pkg-allow-list = "axivion"
 # Return non-zero exit code if any of these messages/categories are detected,
 # even if score is above --fail-under value. Syntax same as enable. Messages
 # specified are enabled, while categories only check already-enabled messages.
-# fail-on =
+fail-on = ["useless-suppression"]
 
 # Specify a score threshold under which the program will exit with error.
 fail-under = 10
@@ -230,7 +438,7 @@ fail-under = 10
 # from-stdin =
 
 # Files or directories to be skipped. They should be base names, not paths.
-ignore = ["CVS", "waflib", "combine_report_files.py"]
+ignore = ["CVS", "waflib"]
 
 # Add files or directories matching the regular expressions patterns to the
 # ignore-list. The regex matches against paths and can be in Posix or Windows
@@ -252,7 +460,7 @@ ignore-patterns = ["^\\.#"]
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook = 'import sys; sys.path.extend(["C:/Bauhaus/7.5.2/lib/scripts", "cli", "tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d", "tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d", "tests/hil"])'
+init-hook = 'import sys; sys.path.extend(["C:/Bauhaus/7.5.2/lib/scripts", "cli", "tools/waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033", "tools/.waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033", "tests/hil"])'
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use, and will cap the count on Windows to
@@ -297,6 +505,9 @@ suggestion-mode = true
 # unsafe-load-any-extension =
 
 [tool.pylint.basic]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
 # Naming style matching correct argument names.
 argument-naming-style = "snake_case"
 
@@ -583,13 +794,22 @@ confidence = [
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable = ["similarities"]
+disable = [
+  "similarities",
+  "invalid-name", # checked by ruff
+  "missing-class-docstring", # checked by ruff
+  "missing-module-docstring", # checked by ruff
+  "missing-function-docstring", # checked by ruff
+  "broad-exception-caught", # checked by ruff
+  "too-many-arguments", # checked by ruff
+  "too-many-positional-arguments", # checked by ruff
+]
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where it
 # should appear only once). See also the "--disable" option for examples.
-# enable =
+enable = ["useless-suppression"]
 
 [tool.pylint.method_args]
 # List of qualified names (i.e., library.method) which require a timeout

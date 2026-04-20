@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_cfg.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N77X
  *
@@ -101,49 +101,50 @@ N77X_MUX_CH_CFG_s n77x_muxSequence[N77X_MUX_SEQUENCE_LENGTH] = {
         .muxId      = 0,
         .muxChannel = 7,
     },
-    /*     ,
-      multiplexer 2 and 3 measurement
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > N77X_MUX_GPIOS_PER_MUX
+    /* multiplexer 2 and 3 measurement */
     {
-        .muxId    = 0,
-        .muxChannel    = 0xFF,    disable enabled mux
+        .muxId      = 0,
+        .muxChannel = N77X_MUX_DISABLE_VALUE, /* disable enabled mux */
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 0,
+        .muxId      = 1,
+        .muxChannel = 0,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 1,
+        .muxId      = 1,
+        .muxChannel = 1,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 2,
+        .muxId      = 1,
+        .muxChannel = 2,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 3,
+        .muxId      = 1,
+        .muxChannel = 3,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 4,
+        .muxId      = 1,
+        .muxChannel = 4,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 5,
+        .muxId      = 1,
+        .muxChannel = 5,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 6,
+        .muxId      = 1,
+        .muxChannel = 6,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 7,
+        .muxId      = 1,
+        .muxChannel = 7,
     },
     {
-        .muxId    = 1,
-        .muxChannel    = 0xFF,         disable enabled mux
+        .muxId      = 1,
+        .muxChannel = N77X_MUX_DISABLE_VALUE, /* disable enabled mux */
     },
-
+#endif
+    /*
     {
         .muxId    = 2,
         .muxChannel    = 0,

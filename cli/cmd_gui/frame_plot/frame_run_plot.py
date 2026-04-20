@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,16 +43,20 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog as fd
 from tkinter import ttk
+from typing import TYPE_CHECKING
 
 from ...cmd_plot.data_handling.data_source_types import DataSourceTypes
 from ...helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .plot_gui import PlotFrame
 
 
 # pylint: disable-next=too-many-instance-attributes, too-many-ancestors
 class RunPlotFrame(ttk.Frame):
     """RunPlot Frame"""
 
-    def __init__(self, parent, root) -> None:
+    def __init__(self, parent: ttk.Notebook, root: "PlotFrame") -> None:
         super().__init__(parent)
         self.root = root
 
@@ -60,6 +64,16 @@ class RunPlotFrame(ttk.Frame):
         self.columnconfigure(2, weight=1)
         self.columnconfigure(3, weight=1)
         self.columnconfigure(4, weight=1)
+
+        example_data_source_file = PROJECT_ROOT / Path(
+            "docs/tools/fox/plot/img/example_data.csv"
+        )
+        example_data_config_file = PROJECT_ROOT / Path(
+            "docs/tools/fox/plot/img/csv_config.yaml"
+        )
+        example_plot_config_file = PROJECT_ROOT / Path(
+            "docs/tools/fox/plot/img/plot_config.yaml"
+        )
 
         # Set Styles
         ttk.Style().configure("Multiline.TButton", justify="center")
@@ -73,9 +87,8 @@ class RunPlotFrame(ttk.Frame):
         self.data_source_entry.grid(
             column=1, columnspan=4, row=0, padx=(30, 0), pady=(20, 5), sticky="news"
         )
-        self.data_source_entry.insert(
-            tk.END, str(PROJECT_ROOT / Path("docs/tools/fox/plot/img/example_data.csv"))
-        )
+        if example_data_source_file.is_file():
+            self.data_source_entry.insert(tk.END, str(example_data_source_file))
         self.data_source_button = ttk.Button(
             self, text="Choose file", command=self.open_data_source_cb
         )
@@ -92,7 +105,7 @@ class RunPlotFrame(ttk.Frame):
         self.output_entry.grid(
             column=1, columnspan=4, row=1, padx=(30, 0), pady=(0, 5), sticky="we"
         )
-        self.output_entry.insert(tk.END, str(PROJECT_BUILD_ROOT))
+        self.output_entry.insert(tk.END, str(PROJECT_BUILD_ROOT / "gui"))
         self.output_button = ttk.Button(
             self,
             text="Choose\ndirectory",
@@ -123,9 +136,8 @@ class RunPlotFrame(ttk.Frame):
             column=0, row=3, padx=(20, 0), pady=(5, 10), sticky="news"
         )
         self.data_config_entry = ttk.Entry(self, width=50)
-        self.data_config_entry.insert(
-            tk.END, str(PROJECT_ROOT / Path("docs/tools/fox/plot/img/csv_config.yaml"))
-        )
+        if example_data_config_file.is_file():
+            self.data_config_entry.insert(tk.END, str(example_data_config_file))
         self.data_config_entry.grid(
             column=1, columnspan=4, row=3, padx=(30, 0), pady=(5, 10), sticky="news"
         )
@@ -146,9 +158,9 @@ class RunPlotFrame(ttk.Frame):
         self.plot_config_entry.grid(
             column=1, columnspan=4, row=4, padx=(30, 0), pady=(5, 5), sticky="news"
         )
-        self.plot_config_entry.insert(
-            tk.END, str(PROJECT_ROOT / Path("docs/tools/fox/plot/img/plot_config.yaml"))
-        )
+
+        if example_plot_config_file.is_file():
+            self.plot_config_entry.insert(tk.END, str(example_plot_config_file))
         self.plot_config_button = ttk.Button(
             self, text="Choose file", command=self.open_plot_config_cb
         )

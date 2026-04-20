@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,15 +39,13 @@
 
 """Example for platform independent code"""
 
-# pylint: disable=invalid-name
-
 import sys
 
 # always use pathlib.Path when working with paths
 from pathlib import Path
 
 
-def some_function():
+def some_function() -> None:
     """Just a dummy function"""
     if sys.platform.lower().startswith("win32"):
         print("Some Windows code.")

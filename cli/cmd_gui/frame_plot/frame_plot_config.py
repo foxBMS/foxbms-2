@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,9 +44,15 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog as fd
 from tkinter import font, ttk
+from typing import TYPE_CHECKING
 
 from ...cmd_plot.drawer.graph_types import GraphTypes
 from ...helpers.misc import PROJECT_BUILD_ROOT
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .plot_gui import PlotFrame
+
+# spell:ignore Segoe
 
 
 # pylint: disable-next=too-many-instance-attributes, too-many-ancestors
@@ -54,7 +60,7 @@ class PlotConfigFrame(ttk.Frame):
     """PlotConfig Frame"""
 
     # pylint: disable-next=too-many-statements, too-many-locals
-    def __init__(self, parent, root) -> None:
+    def __init__(self, parent: ttk.Notebook, root: "PlotFrame") -> None:
         super().__init__(parent)
         self.plots: list[dict] = []
         self.root = root
@@ -80,7 +86,7 @@ class PlotConfigFrame(ttk.Frame):
         )
         self.file_path_entry = ttk.Entry(self, width=10)
         self.file_path_entry.insert(
-            tk.END, str(PROJECT_BUILD_ROOT / Path("plot_config.yaml"))
+            tk.END, str(PROJECT_BUILD_ROOT / "gui" / Path("plot_config.yaml"))
         )
         self.file_path_entry.grid(
             in_=file_frame, column=1, row=0, sticky="we", pady=(10, 0)
@@ -370,7 +376,9 @@ class PlotConfigFrame(ttk.Frame):
 
     def change_font_cb(self, event: tk.Event) -> None:
         """Change the font of the widget to the default font"""
-        event.widget.configure(font=self.font_default)
+        # ensure that the widget supports setting the font
+        if isinstance(event.widget, ttk.Entry):
+            event.widget.configure(font=self.font_default)
 
     def open_file_cb(self) -> None:
         """Open filedialog and print it in Entry widget"""
@@ -437,7 +445,7 @@ class PlotConfigFrame(ttk.Frame):
             self.show_checkbutton_value.get(),
             self.save_checkbutton_value.get(),
         ]
-        graph = dict(zip(graph_keys, graph_values))
+        graph = dict(zip(graph_keys, graph_values, strict=True))
 
         self.plots.append(
             {
@@ -462,7 +470,7 @@ class PlotConfigFrame(ttk.Frame):
         self.save_checkbutton_value.set(False)
         self.plot_type_entry.current(0)
 
-    def open_plot(self, plot) -> None:
+    def open_plot(self, plot: dict) -> None:
         """Open the given Plot in the 'Plot Data' Frame"""
         PlotConfigFrame.insert_text(self.plot_file_name_entry, plot["name"])
         PlotConfigFrame.insert_text(self.plot_type_entry, plot["type"])
@@ -542,7 +550,7 @@ class PlotConfigFrame(ttk.Frame):
         self.min_value_entry.configure(font=self.font_italics)
         self.max_value_entry.configure(font=self.font_italics)
 
-    def open_line(self, line) -> None:
+    def open_line(self, line: dict) -> None:
         """Open the given Line in the 'Line Data' Frame"""
         PlotConfigFrame.insert_text(self.y_axis_entry, line["input"][0])
         labels = ""
@@ -581,7 +589,8 @@ class PlotConfigFrame(ttk.Frame):
         for index, plot in enumerate(self.plots):
             if parent_plot == plot["name"]:
                 return parent_plot, selected_item, index
-        raise ValueError("Item couldn't be found\n")
+        err = "Item could not be found\n"
+        raise ValueError(err)
 
     def open_selected_item_cb(self) -> None:
         """Gets the selected item and executes the corresponding function"""
@@ -681,7 +690,7 @@ class PlotConfigFrame(ttk.Frame):
                 del mapping["y1"]
 
     @staticmethod
-    def insert_text(tkinter_obj, input_str: str) -> None:
+    def insert_text(tkinter_obj: ttk.Entry, input_str: str) -> None:
         """Delete the content of the object and insert the input"""
         tkinter_obj.delete(0, tk.END)
         tkinter_obj.insert(tk.END, input_str)

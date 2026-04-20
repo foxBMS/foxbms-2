@@ -52,7 +52,7 @@ resetEntry
         b   _c_int00    ;0x00 start address ;jump to _c_init00 function
 undefEntry
         b   #0x1FFD8    ;#immediate syntax apparently expects the offset, not the target address
-                        ;indirect jump to 0x1FFE4 = 0x04 + 0x1FFD4 + 0x08(PC always points to the next instruction to be excuted)
+                        ;indirect jump to 0x1FFE4 = 0x04 + 0x1FFD4 + 0x08(PC always points to the next instruction to be executed)
 svcEntry
         b   #0x1FFD8    ;indirect jump to 0x1FFE8
 prefetchEntry

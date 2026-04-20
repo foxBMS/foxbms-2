@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bal.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -69,7 +69,6 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-#pragma WEAK(BAL_SaveLastStates)
 extern void BAL_SaveLastStates(BAL_STATE_s *pBalancingState) {
     FAS_ASSERT(pBalancingState != NULL_PTR);
     if (pBalancingState->lastState != pBalancingState->state) {
@@ -83,7 +82,6 @@ extern void BAL_SaveLastStates(BAL_STATE_s *pBalancingState) {
     }
 }
 
-#pragma WEAK(BAL_CheckReEntrance)
 extern uint8_t BAL_CheckReEntrance(BAL_STATE_s *currentState) {
     FAS_ASSERT(currentState != NULL_PTR);
     uint8_t retval = 0;
@@ -99,7 +97,6 @@ extern uint8_t BAL_CheckReEntrance(BAL_STATE_s *currentState) {
     return retval;
 }
 
-#pragma WEAK(BAL_TransferStateRequest)
 extern BAL_STATE_REQUEST_e BAL_TransferStateRequest(BAL_STATE_s *currentState) {
     FAS_ASSERT(currentState != NULL_PTR);
     BAL_STATE_REQUEST_e retval = BAL_STATE_NO_REQUEST;
@@ -112,7 +109,6 @@ extern BAL_STATE_REQUEST_e BAL_TransferStateRequest(BAL_STATE_s *currentState) {
     return retval;
 }
 
-#pragma WEAK(BAL_CheckStateRequest)
 extern BAL_RETURN_TYPE_e BAL_CheckStateRequest(BAL_STATE_s *pCurrentState, BAL_STATE_REQUEST_e stateRequest) {
     FAS_ASSERT(pCurrentState != NULL_PTR);
     if (stateRequest == BAL_STATE_ERROR_REQUEST) {
@@ -133,7 +129,7 @@ extern BAL_RETURN_TYPE_e BAL_CheckStateRequest(BAL_STATE_s *pCurrentState, BAL_S
     if (pCurrentState->stateRequest == BAL_STATE_NO_REQUEST) {
         /* init only allowed from the uninitialized state */
         if (stateRequest == BAL_STATE_INIT_REQUEST) {
-            if (pCurrentState->state == BAL_STATEMACH_UNINITIALIZED) {
+            if (pCurrentState->state == BAL_FSM_UNINITIALIZED) {
                 return BAL_OK;
             } else {
                 return BAL_ALREADY_INITIALIZED;
@@ -147,7 +143,6 @@ extern BAL_RETURN_TYPE_e BAL_CheckStateRequest(BAL_STATE_s *pCurrentState, BAL_S
     }
 }
 
-#pragma WEAK(BAL_Init)
 extern STD_RETURN_TYPE_e BAL_Init(DATA_BLOCK_BALANCING_CONTROL_s *pControl) {
     FAS_ASSERT(pControl != NULL_PTR);
     DATA_READ_DATA(pControl);
@@ -156,12 +151,11 @@ extern STD_RETURN_TYPE_e BAL_Init(DATA_BLOCK_BALANCING_CONTROL_s *pControl) {
     return STD_OK;
 }
 
-#pragma WEAK(BAL_ProcessStateUninitialized)
 extern void BAL_ProcessStateUninitialized(BAL_STATE_s *pCurrentState, BAL_STATE_REQUEST_e stateRequest) {
     FAS_ASSERT(pCurrentState != NULL_PTR);
     if (stateRequest == BAL_STATE_INIT_REQUEST) {
-        pCurrentState->timer    = BAL_STATEMACH_SHORTTIME_100ms;
-        pCurrentState->state    = BAL_STATEMACH_INITIALIZATION;
+        pCurrentState->timer    = BAL_FSM_SHORTTIME_100ms;
+        pCurrentState->state    = BAL_FSM_INITIALIZATION;
         pCurrentState->substate = BAL_ENTRY;
     } else if (stateRequest == BAL_STATE_NO_REQUEST) {
         /* no actual request pending */
@@ -170,20 +164,18 @@ extern void BAL_ProcessStateUninitialized(BAL_STATE_s *pCurrentState, BAL_STATE_
     }
 }
 
-#pragma WEAK(BAL_ProcessStateInitialization)
 extern void BAL_ProcessStateInitialization(BAL_STATE_s *currentState) {
     FAS_ASSERT(currentState != NULL_PTR);
-    currentState->timer    = BAL_STATEMACH_SHORTTIME_100ms;
-    currentState->state    = BAL_STATEMACH_INITIALIZED;
+    currentState->timer    = BAL_FSM_SHORTTIME_100ms;
+    currentState->state    = BAL_FSM_INITIALIZED;
     currentState->substate = BAL_ENTRY;
 }
 
-#pragma WEAK(BAL_ProcessStateInitialized)
 extern void BAL_ProcessStateInitialized(BAL_STATE_s *currentState) {
     FAS_ASSERT(currentState != NULL_PTR);
     currentState->initializationFinished = STD_OK;
-    currentState->timer                  = BAL_STATEMACH_SHORTTIME_100ms;
-    currentState->state                  = BAL_STATEMACH_CHECK_BALANCING;
+    currentState->timer                  = BAL_FSM_SHORTTIME_100ms;
+    currentState->state                  = BAL_FSM_CHECK_BALANCING;
     currentState->substate               = BAL_ENTRY;
 }
 

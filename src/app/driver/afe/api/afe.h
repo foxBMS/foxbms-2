@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    afe.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -157,6 +157,19 @@ extern STD_RETURN_TYPE_e AFE_RequestEepromWrite(uint8_t string);
  * @param   string  string addressed by the request
  */
 extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string);
+
+/**
+ * @brief   Applies a mask to the GPOs of the given string
+ * @param   gpo_mask mask to use on the GPOs
+ * @param   string choosen string for the mask
+ */
+extern void AFE_SetGPOStateViaMask(uint8_t gpo_mask, uint8_t string);
+
+/**
+ * @brief   Makes the request to the AFE state machine to Identify AFEs in the daisy chain
+ * @return  pointer to the first serialId of the serialId field in driver state structure
+ */
+extern uint64_t *AFE_IdentifyAfes(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

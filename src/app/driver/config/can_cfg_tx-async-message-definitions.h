@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg_tx-async-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -97,6 +97,18 @@
 #define CANTX_DEBUG_BUILD_CONFIGURATION_DLC        (CAN_DEFAULT_DLC)
 /**@}*/
 
+/** CAN message properties for debug build configuration message.
+ *  Required properties are:
+ *  - ID
+ *  - Identifier type (standard or extended)
+ *  - data length
+ *  - Endianness @{*/
+#define CANTX_DEBUG_IDENTIFY_HARDWARE_ID         (0x304u)
+#define CANTX_DEBUG_IDENTIFY_HARDWARE_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANTX_DEBUG_IDENTIFY_HARDWARE_ENDIANNESS (CAN_BIG_ENDIAN)
+#define CANTX_DEBUG_IDENTIFY_HARDWARE_DLC        (CAN_DEFAULT_DLC)
+/**@}*/
+
 /** CAN message properties for crash dump. Required properties are:
  *  - ID
  *  - Identifier type (standard or extended)
@@ -119,6 +131,7 @@
 #define CANTX_BMS_FATAL_ERROR_DLC        (CAN_DEFAULT_DLC)
 /**@}*/
 
+#if (defined(FOXBMS_IMD_BENDER_ISO165C) && (FOXBMS_IMD_BENDER_ISO165C == 1))
 /**
  * -------------------------CAUTION-------------------------
  * The following defines are used by the insulation monitoring device (IMD).
@@ -130,11 +143,12 @@
  *  - Identifier type (standard or extended)
  *  - data length
  *  - Endianness @{*/
-#define CANTX_IMD_REQUEST_ID         (0x022u)
-#define CANTX_IMD_REQUEST_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
-#define CANTX_IMD_REQUEST_ENDIANNESS (CAN_LITTLE_ENDIAN)
-#define CANTX_IMD_REQUEST_DLC        (5u)
+#define CANTX_IMD_BENDER_ISO165C_REQUEST_ID         (0x022u)
+#define CANTX_IMD_BENDER_ISO165C_REQUEST_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANTX_IMD_BENDER_ISO165C_REQUEST_ENDIANNESS (CAN_LITTLE_ENDIAN)
+#define CANTX_IMD_BENDER_ISO165C_REQUEST_DLC        (5u)
 /**@}*/
+#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

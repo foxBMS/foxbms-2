@@ -14,6 +14,12 @@ Software Installation
 This document describes how to setup the **host machine** for development of
 |foxbms|.
 
+If only some of the |fox-cli| tools are needed and access to the
+repository is not required, install the |fox-cli-package| instead
+of setting up the entire software suite.
+Installation instructions for the |fox-cli-package| can be found in
+:ref:`INSTALL_FOX_CLI_PACKAGE`.
+
 .. note::
 
    Read the documentation carefully and follow every point exactly as
@@ -75,7 +81,7 @@ These are the required steps:
    When an installer asks during the setup to add something to ``PATH``, always
    remove that option, whether it is explicitly mentioned in
    that step or not.
-   The only exception to that rule **MAY** be |git| and ``VS Code``.
+   The only exception to that rule **MAY** be |git| and |vs-code|.
 
 The installation steps are described below in detail.
 
@@ -104,7 +110,7 @@ later steps of this manual.
 
 .. note::
 
-   ``git`` requires a correct proxy setup.
+   |git| requires a correct proxy setup.
    This means that the environment variables ``http_proxy`` and ``https_proxy``
    must be set accordingly to your network configuration.
 
@@ -185,6 +191,9 @@ Install |ti-halcogen|
 
       |ti-halcogen| is not available on Linux.
 
+
+.. _install_python:
+
 ****************
 Install |python|
 ****************
@@ -228,11 +237,13 @@ Install |python|
             python3.12 --version
             Python 3.12.8
 
+.. _install_venv:
+
 ************************************
 Install |virtual-python-environment|
 ************************************
 
-#. Create a virtual environment **2025-06-pale-fox** by running:
+#. Create a virtual environment **2025-11-pale-fox** by running:
 
    .. tabs::
 
@@ -244,19 +255,19 @@ Install |virtual-python-environment|
 
                .. code-block:: powershell
 
-                  py -3.12 -m venv C:\foxbms\envs\2025-06-pale-fox
+                  py -3.12 -m venv C:\foxbms\envs\2025-11-pale-fox
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  py -3.12 -m venv /C/foxbms/envs/2025-06-pale-fox
+                  py -3.12 -m venv /C/foxbms/envs/2025-11-pale-fox
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            python3.12 -m venv /opt/foxbms/envs/2025-06-pale-fox
+            python3.12 -m venv /opt/foxbms/envs/2025-11-pale-fox
 
 #. Activate the virtual environment by running:
 
@@ -270,19 +281,19 @@ Install |virtual-python-environment|
 
                .. code-block:: powershell
 
-                  C:\foxbms\envs\2025-06-pale-fox\Scripts\activate.ps1
+                  C:\foxbms\envs\2025-11-pale-fox\Scripts\activate.ps1
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  source /C/foxbms/envs/2025-06-pale-fox/Scripts/activate
+                  source /C/foxbms/envs/2025-11-pale-fox/Scripts/activate
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            source /opt/foxbms/envs/2025-06-pale-fox/bin/activate
+            source /opt/foxbms/envs/2025-11-pale-fox/bin/activate
 
 #. Install the required packages by running:
 
@@ -422,15 +433,15 @@ Install |graphviz|
 
    .. group-tab:: Windows
 
-      #. Download Graphviz version 13.0.0 from
+      #. Download Graphviz version 14.0.0 from
          `https://graphviz.org/download <https://graphviz.org/download>`_.
          (use this
-         `zip-archive <https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.0.0/windows_10_cmake_Release_Graphviz-13.0.0-win64.zip>`__).
+         `zip-archive <https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.0.0/windows_10_cmake_Release_Graphviz-14.0.0-win64.zip>`__).
 
       #. Extract the archive.
-      #. Copy the extracted archive to ``C:\foxbms\Graphviz\13.0.0``.
+      #. Copy the extracted archive to ``C:\foxbms\Graphviz\14.0.0``.
       #. Verify that ``dot.exe`` is available at
-         ``C:\foxbms\Graphviz\13.0.0\bin\dot.exe``.
+         ``C:\foxbms\Graphviz\14.0.0\bin\dot.exe``.
 
    .. group-tab:: Linux
 
@@ -444,15 +455,15 @@ Install |drawio-desktop|
 
    .. group-tab:: Windows
 
-      #. Download |drawio-desktop| version 27.0.9 from
+      #. Download |drawio-desktop| version 28.1.2 from
          `https://github.com/jgraph/drawio-desktop/releases <https://github.com/jgraph/drawio-desktop/releases>`_
          (use this
-         `installer <https://github.com/jgraph/drawio-desktop/releases/download/v27.0.9/draw.io-27.0.9-windows.zip>`_).
+         `installer <https://github.com/jgraph/drawio-desktop/releases/download/v28.1.2/draw.io-28.1.2-windows.zip>`_).
 
       #. Extract the archive.
-      #. Copy the extracted archive to ``C:\foxbms\draw.io\27.0.9``.
+      #. Copy the extracted archive to ``C:\foxbms\draw.io\28.1.2``.
       #. Verify that ``draw.io.exe`` is available at
-         ``C:\foxbms\draw.io\27.0.9\draw.io.exe``.
+         ``C:\foxbms\draw.io\28.1.2\draw.io.exe``.
 
    .. group-tab:: Linux
 
@@ -603,3 +614,26 @@ installation and setup.
 
 More details on the selection and usage of debugger toolchains can be
 found in :ref:`DEBUGGING_THE_APPLICATION`.
+
+.. _install_fox_cli_package:
+
+*****************************
+Install the |fox-cli-package|
+*****************************
+
+.. note::
+
+   Information on the usage of the |fox-cli-package| can be found
+   :ref:`here<FOX_CLI_PACKAGE>`.
+
+#. Install :ref:`Python<INSTALL_PYTHON>`
+#. Install a :ref:`virtual Python environment<INSTALL_VENV>` and activate it
+#. Install the |fox-cli-package| by running:
+
+   .. code-block:: shell
+
+      python -m pip install fox-cli
+
+If the repository has already been cloned and Python has been installed, the
+:ref:`install tool<FOX_INSTALL>` can be used to install the |fox-cli-package|
+instead.

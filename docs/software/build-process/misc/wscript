@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,20 +37,16 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Dummy project for library builds"""
-
-# pylint: disable=invalid-name,unused-import
 
 import argparse
-import os
 
 from waflib import Build, Context, Utils
 
 Context.Context.line_just = 50
 
 
-out = "build"  # pylint:disable=invalid-name
-top = "."  # pylint:disable=invalid-name
+out = "build"
+top = "."
 
 # name of the application. This is used in various waf functions
 APPNAME = "MY_LIB"
@@ -61,10 +57,10 @@ APPNAME = "MY_LIB"
 VERSION = "0.0.12"
 
 
-tooldir = os.path.join("tools", "waf-tools")  # pylint:disable=invalid-name
+tooldir = "tools/waf-tools"
 
 # Files and directories that are excluded when running dist commands
-dist_exclude = (  # pylint:disable=invalid-name
+dist_exclude = (
     f"{out}/** **/.git **/.gitignore .gitlab/** **/.gitattributes "
     "**/*.tar.bz2 **/*.tar.gz **/*.pyc __pycache__ "
     "tools/waf*.*.**-* .lock-* "
@@ -73,8 +69,7 @@ dist_exclude = (  # pylint:disable=invalid-name
 
 
 def options(opt):
-    """Defines options that can be passed to waf"""
-
+    """Define options that can be passed to waf"""
     opt.load("f_ti_arm_cgt", tooldir=tooldir)
 
     # remove unsupported options
@@ -112,7 +107,7 @@ def options(opt):
 
 
 def configure(conf):
-    """Configures the library project"""
+    """Configure the library project"""
     if " " in conf.path.abspath():
         conf.fatal(f"Project path must not contain spaces ({conf.path}).")
     known_max_depth = 133
@@ -139,7 +134,6 @@ def configure(conf):
 
 
 def build(bld):
-    """Builds the library project"""
     bld.stlib(
         source="src/libproject-example.c",
         target=f"{APPNAME.lower()}-{VERSION}",

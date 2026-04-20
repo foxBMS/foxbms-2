@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +44,7 @@ import shutil
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
@@ -184,6 +184,26 @@ class TestDraw(unittest.TestCase):
         self.assertEqual(cm.exception.code, 1)
         self.assertIn("Column 'test' is not known", buf.getvalue())
 
+    def test_value_error(self) -> None:
+        """Tests draw method with ValueError"""
+        line = LinesSettings(input=["Index"], labels=["Cell Voltage"])
+        line_graph_drawer = LineGraphDrawer(
+            graph=GraphSettings(show=True, save=False),
+            descriptions=Description(
+                title="Test Plot",
+                x_axis="Date",
+                y_axes=["Index"],
+            ),
+            mapping=Mapping(x="Time", x_ticks_count=2, y1=line, start_date="test"),
+            axes=self.axes,
+            name="test_1",
+        )
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            line_graph_drawer.draw(data=self.data)
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("Some provided values can't be handled properly", buf.getvalue())
+
     def test_index_error(self) -> None:
         """Tests draw method with IndexError"""
         line = LinesSettings(input=["Voltage(V)"], labels=["Cell Voltage"])
@@ -259,7 +279,7 @@ class TestDrawLine(unittest.TestCase):
     """Class to test the draw_line method of the LineGraphDrawer class"""
 
     def setUp(self) -> None:
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(tz=UTC)
         _, axes = plt.subplots()
         self.axis = axes
         self.description = Description(
@@ -335,7 +355,8 @@ class TestDrawLine(unittest.TestCase):
 
     def test_with_min_max_and_string_values(self, _: Mock) -> None:
         """Tests the function draw_line with column containing values with
-        dtype string"""
+        dtype string
+        """
         line = LinesSettings(
             input=["column 1", "column 2"],
             labels=["test 1", "test 2"],
@@ -353,7 +374,7 @@ class TestDrawLine(unittest.TestCase):
         self.y_values = np.array(["txt1", "txt2", "txt3"])
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            # pylint: disable=W0212
+            # pylint: disable-next=protected-access
             line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)
         self.assertEqual(cm.exception.code, 1)
         self.assertIn(
@@ -363,7 +384,8 @@ class TestDrawLine(unittest.TestCase):
 
     def test_without_min_max_with_string_values(self, mock_plot: Mock) -> None:
         """Tests the function draw_line with column containing values with
-        dtype string"""
+        dtype string
+        """
         line = LinesSettings(
             input=["column 1", "column 2"],
             labels=["test 1", "test 2"],
@@ -377,9 +399,65 @@ class TestDrawLine(unittest.TestCase):
             name="test_1",
         )
         self.y_values = np.array(["txt1", "txt2", "txt3"])
-        # pylint: disable=W0212
+        # pylint: disable-next=protected-access
         line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)
         mock_plot.assert_called_once()
+
+    def test_with_start_date(self, mock_plot: Mock) -> None:
+        """Tests the function draw_line with start_date"""
+        line = LinesSettings(
+            input=["column 1", "column 2"],
+            labels=["test 1", "test 2"],
+            factor=1,
+        )
+        line_graph_drawer = LineGraphDrawer(
+            graph=GraphSettings(show=False, save=True),
+            descriptions=self.description,
+            mapping=Mapping(
+                x="Time",
+                x_ticks_count=2,
+                y1=line,
+                y2=None,
+                y3=None,
+                start_date="2025-01-01T00:10:00",
+            ),
+            axes=self.axis,
+            name="test_1",
+        )
+        self.x_values = np.array(
+            ["2025-01-01T00:00:00", "2025-01-01T00:00:01", "2025-01-01T00:00:02"]
+        ).astype("datetime64[ns]")
+        # pylint: disable-next=protected-access
+        line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)
+        result_x = np.array(
+            ["2025-01-01T00:10:00", "2025-01-01T00:10:01", "2025-01-01T00:10:02"]
+        ).astype("datetime64[ns]")
+        call_args, _ = mock_plot.call_args
+        self.assertEqual(list(call_args[0]), list(result_x))
+        self.assertEqual(list(call_args[1]), list(np.array([2, 4, 6])))
+
+    def test_with_time_factor(self, mock_plot: Mock) -> None:
+        """Tests the function draw_line with time_factor"""
+        line = LinesSettings(
+            input=["column 1", "column 2"],
+            labels=["test 1", "test 2"],
+            factor=1,
+        )
+        line_graph_drawer = LineGraphDrawer(
+            graph=GraphSettings(show=False, save=True),
+            descriptions=self.description,
+            mapping=Mapping(
+                x="Time", x_ticks_count=2, y1=line, y2=None, y3=None, time_factor=1000
+            ),
+            axes=self.axis,
+            name="test_1",
+        )
+        self.x_values = np.array(["0", "1000", "2000"]).astype("float64")
+        # pylint: disable-next=protected-access
+        line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)
+        result_x = np.array(["0", "1", "2"]).astype("float64")
+        call_args, _ = mock_plot.call_args
+        self.assertEqual(list(call_args[0]), list(result_x))
 
 
 class TestShow(unittest.TestCase):
@@ -422,7 +500,7 @@ class TestSave(unittest.TestCase):
     """Class to test the save method of the LineGraphDrawer class"""
 
     def setUp(self) -> None:
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(tz=UTC)
         line_y1 = LinesSettings(input=["Values 1"], labels=["Values 1"])
         _, axes = plt.subplots(figsize=(7, 7), dpi=100)
         line_graph_drawer = LineGraphDrawer(
@@ -473,16 +551,16 @@ class TestValidateConfig(unittest.TestCase):
         self.config = {
             "name": "hypo_test",
             "mapping": {
-                "y1": {"input": ["420_DCDC_PSU_Voltage_V", "420_DCDC_TN_Voltage_V"]},
+                "y1": {"input": ["420_DC_DC_PSU_Voltage_V", "420_DC_DC_TN_Voltage_V"]},
                 "x": "Date",
                 "x_ticks_count": 8,
-                "y2": {"input": ["420_DCDC_PSU_Current_A"]},
+                "y2": {"input": ["420_DC_DC_PSU_Current_A"]},
                 "date_format": "%d %H:%M:%S",
             },
             "description": {
                 "x_axis": "Date",
-                "y_axes": ["DCDC Voltage", "Current"],
-                "title": "Hyprotrade Test",
+                "y_axes": ["DC_DC Voltage", "Current"],
+                "title": "Project Test",
             },
             "graph": {"show": True, "save": True, "format": "png"},
         }
@@ -503,7 +581,8 @@ class TestValidateConfig(unittest.TestCase):
 
 def remove_test_files(start_time: datetime) -> None:
     """Remove all data from the given directory except for the
-    file "input_data.csv"."""
+    file "input_data.csv".
+    """
     for root, dirs, files in (PATH_DATA).walk(top_down=False):
         for name in files:
             if "input_data.csv" not in name:
@@ -516,11 +595,11 @@ def remove_test_files(start_time: datetime) -> None:
             # st_birthtime is not always available see docs
             # https://docs.python.org/3/library/os.html#os.stat_result.st_birthtime
             birthtime = datetime.fromtimestamp(
-                (PROJECT_BUILD_ROOT / "plots").stat().st_birthtime
+                (PROJECT_BUILD_ROOT / "plots").stat().st_birthtime, tz=UTC
             )
         except AttributeError:
             birthtime = datetime.fromtimestamp(
-                (PROJECT_BUILD_ROOT / "plots").stat().st_atime
+                (PROJECT_BUILD_ROOT / "plots").stat().st_atime, tz=UTC
             )
         if birthtime > start_time:
             shutil.rmtree(PROJECT_BUILD_ROOT / "plots")
@@ -530,9 +609,9 @@ def remove_test_files(start_time: datetime) -> None:
             # https://docs.python.org/3/library/os.html#os.stat_result.st_birthtime
             for d in dirs:
                 try:
-                    birthtime = datetime.fromtimestamp(d.stat().st_birthtime)
+                    birthtime = datetime.fromtimestamp(d.stat().st_birthtime, tz=UTC)
                 except AttributeError:
-                    birthtime = datetime.fromtimestamp(d.stat().st_atime)
+                    birthtime = datetime.fromtimestamp(d.stat().st_atime, tz=UTC)
                 if birthtime > start_time:
                     shutil.rmtree(d)
 

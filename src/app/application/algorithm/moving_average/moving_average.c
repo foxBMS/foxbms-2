@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -182,7 +182,8 @@ static float_t *pMovingAveragePower_cfg = &powValues[0];
 extern void ALGO_MovingAverage(void) {
     static uint8_t curCounter                            = 0u;
     static uint8_t powCounter                            = 0u;
-    static DATA_BLOCK_CURRENT_SENSOR_s curPow_tab        = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+    static DATA_BLOCK_CURRENT_s algo_tableCurrent        = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+    static DATA_BLOCK_POWER_s algo_tablePower            = {.header.uniqueId = DATA_BLOCK_ID_POWER};
     static DATA_BLOCK_MOVING_AVERAGE_s movingAverage_tab = {.header.uniqueId = DATA_BLOCK_ID_MOVING_AVERAGE};
     static uint8_t curInit   = 0u; /* bit0: 1s, bit1: 5s, bit2: 10s, bit3: 30s, bit4: 60s, bit5: cfg */
     static uint8_t powInit   = 0u; /* bit0: 1s, bit1: 5s, bit2: 10s, bit3: 30s, bit4: 60s, bit5: cfg */
@@ -190,16 +191,16 @@ extern void ALGO_MovingAverage(void) {
     float_t divider          = 0.0f;
     bool validValues         = true;
 
-    DATA_READ_DATA(&curPow_tab);
+    DATA_READ_DATA(&algo_tableCurrent, &algo_tablePower);
     DATA_READ_DATA(&movingAverage_tab);
 
     /* Check if new current value */
-    if (curCounter != curPow_tab.newCurrent) {
-        curCounter = curPow_tab.newCurrent;
+    if (curCounter != algo_tableCurrent.newCurrent) {
+        curCounter = algo_tableCurrent.newCurrent;
 
         /* Check if valid values */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-            if (curPow_tab.invalidCurrentMeasurement[s] != 0u) {
+            if (algo_tableCurrent.invalidMeasurement[s] != 0u) {
                 validValues = false;
             }
         }
@@ -210,7 +211,7 @@ extern void ALGO_MovingAverage(void) {
 
             int32_t packCurrent = 0;
             for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-                packCurrent += curPow_tab.current_mA[s];
+                packCurrent += algo_tableCurrent.current_mA[s];
             }
 
             /* Add value to array and calculate new moving average values */
@@ -315,12 +316,12 @@ extern void ALGO_MovingAverage(void) {
     validValues = true;
 
     /* Check if new power value */
-    if (powCounter != curPow_tab.newPower) {
-        powCounter = curPow_tab.newPower;
+    if (powCounter != algo_tablePower.newPower) {
+        powCounter = algo_tablePower.newPower;
 
         /* Check if valid values */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-            if (curPow_tab.invalidPowerMeasurement[s] != 0u) {
+            if (algo_tablePower.invalidMeasurement[s] != 0u) {
                 validValues = false;
             }
         }
@@ -329,7 +330,7 @@ extern void ALGO_MovingAverage(void) {
 
             int32_t packPower = 0;
             for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-                packPower += curPow_tab.power_W[s];
+                packPower += algo_tablePower.power_W[s];
             }
 
             /* Add value to array and calculate new moving mean values */

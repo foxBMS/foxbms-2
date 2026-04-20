@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -59,7 +59,8 @@ class TestFileTrackerInit(unittest.TestCase):
 
     def test_tmp_dir_does_not_exist(self, _: Mock) -> None:
         """Tests the init of the FileTracker in case the tmp_dir
-        does not exists"""
+        does not exists
+        """
         mock_tmp_dir = MagicMock()
         mock_tmp_dir.exists.return_value = False
         buf = io.StringIO()
@@ -73,7 +74,8 @@ class TestFileTrackerInit(unittest.TestCase):
 
     def test_hash_json_exists(self, mock_update_hash_json: Mock) -> None:
         """Tests the init of the FileTracker in case the tmp_dir
-        does not exists"""
+        does not exists
+        """
         mock_tmp_dir = MagicMock()
         mock_tmp_dir.exists.return_value = True
         mock_tmp_dir.__truediv__().exists.return_value = True  # pylint: disable=C2801
@@ -82,7 +84,8 @@ class TestFileTrackerInit(unittest.TestCase):
 
     def test_hash_json_does_not_exists(self, mock_update_hash_json: Mock) -> None:
         """Tests the init of the FileTracker in case the tmp_dir
-        does not exists"""
+        does not exists
+        """
         mock_tmp_dir = MagicMock()
         mock_tmp_dir.exists.return_value = True
         mock_tmp_dir.__truediv__().exists.return_value = False  # pylint: disable=C2801
@@ -121,6 +124,12 @@ class TestFileTrackerCheckFileChange(unittest.TestCase):
         # pylint: disable=protected-access
         self.file_tracker_obj._read_hash_json.assert_called_once()
         self.file_tracker_obj._update_hash_json.assert_not_called()
+
+    def test_file_is_none(self, _: Mock, mock_file_hash_str: Mock) -> None:
+        """Tests the check_file_changed method return False if path is None"""
+        changed = FileTracker.check_file_changed(self.file_tracker_obj, None)
+        self.assertFalse(changed)
+        mock_file_hash_str.assert_not_called()
 
     def test_file_has_changed(
         self, mock_resolve: Mock, mock_file_hash_str: Mock

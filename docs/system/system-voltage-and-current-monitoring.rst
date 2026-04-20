@@ -18,9 +18,8 @@ The left side of the image shows the *Battery Pack*.
 The *Battery Junction Box* is depicted in the center of the figure with an
 indicated connected application shown on the right side the of the picture.
 
-.. drawio-figure:: img/battery-system-setup.drawio
+.. drawio-figure:: img/battery-system-setup-multi-string.drawio
    :format: svg
-   :page-name: multi-string
    :alt: Voltages and currents to be measured in a multi-string system
    :name: measurements-in-multi-string-system
    :width: 800px
@@ -44,9 +43,8 @@ battery pack.
 Measurements Inside the Battery Pack
 ====================================
 
-.. drawio-figure:: img/battery-system-setup.drawio
+.. drawio-figure:: img/battery-system-setup-pack-measurements.drawio
    :format: svg
-   :page-name: pack-measurements
    :alt: Voltages and currents to be measured in a multi-string system in the pack
    :name: measurements-in-multi-string-system-in-pack
    :width: 500px
@@ -94,9 +92,8 @@ measurements.
 :numref:`measurements-in-single-string-system` shows the single-string
 topology.
 
-.. drawio-figure:: img/battery-system-setup.drawio
+.. drawio-figure:: img/battery-system-setup-single-string.drawio
    :format: svg
-   :page-name: single-string
    :alt: Voltages and current to be measured in a single-string system
    :name: measurements-in-single-string-system
    :width: 800px
@@ -118,9 +115,8 @@ inside the string are required.
 Measurements Inside the Battery Junction Box
 ********************************************
 
-.. drawio-figure:: img/battery-system-setup.drawio
+.. drawio-figure:: img/battery-system-setup-bjb-measurements.drawio
    :format: svg
-   :page-name: bjb-measurements
    :alt: Voltages to be measured in a multi string system in the BJB
    :name: voltages-in-multi-string-system-in-bjb
    :width: 500px

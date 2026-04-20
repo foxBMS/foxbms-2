@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -54,7 +54,7 @@ def pre_commit(
     ctx: click.Context,
     pre_commit_args: tuple[str],
 ) -> None:
-    """Run the 'pre-commit' tool."""
+    """Run the ``pre-commit`` tool with forwarded raw arguments."""
     ret = pre_commit_impl.run_pre_commit(
         list(pre_commit_args), stdout=None, stderr=None
     )

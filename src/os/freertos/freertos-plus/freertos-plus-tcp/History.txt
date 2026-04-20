@@ -1,5 +1,10 @@
 Documentation and download available at https://www.FreeRTOS.org/
 
+Changes between FreeRTOS-plus-TCP V4.3.3 and V4.3.2 released June 10, 2025:
+	+ Fixed maximum network buffer allocation size check when buffer
+	  allocation scheme 1 is used which caused allocation failure on
+	  some network interfaces.
+
 Changes between FreeRTOS-plus-TCP V4.3.2 and V4.3.1 released June 03, 2025:
 	+ It was possible to cause an out-of-bounds write when processing LLMNR
 	  or mDNS queries with very long DNS names. This issue only affects systems

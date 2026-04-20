@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bal_strategy_none.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -73,7 +73,6 @@ extern STD_RETURN_TYPE_e BAL_GetInitializationState(void) {
     return STD_OK;
 }
 
-#pragma WEAK(BAL_SetStateRequest)
 extern BAL_RETURN_TYPE_e BAL_SetStateRequest(BAL_STATE_REQUEST_e stateRequest) {
     /* this is a dummy implementation and not using the argument here is fine */
     (void)stateRequest;

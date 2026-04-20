@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -98,7 +98,7 @@ static uint16_t sps_spiRxRegisterBuffer[SPS_SPI_BUFFERSIZE] = {0};
  *  When a read register command was issued on the MOSI line,
  *  the answers comes during the next command (read or write)
  *  on the MISO line
- *  (data sheet figure 6 page 9 in data sheet Rev. 2 - 11 September 2019)
+ *  (datasheet figure 6 page 9 in datasheet Rev. 2 - 11 September 2019)
  *
  *  In the SPS driver, there are always two communications with the SPS IC
  *  each time the state machine is triggered:
@@ -182,7 +182,7 @@ static STD_RETURN_TYPE_e SPS_Transmit(void);
  *          The result is written to SPS_CoilCurrent[].
  * @param[in]   outputAllDevices    Output (1 to 4) to be read. Value between
  *                                  1-4 instead of 0-3 to match numbering
- *                                  in data sheet.
+ *                                  in datasheet.
  */
 static void SPS_GlobalReadCurrent(const uint8_t outputAllDevices);
 
@@ -314,7 +314,7 @@ static void SPS_SingleDeviceRegisterWrite(
        devices 0-1-2 in the daisy-chain, the sequence 2-1-0 has to be sent.
      */
     /* Keep the previous data which lies in the lower 8 bits */
-    uint8_t preceedingWriteData = (uint8_t)((pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)]) & 0xFFu);
+    uint8_t precedingWriteData = (uint8_t)((pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)]) & 0xFFu);
     /* Clear write data which will be replaced */
     pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] &= 0xFF00u;
     /* Write R/W bit and address in the higher 8 bits */
@@ -326,10 +326,10 @@ static void SPS_SingleDeviceRegisterWrite(
         pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |= (uint16_t)writeData; /* Data to write */
     } else if (writeType == SPS_orWithCurrentValue) {
         pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |=
-            ((uint16_t)preceedingWriteData | (uint16_t)writeData); /* Data to write */
+            ((uint16_t)precedingWriteData | (uint16_t)writeData); /* Data to write */
     } else if (writeType == SPS_andWithCurrentValue) {
         pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |=
-            ((uint16_t)preceedingWriteData & (uint16_t)writeData); /* Data to write */
+            ((uint16_t)precedingWriteData & (uint16_t)writeData); /* Data to write */
     } else {
         /* Invalid write type */
         FAS_ASSERT(FAS_TRAP);
@@ -442,7 +442,7 @@ static STD_RETURN_TYPE_e SPS_Transmit(void) {
     STD_RETURN_TYPE_e retVal1 = SPI_TransmitReceiveData(
         &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE);
 
-    /* The chip select has to be high for at least 300ns according to data sheet. This code delays
+    /* The chip select has to be high for at least 300ns according to datasheet. This code delays
        for the smallest time available in #MCU_Delay_us() which is 1us. After this time we can
        be sure that the SPI interface is able to receive again. */
     MCU_Delay_us(1u);
@@ -647,12 +647,12 @@ extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelPexFeedback(const SPS_CHANNEL_
 
     CONT_ELECTRICAL_STATE_TYPE_e channelFeedback = CONT_SWITCH_OFF;
     if (normallyOpen == true) {
-        /* contactor is on if pinstate is high */
+        /* contactor is on if pin state is high */
         if (pinState != PEX_PIN_LOW) {
             channelFeedback = CONT_SWITCH_ON;
         }
     } else {
-        /* contactor is on if pinstate is low */
+        /* contactor is on if pin state is low */
         if (pinState != PEX_PIN_HIGH) {
             channelFeedback = CONT_SWITCH_ON;
         }

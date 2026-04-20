@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,6 +44,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
+from unittest.mock import patch
 
 try:
     from cli.pre_commit_scripts import check_encoding
@@ -62,31 +63,23 @@ class TestCheckEncoding(unittest.TestCase):
     def test_main_ascii(self):
         """Testing ASCII"""
         test = "ascii.txt"
-        result = check_encoding.main(["--encoding=ascii", str(self.tests_dir / test)])
+        result = check_encoding.main([str(self.tests_dir / test)])
         self.assertEqual(result, 0)
 
         test = "utf-8.txt"
         err = io.StringIO()
         with redirect_stderr(err):
-            result = check_encoding.main(
-                ["--encoding=ascii", str(self.tests_dir / test)]
-            )
-        self.assertEqual(result, 1)
-        self.assertEqual(
-            err.getvalue(),
-            f"{(self.tests_dir / test).as_posix()}: Could not open file in 'ascii' mode.\n",
-        )
+            result = check_encoding.main([str(self.tests_dir / test)])
+        self.assertEqual(result, 0)
 
         test = "utf-16.txt"
         err = io.StringIO()
         with redirect_stderr(err):
-            result = check_encoding.main(
-                ["--encoding=ascii", str(self.tests_dir / test)]
-            )
+            result = check_encoding.main([str(self.tests_dir / test)])
         self.assertEqual(result, 1)
         self.assertEqual(
             err.getvalue(),
-            f"{(self.tests_dir / test).as_posix()}: Could not open file in 'ascii' mode.\n",
+            f"{(self.tests_dir / test).as_posix()}: Could not open file in 'utf-8' mode.\n",
         )
 
     def test_main_utf_8(self):
@@ -115,6 +108,24 @@ class TestCheckEncoding(unittest.TestCase):
         """Self test"""
         fox = (self.tests_dir / "utf-16.txt").read_text(encoding="utf-16")
         self.assertEqual(fox, "🦊 foxBMS\n")
+
+    @patch("pathlib.Path.read_text")
+    def test_main_uses_encoding_map_by_extension(self, mock_read_text):
+        """Known suffixes should use ENCODING_MAP values."""
+        mock_read_text.return_value = "ok"
+        file_c = self.tests_dir / "file.c"
+        result = check_encoding.main([str(file_c)])
+        self.assertEqual(result, 0)
+        mock_read_text.assert_called_once_with(encoding="ascii")
+
+    @patch("pathlib.Path.read_text")
+    def test_main_uses_utf8_fallback_for_unknown_suffix(self, mock_read_text):
+        """Unknown suffixes should fall back to UTF-8."""
+        mock_read_text.return_value = "ok"
+        file_txt = self.tests_dir / "file.txt"
+        result = check_encoding.main([str(file_txt)])
+        self.assertEqual(result, 0)
+        mock_read_text.assert_called_once_with(encoding="utf-8")
 
 
 if __name__ == "__main__":

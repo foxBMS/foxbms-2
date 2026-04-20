@@ -6,14 +6,17 @@
 etl
 ===
 
-The etl command line interface (cli) provides functionalities to preprocess
+..
+   cspell:ignore asof
+
+The ``etl`` command line interface (cli) provides functionalities to preprocess
 battery data provided by |foxbms|.
-etl is an abbreviation for Extract, Transform and Load, which is a common
+``etl`` is an abbreviation for Extract, Transform and Load, which is a common
 approach in the context of data engineering.
-With etl a data pipeline can be defined, which extracts various data from
+With ``etl`` a data pipeline can be defined, which extracts various data from
 different data sources, transforming them into an uniform data format and loads
 those into a database (data warehouse) for further analyzing.
-In the current status, the etl cli supports a logfile from a CAN bus as data
+In the current status, the |fox-cli| supports a logfile from a CAN bus as data
 source and provides a filter (extract) function to select desired CAN messages
 from it.
 Subsequently these filtered data can be decoded (transform) and converted to
@@ -52,7 +55,7 @@ format caused by the serial communication of a CAN bus.
 .. _filter:
 
 To avoid unnecessary payload in the later preprocessing steps,
-specific CAN messages can be filtered out by etl.
+specific CAN messages can be filtered out by ``etl``.
 The messages could be filtered by their ID or by their number of occurrence,
 so that e.g., only every 10th occurrence of a message remains in the resulting
 CAN log file.
@@ -99,13 +102,14 @@ below.
 
 To obtain one regular time series, all time series could be combined by
 a left join.
-etl uses as left join method for time series
+``etl`` uses as left join method for time series
 `join_asof <https://arrow.apache.org/docs/python/generated/pyarrow.Table.html
 #pyarrow.Table.join_asof>`_
 of `Apache Arrow <https://arrow.apache.org/>`_.
 In the context of lithium-ion batteries, most measurements are galvanostatic
 and therefore the current as system excitation is a good candidate as left
 table in the join.
+All other tables are used as the right table in the ``join_asof`` step.
 A table after the join could look like
 
 .. csv-table:: Joined Current and Cell Voltage
@@ -116,12 +120,30 @@ A table after the join could look like
 
 where all columns are alphanumerical sorted.
 
+.. important::
+
+   If the values of the selected left table occur less frequently
+   than values from the right tables, some rows of the right tables will
+   be discared in the ``join_asof`` step!
+
 .. note::
 
   By default the method ``join_asof`` is configured to uses previous values
   to fill missing values, therefore the first rows of the joined table will
   contain missing values, because no previous values are available at that
   point of time.
+
+Further to extract data from specific file formats (e.g., measurement device as
+the Gamry Reference 3000), the |fox-cli| provides the convert subcommand which
+converts the aforementioned files to a ``.csv`` or ``.parquet`` files.
+
+The ``etl`` command offers for use-cases without a specified
+"system excitation" e.g. debugging, a method to outer join all tables.
+
+.. important::
+
+   Outer joins are slower and generate significantly larger tables, especially
+   when the input tables are large!
 
 Database & Data Analytics Engine/Libraries
 ------------------------------------------
@@ -136,7 +158,7 @@ column oriented.
 Most queries in the battery context will read many values
 from a few columns.
 Hence from a performance perspective, column oriented systems should be
-preferred and therfore the etl command supports mostly column
+preferred and therfore the ``etl`` command supports mostly column
 oriented file formats and databases.
 
 DMS store the data and provide usually a SQL interface to query data exceeding
@@ -173,9 +195,9 @@ from files, where we recommend to use the supported
 Usage
 -----
 
-The etl command is divided into multiple subcommands each providing
+The ``etl`` command is divided into multiple subcommands each providing
 specific functionalities described in the previous sections.
-Below the general help text of the etl command gives an overview of all
+Below the general help text of the ``etl`` command gives an overview of all
 subcommands.
 
 .. include:: ./../../../../build/docs/fox_etl_help.txt
@@ -201,14 +223,14 @@ be provided by the command ``cat``.
       .. code-block:: shell
 
          cat CAN_LOG_FILE | ./fox.sh etl decode -c DECODE_CONFIG_FILE \
-         -o OUTPUT_FOLDER
+         -o OUTPUT_DIRECTORY
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
          cat CAN_LOG_FILE | ./fox.sh etl decode -c DECODE_CONFIG_FILE \
-         -o OUTPUT_FOLDER
+         -o OUTPUT_DIRECTORY
 
 Moreover the filter subcommand provides a data stream as output and
 therefore it can be used ahead of the decode subcommand.
@@ -240,6 +262,10 @@ More complex data pipelines can be created with
 `Azure Data Factory
 <https://azure.microsoft.com/en-us/products/data-factory>`_.
 
+.. important::
+
+  The counting for all positions in the following command options starts at 0.
+
 filter Usage
 ^^^^^^^^^^^^
 
@@ -253,8 +279,10 @@ The subcommand is executed as described below.
 A configuration file of the subcommand could look like
 
 .. literalinclude:: yml/filter.yml
-    :language: yaml
-    :caption: Configuration for filter subcommand
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Configuration for filter subcommand
 
 The key ``id_pos`` defines the position of the CAN IDs in the CAN log file,
 ``ids`` is a list of all CAN IDs that should be included in the resulting file.
@@ -275,18 +303,16 @@ The subcommand is executed as described below.
 A configuration file of the subcommand could look like
 
 .. literalinclude:: yml/decode.yml
-    :language: yaml
-    :caption: Configuration for decode subcommand
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Configuration for decode subcommand
 
 The key ``dbc`` defines the path to the used DBC file, ``timestamp_pos`` is the
 column position of the timestamp within the CAN log file, the ``id_pos`` is the
 column position of the CAN IDs and ``data_pos`` is the start column position of
 the data in each message. The example configuration file can be downloaded
 :download:`here <yml/decode.yml>`.
-
-.. note::
-
-  The count for the position starts with 0
 
 table Usage
 ^^^^^^^^^^^
@@ -306,8 +332,10 @@ In case only one file of decoded CAN messages should be converted to a table,
 the configuration file for the table subcommand could look like
 
 .. literalinclude:: yml/table_one_one.yml
-    :language: yaml
-    :caption: Configuration for table subcommand - One to One
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Configuration for table subcommand - One to One
 
 with the output parameter as path to a file.
 ``start_date`` defines the date in UTC format at which the CAN logging has
@@ -346,10 +374,18 @@ If multiple files with decoded CAN messages should be converted and joined to
 one table, the configuration file for the table subcommand could look like
 
 .. literalinclude:: yml/table_many_one.yml
-    :language: yaml
-    :caption: Configuration for table subcommand - Many to One
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Configuration for table subcommand - Many to One
 
 with ``join_on`` defining the column of the left table in the join.
+
+.. note::
+
+   If ``ALL`` is used as ``join_on`` parameter, an outer join is used instead
+   of a left join.
+
 The output parameter must be the path to a file.
 
 .. note::
@@ -364,19 +400,19 @@ The output parameter must be the path to a file.
 
       .. code-block:: powershell
 
-         .\fox.ps1 etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_FOLDER
+         .\fox.ps1 etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_DIRECTORY
 
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
-         .\fox.sh etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_FOLDER
+         ./fox.sh etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_DIRECTORY
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-         .\fox.sh etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_FOLDER
+         ./fox.sh etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_DIRECTORY
 
 Many to Many:
 """""""""""""
@@ -385,12 +421,14 @@ In case each file with decoded CAN message should be converted to a table,
 without any join, the configuration file for the table command could look like
 
 .. literalinclude:: yml/table_many_many.yml
-    :language: yaml
-    :caption: Configuration for table subcommand - Many to Many
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Configuration for table subcommand - Many to Many
 
 with ``output_format`` as ``csv`` or ``parquet`` defining the file format
 at which all tables are saved.
-The output parameter must be the path to a folder.
+The output parameter must be the path to a directory.
 
 .. tabs::
 
@@ -398,19 +436,19 @@ The output parameter must be the path to a folder.
 
       .. code-block:: powershell
 
-         .\fox.ps1 etl table -c table_many_many.yml -o OUTPUT_FOLDER INPUT_FOLDER
+         .\fox.ps1 etl table -c table_many_many.yml -o OUTPUT_DIRECTORY INPUT_DIRECTORY
 
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
-         .\fox.sh etl table -c table_many_many.yml -o OUTPUT_FOLDER INPUT_FOLDER
+         ./fox.sh etl table -c table_many_many.yml -o OUTPUT_DIRECTORY INPUT_DIRECTORY
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-         .\fox.sh etl table -c table_many_many.yml -o OUTPUT_FOLDER INPUT_FOLDER
+         ./fox.sh etl table -c table_many_many.yml -o OUTPUT_DIRECTORY INPUT_DIRECTORY
 
 .. note::
 
@@ -420,7 +458,7 @@ If the timestamp values of a CAN log are not in seconds, the table subcommand
 is able to correctly convert these values to the needed phyiscal unit with the
 optional parameter ``timestamp_factor``.
 Internally all timestamp values are multiplied with the ``timestamp_factor``
-to interpred these values as duration in microseconds.
+to interpret these values as duration in microseconds.
 The default value of ``timestamp_factor`` is 1000000 for timestamp values in
 seconds.
 If the timestamp values are in milliseconds, the ``timestamp_factor`` needs
@@ -441,12 +479,43 @@ All example configuration files for the table subcommand can be download below:
 | :download:`Many to One <yml/table_many_one.yml>`
 | :download:`Many to Many <yml/table_many_many.yml>`
 
-Build pip Package
------------------
+convert Usage
+^^^^^^^^^^^^^
 
-etl can be packaged to a standalone pip package. First change your working
-directory to the root of the repository, if this is not already the case.
-Afterwards the pip package can be build with
+The convert subcommand group provides utilities to convert measurement
+files into structured formats for downstream analysis.
+
+.. note::
+
+   In contrary to the other commands, convert does not use a configuration file.
+   Instead, all options are passed via the command line.
+
+Currently supported file formats:
+
+- Input: Gamry .DTA files and GRAPHTEC .csv files
+- Output: CSV or Parquet
+
+.. include:: ./../../../../build/docs/fox_etl_convert_help.txt
+
+Options (group-level):
+
+- --recursive: If set, subdirectories are scanned when the input is a directory.
+- --output-format: Target file format (CSV or PARQUET).
+
+Subcommands:
+
+.. include:: ./../../../../build/docs/fox_etl_convert_gamry_help.txt
+
+.. include:: ./../../../../build/docs/fox_etl_convert_graphtec_help.txt
+
+Behavior:
+
+- If DATA points to a file, exactly that file is converted.
+- If DATA points to a directory, all files matching the input suffix (e.g., ``.dta``) are collected.
+
+  When --recursive is set, subdirectories are included.
+
+- Output files are written next to the source with the appropriate extension (``.csv`` or ``.parquet``).
 
 .. tabs::
 
@@ -454,43 +523,42 @@ Afterwards the pip package can be build with
 
       .. code-block:: powershell
 
-         .\fox.ps1 run-program python -m build cli\cmd_etl\ -o .\dist
+         # Convert a single .dta file to CSV
+         .\fox.ps1 etl convert --output-format CSV DTA -s 0 PATH\TO\INPUT.dta
+
+         # Convert all .dta files in a directory (non-recursive) to Parquet
+         .\fox.ps1 etl convert --output-format PARQUET DTA -s 0 PATH\TO\DIRECTORY
+
+         # Convert all .dta files in a directory (recursive) to CSV
+         .\fox.ps1 etl convert --recursive --output-format CSV DTA -s 0 PATH\TO\DIRECTORY
 
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
-         ./fox.sh run-program python -m build cli/cmd_etl/ -o ./dist
+         # Convert a single .dta file to CSV
+         ./fox.sh etl convert --output-format CSV DTA -s 0 PATH/TO/INPUT.dta
+
+         # Convert all .dta files in a directory (non-recursive) to Parquet
+         ./fox.sh etl convert --output-format PARQUET DTA -s 0 PATH/TO/DIRECTORY
+
+         # Convert all .dta files in a directory (recursive) to CSV
+         ./fox.sh etl convert --recursive --output-format CSV DTA -s 0 PATH/TO/DIRECTORY
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-         ./fox.sh run-program python -m build cli/cmd_etl/ -o ./dist
+         # Convert a single .dta file to CSV
+         ./fox.sh etl convert --output-format CSV DTA -s 0 PATH/TO/INPUT.dta
 
-where the resulting WHEEL file can be found in the folder
-``ROOT_REPOSITORY/dist``.
+         # Convert all .dta files in a directory (non-recursive) to Parquet
+         ./fox.sh etl convert --output-format PARQUET DTA -s 0 PATH/TO/DIRECTORY
 
-The pip package can be installed into the active environment with
+         # Convert all .dta files in a directory (recursive) to CSV
+         ./fox.sh etl convert --recursive --output-format CSV DTA -s 0 PATH/TO/DIRECTORY
 
-.. tabs::
+Notes:
 
-   .. group-tab:: Win32/PowerShell
-
-      .. code-block:: powershell
-
-         python -m pip install .\dist\WHEEL_NAME
-
-   .. group-tab:: Win32/Git bash
-
-      .. code-block:: shell
-
-         python -m pip install ./dist/WHEEL_NAME
-
-   .. group-tab:: Linux
-
-      .. code-block:: shell
-
-         python -m pip install ./dist/WHEEL_NAME
-
-Now all etl subcommands can be executed with ``foxetl SUBCOMMAND``.
+- --skip_footer applies to Gamry ``.dta`` files and is passed to the CSV reader to ignore trailing lines.
+- Non-existent paths or permission issues are reported and cause the command to exit with a non-zero status.

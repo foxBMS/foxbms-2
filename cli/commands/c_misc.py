@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,33 +37,51 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for miscellaneous fox tools"""
+"""Click commands for miscellaneous foxBMS repository utilities."""
 
 from pathlib import Path
 
 import click
 
-from ..cmd_misc.check_test_files import check_for_test_files
-from ..cmd_misc.crc_example import run_crc_build
-from ..cmd_misc.doc_example import run_doc_build
+from ..cmd_misc.check_repository_depth import check_repository_depth
+from ..cmd_misc.list_prefixes import get_prefixes
 from ..cmd_misc.run_uncrustify import lint_freertos
 from ..cmd_misc.verify_checksums import verify
-from ..helpers.click_helpers import HELP_NAMES, recho, verbosity_option
+from ..helpers.click_helpers import HELP_NAMES, echo, recho, verbosity_option
 
 CONTEXT_SETTINGS = HELP_NAMES | {"ignore_unknown_options": True}
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
-def misc() -> None:
-    """Miscellaneous tools or scripts that did not fit in any other category."""
+@click.group(context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
+@click.option(
+    "--list-prefixes",
+    is_flag=True,
+    default=False,
+    help="List all @prefix markers found in C source files.",
+)
+@click.pass_context
+def misc(ctx: click.Context, list_prefixes: bool) -> None:
+    """Miscellaneous command group entry point.
+
+    Args:
+        ctx: Active Click context.
+        list_prefixes: If ``True``, print all discovered prefixes.
+    """
+    if list_prefixes:
+        for prefix in get_prefixes():
+            echo(prefix)
+        ctx.exit(0)
+
+    if not ctx.invoked_subcommand:
+        echo(misc.get_help(ctx))
 
 
-@misc.command("check-for-test-files")
+@misc.command("check-repository-depth")
 @verbosity_option
 @click.pass_context
-def cmd_check_for_test_files(ctx: click.Context, verbose: int = 0) -> None:
-    """Check whether all 'cli' files have dedicated test file."""
-    ctx.exit(check_for_test_files(verbose).returncode)
+def cmd_check_repository_depth(ctx: click.Context, verbose: int = 0) -> None:
+    """Find the longest path depth in the repository."""
+    ctx.exit(check_repository_depth())
 
 
 @misc.command("verify-checksum")
@@ -79,7 +97,7 @@ def cmd_check_for_test_files(ctx: click.Context, verbose: int = 0) -> None:
 def cmd_verify_checksum(
     ctx: click.Context, files: list[Path], known_hash: str, verbose: int = 0
 ) -> None:
-    """Verify checksum of a list of given paths."""
+    """Verify checksums of provided files or directories."""
     if not files:
         recho("No files provided.")
         ctx.exit(1)
@@ -95,19 +113,5 @@ def cmd_verify_checksum(
 )
 @click.pass_context
 def cmd_uncrustify_freertos(ctx: click.Context, check: bool) -> None:
-    """Run uncrustify on the FreeRTOS sources in the source tree."""
+    """Run uncrustify on FreeRTOS sources."""
     ctx.exit(lint_freertos(check))
-
-
-@misc.command("build-crc-code")
-@click.pass_context
-def cmd_build_crc_code(ctx: click.Context) -> None:
-    """Build the CRC example code."""
-    ctx.exit(run_crc_build().returncode)
-
-
-@misc.command("build-doc-code")
-@click.pass_context
-def cmd_build_doc_code(ctx: click.Context) -> None:
-    """Build the documentation example code."""
-    ctx.exit(run_doc_build().returncode)

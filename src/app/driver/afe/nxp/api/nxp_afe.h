@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_afe.h
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  NXP
  *
@@ -90,6 +90,8 @@ extern STD_RETURN_TYPE_e NXP_RequestOpenWireCheck(uint8_t string);
 extern STD_RETURN_TYPE_e NXP_StartMeasurement(void);
 /** Function to check if at least one measurement cycle has been made */
 extern bool NXP_IsFirstMeasurementCycleFinished(void);
+/** Function to return pointer to serialIds of identified AFEs */
+extern uint64_t *NXP_IdentifyAfes(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

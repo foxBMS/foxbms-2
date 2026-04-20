@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -40,31 +40,35 @@
  */
 
 /**
- * @file    c.h
- * @author  foxBMS Team
- * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
- * @ingroup SOME_GROUP
- * @prefix  ABC
+ * @file    ${file_name}
+ * @author  ${author}
+ * @date    ${date}
+ * @updated ${updated}
+ * @version ${version}
+ * @ingroup ${ingroup}
+ * @prefix  ${prefix}
  *
- * @brief   Header file of some software
- * @details Some detailed explanation
+ * @brief   ${brief}
+ * @details ${details}
  */
 
-#ifndef FOXBMS__C_H_
-#define FOXBMS__C_H_
+/* @header_guard_start@ */
 
 /*========== Includes =======================================================*/
+/* @include_directives@ */
 
 /*========== Macros and Definitions =========================================*/
+/* @macros_and_definitions@ */
 
 /*========== Extern Constant and Variable Declarations ======================*/
+/* @extern_constant_and_variable_declarations@ */
 
 /*========== Extern Function Prototypes =====================================*/
+/* @extern_function_prototypes@ */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+/* @unit_test_static_function_prototypes@ */
 #endif
 
-#endif /* FOXBMS__C_H_ */
+/* @header_guard_end@ */

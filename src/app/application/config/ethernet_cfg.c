@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,13 +43,13 @@
  * @file    ethernet_cfg.c
  * @author  foxBMS Team
  * @date    2025-30-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ETH
  *
  * @brief   Configuration for the ethernet module
- * @details This includes IP and EMAC-Adress and other general network settings.
+ * @details This includes IP and EMAC-Address and other general network settings.
  */
 
 /*========== Includes =======================================================*/
@@ -62,8 +62,11 @@
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
-const uint8_t eth_emacAdress[6u] = {0x0u, 0x08u, 0xEEu, 0x03u, 0xA6u, 0x6Cu};
-const uint8_t eth_ipAddress[4u]  = {169u, 254u, 107u, 24u};
+const uint8_t eth_emacAddress[ETH_HARDWARE_ADDRESS_LENGTH] = {0x0u, 0x08u, 0xEEu, 0x03u, 0xA6u, 0x6Cu};
+const uint8_t eth_ipAddress[ETH_IP_ADDRESS_LENGTH]         = {169u, 254u, 107u, 24u};
+const uint8_t eth_netMask[4u]                              = {255u, 255u, 0u, 0u};
+const uint8_t eth_gatewayAddress[4u]                       = {169u, 254u, 107u, 1u};
+const uint8_t eth_dnsServerAddress[4u]                     = {0u, 0u, 0u, 0u};
 
 /*========== Static Function Prototypes =====================================*/
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    c-019.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -95,15 +95,15 @@ uint8_t abc_myArrayD[4][3] = {
     {[2] = 1}, /* row 2 initialized to {0, 0, 1} */
 }; /* row 3 initialized to {0, 0, 0} */
 
-ABC_POINT_s abc_myPoint = {1.2, 1.3}; /* p.x=1.2, p.y=1.3, p.z=0.0 */
+ABC_POINT_s abc_myPoint = {1.2, 1.3, 0.0}; /* p.x=1.2, p.y=1.3, p.z=0.0 */
 
-ABC_PATH_s abc_myPath = {80.0f, 127.0f, -37.0f, 0, 1, "test"}; /* 80.0f initializes myPath.point.x  */
-                                                               /* 127.0f initializes myPath.point.y */
-                                                               /* -37.0f initializes myPath.point.z */
-                                                               /* 0 initializes myPath.timestamp    */
-                                                               /* 1 initializes ex.in_u.a8[3]       */
-                                                               /* "test" initializes name[0-3]      */
-                                                               /* name[4-15] are set to 0           */
+ABC_PATH_s abc_myPath = {{80.0f, 127.0f, -37.0f}, 0, 1, "test"}; /* 80.0f initializes myPath.point.x  */
+                                                                 /* 127.0f initializes myPath.point.y */
+                                                                 /* -37.0f initializes myPath.point.z */
+                                                                 /* 0 initializes myPath.timestamp    */
+                                                                 /* 1 initializes ex.in_u.a8[3]       */
+                                                                 /* "test" initializes name[0-3]      */
+                                                                 /* name[4-15] are set to 0           */
 
 /*========== Static Function Prototypes =====================================*/
 

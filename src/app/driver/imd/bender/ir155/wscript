@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,43 +37,43 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the 'ir155' objects for the 'IMD'-driver"""
-
-import os
-
 
 def build(bld):
-    """Build the 'ir155' objects for the 'IMD'-driver"""
-    source = [
-        os.path.join("bender_ir155.c"),
-        os.path.join("bender_ir155_helper.c"),
-    ]
+    op = f"{bld.env.APPNAME.lower()}-object-"
+
     includes = [
         ".",
-        os.path.join("config"),
-        os.path.join("..", ".."),
-        os.path.join("..", "..", "..", "can"),
-        os.path.join("..", "..", "..", "config"),
-        os.path.join("..", "..", "..", "fram"),
-        os.path.join("..", "..", "..", "io"),
-        os.path.join("..", "..", "..", "mcu"),
-        os.path.join("..", "..", "..", "pwm"),
-        os.path.join("..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "task", "os"),
-        os.path.join("..", "..", "..", "..", "task", "ftask"),
-    ]
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    bld(
-        features="c",
-        source=source,
-        use="imd-device",
+        "config",
+        "../..",
+        "../../../can",
+        "../../../config",
+        "../../../fram",
+        "../../../io",
+        "../../../mcu",
+        "../../../pwm",
+        "../../../../application/config",
+        "../../../../engine/config",
+        "../../../../engine/database",
+        "../../../../engine/diag",
+        "../../../../main/include",
+        "../../../../task/config",
+        "../../../../task/os",
+        "../../../../task/ftask",
+    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    source = f"{bld.env.FOXBMS_IMD_MANUFACTURER}_{bld.env.FOXBMS_IMD_MODEL}"
+    bld.objects(
+        source=f"{source}.c",
+        cflags=bld.env.CFLAGS_FOXBMS,
         includes=includes,
-        target=f"{bld.env.APPNAME.lower()}-imd",
-        cflags=cflags,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    source = f"{bld.env.FOXBMS_IMD_MANUFACTURER}_{bld.env.FOXBMS_IMD_MODEL}_helper"
+    bld.objects(
+        source=f"{source}.c",
+        cflags=bld.env.CFLAGS_FOXBMS,
+        includes=includes,
+        target=f"{op}{source}",
+        idx=1,
     )

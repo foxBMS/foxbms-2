@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,15 +37,15 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Version specification"""
+"""Utilities for retrieving and formatting the foxBMS version string."""
 
 import re
 import sys
 from pathlib import Path
 
 
-def extact_version(txt: str, pattern: re.Pattern[str]) -> str:
-    """Extracts the version information from a string"""
+def extract_version(txt: str, pattern: re.Pattern[str]) -> str:
+    """Extract a version string from text using the supplied regex pattern."""
     version = ""
     for line in txt.splitlines():
         m = pattern.search(line)
@@ -57,10 +57,22 @@ def extact_version(txt: str, pattern: re.Pattern[str]) -> str:
 
 
 def get_version() -> str:
-    """read the foxBMS version from the build file."""
-    wscript = (Path(__file__).parent.parent / "wscript").read_text(encoding="utf-8")
+    """Read the foxBMS version from the build file."""
+    try:
+        txt = (Path(__file__).parent.parent / "wscript").read_text(encoding="utf-8")
+    except FileNotFoundError:
+        txt = (Path(__file__).parent / "version.py").read_text(encoding="utf-8")
     pattern = re.compile(r"VERSION = \"((x\.y\.z)|(\d{1,}\.\d{1,}\.\d{1,}))\"")
-    return extact_version(wscript, pattern)
+    return extract_version(txt, pattern)
+
+
+def get_numeric_version() -> str:
+    """Convert the foxBMS version into a dot-separated numeric string."""
+    numeric_version = get_version().split(".")
+    for index, part in enumerate(numeric_version):
+        if not part.isnumeric():
+            numeric_version[index] = str(ord(part))
+    return ".".join(numeric_version)
 
 
 __version__ = get_version()

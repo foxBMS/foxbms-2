@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -60,7 +60,7 @@
 
 #include "can.h"
 #include "can_cbs_rx.h"
-#include "can_cbs_tx_imd-request.h"
+#include "can_cbs_tx_imd_bender-iso165c-request.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_cfg_tx-async-message-definitions.h"
 #include "can_helper.h"
@@ -293,9 +293,9 @@ static IMD_FSM_STATES_e I165C_Disable(void);
  * @details This function contains the sequence of events in the i165c state
  *          machine.
  *          It must be called time-triggered, every 100ms.
- * @param pTableInsulationMonitoring   pointer to insulation database entry
+ * @param pTableInsulation   pointer to insulation database entry
  */
-static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /**
  * @brief   Check if iso165c acknowledged reception of sent message
@@ -355,9 +355,9 @@ static I165C_RESPONSE_RETURN_VALUE_e I165C_CheckAcknowledgeArrived(
 
 /**
  * @brief Check if insulation measurement is valid
- * @param pTableInsulationMonitoring data table where information is stored
+ * @param pTableInsulation data table where information is stored
  */
-static void I165C_IsInsulationMeasurementValid(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+static void I165C_isMeasurementValid(DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /*========== Static Function Implementations ================================*/
 static void I165C_SetInitializationState(
@@ -440,15 +440,16 @@ static I165C_RESPONSE_RETURN_VALUE_e I165C_CheckResponse(uint8_t command, CAN_BU
         if (numberItems > 0u) {
             if (OS_ReceiveFromQueue(ftsk_imdCanDataQueue, (void *)pCanMessage, 0u) == OS_SUCCESS) {
                 /* data queue was not empty */
-                if ((command == pCanMessage->data[CAN_BYTE_0_POSITION]) && (pCanMessage->id == CANRX_IMD_RESPONSE_ID) &&
-                    (pCanMessage->idType == CANRX_IMD_RESPONSE_ID_TYPE)) {
+                if ((command == pCanMessage->data[CAN_BYTE_0_POSITION]) &&
+                    (pCanMessage->id == CANRX_IMD_BENDER_ISO165C_RESPONSE_ID) &&
+                    (pCanMessage->idType == CANRX_IMD_BENDER_ISO165C_RESPONSE_ID_TYPE)) {
                     /* Response with expected multiplexer was received */
                     messageReceived = I165C_RESPONSE_SUCCESS;
                     break;
                 } else {
                     if ((pCanMessage->data[CAN_BYTE_0_POSITION] == 0xFF) &&
-                        (pCanMessage->id == CANRX_IMD_RESPONSE_ID) &&
-                        (pCanMessage->idType == CANRX_IMD_RESPONSE_ID_TYPE)) {
+                        (pCanMessage->id == CANRX_IMD_BENDER_ISO165C_RESPONSE_ID) &&
+                        (pCanMessage->idType == CANRX_IMD_BENDER_ISO165C_RESPONSE_ID_TYPE)) {
                         /* Response with error multiplexer was received */
                         messageReceived = I165C_RESPONSE_ERROR;
                     }
@@ -491,15 +492,15 @@ static void I165C_SetRelayState(uint8_t relay, uint8_t relayState) {
 
     if (relay == I165C_D_VIFC_HV_RELAIS_NEGATIVE) {
         if (relayState == I165C_RELAY_STATE_OPEN) {
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_OPEN_NEGATIVE_RELAY);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_OPEN_NEGATIVE_RELAY);
         } else {
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_CLOSE_NEGATIVE_RELAY);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_CLOSE_NEGATIVE_RELAY);
         }
     } else {
         if (relayState == I165C_RELAY_STATE_OPEN) {
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_OPEN_POSITIVE_RELAY);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_OPEN_POSITIVE_RELAY);
         } else {
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_CLOSE_POSITIVE_RELAY);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_CLOSE_POSITIVE_RELAY);
         }
     }
 }
@@ -509,10 +510,10 @@ static void I165C_RequestRelayState(uint8_t relay) {
 
     switch (relay) {
         case I165C_D_VIFC_HV_RELAIS_NEGATIVE:
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_NEGATIVE_RELAY_STATE);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_NEGATIVE_RELAY_STATE);
             break;
         case I165C_D_VIFC_HV_RELAIS_POSITIVE:
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_POSITIVE_RELAY_STATE);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_POSITIVE_RELAY_STATE);
             break;
         default:
             FAS_ASSERT(FAS_TRAP);
@@ -525,10 +526,10 @@ static void I165C_SetMeasurementMode(uint8_t mode) {
 
     switch (mode) {
         case I165C_ENABLE_MEASUREMENT:
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_ENABLE_MEASUREMENT);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_ENABLE_MEASUREMENT);
             break;
         case I165C_DISABLE_MEASUREMENT:
-            CANTX_ImdRequest(CANTX_IMD_REQUEST_DISABLE_MEASUREMENT);
+            CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_DISABLE_MEASUREMENT);
             break;
     }
 }
@@ -538,7 +539,7 @@ static void I165C_SetAveragingFactor(uint8_t averagingFactor) {
     FAS_ASSERT(averagingFactor != 0u);
     FAS_ASSERT(averagingFactor <= 20u);
 
-    CANTX_ImdRequest(CANTX_IMD_REQUEST_SET_AVERAGING_FACTOR);
+    CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_SET_AVERAGING_FACTOR);
 }
 
 static I165C_RESPONSE_RETURN_VALUE_e I165C_CheckAcknowledgeArrived(
@@ -558,13 +559,12 @@ static I165C_RESPONSE_RETURN_VALUE_e I165C_CheckAcknowledgeArrived(
     return acknowledgeReceived;
 }
 
-static void I165C_IsInsulationMeasurementValid(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
-    if ((pTableInsulationMonitoring->areDeviceFlagsValid == true) &&
-        (pTableInsulationMonitoring->isImdRunning == true) &&
-        (pTableInsulationMonitoring->dfIsMeasurementUpToDate == true)) {
-        pTableInsulationMonitoring->isInsulationMeasurementValid = true;
+static void I165C_isMeasurementValid(DATA_BLOCK_INSULATION_s *pTableInsulation) {
+    if ((pTableInsulation->areDeviceFlagsValid == true) && (pTableInsulation->isImdRunning == true) &&
+        (pTableInsulation->dfIsMeasurementUpToDate == true)) {
+        pTableInsulation->isMeasurementValid = true;
     } else {
-        pTableInsulationMonitoring->isInsulationMeasurementValid = false;
+        pTableInsulation->isMeasurementValid = false;
     }
 }
 
@@ -584,7 +584,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
         switch (i165c_initializationState.currentState) {
             case I165C_FSM_STATE_INITIALIZATION_HAS_NEVER_RUN:
                 /* Unlock device in case it was locked */
-                CANTX_ImdRequest(CANTX_IMD_REQUEST_INITIALIZATION_UNLOCK);
+                CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_INITIALIZATION_UNLOCK);
                 I165C_SetInitializationState(
                     &i165c_initializationState, I165C_FSM_STATE_INITIALIZATION_UNLOCK_WAIT_ACK, I165C_FSM_SHORT_TIME);
                 break;
@@ -611,8 +611,8 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
 
             case I165C_FSM_STATE_INITIALIZATION_CHECK_MEASUREMENT_STATE:
                 if (I165C_GetImdInfo(&i165c_canRxMessage) == true) {
-                    if (CANRX_ImdInfoCheckMeasurementMode(&i165c_canRxMessage.data[0], I165C_ENABLE_MEASUREMENT) ==
-                        false) {
+                    if (CANRX_ImdBenderIso165cInfoCheckMeasurementMode(
+                            &i165c_canRxMessage.data[0], I165C_ENABLE_MEASUREMENT) == false) {
                         /* Measurement is not enabled -> Enable measurement as otherwise the following
                          * initialization procedure would fail */
                         I165C_SetMeasurementMode(I165C_ENABLE_MEASUREMENT);
@@ -675,7 +675,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 /* Check if HV relay is open and measurement has been stopped */
                 responseValue = I165C_CheckResponse(I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    if (CANRX_ImdResponseCheckRelayState(
+                    if (CANRX_ImdBenderIso165cResponseCheckRelayState(
                             &i165c_canRxMessage.data[0], I165C_D_VIFC_HV_RELAIS_NEGATIVE, I165C_RELAY_STATE_OPEN) ==
                         true) {
                         i165c_initializationState.receptionTries        = 0u;
@@ -709,7 +709,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 /* Check if HV relays are open and measurement has been stopped */
                 responseValue = I165C_CheckResponse(I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    if (CANRX_ImdResponseCheckRelayState(
+                    if (CANRX_ImdBenderIso165cResponseCheckRelayState(
                             &i165c_canRxMessage.data[0], I165C_D_VIFC_HV_RELAIS_POSITIVE, I165C_RELAY_STATE_OPEN) ==
                         true) {
                         i165c_initializationState.receptionTries        = 0u;
@@ -741,8 +741,8 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                  when the coupling relays are open. */
 
                 if (I165C_GetImdInfo(&i165c_canRxMessage) == true) {
-                    if (CANRX_ImdInfoHasSelfTestBeenExecuted(&i165c_canRxMessage.data[0]) == false) {
-                        CANTX_ImdRequest(CANTX_IMD_REQUEST_INITIALIZATION_SELF_TEST);
+                    if (CANRX_ImdBenderIso165cInfoHasSelfTestBeenExecuted(&i165c_canRxMessage.data[0]) == false) {
+                        CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_INITIALIZATION_SELF_TEST);
                         I165C_SetInitializationState(
                             &i165c_initializationState,
                             I165C_FSM_STATE_INITIALIZATION_SELF_TEST_WAIT_ACK,
@@ -788,7 +788,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 break;
             case I165C_FSM_STATE_INITIALIZATION_WAIT_SELF_TEST:
                 if (I165C_GetImdInfo(&i165c_canRxMessage) == true) {
-                    if (CANRX_ImdInfoIsSelfTestFinished(&i165c_canRxMessage.data[0]) == false) {
+                    if (CANRX_ImdBenderIso165cInfoIsSelfTestFinished(&i165c_canRxMessage.data[0]) == false) {
                         i165c_initializationState.receptionTries++;
                     } else {
                         i165c_initializationState.receptionTries        = 0u;
@@ -837,7 +837,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 break;
 
             case I165C_FSM_STATE_INITIALIZATION_SET_ERROR_THRESHOLD:
-                CANTX_ImdRequest(CANTX_IMD_REQUEST_INITIALIZATION_SET_ERROR_THRESHOLD);
+                CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_INITIALIZATION_SET_ERROR_THRESHOLD);
                 I165C_SetInitializationState(
                     &i165c_initializationState,
                     I165C_FSM_STATE_INITIALIZATION_ERROR_THRESHOLD_WAIT_ACK,
@@ -863,7 +863,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 }
                 break;
             case I165C_FSM_STATE_INITIALIZATION_SET_WARNING_THRESHOLD:
-                CANTX_ImdRequest(CANTX_IMD_REQUEST_INITIALIZATION_SET_WARNING_THRESHOLD);
+                CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_INITIALIZATION_SET_WARNING_THRESHOLD);
                 I165C_SetInitializationState(
                     &i165c_initializationState,
                     I165C_FSM_STATE_INITIALIZATION_WARNING_THRESHOLD_WAIT_ACK,
@@ -960,7 +960,7 @@ static IMD_FSM_STATES_e I165C_Enable(void) {
             case I165C_FSM_STATE_ENABLE_CHECK_NEGATIVE_HV_RELAY_STATE:
                 responseValue = I165C_CheckResponse(I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    if (CANRX_ImdResponseCheckRelayState(
+                    if (CANRX_ImdBenderIso165cResponseCheckRelayState(
                             &i165c_canRxMessage.data[0], I165C_D_VIFC_HV_RELAIS_NEGATIVE, I165C_RELAY_STATE_CLOSED) ==
                         true) {
                         i165c_enableState.receptionTries        = 0u;
@@ -997,7 +997,7 @@ static IMD_FSM_STATES_e I165C_Enable(void) {
             case I165C_FSM_STATE_ENABLE_CHECK_POSITIVE_HV_RELAY_STATE:
                 responseValue = I165C_CheckResponse(I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    if (CANRX_ImdResponseCheckRelayState(
+                    if (CANRX_ImdBenderIso165cResponseCheckRelayState(
                             &i165c_canRxMessage.data[0], I165C_D_VIFC_HV_RELAIS_POSITIVE, I165C_RELAY_STATE_CLOSED) ==
                         true) {
                         i165c_enableState.receptionTries        = 0u;
@@ -1047,8 +1047,8 @@ static IMD_FSM_STATES_e I165C_Enable(void) {
     return nextState;
 }
 
-static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
-    FAS_ASSERT(pTableInsulationMonitoring != NULL_PTR);
+static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_s *pTableInsulation) {
+    FAS_ASSERT(pTableInsulation != NULL_PTR);
     IMD_FSM_STATES_e nextState = IMD_FSM_STATE_RUNNING; /* stay in running state */
     bool earlyExit             = false;
     I165C_RESPONSE_RETURN_VALUE_e responseValue;
@@ -1069,7 +1069,7 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
                 break;
 
             case I165C_FSM_STATE_RUNNING_READ_RESISTANCE:
-                CANTX_ImdRequest(CANTX_IMD_REQUEST_READ_RESISTANCE);
+                CANTX_ImdRequest(CANTX_IMD_BENDER_ISO165C_REQUEST_READ_RESISTANCE);
                 I165C_SetRunningState(
                     &i165c_runningState, I165C_FSM_STATE_RUNNING_READ_RESISTANCE_WAIT_ACK, I165C_FSM_SHORT_TIME);
                 break;
@@ -1078,10 +1078,11 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
                 responseValue = I165C_CheckAcknowledgeArrived(
                     I165C_CMD_S_IMC_GET_R_ISO, &i165c_runningState.receptionTries, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    CANRX_ImdResponseReadInsulationResistance(&i165c_canRxMessage.data[0], pTableInsulationMonitoring);
+                    CANRX_ImdBenderIso165cResponseReadInsulationResistance(
+                        &i165c_canRxMessage.data[0], pTableInsulation);
 
-                    CANRX_ImdResponseCheckInsulationFaultTendency(
-                        &i165c_canRxMessage.data[0], pTableInsulationMonitoring);
+                    CANRX_ImdBenderIso165cResponseCheckInsulationFaultTendency(
+                        &i165c_canRxMessage.data[0], pTableInsulation);
 
                     I165C_SetRunningState(
                         &i165c_runningState, I165C_FSM_STATE_RUNNING_GET_MEASUREMENT, I165C_FSM_SHORT_TIME);
@@ -1104,8 +1105,8 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
                 } else {
                     i165c_runningState.receptionTriesMessage = 0u;
 
-                    CANRX_ImdInfoGetDataFromMessage(&i165c_canRxMessage.data[0], pTableInsulationMonitoring);
-                    I165C_IsInsulationMeasurementValid(pTableInsulationMonitoring);
+                    CANRX_ImdBenderIso165cInfoGetDataFromMessage(&i165c_canRxMessage.data[0], pTableInsulation);
+                    I165C_isMeasurementValid(pTableInsulation);
                 }
                 /* Restart measurement cycle */
                 I165C_SetRunningState(
@@ -1185,7 +1186,7 @@ static IMD_FSM_STATES_e I165C_Disable(void) {
             case I165C_FSM_STATE_DISABLE_CHECK_NEGATIVE_HV_RELAY_STATE:
                 responseValue = I165C_CheckResponse(I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    if (CANRX_ImdResponseCheckRelayState(
+                    if (CANRX_ImdBenderIso165cResponseCheckRelayState(
                             &i165c_canRxMessage.data[0], I165C_D_VIFC_HV_RELAIS_NEGATIVE, I165C_RELAY_STATE_OPEN) ==
                         true) {
                         i165c_disableState.receptionTries        = 0u;
@@ -1215,7 +1216,7 @@ static IMD_FSM_STATES_e I165C_Disable(void) {
             case I165C_FSM_STATE_DISABLE_CHECK_POSITIVE_HV_RELAY_STATE:
                 responseValue = I165C_CheckResponse(I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canRxMessage);
                 if (responseValue == I165C_RESPONSE_SUCCESS) {
-                    if (CANRX_ImdResponseCheckRelayState(
+                    if (CANRX_ImdBenderIso165cResponseCheckRelayState(
                             &i165c_canRxMessage.data[0], I165C_D_VIFC_HV_RELAIS_POSITIVE, I165C_RELAY_STATE_OPEN) ==
                         true) {
                         i165c_disableState.receptionTries        = 0u;
@@ -1256,9 +1257,9 @@ extern IMD_FSM_STATES_e IMD_ProcessEnableState(void) {
     return I165C_Enable();
 }
 
-extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
-    FAS_ASSERT(pTableInsulationMonitoring != NULL_PTR);
-    return I165C_Running(pTableInsulationMonitoring);
+extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_s *pTableInsulation) {
+    FAS_ASSERT(pTableInsulation != NULL_PTR);
+    return I165C_Running(pTableInsulation);
 }
 
 extern IMD_FSM_STATES_e IMD_ProcessShutdownState(void) {

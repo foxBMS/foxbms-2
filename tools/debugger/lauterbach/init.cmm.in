@@ -19,12 +19,12 @@ GLOBAL &update_program_information_script
 ; list of macros
 &macro_values = OS.PPD()+"\load_macro_values.cmm"
 
-GLOBAL &folder_workingpath &folder_temppath &folder_systempath &folder_homepath
+GLOBAL &directory_workingpath &directory_temppath &directory_systempath &directory_homepath
 GLOBAL &file_currentpractice
-&folder_workingpath=OS.PWD()
-&folder_temppath=OS.PTD()
-&folder_systempath=OS.PSD()
-&folder_homepath=OS.PHD()
+&directory_workingpath=OS.PWD()
+&directory_temppath=OS.PTD()
+&directory_systempath=OS.PSD()
+&directory_homepath=OS.PHD()
 
 &file_currentpractice=OS.PPF()
 
@@ -48,7 +48,7 @@ cd &working_path
   Var.Frame /Locals /Caller
   WinPOS 50% 50% 50% 50%
   Var.Watch %E
-  Var.AddWatch data_blockInsulationMonitoring os_timer bms_tablePackValues ilck_state data_blockInterlockFeedback imd_state cont_contactorStates sps_channelStatus data_blockStaterequest sys_state bms_state fram_version data_blockCellVoltage data_blockCellTemperature data_blockCurrentSensor data_blockErrors data_blockMsl data_blockRsl data_blockMol
+  Var.AddWatch data_blockInsulation os_timer bms_tablePackValues ilck_state data_blockInterlockFeedback imd_state cont_contactorStates sps_channelStatus data_blockStaterequest sys_state bms_state fram_version data_blockCellVoltage data_blockCellTemperature data_blockCurrentSensor data_blockErrors data_blockMsl data_blockRsl data_blockMol
 
 ;choose hex mode for input
 radix hex
@@ -165,6 +165,7 @@ sYmbol.Browse
         )
         separator
         toolitem "Reset all symbols"    "-P,i"      "SYMBOL.RESET"
+        separator
         toolitem "Up and Go"            ":apugo"
         (
             ON ERROR GOSUB
@@ -326,5 +327,5 @@ Data.LOAD.Elf &app_elf_file /NOCODE
 IF OS.FILE(&macro_values)
     do &macro_values
 
-PRINT "Initialization successful, foxBMS ready "
+PRINT "Initialization successful, foxBMS ready"
 ENDDO

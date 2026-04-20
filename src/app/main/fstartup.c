@@ -35,8 +35,8 @@
 /**
  * @file    fstartup.c
  * @date    11-Dec-2018
- * @updated 2025-08-05 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  STU
  *
@@ -60,7 +60,7 @@
  * file-level doxygen comment in 'tests/unit/app/main/test_fstartup.c'
  * for more details */
 #ifdef UNITY_UNIT_TEST
-#include "mock_esm.h"
+#include "m_esm.h"
 #endif
 
 /* keep include order as suggested by TI HALCoGen */
@@ -82,6 +82,8 @@
 /* clang-format on */
 
 #include <stdint.h>
+
+/* cspell:ignore CONQ Efuse FALLTHRU SYSESR */
 
 /*========== Macros and Definitions =========================================*/
 /** number of retries for the PLL to come up */

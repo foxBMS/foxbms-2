@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -56,12 +56,14 @@
 #define FOXBMS__ADI_ADES183X_DEFS_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 #if defined(FOXBMS_AFE_DRIVER_ADI_ADES1830)
 #include "adi_ades1830_defs.h"
 #endif
 
 #include "battery_system_cfg.h"
 
+#include "adi_ades183x_defs_diag.h"
 #include "database.h"
 #include "spi.h"
 
@@ -545,7 +547,7 @@ typedef struct {
 /* Time in ms needed for a redundant ADC measurement in OW latent fault check */
 #define ADI_OW_LATENT_FAULT_MEASUREMENT_TIME_ms (16u)
 
-/* Commands are made out of 11 bits according to data sheet */
+/* Commands are made out of 11 bits according to datasheet */
 #define ADI_COMMAND_CODE_LENGTH (11u)
 
 /* Each command is defined through 4 bytes: 2 command bytes, 1 command counter byte, 1 length byte */
@@ -1204,6 +1206,7 @@ typedef struct {
     bool firstDiagnosticMade;    /*!< flag indicates if all diagnostics made at least one time for all strings */
     uint8_t spiNumberInterfaces; /*!< number of SPI channels that have to be measured */
     uint8_t currentString;       /*!< string currently being addressed */
+    ADI_DIAG_e diagnosticType[BS_NR_OF_STRINGS];         /*!< which type of diagnostic must be made */
     uint8_t redundantAuxiliaryChannel[BS_NR_OF_STRINGS]; /*!< auxiliary channel for which a redundant measurement must
                                                             be made */
     uint64_t serialId[BS_NR_OF_STRINGS][ADI_N_ADI];      /*!< serial ID of the IC */

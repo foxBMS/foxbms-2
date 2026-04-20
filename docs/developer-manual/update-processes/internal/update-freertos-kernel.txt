@@ -7,4 +7,4 @@
   ``docs/general/license-tables/internal/license-info_freertos-kernel.csv``.
 - |snippet_changelog_entry|
 - |snippet_commit|
-  ``Dependency update: <XXXX>/Q<Y>: FreeRTOS kernel <version number>``.
+  ``Update dependency: <XXXX>/Q<Y>: FreeRTOS kernel <version number>``.

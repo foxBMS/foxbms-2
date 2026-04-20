@@ -1,0 +1,647 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+
+from waflib.Build import BuildContext
+
+
+def build(bld: BuildContext) -> None:
+    bld.recurse(["api", "config", "diag", "pec"])
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/ades1830/adi_ades1830_balancing.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_balancing.c"),
+        ],
+        target="test-app-adi_ades1830_balancing",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.h"
+            ),
+            bld.srcnode.find_node("src/app/engine/database/database.h"),
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/task/ftask/ftask.h"),
+            bld.srcnode.find_node("src/app/driver/io/io.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+            bld.srcnode.find_node("src/app/driver/pex/pex.h"),
+            bld.srcnode.find_node("src/app/driver/spi/spi.h"),
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg.h"),
+            bld.srcnode.find_node("src/app/driver/ts/api/tsi.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_buffers.c"),
+        ],
+        target="test-app-adi_ades1830_buffers",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_commands_voltages.c"),
+        ],
+        target="test-app-adi_ades1830_commands_voltages",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_commands.c"),
+        ],
+        target="test-app-adi_ades1830_commands",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic_w.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_diagnostic_w.c"),
+        ],
+        target="test-app-adi_ades1830_diagnostic_w",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/engine/config"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/os"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/ades1830/adi_ades1830_gpio_voltages.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_gpio_voltages.c"),
+        ],
+        target="test-app-adi_ades1830_gpio_voltages",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h"
+            ),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+            bld.srcnode.find_node("src/app/driver/spi/spi.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.path.find_node("adi_ades1830_helpers_test-data-rdb.c"),
+            bld.path.find_node("adi_ades1830_helpers_test-data-wdb.c"),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_helpers.c"),
+        ],
+        target="test-app-adi_ades1830_helpers",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+            bld.srcnode.find_node("tests/unit/app/driver/afe/adi/ades1830/include"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+            bld.srcnode.find_node("src/app/driver/spi/spi.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_initialization.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_initialization.c"),
+        ],
+        target="test-app-adi_ades1830_initialization",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h"
+            ),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_temperatures_2.c"),
+        ],
+        target="test-app-adi_ades1830_temperatures_2",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h"
+            ),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_temperatures.c"),
+        ],
+        target="test-app-adi_ades1830_temperatures",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h"
+            ),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.c"
+            ),
+            bld.path.find_node("test_adi_ades1830_voltages.c"),
+        ],
+        target="test-app-adi_ades1830_voltages",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h"
+            ),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+            bld.srcnode.find_node("src/app/driver/spi/spi.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+            ),
+            bld.path.find_node("test_adi_ades1830.c"),
+        ],
+        target="test-app-adi_ades1830",
+        includes=[
+            bld.srcnode.find_node("src/app/application/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/ades1830"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/dma"),
+            bld.srcnode.find_node("src/app/driver/io"),
+            bld.srcnode.find_node("src/app/driver/pex"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/database"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/ades1830/adi_ades1830_defs.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_balancing.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_defs.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_gpio_voltages.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_initialization.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.h"
+            ),
+            bld.srcnode.find_node("src/app/driver/afe/api/afe_plausibility.h"),
+            bld.srcnode.find_node("src/app/engine/database/database.h"),
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/driver/dma/dma.h"),
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/task/ftask/ftask.h"),
+            bld.srcnode.find_node("src/app/main/include/infinite-loop-helper.h"),
+            bld.srcnode.find_node("src/app/driver/io/io.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+            bld.srcnode.find_node("src/app/driver/pex/pex.h"),
+            bld.srcnode.find_node("src/os/freertos/freertos/include/queue.h"),
+            bld.srcnode.find_node("src/app/driver/spi/spi.h"),
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg.h"),
+            bld.srcnode.find_node("src/app/driver/ts/api/tsi.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+            "FOXBMS_AFE_DRIVER_ADI=1u",
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+        ],
+    )

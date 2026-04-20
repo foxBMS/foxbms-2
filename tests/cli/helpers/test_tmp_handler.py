@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -115,17 +115,20 @@ class TestTmpHandlerCheckForTmpDirectory(unittest.TestCase):
     def setUp(self):
         self.tmp_handler_obj = Mock()
         self.tmp_handler_obj._tmp_dir_parent = Path("Test")  # pylint: disable=protected-access
-        self.tmp_handler_obj._tmp_folder_prefix = "temp_data_foxcli_"  # pylint: disable=protected-access
+        self.tmp_handler_obj._tmp_directory_prefix = "temp_data_fox_cli_"  # pylint: disable=protected-access
 
     def test_tmp_dir_found(
         self, mock_iter_dir: Mock, mock_is_dir: Mock, mock_resolve: Mock
     ) -> None:
         """Tests the check_for_tmp_dir method in case no tmp dir is found"""
-        mock_iter_dir.return_value = [Path("wrong_name"), Path("temp_data_foxcli_test")]
+        mock_iter_dir.return_value = [
+            Path("wrong_name"),
+            Path("temp_data_fox_cli_test"),
+        ]
         mock_is_dir.return_value = True
-        mock_resolve.return_value = Path("temp_data_foxcli_test")
+        mock_resolve.return_value = Path("temp_data_fox_cli_test")
         found_tmp_dir = TmpHandler._check_for_tmp_directory(self.tmp_handler_obj)  # pylint: disable=protected-access
-        self.assertEqual(Path("temp_data_foxcli_test"), found_tmp_dir)
+        self.assertEqual(Path("temp_data_fox_cli_test"), found_tmp_dir)
         mock_resolve.assert_called_once()
 
     def test_tmp_dir_not_found(
@@ -147,7 +150,7 @@ class TestTmpHandlerCreateTmpDirectory(unittest.TestCase):
         """Creates the TmpHandler object"""
         self.tmp_handler_obj = Mock()
         self.tmp_handler_obj._tmp_dir_parent = Path("Test")  # pylint: disable=protected-access
-        self.tmp_handler_obj._tmp_folder_prefix = "temp_data_foxcli_"  # pylint: disable=protected-access
+        self.tmp_handler_obj._tmp_directory_prefix = "temp_data_fox_cli_"  # pylint: disable=protected-access
 
     def test_create_tmp_dir(self, mock_mkdtemp: Mock) -> None:
         """Tests the creation of a temporary directory"""
@@ -156,7 +159,7 @@ class TestTmpHandlerCreateTmpDirectory(unittest.TestCase):
         tmp_dir = TmpHandler._create_tmp_directory(self.tmp_handler_obj)  # pylint: disable=protected-access
         self.assertEqual(tmp_dir, Path("tmp_dir"))
         mock_mkdtemp.assert_called_once_with(
-            prefix="temp_data_foxcli_", dir=Path("parent")
+            prefix="temp_data_fox_cli_", dir=Path("parent")
         )
 
 

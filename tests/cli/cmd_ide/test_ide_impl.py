@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -58,30 +58,30 @@ class TestIdeImpl(unittest.TestCase):
 
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     def test_no_code(self, mock_which):
-        """code not available"""
+        """Code not available"""
         mock_which.return_value = None
-        with self.assertLogs(level="INFO") as cm:
+        with self.assertLogs("fox.py", level="INFO") as cm:
             result = ide_impl.open_ide()
         mock_which.assert_called_once_with("code")
         self.assertEqual(result, -1)
-        self.assertEqual(cm.output[0], "ERROR:root:Could not find 'code' binary.")
+        self.assertEqual(cm.output[0], "ERROR:fox.py:Could not find 'code' binary.")
 
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     def test_wd_does_not_exist(self, mock_which):
-        """code not available"""
+        """Code not available"""
         mock_which.return_value = "/path/to/code"
-        with self.assertLogs(level="INFO") as cm:
+        with self.assertLogs("fox.py", level="INFO") as cm:
             result = ide_impl.open_ide(wd=Path("a/b/c/d/e/f"))
         mock_which.assert_called_once_with("code")
         self.assertEqual(result, -1)
         self.assertRegex(
-            cm.output[0], r"ERROR\:root\:Working directory \'.*f\' does not exist\."
+            cm.output[0], r"ERROR\:fox\.py\:Working directory \'.*f\' does not exist\."
         )
 
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     @patch("cli.cmd_ide.ide_impl.run_process")
     def test_open_ide_generic(self, mock_run_process, mock_which):
-        """open generic"""
+        """Open generic"""
         mock_which.return_value = "/path/to/code"
         mock_run_process.return_value = SubprocessResult(0)
         result = ide_impl.open_ide_generic()
@@ -95,7 +95,7 @@ class TestIdeImpl(unittest.TestCase):
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     @patch("cli.cmd_ide.ide_impl.run_process")
     def test_open_ide_app(self, mock_run_process, mock_which):
-        """open app"""
+        """Open app"""
         mock_which.return_value = "/path/to/code"
         mock_run_process.return_value = SubprocessResult(0)
         result = ide_impl.open_ide_app()
@@ -112,7 +112,7 @@ class TestIdeImpl(unittest.TestCase):
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     @patch("cli.cmd_ide.ide_impl.run_process")
     def test_open_ide_bootloader(self, mock_run_process, mock_which):
-        """open bootloader"""
+        """Open bootloader"""
         mock_which.return_value = "/path/to/code"
         mock_run_process.return_value = SubprocessResult(0)
         result = ide_impl.open_ide_bootloader()
@@ -129,7 +129,7 @@ class TestIdeImpl(unittest.TestCase):
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     @patch("cli.cmd_ide.ide_impl.run_process")
     def test_open_open_ide_embedded_unit_test_app(self, mock_run_process, mock_which):
-        """open app unit tests"""
+        """Open app unit tests"""
         mock_which.return_value = "/path/to/code"
         mock_run_process.return_value = SubprocessResult(0)
         result = ide_impl.open_ide_embedded_unit_test_app()
@@ -146,7 +146,7 @@ class TestIdeImpl(unittest.TestCase):
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     @patch("cli.cmd_ide.ide_impl.run_process")
     def test_open_ide_embedded_unit_test_bootloader(self, mock_run_process, mock_which):
-        """open bootloader unit tests"""
+        """Open bootloader unit tests"""
         mock_which.return_value = "/path/to/code"
         mock_run_process.return_value = SubprocessResult(0)
         result = ide_impl.open_ide_embedded_unit_test_bootloader()
@@ -163,7 +163,7 @@ class TestIdeImpl(unittest.TestCase):
     @patch("cli.cmd_ide.ide_impl.shutil.which")
     @patch("cli.cmd_ide.ide_impl.run_process")
     def test_open_ide_cli(self, mock_run_process, mock_which):
-        """open bootloader unit tests"""
+        """Open bootloader unit tests"""
         mock_which.return_value = "/path/to/code"
         mock_run_process.return_value = SubprocessResult(0)
         result = ide_impl.open_ide_cli()

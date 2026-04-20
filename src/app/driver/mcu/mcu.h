@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mcu.h
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -63,14 +63,14 @@
 
 /**
  * @brief   largest pin number that exists in TMS570LC4357
- * @details Checked in the data sheet spnu563a: The largest pin number that is
+ * @details Checked in the datasheet spnu563a: The largest pin number that is
  *          used is 31.
  */
 #define MCU_LARGEST_PIN_NUMBER (31u)
 
 /**
  * @brief   maximum number of channels measured by the ADC1
- * @details Checked in the data sheet spnu563a: ADC1 supports 32 channels
+ * @details Checked in the datasheet spnu563a: ADC1 supports 32 channels
  */
 #define MCU_ADC1_MAX_NR_CHANNELS (32u)
 

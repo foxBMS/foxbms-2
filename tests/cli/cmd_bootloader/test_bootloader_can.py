@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,6 @@
 
 """Testing file 'cli/cmd_bootloader/bootloader_can.py'."""
 
-import logging
 import sys
 import time
 import unittest
@@ -78,9 +77,6 @@ except ModuleNotFoundError:
 
 
 # pylint: disable=unused-argument
-@patch.object(logging, "info", return_value=None)
-@patch.object(logging, "warning", return_value=None)
-@patch.object(logging, "error", return_value=None)
 @patch.object(time, "sleep", return_value=None)
 class TestBootloaderInterfaceCan(unittest.TestCase):
     """Class to test the class BootloaderInterfaceCan."""
@@ -141,9 +137,14 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         # in this case the return of wait_can_ack_msg is mocked.)
         self.bl.can.wait_can_ack_msg = MagicMock()
         self.bl.can.wait_can_ack_msg.return_value = None
-        ret_val_1_1, ret_val_2_1 = self.bl.send_crc(crc_8_bytes=0x2FFFFFFFFFFFFFFF)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_1_1, ret_val_2_1 = self.bl.send_crc(crc_8_bytes=0x2FFFFFFFFFFFFFFF)
         self.assertFalse(ret_val_1_1)
         self.assertFalse(ret_val_2_1)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot receive ACK message."],
+            log.output,
+        )
 
     def test_send_program_info(self, *args):
         """Function to test the function send_program_info()."""
@@ -183,8 +184,17 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "CanFsmState": CanFsmState.CanFsmStateError.value,
         }
         self.send_test_status_message(msg)
-        ret_val_2 = self.bl.send_program_info(16, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_2 = self.bl.send_program_info(16, 2)
         self.assertFalse(ret_val_2)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:The program info is not valid, check if the "
+                "program length is larger than the maximum and/or if the "
+                "num_of_transfer_loops is correct."
+            ],
+            log.output,
+        )
 
         # Case 4: if the returned can_fsm_state is not 'CanFsmStateWaitForDataLoops'
         # Send beforehand the valid ACK message
@@ -197,14 +207,30 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         self.send_test_ack_message(msg)
         self.bl.get_bootloader_state = MagicMock()
         self.bl.get_bootloader_state.return_value = (None, None)
-        ret_val_2 = self.bl.send_program_info(16, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_2 = self.bl.send_program_info(16, 2)
         self.assertFalse(ret_val_2)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Cannot change the state of CAN module to wait "
+                "for data loops."
+            ],
+            log.output,
+        )
 
         # Case 3: if the ack message is None
         self.bl.can.wait_can_ack_msg = MagicMock()
         self.bl.can.wait_can_ack_msg.return_value = None
-        ret_val_2 = self.bl.send_program_info(16, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_2 = self.bl.send_program_info(16, 2)
         self.assertFalse(ret_val_2)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Cannot receive the ACK message containing "
+                "'ReceivedAndProcessed'."
+            ],
+            log.output,
+        )
 
     def test_send_loop_number_to_bootloader(self, *args):
         """Function to test the function send_loop_number_to_bootloader()."""
@@ -269,14 +295,30 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         }
         self.send_test_status_message(msg)
 
-        ret_val_2 = self.bl.start_transfer()
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_2 = self.bl.start_transfer()
         self.assertFalse(ret_val_2)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Cannot set the CAN FSM state of the bootloader "
+                "to CanFsmStateWaitForInfo."
+            ],
+            log.output,
+        )
 
         # if the ack message is None
         self.bl.can.wait_can_ack_msg = MagicMock()
         self.bl.can.wait_can_ack_msg.return_value = None
-        ret_val_2 = self.bl.start_transfer()
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_2 = self.bl.start_transfer()
         self.assertFalse(ret_val_2)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Cannot receive the ACK message to start "
+                "transferring the program."
+            ],
+            log.output,
+        )
 
     def test_reset_bootloader(self, *args):
         """Function to test the function reset_bootloader()."""
@@ -331,8 +373,12 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
 
-        ret_val_2 = self.bl.reset_bootloader(time_to_wait=0.1)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_2 = self.bl.reset_bootloader(time_to_wait=0.1)
         self.assertFalse(ret_val_2)
+        self.assertEqual(
+            ["ERROR:fox.py:Bootloader cannot be successfully reset."], log.output
+        )
 
         ## Case 3: return false 2: invalid CAN fsm state
         # Send beforehand the valid ACK message
@@ -358,8 +404,12 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
 
-        ret_val_3 = self.bl.reset_bootloader(time_to_wait=0.1)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret_val_3 = self.bl.reset_bootloader(time_to_wait=0.1)
         self.assertFalse(ret_val_3)
+        self.assertEqual(
+            ["ERROR:fox.py:Bootloader cannot be successfully reset."], log.output
+        )
 
         ## Case 4: get_bootloader_state() fails at the first time
         # Send beforehand the valid ACK message
@@ -380,12 +430,28 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             (None, None),
             (None, None),
         ]
-        self.assertFalse(self.bl.reset_bootloader(time_to_wait=0.1))
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.reset_bootloader(time_to_wait=0.1)
+        self.assertFalse(ret)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Can not get the current number of data transfer "
+                "loops of bootloader.",
+                "ERROR:fox.py:Bootloader cannot be successfully reset.",
+            ],
+            log.output,
+        )
 
         ## Case 5: if the ack message is None
         self.bl.can.wait_can_ack_msg = MagicMock()
         self.bl.can.wait_can_ack_msg.return_value = None
-        self.assertFalse(self.bl.reset_bootloader(time_to_wait=0.1))
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.reset_bootloader(time_to_wait=0.1)
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot receive ACK message to reset boot process."],
+            log.output,
+        )
 
     def test_run_app_on_bootloader(self, *args):
         """Function to test the function run_app_on_bootloader()."""
@@ -431,7 +497,12 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         # Send beforehand an message that should send by foxBMS application
         message = can.Message(arbitration_id=0x220, data=bytes(8))
         self.can_bus.send(message)
-        self.assertFalse(self.bl.run_app_on_bootloader())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.run_app_on_bootloader()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:There is no valid program available on the BMS."], log.output
+        )
 
         # Case 3: if no foxBMS message has been received
         # Send beforehand an ACK message to indicate the reception of the the message
@@ -452,17 +523,35 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         self.send_test_ack_message(msg)
         self.bl.can.wait_can_message = MagicMock()
         self.bl.can.wait_can_message.return_value = None
-        self.assertFalse(self.bl.run_app_on_bootloader())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.run_app_on_bootloader()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Could not jump into the application."], log.output
+        )
 
         # Case 2: if wait_can_message return None
         self.bl.can.wait_can_message = MagicMock()
         self.bl.can.wait_can_message.return_value = None
-        self.assertFalse(self.bl.run_app_on_bootloader())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.run_app_on_bootloader()
+        self.assertFalse(ret)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Did not receive ACK message to run application.",
+            ],
+            log.output,
+        )
 
         # Case 3: if the first ack message is None
         self.bl.can.wait_can_ack_msg = MagicMock()
         self.bl.can.wait_can_ack_msg.return_value = None
-        self.assertFalse(self.bl.run_app_on_bootloader())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.run_app_on_bootloader()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Did not receive ACK message to run application."], log.output
+        )
 
         # Case 4: if the second ack message is None
         self.bl.can.wait_can_ack_msg = MagicMock()
@@ -473,7 +562,18 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "Response": YesNoFlag.No.value,
         }
         self.bl.can.wait_can_ack_msg.side_effect = [msg, None]
-        self.assertFalse(self.bl.run_app_on_bootloader())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.run_app_on_bootloader()
+        self.assertFalse(ret)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Did not receive ACK message with program "
+                "availability message.\n"
+                "There might be no application program available on the "
+                "BMS-Master.",
+            ],
+            log.output,
+        )
 
     def test_get_foxbms_state(self, *args):
         """Function to test the function get_foxbms_state()."""
@@ -496,9 +596,13 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         # Case 2: if the ack message is None
         self.bl.can.wait_bootloader_state_msg = MagicMock()
         self.bl.can.wait_bootloader_state_msg.return_value = None
-        can_fsm_state, boot_fsm_state = self.bl.get_bootloader_state()
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            can_fsm_state, boot_fsm_state = self.bl.get_bootloader_state()
         self.assertIsNone(can_fsm_state)
         self.assertIsNone(boot_fsm_state)
+        self.assertEqual(
+            ["ERROR:fox.py:Can not get the state of bootloader."], log.output
+        )
 
     def test_get_current_num_of_loops(self, *args):
         """Function to test the function get_current_num_of_loops()."""
@@ -513,7 +617,15 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         # Case 2: if the ack message is None
         self.bl.can.wait_data_transfer_info_msg = MagicMock()
         self.bl.can.wait_data_transfer_info_msg.return_value = None
-        self.assertIsNone(self.bl.get_current_num_of_loops())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bl.get_current_num_of_loops()
+        self.assertIsNone(ret)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Can not get the current number of data transfer loops of bootloader."
+            ],
+            log.output,
+        )
 
     @patch.object(BootloaderCanBasics, "wait_bootloader_version_info_msg")
     @patch.object(BootloaderCanBasics, "send_request_to_bootloader")
@@ -524,17 +636,21 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
         *args,
     ):
         """Function to test the function get_bootloader_version_num()."""
-
         # Case 1: no version number has been received
         mock_send_request_to_bootloader.return_value = None
         mock_wait_bootloader_version_info_msg.return_value = None
 
-        major_version_number, minor_version_number, patch_version_number = (
-            self.bl.get_bootloader_version_num()
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            major, minor, _patch = self.bl.get_bootloader_version_num()
+        self.assertIsNone(major)
+        self.assertIsNone(minor)
+        self.assertIsNone(_patch)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Can not get the current number of data transfer loops of bootloader."
+            ],
+            log.output,
         )
-        self.assertIsNone(major_version_number)
-        self.assertIsNone(minor_version_number)
-        self.assertIsNone(patch_version_number)
 
         # Case 2: version number has been successfully received
         mock_send_request_to_bootloader.return_value = None
@@ -544,12 +660,10 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "PatchVersionNumber": 4,
         }
 
-        major_version_number, minor_version_number, patch_version_number = (
-            self.bl.get_bootloader_version_num()
-        )
-        self.assertEqual(6, major_version_number)
-        self.assertEqual(2, minor_version_number)
-        self.assertEqual(4, patch_version_number)
+        major, minor, _patch = self.bl.get_bootloader_version_num()
+        self.assertEqual(6, major)
+        self.assertEqual(2, minor)
+        self.assertEqual(4, _patch)
 
     def send_test_ack_message(self, msg, *args):
         """Function to send a debug ack message."""

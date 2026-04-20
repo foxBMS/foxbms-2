@@ -9,10 +9,16 @@ Lauterbach Trace32 Debugger
 Required Hardware
 ^^^^^^^^^^^^^^^^^
 
-For debugging the |foxbms| application with the Lauterbach tools the
+For basic debugging of the |foxbms| application with Lauterbach tools, the
 following hardware is required:
 
-- Lauterbach LA-3505 debugger
+- Any of the following Lauterbach debuggers work:
+
+  - Lauterbach PowerDebug E40 (LA-3503)
+  - Lauterbach PowerDebug E50 (LA-3504)
+  - Lauterbach PowerDebug X50 (LA-3506)
+  - Lauterbach PowerDebug X51 (LA-3507)
+
 - Lauterbach LA-3253 Adapter for Cortex-A/R cores (successor of the LA-7843)
 - Lauterbach Mictor-38 adapter LA-3722
 
@@ -43,14 +49,17 @@ the Trace32 application.
 For details on where to find a ready configuration for |foxbms|, please refer
 to :numref:`WAF_TOOL_LAUTERBACH`.
 
-.. figure:: lauterbach-buttons.png
+.. drawio-figure:: lauterbach-buttons.drawio
+   :format: svg
    :alt: Buttons in the Lauterbach Trace32 environment
    :name: lauterbach-buttons
-   :width: 175
+   :width: 240px
 
-   Most relevant buttons in Trace32 from left to right: Select ELF file,
-   Download ELF to target, Load symbols, Unload symbols, Up and Go the target,
-   Up the target, Down the target
+   Most relevant buttons in Trace32 from left to right:
+   Application: 1) Select ELF file, 2) Download ELF to target, 3) Load symbols,
+   Bootloader: 4) Select ELF file, 5) Download ELF to target, 6) Load symbols,
+   All: 7) Reset all symbols,
+   Target: 8) Up and Go the target, 9) Up the target, 10) Down the target
 
 :numref:`lauterbach-buttons` shows the most relevant buttons in Trace32.
 For a normal download onto the target with a subsequent debug session you have

@@ -5,7 +5,7 @@ Added
 - Added testing for different versions of TI CSS (versions 10.0.0 and 10.1.1).
 - Added a readme to the hardware directory.
 - Added support for LTC 6804-1 (basically an older version of the LTC 6811-1).
-- Added the updated design files of the |foxbms| master v1.0.1.
+- Added the updated design files of the BMS-Master v1.0.1.
 
 Changed
 =======

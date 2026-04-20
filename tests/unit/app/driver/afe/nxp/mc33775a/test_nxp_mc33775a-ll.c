@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a-ll.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -268,7 +268,7 @@ void testN77x_CommunicationComposeMessage(void) {
         testCmd, testMasterAddress, testDeviceAddress, testRegisterAddress, testLength, &testValue, NULL_PTR));
 }
 
-void testN77x_CommunicationDecomposeMssage(void) {
+void testN77x_CommunicationDecomposeMessage(void) {
     uc_msg_t testMessage         = {0};
     uint16_t testCommand         = 0;
     uint16_t testMasterAddress   = 0;

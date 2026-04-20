@@ -31,7 +31,7 @@ The three main modules are:
   ``max_battery_management.c`` and
 - MAX1785x device driver in ``mxm_1785x.c``.
 - Implementation of the operation state machine in ``mxm_17852.c``.
-  This implementation is selected by the driver variant in ``bms.json``.
+  This implementation is selected by the driver variant in |bms-config-file|.
 
 Configuration
 -------------

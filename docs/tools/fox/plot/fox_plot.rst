@@ -31,7 +31,7 @@ the given directories.
     If the input-data contains a directory, the data-type has to be specified.
 
 If no output-directory is specified, a directory by the name
-``<year-month-dayThour_minute_second.millisecond>``
+``<year-month-day>T<hour_minute_second.millisecond>``
 is created in ``foxbms-2/build/plots`` and set as the output-directory.
 For each input-file a directory by the same name will be created in the
 output-directory in which the plots will be saved.
@@ -39,8 +39,8 @@ output-directory in which the plots will be saved.
 Configuration Files
 -------------------
 
-Two configuration files are needed to properly extract the data from the
-input-files and then plot this data.
+Two configuration files are needed to properly extract the data from
+``csv`` files and then plot this data.
 These files have to be yaml-files and need to have a certain structure to work
 with the tool, which will be explained in the following sections.
 
@@ -58,6 +58,7 @@ structure:
     - ``skip``: Specifies how many lines have to be skipped at the beginning of
       the file.
     - ``precision``: Specifies the precision of float values
+    - ``na_value``: Specifies the NaN values of with ``csv`` file.
 
 - ``columns``: List that contains all names of the columns to be extracted from
   the input-files with the corresponding value-type.
@@ -68,9 +69,16 @@ For each column, the following data types are supported: ``string``, ``float``,
 The following shows an example configuration.
 
 .. literalinclude:: img/csv_config.yaml
-    :language: yaml
-    :caption: Example Data Configuration for csv-input-files
-    :name: csv-data-configuration-file
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Example Data Configuration for csv-input-files
+   :name: csv-data-configuration-file
+
+.. hint::
+
+  If the input data are in ``parquet`` format a data configuration file is
+  not needed.
 
 Plot Configuration File
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -96,18 +104,22 @@ block has five main components:
       required).
     - ``date_format``: Defines the date format as explained
       `here <https://docs.python.org/3/library/datetime.
-      html#strftime-and-strptime-format-codes>`_.
+      html#strftime-and-strptime-format-codes>`_ (not required).
+    - ``start_date``: Defines the start date in UTC format for the x-axis (not required).
+    - ``time_factor``: Defines a factor the x-axis is divided by (not required).
+    - ``start``: Defines the start index of the data to be drawn (not required).
+    - ``end``: Defines the end index of the data to be drawn (not required).
     - The keys ``y1``, ``y2`` and ``y3`` are used for the graphs.
       Each graph has to contain the following:
 
         - ``input``: List which specifies the columns from which to take the
           data.
-        - ``factor``: Factor with which the results are multiplied at the end.
+        - ``factor``: Factor with which the results are multiplied at the end (not required).
         - ``labels``: Labels for each line which will be given in the legend
           (not required) at the end of this section.
           (Defaults to the default-type.)
-        - ``min``: The minimum value to which the y-axis will be set.
-        - ``max``: The maximum value to which the y-axis will be set.
+        - ``min``: The minimum value to which the y-axis will be set (not required).
+        - ``max``: The maximum value to which the y-axis will be set (not required).
 
 - ``description``:
 
@@ -129,8 +141,10 @@ block has five main components:
 
 
 .. literalinclude:: img/plot_config.yaml
-    :language: yaml
-    :caption: Configuration for the plots of the plot subcommand
+   :language: yaml
+   :start-after: start-include-in-docs
+   :end-before: stop-include-in-docs
+   :caption: Configuration for the plots of the plot subcommand
 
 Example
 -------

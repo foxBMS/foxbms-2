@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Implementation of the CRC64 Polynomial
+r"""Implementation of the CRC64 Polynomial
 x\\ :sup:`64` + x\\ :sup:`4` + x\\ :sup:`3` + x + 1
 
 See the document (available at https://www.ti.com/lit/an/spna235/spna235.pdf)
@@ -67,7 +67,7 @@ implemented in Python based on the example code from 'CRC64_calc.c'
 def generate_crc_64_for_tms570_on_board_crc_calculation(
     data_64_bits: int, crc_64_bits: int = 0
 ) -> int:
-    """Python-port of the TI CRC64 implementation
+    r"""Python-port of the TI CRC64 implementation
     x\\ :sup:`64` + x\\ :sup:`4` + x\\ :sup:`3` + x + 1
     test_data_1 = 0x1122334455667788, crc_1 = 12129596691791633497
     test_data_2 = 0x99AABBCCDDEEFF00, crc_2 = 13985017789367110321
@@ -111,6 +111,4 @@ def generate_crc_64_for_tms570_on_board_crc_calculation(
         )
 
     # Swap the crc_64_bits back
-    crc_64_bits = (next_crc >> 32) | ((next_crc & 0xFFFFFFFF) << 32)
-
-    return crc_64_bits
+    return (next_crc >> 32) | ((next_crc & 0xFFFFFFFF) << 32)

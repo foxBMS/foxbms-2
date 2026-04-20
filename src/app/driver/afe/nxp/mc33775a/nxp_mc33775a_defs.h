@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_defs.h
  * @author  foxBMS Team
  * @date    2020-09-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -68,7 +68,7 @@
 
 /* TODO: Determine which defines are version-specific*/
 /* Use of mux for temperature measurement */
-#define N77X_USE_MUX_FOR_TEMP (true)
+#define N77X_USE_MUX_FOR_TEMP (SLV_USE_MUX_FOR_TEMP)
 /* Read mux state after setting it */
 #define N77X_CHECK_MUX_STATE (true)
 /* Check supply current (part of MC33775A DIAG) */
@@ -76,12 +76,12 @@
 /* Broadcast address for the N775 slaves */
 #define N77X_BROADCAST_ADDRESS (63u)
 
-/** N775 Maximum wakeup to communication time in ms. Data sheet value: maximum 2.4 ms */
+/** N775 Maximum wakeup to communication time in ms. Datasheet value: maximum 2.4 ms */
 #define N77X_T_WAKE_COM_MS (3u)
-/** N775 switching time from active to deep sleep mode. Da sheet value: maximum 0.3 ms */
+/** N775 switching time from active to deep sleep mode. Datasheet value: maximum 0.3 ms */
 #define N77X_T_SW_ACT_DEEP_SLEEP_MS (1u)
 /** Waiting time between entering in cyclic mode and start of conversation.
- *  Data sheet value: minimum 5.0 ms */
+ *  Datasheet value: minimum 5.0 ms */
 #define N77X_T_WAIT_CYC_SOC_MS (6u)
 
 /* Timeout in 10ms to go into sleep, max 255 (corresponding to 2550ms) */
@@ -102,11 +102,21 @@
 #define N77X_MEASUREMENT_READY_TIME_MS (1u)
 /* Value stored in N775A register when not valid */
 #define N77X_INVALID_REGISTER_VALUE (0x8000u)
+/* Invalid value converted to mV */
+#define N77X_INVALID_mV_VALUE (3867)
+/* Number of GPIO pins on one multiplexer */
+#define N77X_MUX_GPIOS_PER_MUX (8u)
 /* Length of the mux measurement sequence */
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE <= N77X_MUX_GPIOS_PER_MUX
 #define N77X_MUX_SEQUENCE_LENGTH (8u)
+#else
+#define N77X_MUX_SEQUENCE_LENGTH (18u)
+#endif
+/* Mux disable value */
+#define N77X_MUX_DISABLE_VALUE (0xFFu)
 /* Time in 10us for pause of balancing before measurement start */
 /* Wait time after capture must be increased if this value is too high */
-#define N77X_BALPAUSELEN_10US (100u)
+#define N77X_BAL_PAUSE_ENABLE_10us (100u)
 /**
  * Upper bits of ADG728 mux address byte
  *  Set to 0: bit2, bit1 (address), bit0 (R/W)
@@ -119,7 +129,9 @@
 /* Dummy byte for I2C, replaced by read data */
 #define N77X_I2C_DUMMY_BYTE (0x0u)
 /* GPIO position (0 to 7) used for multiplexed temperature measurement */
-#define N77X_MULTIPLEXER_TEMP_GPIO_POSITION (0u)
+/* For the 775 Slave board, MUX0 is on GPIO0 and MUX1 on GPIO1 */
+#define N77X_MULTIPLEXER_TEMP_GPIO_POSITION  (0u)
+#define N77X_MULTIPLEXER_TEMP_GPIO1_POSITION (2u)
 /* Global balancing timer (0x0 - 0xFFFF) */
 #define N77X_GLOBAL_BALANCING_TIMER (0xFFFFu)
 /* Pre-balancing timer (0x0 - 0xFFFF) */

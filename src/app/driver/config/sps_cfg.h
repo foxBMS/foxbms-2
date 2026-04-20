@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPS
  *
@@ -133,7 +133,7 @@
 
 /**
  * These bits and positions are defined in
- * figure 7 page 10 in data sheet Rev. 2 - 11 September 2019
+ * figure 7 page 10 in datasheet Rev. 2 - 11 September 2019
  */
 /** This bit is set to 0 for a read register access, to 1 for a write register access */
 #define SPS_RW_BIT_POSITION (15u)

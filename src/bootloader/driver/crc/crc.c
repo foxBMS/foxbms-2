@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    crc.c
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -52,6 +52,9 @@
  *          Redundancy Check (CRC) calculation functions
  * @details Contains software-based and hardware-based CRC calculation functions.
  */
+
+/* cspell:ignore CHCTRL CTRLPKT ELDOFFSET ELSOFFSET FRSOFFSET RTISETINTENA */
+/* cspell:ignore SETDMA */
 
 /*========== Includes =======================================================*/
 #include "general.h"
@@ -221,7 +224,7 @@ uint64_t CRC_SemiAutoCrcCalculation(uint32_t programAddress, uint32_t dataSizeIn
     sCrcParams.wdg_preload = 0u;
     /* The timeout counter is clocked by a pre-scaler clock which is permanently
     running at division 64 of HCLK clock. The following equation is from
-    data sheet SPNA235 August 2016 p. 10 formula 3.6.1 (3) */
+    datasheet SPNA235 August 2016 p. 10 formula 3.6.1 (3) */
     sCrcParams.block_preload = (g_dmaCTRLPKT.FRCNT * CRC_TIME_RTI_COMPARE_3_us * CRC_HCLK_FREQ_MHz) /
                                CRC_RATIO_HCLK_CRC_TIMEOUT_PRE_SCALER_CLOCK;
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  TODO
  *
@@ -65,9 +65,11 @@
 #include "HL_sys_core.h"
 
 #include "adc.h"
-#include "checksum.h"
 #include "diag.h"
 #include "dma.h"
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+#include "ethernet.h"
+#endif
 #include "foxmath.h"
 #include "fstd_types.h"
 #include "i2c.h"
@@ -76,7 +78,9 @@
 #include "os.h"
 #include "pwm.h"
 #include "spi.h"
-
+#if (defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1))
+#include "uart.h"
+#endif
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -107,9 +111,15 @@ int unit_test_main(void)
     LED_SetDebugLed();
     I2C_Initialize();
     DMA_Initialize();
+#if (defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1))
+    UART_Initialize();
+#endif
     PWM_Initialize();
     DIAG_Initialize(&diag_device);
     MATH_StartupSelfTest();
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+    ETH_Initialize();
+#endif
     const STD_RETURN_TYPE_e checkTimeHasPassedSelfTestReturnValue = OS_CheckTimeHasPassedSelfTest();
     FAS_ASSERT(checkTimeHasPassedSelfTestReturnValue == STD_OK);
 
@@ -123,13 +133,6 @@ int unit_test_main(void)
     if (OS_INIT_PRE_OS != os_boot) {
         /* Could not create Queues, Mutexes, Events and Tasks do not boot further from this point on */
         FAS_ASSERT(FAS_TRAP);
-    }
-
-    if (STD_OK != CHK_ValidateChecksum()) {
-        if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u)) {
-            /* Could not validate checksum do not boot further from this point on */
-            FAS_ASSERT(FAS_TRAP);
-        }
     }
 
     os_schedulerStartTime = OS_GetTickCount();

@@ -59,7 +59,7 @@ Brief state machine description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The state machine trigger function ``IMD_Trigger()`` is called periodically
-from the 100|_||ms| task.
+from the |100ms-task|.
 It starts in state ``IMD_FSM_STATE_HAS_NEVER_RUN`` after startup and
 transitions with the next call automatically to state
 ``IMD_FSM_STATE_UNINITIALIZED``.

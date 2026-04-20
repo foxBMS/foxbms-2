@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -534,13 +534,6 @@ extern void TEST_ADI_SaveRxToCellVoltageBuffer(
     uint8_t registerSet,
     ADI_VOLTAGE_STORE_LOCATION_e storeLocation) {
     ADI_SaveRxToCellVoltageBuffer(adiState, data, registerSet, storeLocation);
-}
-
-extern void TEST_ADI_GetVoltages(
-    ADI_STATE_s *adiState,
-    ADI_VOLTAGE_REGISTER_TYPE_e registerType,
-    ADI_VOLTAGE_STORE_LOCATION_e storeLocation) {
-    ADI_GetVoltages(adiState, registerType, storeLocation);
 }
 
 #endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cyclic.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -84,6 +84,7 @@ extern uint32_t CANTX_BmsState(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for state, used to send asynchronous
  *          bms state messages, for example when changing the state
@@ -103,6 +104,7 @@ extern uint32_t CANTX_BmsStateDetails(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for cell voltages
  * @param[in] message     contains the message ID, DLC and endianness
@@ -115,6 +117,7 @@ extern uint32_t CANTX_CellVoltages(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for cell temperatures
  * @param[in] message     contains the message ID, DLC and endianness
@@ -127,6 +130,7 @@ extern uint32_t CANTX_CellTemperatures(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for limit values
  * @param[in] message     contains the message ID, DLC and endianness
@@ -139,18 +143,33 @@ extern uint32_t CANTX_PackLimits(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
- * @brief   CAN Tx callback function for min/max values
+ * @brief   CAN Tx callback function for min/max voltages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] pCanData    payload of can frame
  * @param[in] pMuxId      multiplexer for multiplexed CAN messages
  * @param[in] kpkCanShim  shim to the database entries
  */
-extern uint32_t CANTX_PackMinimumMaximumValues(
+extern uint32_t CANTX_PackMinimumMaximumVoltage(
     CAN_MESSAGE_PROPERTIES_s message,
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   CAN Tx callback function for min/max temperatures
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] pCanData    payload of can frame
+ * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANTX_PackMinimumMaximumTemp(
+    CAN_MESSAGE_PROPERTIES_s message,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for state estimation values
  * @param[in] message     contains the message ID, DLC and endianness
@@ -175,6 +194,7 @@ extern uint32_t CANTX_PackValuesP0(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for pack values values
  * @param[in] message     contains the message ID, DLC and endianness
@@ -200,6 +220,7 @@ extern uint32_t CANTX_StringState(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for string values
  * @param[in] message     contains the message ID, DLC and endianness
@@ -212,6 +233,7 @@ extern uint32_t CANTX_StringValuesP0(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for string values 2
  * @param[in] message     contains the message ID, DLC and endianness
@@ -224,18 +246,33 @@ extern uint32_t CANTX_StringValuesP1(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
 /**
- * @brief   CAN Tx callback function for string minimum and maximum values
+ * @brief   CAN Tx callback function for string minimum and maximum voltage
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] pCanData    payload of can frame
  * @param[in] pMuxId      multiplexer for multiplexed CAN messages
  * @param[in] kpkCanShim  shim to the database entries
  */
-extern uint32_t CANTX_StringMinimumMaximumValues(
+extern uint32_t CANTX_StringMinimumMaximumVoltage(
     CAN_MESSAGE_PROPERTIES_s message,
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   CAN Tx callback function for string minimum and maximum temperature
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] pCanData    payload of can frame
+ * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANTX_StringMinimumMaximumTemp(
+    CAN_MESSAGE_PROPERTIES_s message,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s *const kpkCanShim);
+
 /**
  * @brief   CAN Tx callback function for string state estimation
  * @param[in] message     contains the message ID, DLC and endianness
@@ -248,6 +285,20 @@ extern uint32_t CANTX_StringStateEstimation(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   CAN Tx callback function for the sys state
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] pCanData    payload of can frame
+ * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANTX_SysState(
+    CAN_MESSAGE_PROPERTIES_s message,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s *const kpkCanShim);
+
 /** @} */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
@@ -307,12 +358,19 @@ extern void TEST_CANTX_BuildPackLimitsMessage(uint64_t *pMessageData, const CAN_
 
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-minimum-maximum-values.c */
 extern int16_t TEST_CANTX_GetPackMaximumVoltage(const CAN_SHIM_s *const kpkCanShim);
+extern uint8_t TEST_CANTX_GetStringPackMaximumVoltage(const CAN_SHIM_s *const kpkCanShim);
 extern int16_t TEST_CANTX_GetPackMinimumVoltage(const CAN_SHIM_s *const kpkCanShim);
+extern uint8_t TEST_CANTX_GetStringPackMinimumVoltage(const CAN_SHIM_s *const kpkCanShim);
 extern int16_t TEST_CANTX_GetPackMaximumTemperature(const CAN_SHIM_s *const kpkCanShim);
+extern int16_t TEST_CANTX_GetStringPackMaximumTemperature(const CAN_SHIM_s *const kpkCanShim);
 extern int16_t TEST_CANTX_GetPackMinimumTemperature(const CAN_SHIM_s *const kpkCanShim);
+extern int16_t TEST_CANTX_GetStringPackMinimumTemperature(const CAN_SHIM_s *const kpkCanShim);
 extern uint64_t TEST_CANTX_CalculatePackMaximumTemperature(const CAN_SHIM_s *const kpkCanShim);
 extern uint64_t TEST_CANTX_CalculatePackMinimumTemperature(const CAN_SHIM_s *const kpkCanShim);
-extern void TEST_CANTX_BuildPackMinimumMaximumValuesMessage(const CAN_SHIM_s *const kpkCanShim, uint64_t *pMessageData);
+extern void TEST_CANTX_BuildPackMinimumMaximumVoltageMessage(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint64_t *pMessageData);
+extern void TEST_CANTX_BuildPackMinimumMaximumTempMessage(const CAN_SHIM_s *const kpkCanShim, uint64_t *pMessageData);
 
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_pack-state-estimation.c */
 extern uint64_t TEST_CANTX_CalculateMaximumPackSoc(const CAN_SHIM_s *const kpkCanShim);
@@ -342,7 +400,11 @@ extern uint64_t TEST_CANTX_GetInsulationResistance(const CAN_SHIM_s *const kpkCa
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-minimum-maximum-values.c */
 extern uint64_t TEST_CANTX_CalculateStringMaximumTemperature(uint8_t stringNumber, const CAN_SHIM_s *const kpkCanShim);
 extern uint64_t TEST_CANTX_CalculateStringMinimumTemperature(uint8_t stringNumber, const CAN_SHIM_s *const kpkCanShim);
-extern void TEST_CANTX_BuildStringMessage(
+extern void TEST_CANTX_BuildStringTemperatureMessage(
+    uint64_t *pMessageData,
+    uint8_t stringNumber,
+    const CAN_SHIM_s *const kpkCanShim);
+extern void TEST_CANTX_BuildStringVoltageMessage(
     uint64_t *pMessageData,
     uint8_t stringNumber,
     const CAN_SHIM_s *const kpkCanShim);
@@ -360,7 +422,25 @@ extern void TEST_CANTX_BuildStringStateEstimationMessage(
     const CAN_SHIM_s *const kpkCanShim);
 
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-state.c */
-/* no static functions for that translation unit */
+extern void TEST_CANTX_SetMslFlags(const CAN_SHIM_s *const kpkCanShim, uint64_t *pMessageData, uint8_t stringNumber);
+extern void TEST_CANTX_SetMolFlags(const CAN_SHIM_s *const kpkCanShim, uint64_t *pMessageData, uint8_t stringNumber);
+extern void TEST_CANTX_SetRslFlags(const CAN_SHIM_s *const kpkCanShim, uint64_t *pMessageData, uint8_t stringNumber);
+extern void TEST_CANTX_SetCurrentSensorFlags(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint64_t *pMessageData,
+    uint8_t stringNumber);
+extern void TEST_CANTX_SetPlausibilityFlags(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint64_t *pMessageData,
+    uint8_t stringNumber);
+extern void TEST_CANTX_SetOtherErrorFlags(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint64_t *pMessageData,
+    uint8_t stringNumber);
+extern void TEST_CANTX_BuildStringStateMessage(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint64_t *pMessageData,
+    uint8_t stringNumber);
 
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_string-values-p0.c */
 extern uint64_t TEST_CANTX_CalculateStringVoltage(uint8_t stringNumber, const CAN_SHIM_s *const kpkCanShim);

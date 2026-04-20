@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_moving_average.c
  * @author  foxBMS Team
  * @date    2020-07-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,21 +70,25 @@ TEST_SOURCE_FILE("moving_average.c")
 #define NUM_DATA_READ_SUB_CALLS (1)
 
 typedef struct {
-    DATA_BLOCK_CURRENT_SENSOR_s *curPow;
+    DATA_BLOCK_CURRENT_s *cur;
+    DATA_BLOCK_POWER_s *pow;
     DATA_BLOCK_MOVING_AVERAGE_s *movingAvg;
 } DATA_BLOCKS;
 
-DATA_BLOCK_CURRENT_SENSOR_s curPow_tab        = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+DATA_BLOCK_CURRENT_s cur_tab                  = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+DATA_BLOCK_POWER_s pow_tab                    = {.header.uniqueId = DATA_BLOCK_ID_POWER};
 DATA_BLOCK_MOVING_AVERAGE_s movingAverage_tab = {.header.uniqueId = DATA_BLOCK_ID_MOVING_AVERAGE};
 
 DATA_BLOCKS blocks = {
-    .curPow    = &curPow_tab,
+    .cur       = &cur_tab,
+    .pow       = &pow_tab,
     .movingAvg = &movingAverage_tab,
 };
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    curPow_tab.newCurrent = 1;
+    cur_tab.newCurrent = 1;
+    pow_tab.newPower   = 1;
 }
 
 void tearDown(void) {
@@ -93,20 +97,22 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /**
  * @brief   Iterate over a callback that supplies various scenarios and check if they work as expected
- * @details This function uses the callback #MockDATA_ReadBlock_Callback() in order to inject
+ * @details This function uses the callback #MockDATA_ReadBlocks_Callback() in order to inject
  *          other values into the returned database tables.
  */
-STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_calls) {
+STD_RETURN_TYPE_e MockDATA_ReadBlocks_Callback(void *pDataToReceiver1, void *pDataToReceiver2, int num_calls) {
     uint8_t newCurrent = 0;
+    uint8_t newPower   = 0;
 
     /* determine a value depending on num_calls (has to be synchronized with test) */
     switch (num_calls) {
         case 0:
             /* Set to new current value */
             newCurrent = 1;
+            newPower   = 1;
             break;
         default:
-            TEST_FAIL_MESSAGE("DATA_ReadBlock_Callback was called too often");
+            TEST_FAIL_MESSAGE("DATA_ReadBlocks_Callback was called too often");
     }
     /* ENTER HIGHEST CASE NUMBER IN EXPECT; checks whether all cases are used */
     TEST_ASSERT_EQUAL_MESSAGE(0, (NUM_DATA_READ_SUB_CALLS - 1), "Check code of stub. Something does not fit.");
@@ -116,17 +122,18 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
     }
 
     /* cast to correct struct */
-    ((DATA_BLOCK_CURRENT_SENSOR_s *)pDataToReceiver)->newCurrent = newCurrent;
+    ((DATA_BLOCK_CURRENT_s *)pDataToReceiver1)->newCurrent = newCurrent;
+    ((DATA_BLOCK_POWER_s *)pDataToReceiver2)->newPower     = newPower;
 
     return STD_OK;
 }
 
 void testALGO_MovingAverage(void) {
     /* tell CMock to use our callback */
-    DATA_Read1DataBlock_Stub(MockDATA_ReadBlock_Callback);
-    DATA_Read1DataBlock_ExpectAndReturn(&curPow_tab, STD_OK);
-    DATA_Read1DataBlock_Stub(NULL);
+    DATA_Read2DataBlocks_Stub(MockDATA_ReadBlocks_Callback);
+
     DATA_Read1DataBlock_ExpectAndReturn(&movingAverage_tab, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(&movingAverage_tab, STD_OK);
 
     ALGO_MovingAverage();
 }

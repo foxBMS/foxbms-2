@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,17 @@
  * @file    nxp_mc33775a_measurement.c
  * @author  foxBMS Team
  * @date    2025-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
  * @brief   Measurement functions of the MC33775A analog front-end driver.
  * @details TODO
  */
+
+/* cspell:ignore ALLM BALPAUSELEN CAPVC MEASEN NPNISENSE PAUSEBAL PRMM SECM */
+/* cspell:ignore VCVB */
 
 /*========== Includes =======================================================*/
 #include "nxp_mc3377x_measurement.h"
@@ -167,23 +170,50 @@ static void N775_RetrieveVoltages(N77X_STATE_s *pState, uint8_t m, uint16_t *pri
 }
 
 static void N775_RetrieveTemperatures(N77X_STATE_s *pState, uint8_t m, bool *gpio03Error, bool *gpio47Error) {
+    uint8_t muxId          = 0u;
+    uint8_t muxChannel     = 0u;
+    uint8_t sensorIdx      = 0u;
+    int16_t gpioVoltage_mV = 0u;
+
     /* Set temperature values */
     if (N77X_USE_MUX_FOR_TEMP == true) {
         /* Mux case */
-        if (*gpio03Error == false) {
-            pState->n77xData.cellTemperature
-                ->cellTemperature_ddegC[pState->currentString][m][pState->currentMux[pState->currentString]] =
-                N77x_ConvertVoltagesToTemperatures(
+        muxId      = pState->pMuxSequence[pState->currentString]->muxId;
+        muxChannel = pState->pMuxSequence[pState->currentString]->muxChannel;
+        sensorIdx  = muxId * N77X_MUX_GPIOS_PER_MUX + muxChannel;
+        /* sensorIdx shall only be at a valid position if mux is not disabled */
+        FAS_ASSERT(sensorIdx < N77X_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS || muxChannel == N77X_MUX_DISABLE_VALUE);
+
+        if (muxChannel != N77X_MUX_DISABLE_VALUE && sensorIdx < BS_NR_OF_TEMP_SENSORS_PER_MODULE) {
+            /* No temp read when mux in disable state or at an unused temp pin */
+            if (muxId == 0) {
+                /* Temp sensor 0-7 on Mux 0 */
+                gpioVoltage_mV =
                     pState->n77xData.allGpioVoltage
                         ->gpioVoltages_mV[pState->currentString]
-                                         [N77X_MULTIPLEXER_TEMP_GPIO_POSITION + (m * SLV_NR_OF_GPIOS_PER_MODULE)]);
-            pState->n77xData.cellTemperature
-                ->invalidCellTemperature[pState->currentString][m][pState->currentMux[pState->currentString]] = false;
+                                         [N77X_MULTIPLEXER_TEMP_GPIO_POSITION + (m * SLV_NR_OF_GPIOS_PER_MODULE)];
+            } else if (muxId == 1) {
+                /* Temp sensor 8-10 on Mux 1, including pressure sensor */
+                gpioVoltage_mV =
+                    pState->n77xData.allGpioVoltage
+                        ->gpioVoltages_mV[pState->currentString]
+                                         [N77X_MULTIPLEXER_TEMP_GPIO1_POSITION + (m * SLV_NR_OF_GPIOS_PER_MODULE)];
+            } else {
+                /* MuxSequence invalid */
+                FAS_ASSERT(FAS_TRAP);
+            }
+
+            /* Handle temperature values */
+            if ((gpioVoltage_mV < N77X_INVALID_mV_VALUE) && (*gpio03Error == false)) {
+                pState->n77xData.cellTemperature->cellTemperature_ddegC[pState->currentString][m][sensorIdx] =
+                    N77x_ConvertVoltagesToTemperatures(gpioVoltage_mV);
+                pState->n77xData.cellTemperature->invalidCellTemperature[pState->currentString][m][sensorIdx] = false;
+            } else {
+                pState->n77xData.cellTemperature->cellTemperature_ddegC[pState->currentString][m][sensorIdx]  = 0;
+                pState->n77xData.cellTemperature->invalidCellTemperature[pState->currentString][m][sensorIdx] = true;
+            }
         } else {
-            pState->n77xData.cellTemperature
-                ->cellTemperature_ddegC[pState->currentString][m][pState->currentMux[pState->currentString]] = 0;
-            pState->n77xData.cellTemperature
-                ->invalidCellTemperature[pState->currentString][m][pState->currentMux[pState->currentString]] = true;
+            /* Current mux is disabled or at a temp pin unused in the active configuration */
         }
     } else if (N77X_USE_MUX_FOR_TEMP == false) {
         /* No  mux case */
@@ -228,7 +258,10 @@ static void N775_RetrieveMeasurement(N77X_STATE_s *pState) {
 
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         uint8_t deviceAddress = m + 1u;
-        retValPrimary         = N77x_CommunicationReadMultiple(
+        gpio03Error           = false;
+        gpio47Error           = false;
+
+        retValPrimary = N77x_CommunicationReadMultiple(
             deviceAddress, 20, 4u, MC3377X_PRMM_APP_VC_CNT_OFFSET, primaryRawValues, pState);
         retValSecondary = N77x_CommunicationReadMultiple(
             deviceAddress, 4, 4u, MC3377X_SECM_APP_AIN4_OFFSET, secondaryRawValues, pState);
@@ -312,7 +345,7 @@ extern void N77x_StartMeasurement(N77X_STATE_s *pState) {
     N77x_CommunicationWrite(
         N77X_BROADCAST_ADDRESS,
         MC3377X_ALLM_CFG_OFFSET,
-        (N77X_BALPAUSELEN_10US << MC3377X_ALLM_CFG_BALPAUSELEN_POS) | (1 << MC3377X_ALLM_CFG_MEASEN_POS),
+        (N77X_BAL_PAUSE_ENABLE_10us << MC3377X_ALLM_CFG_BALPAUSELEN_POS) | (1 << MC3377X_ALLM_CFG_MEASEN_POS),
         pState->pSpiTxSequence);
     N77x_Wait(N77X_T_WAIT_CYC_SOC_MS);
 }

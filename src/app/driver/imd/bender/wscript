@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,10 +37,6 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Propagate the 'IMD'-driver build process to the lower level build scripts
-for the specific IMD model."""
-
 
 def build(bld):
-    """Propagate build process to a lower level build script"""
-    bld.recurse(bld.env.imd_model)
+    bld.recurse(bld.env.FOXBMS_IMD_MODEL)

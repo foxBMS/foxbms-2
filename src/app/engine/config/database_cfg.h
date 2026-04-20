@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -89,11 +89,18 @@ typedef enum {
     DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
     DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0,
     DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
-    DATA_BLOCK_ID_CURRENT_SENSOR,
+    DATA_BLOCK_ID_CURRENT,
+    DATA_BLOCK_ID_CURRENT_SENSOR_TEMPERATURE,
+    DATA_BLOCK_ID_POWER,
+    DATA_BLOCK_ID_CURRENT_COUNTER,
+    DATA_BLOCK_ID_ENERGY_COUNTER,
+    DATA_BLOCK_ID_SYSTEM_VOLTAGE_1,
+    DATA_BLOCK_ID_SYSTEM_VOLTAGE_2,
+    DATA_BLOCK_ID_SYSTEM_VOLTAGE_3,
     DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST,
     DATA_BLOCK_ID_ERROR_STATE,
     DATA_BLOCK_ID_HTSEN,
-    DATA_BLOCK_ID_INSULATION_MONITORING,
+    DATA_BLOCK_ID_INSULATION,
     DATA_BLOCK_ID_INTERLOCK_FEEDBACK,
     DATA_BLOCK_ID_MIN_MAX,
     DATA_BLOCK_ID_MOL_FLAG,
@@ -212,37 +219,98 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                    /*!< Data block header */
-    int32_t current_mA[BS_NR_OF_STRINGS];                          /*!< unit: mA */
-    uint8_t invalidCurrentMeasurement[BS_NR_OF_STRINGS];           /*!< 0: measurement valid, 1: measurement invalid */
-    uint8_t newCurrent;                                            /*!< 0: measurement valid, 1: measurement invalid */
-    uint32_t previousTimestampCurrent[BS_NR_OF_STRINGS];           /*!< timestamp of current measurement */
-    uint32_t timestampCurrent[BS_NR_OF_STRINGS];                   /*!< timestamp of current measurement */
-    int32_t sensorTemperature_ddegC[BS_NR_OF_STRINGS];             /*!< unit: 0.1&deg;C */
-    uint8_t invalidSensorTemperatureMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
-    int32_t power_W[BS_NR_OF_STRINGS];                             /*!< unit: W */
-    uint8_t invalidPowerMeasurement[BS_NR_OF_STRINGS];             /*!< 0: measurement valid, 1: measurement invalid */
-    uint8_t newPower;                                            /*!< counter that indicates a new power measurement */
-    uint32_t previousTimestampPower[BS_NR_OF_STRINGS];           /*!< previous timestamp of power measurement */
-    uint32_t timestampPower[BS_NR_OF_STRINGS];                   /*!< timestamp of power measurement */
-    int32_t currentCounter_As[BS_NR_OF_STRINGS];                 /*!< unit: A.s */
-    uint8_t invalidCurrentCountingMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
-    uint32_t previousTimestampCurrentCounting[BS_NR_OF_STRINGS]; /*!< previous timestamp of CC measurement */
-    uint32_t timestampCurrentCounting[BS_NR_OF_STRINGS];         /*!< timestamp of CC measurement */
-    int32_t energyCounter_Wh[BS_NR_OF_STRINGS];                  /*!< unit: Wh */
-    uint8_t invalidEnergyCountingMeasurement[BS_NR_OF_STRINGS];  /*!< 0: measurement valid, 1: measurement invalid */
-    uint32_t previousTimestampEnergyCounting[BS_NR_OF_STRINGS];  /*!< previous timestamp of EC measurement */
-    uint32_t timestampEnergyCounting[BS_NR_OF_STRINGS];          /*!< timestamp of EC measurement */
-    uint8_t invalidHighVoltageMeasurement[BS_NR_OF_STRINGS]
-                                         [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR];    /*!< 0: measurement valid, 1:
-                                                                                        measurement invalid */
-    int32_t highVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< unit: mV */
-    uint32_t previousTimestampHighVoltage[BS_NR_OF_STRINGS]
-                                         [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< previous timestamp of high
-                                                                                     voltage measurement */
-    uint32_t timestampHighVoltage[BS_NR_OF_STRINGS]
-                                 [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< timestamp of high voltage measurement */
-} DATA_BLOCK_CURRENT_SENSOR_s;
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    int32_t current_mA[BS_NR_OF_STRINGS];         /*!< unit: mA */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    uint8_t newCurrent;                           /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< timestamp of previous measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of current measurement */
+} DATA_BLOCK_CURRENT_s;
+
+/** data block struct of current sensor temperature measurement */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                        /*!< Data block header */
+    int32_t sensorTemperature_ddegC[BS_NR_OF_STRINGS]; /*!< unit: 0.1&deg;C */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS];      /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS];      /*!< previous timestamp of power measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];              /*!< timestamp of power measurement */
+} DATA_BLOCK_CURRENT_SENSOR_TEMPERATURE_s;
+
+/** data block struct of current sensor power measurement */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    int32_t power_W[BS_NR_OF_STRINGS];            /*!< unit: W */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    uint8_t newPower;                             /*!< counter that indicates a new power measurement */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< previous timestamp of power measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of power measurement */
+} DATA_BLOCK_POWER_s;
+
+/** data block struct of current counting */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    int32_t currentCounter_As[BS_NR_OF_STRINGS];  /*!< unit: A.s */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< previous timestamp of CC measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of CC measurement */
+} DATA_BLOCK_CURRENT_COUNTER_s;
+
+/** data block struct of current sensor energy counting */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    int32_t energyCounter_Wh[BS_NR_OF_STRINGS];   /*!< unit: Wh */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< previous timestamp of EC measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of EC measurement */
+} DATA_BLOCK_ENERGY_COUNTER_s;
+
+/** data block struct of current sensor voltage U1 measurement */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    int32_t highVoltage_mV[BS_NR_OF_STRINGS];     /*!< unit: mV */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< previous timestamp of high voltage measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of high voltage measurement */
+} DATA_BLOCK_SYSTEM_VOLTAGE_1_s;
+
+/** data block struct of current sensor voltage U2 measurement */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    int32_t highVoltage_mV[BS_NR_OF_STRINGS];     /*!< unit: mV */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< previous timestamp of high voltage measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of high voltage measurement */
+} DATA_BLOCK_SYSTEM_VOLTAGE_2_s;
+
+/** data block struct of current sensor voltage U3 measurement */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    uint8_t invalidMeasurement[BS_NR_OF_STRINGS]; /*!< 0: measurement valid, 1: measurement invalid */
+    int32_t highVoltage_mV[BS_NR_OF_STRINGS];     /*!< unit: mV */
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< previous timestamp of high voltage measurement */
+    uint32_t timestamp[BS_NR_OF_STRINGS];         /*!< timestamp of high voltage measurement */
+} DATA_BLOCK_SYSTEM_VOLTAGE_3_s;
 
 /** data structure declaration of DATA_BLOCK_BALANCING_CONTROL */
 typedef struct {
@@ -383,6 +451,7 @@ typedef struct {
     bool alertFlagSetError;                 /*!< true: ALERT situation detected, false: everything okay */
     bool aerosolAlert;                      /*!< true: high aerosol concentration detected */
     bool supplyVoltageClamp30cError;        /*!< false -> Supply voltage clamp 30C detected, true: no voltage on 30C */
+    bool afeAlarmLineError;                 /*!< true: alarm line error detected */
 } DATA_BLOCK_ERROR_STATE_s;
 
 /** data block struct of contactor feedback */
@@ -576,7 +645,7 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;         /*!< Data block header */
     bool isImdRunning;                  /*!< true -> Insulation resistance measurement active, false -> not active */
-    bool isInsulationMeasurementValid;  /*!< true -> resistance value valid, false -> resistance unreliable */
+    bool isMeasurementValid;            /*!< true -> resistance value valid, false -> resistance unreliable */
     uint32_t insulationResistance_kOhm; /*!< insulation resistance measured in kOhm */
     bool areDeviceFlagsValid; /*!< true -> flags below this database entry valid, false -> flags unreliable e.g. if
                                  device error detected */
@@ -588,7 +657,7 @@ typedef struct {
     bool dfIsChassisShortToHvMinus;      /*!< true: bias/tendency to the location of the insulation fault to HV minus */
     bool dfIsDeviceErrorDetected;        /*!< true: device error detected, false: no error detected */
     bool dfIsMeasurementUpToDate;        /*!< true: measurement up to-date, false: outdated */
-} DATA_BLOCK_INSULATION_MONITORING_s;
+} DATA_BLOCK_INSULATION_s;
 
 /** data block struct for the I2C humidity/temperature sensor */
 typedef struct {
@@ -639,6 +708,7 @@ typedef struct {
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    bool initialized;           /*!< true when phy initialized */
     bool aliveStatus;           /*!< true when phy is reachable */
     bool linkStatus;            /*!< true when phy is connected to network */
 } DATA_BLOCK_PHY_s;

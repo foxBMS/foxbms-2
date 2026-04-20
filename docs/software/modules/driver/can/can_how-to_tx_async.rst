@@ -9,7 +9,7 @@ In the symbol file the message is implemented as ``foxBMS_DebugResponse``
 (prefix ``foxBMS`` followed by the message name) and the message ID ``0x227``.
 As the message is transmitted (``tx``) from the point of view of the BMS, the
 comment in the symbol file must be
-``Message containing some debug information (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx)``.
+``Message containing some debug information (in:can_cbs_tx_f_debug-response.c:CANTX_DebugResponse, fv:tx)``.
 The changed symbol file must be saved and - as changes are applied - the dbc
 file must be exported again.
 
@@ -43,7 +43,7 @@ Callback Function
 """""""""""""""""
 
 The callback declaration must be done in file
-``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.h``.
+``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.h``.
 
 .. literalinclude:: ./can_how-to_tx_async.h
    :language: C
@@ -51,11 +51,11 @@ The callback declaration must be done in file
    :start-after: example-can-tx-asynchronous-messages-callback-declaration-start
    :end-before: example-can-tx-asynchronous-messages-callback-declaration-end
    :caption: Declaration of the callback function in
-             ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.h``
+             ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.h``
 
 The callback definition must be done in the appropriate implementation file,
 i.e., for the BMS state message in
-``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.c``.
+``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.c``.
 
 .. literalinclude:: ./can_how-to_tx_async.c
    :language: C
@@ -63,7 +63,7 @@ i.e., for the BMS state message in
    :start-after: example-can-tx-asynchronous-messages-callback-definition-start
    :end-before: example-can-tx-asynchronous-messages-callback-definition-end
    :caption: Definition of the callback function in
-             ``src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.c``
+             ``src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.c``
 
 As last step, the function ``CANTX_DebugResponse`` needs to be called in the
 appropriate code path of the user code.

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -78,9 +78,9 @@ static DATA_BLOCK_CELL_VOLTAGE_s bal_cellVoltage = {.header.uniqueId = DATA_BLOC
 static BAL_STATE_s bal_state = {
     .timer                  = 0,
     .stateRequest           = BAL_STATE_NO_REQUEST,
-    .state                  = BAL_STATEMACH_UNINITIALIZED,
+    .state                  = BAL_FSM_UNINITIALIZED,
     .substate               = BAL_ENTRY,
-    .lastState              = BAL_STATEMACH_UNINITIALIZED,
+    .lastState              = BAL_FSM_UNINITIALIZED,
     .lastSubstate           = 0,
     .triggerEntry           = 0,
     .errorRequestCounter    = 0,
@@ -141,8 +141,8 @@ static void BAL_ActivateBalancing(void) {
                         nrBalancedCells++;
                         cellBalancingCurrent = ((float_t)(bal_cellVoltage.cellVoltage_mV[s][m][cb])) /
                                                SLV_BALANCING_RESISTANCE_ohm;
-                        difference = (BAL_STATEMACH_BALANCING_TIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
-                        bal_state.active              = true;
+                        difference       = (BAL_FSM_BALANCING_TIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
+                        bal_state.active = true;
                         bal_balancing.enableBalancing = true;
                         /* we are working with unsigned integers */
                         if (difference > bal_balancing.deltaCharge_mAs[s][m][cb]) {
@@ -190,29 +190,29 @@ static void BAL_ProcessStateCheckBalancing(void) {
             bal_state.substate = BAL_CHECK_IMBALANCES;
         }
 
-        bal_state.timer = BAL_STATEMACH_SHORTTIME_100ms;
+        bal_state.timer = BAL_FSM_SHORTTIME_100ms;
         return;
     } else if (bal_state.substate == BAL_CHECK_IMBALANCES) {
         if (bal_state.active == true) {
             BAL_Deactivate();
         }
         if (BAL_CheckImbalances() == true) {
-            bal_state.state    = BAL_STATEMACH_BALANCE;
+            bal_state.state    = BAL_FSM_BALANCE;
             bal_state.substate = BAL_ENTRY;
         } else {
             bal_state.substate = BAL_COMPUTE_IMBALANCES;
         }
-        bal_state.timer = BAL_STATEMACH_SHORTTIME_100ms;
+        bal_state.timer = BAL_FSM_SHORTTIME_100ms;
         return;
     } else if (bal_state.substate == BAL_COMPUTE_IMBALANCES) {
         if (BMS_GetBatterySystemState() == BMS_AT_REST) {
             BAL_ComputeImbalances();
-            bal_state.state    = BAL_STATEMACH_BALANCE;
+            bal_state.state    = BAL_FSM_BALANCE;
             bal_state.substate = BAL_ENTRY;
         } else {
             bal_state.substate = BAL_CHECK_IMBALANCES;
         }
-        bal_state.timer = BAL_STATEMACH_SHORTTIME_100ms;
+        bal_state.timer = BAL_FSM_SHORTTIME_100ms;
         return;
     }
 }
@@ -226,16 +226,16 @@ static void BAL_ProcessStateBalancing(void) {
                 BAL_Deactivate();
             }
             bal_state.active   = false;
-            bal_state.substate = (BAL_STATEMACH_SUB_e)BAL_STATEMACH_CHECK_BALANCING;
+            bal_state.substate = (BAL_FSM_SUB_e)BAL_FSM_CHECK_BALANCING;
         } else {
             bal_state.substate = BAL_ACTIVATE_BALANCING;
         }
-        bal_state.timer = BAL_STATEMACH_SHORTTIME_100ms;
+        bal_state.timer = BAL_FSM_SHORTTIME_100ms;
         return;
     } else if (bal_state.substate == BAL_ACTIVATE_BALANCING) {
         DATA_BLOCK_MIN_MAX_s bal_minMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
         DATA_READ_DATA(&bal_minMax);
-        bal_state.timer = BAL_STATEMACH_BALANCING_TIME_100ms;
+        bal_state.timer = BAL_FSM_BALANCING_TIME_100ms;
         /* do not balance under a certain voltage level */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             if ((bal_minMax.minimumCellVoltage_mV[s] <= BAL_LOWER_VOLTAGE_LIMIT_mV) ||
@@ -245,7 +245,7 @@ static void BAL_ProcessStateBalancing(void) {
                 if (bal_state.active == true) {
                     BAL_Deactivate();
                 }
-                bal_state.state    = BAL_STATEMACH_CHECK_BALANCING;
+                bal_state.state    = BAL_FSM_CHECK_BALANCING;
                 bal_state.substate = BAL_ENTRY;
                 return;
             }
@@ -358,25 +358,25 @@ extern void BAL_Trigger(void) {
     }
 
     switch (bal_state.state) {
-        case BAL_STATEMACH_UNINITIALIZED:
+        case BAL_FSM_UNINITIALIZED:
             BAL_SaveLastStates(&bal_state);
             stateRequest = BAL_TransferStateRequest(&bal_state);
             BAL_ProcessStateUninitialized(&bal_state, stateRequest);
             break;
-        case BAL_STATEMACH_INITIALIZATION:
+        case BAL_FSM_INITIALIZATION:
             BAL_SaveLastStates(&bal_state);
             BAL_Init(&bal_balancing);
             BAL_ProcessStateInitialization(&bal_state);
             break;
-        case BAL_STATEMACH_INITIALIZED:
+        case BAL_FSM_INITIALIZED:
             BAL_SaveLastStates(&bal_state);
             BAL_ProcessStateInitialized(&bal_state);
             break;
-        case BAL_STATEMACH_CHECK_BALANCING:
+        case BAL_FSM_CHECK_BALANCING:
             BAL_SaveLastStates(&bal_state);
             BAL_ProcessStateCheckBalancing();
             break;
-        case BAL_STATEMACH_BALANCE:
+        case BAL_FSM_BALANCE:
             BAL_SaveLastStates(&bal_state);
             BAL_ProcessStateBalancing();
             break;
@@ -390,7 +390,7 @@ extern void BAL_Trigger(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern BAL_STATEMACH_e BAL_GetState(void) {
+extern BAL_FSM_e BAL_GetState(void) {
     return bal_state.state;
 }
 

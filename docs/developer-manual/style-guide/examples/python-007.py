@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,25 +39,13 @@
 
 """Example for platform independent code"""
 
-# ruff: noqa: E402,F841
-# pylint: disable=invalid-name,unused-argument,unused-variable,wrong-import-position
-import os
-import sys
+# ruff: noqa: D103,F841
+# pylint: disable=unused-argument,unused-variable
 
-WAF_DIR_BASE_NAME = "waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d"
-sys.path = [
-    os.path.abspath(f"./../../tools/{WAF_DIR_BASE_NAME}"),
-    os.path.abspath(f"./../../tools/.{WAF_DIR_BASE_NAME}"),
-] + sys.path
 
 # start-include-in-docs
-from waflib.Build import BuildContext
-
-
-def build(bld: BuildContext):
-    """builds something..."""
+def build(bld):
     # fmt: off
-    # pylint: disable=line-too-long
     includes = [
         # ...
         "some/very/long/path/that/leads/to/very/long/code/lines",
@@ -65,5 +53,4 @@ def build(bld: BuildContext):
         "some/very/long/path/that/leads/to/very/long/code/lines/subpath0/subpath1/subpath2",
         # ...
     ]
-    # pylint: enable=line-too-long
     # fmt: on

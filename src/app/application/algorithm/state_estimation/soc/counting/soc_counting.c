@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -55,6 +55,8 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "battery_cell_cfg.h"
+#include "battery_system_cfg.h"
 #include "soc_counting_cfg.h"
 
 #include "bms.h"
@@ -102,7 +104,8 @@ static SOC_STATE_s soc_state = {
 
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_CURRENT_SENSOR_s soc_tableCurrentSensor = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+static DATA_BLOCK_CURRENT_s soc_tableCurrent                = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+static DATA_BLOCK_CURRENT_COUNTER_s soc_tableCurrentCounter = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_COUNTER};
 /**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -185,6 +188,8 @@ static void SOC_SetValue(
     float_t socAverageValue_perc,
     uint8_t stringNumber) {
     FAS_ASSERT(pTableSoc != NULL_PTR);
+
+    DATA_READ_DATA(&soc_tableCurrentCounter);
     /* Set database values */
     pTableSoc->averageSoc_perc[stringNumber] = socAverageValue_perc;
     pTableSoc->minimumSoc_perc[stringNumber] = socMinimumValue_perc;
@@ -192,12 +197,9 @@ static void SOC_SetValue(
 
     if (soc_state.sensorCcUsed[stringNumber] == true) {
         /* Current sensor database entry is read before the call of SOC_SetValue */
-        float_t ccOffset_perc =
-            SOC_GetStringSocPercentageFromCharge((uint32_t)abs(soc_tableCurrentSensor.currentCounter_As[stringNumber]));
-
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-        ccOffset_perc *= (-1.0f);
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+        float_t ccOffset_perc = SOC_GetStringSocPercentageFromCharge(
+            (uint32_t)abs(soc_tableCurrentCounter.currentCounter_As[stringNumber]));
+        ccOffset_perc *= BS_CURRENT_DIRECTION_FLOAT;
 
         /* Recalibrate scaling values */
         soc_state.ccScalingAverage[stringNumber] = pTableSoc->averageSoc_perc[stringNumber] + ccOffset_perc;
@@ -253,31 +255,29 @@ static void SOC_UpdateNvmValues(DATA_BLOCK_SOC_s *pTableSoc, uint8_t stringNumbe
 void SE_InitializeStateOfCharge(DATA_BLOCK_SOC_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    DATA_READ_DATA(&soc_tableCurrentSensor);
+    DATA_READ_DATA(&soc_tableCurrent, &soc_tableCurrentCounter);
 
     FRAM_ReadData(FRAM_BLOCK_ID_SOC);
 
     if (ccPresent == true) {
         soc_state.sensorCcUsed[stringNumber] = true;
         soc_state.previousCurrentCountingValue_As[stringNumber] =
-            soc_tableCurrentSensor.currentCounter_As[stringNumber];
+            soc_tableCurrentCounter.currentCounter_As[stringNumber];
 
-        float_t scalingOffset_perc =
-            SOC_GetStringSocPercentageFromCharge((uint32_t)abs(soc_tableCurrentSensor.currentCounter_As[stringNumber]));
+        float_t scalingOffset_perc = SOC_GetStringSocPercentageFromCharge(
+            (uint32_t)abs(soc_tableCurrentCounter.currentCounter_As[stringNumber]));
 
-        if (soc_tableCurrentSensor.currentCounter_As[stringNumber] < 0) {
+        if (soc_tableCurrentCounter.currentCounter_As[stringNumber] < 0) {
             scalingOffset_perc *= (-1.0f);
         }
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-        scalingOffset_perc *= (-1.0f);
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+        scalingOffset_perc *= BS_CURRENT_DIRECTION_FLOAT;
 
         soc_state.ccScalingAverage[stringNumber] = fram_soc.averageSoc_perc[stringNumber] + scalingOffset_perc;
         soc_state.ccScalingMinimum[stringNumber] = fram_soc.minimumSoc_perc[stringNumber] + scalingOffset_perc;
         soc_state.ccScalingMaximum[stringNumber] = fram_soc.maximumSoc_perc[stringNumber] + scalingOffset_perc;
     } else {
-        soc_state.previousTimestamp[stringNumber] = soc_tableCurrentSensor.timestampCurrent[stringNumber];
+        soc_state.previousTimestamp[stringNumber] = soc_tableCurrent.timestamp[stringNumber];
         soc_state.sensorCcUsed[stringNumber]      = false;
     }
 
@@ -307,39 +307,34 @@ void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
     }
 
     if (continueFunction == true) {
-        /* Read current sensor entry for coulomb/current counting or CC recalibration */
-        DATA_READ_DATA(&soc_tableCurrentSensor);
-
         if (BMS_GetBatterySystemState() == BMS_AT_REST) {
             /* Recalibrate SOC via LUT */
             SOC_RecalibrateViaLookupTable(pSocValues);
         } else {
+            /* Read current sensor entry for coulomb/current counting or CC recalibration */
+            DATA_READ_DATA(&soc_tableCurrent, &soc_tableCurrentCounter);
             for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
                 if (soc_state.sensorCcUsed[s] == false) {
                     /* check if current measurement has been updated */
-                    if (soc_state.previousTimestamp[s] != soc_tableCurrentSensor.timestampCurrent[s]) {
+                    if (soc_state.previousTimestamp[s] != soc_tableCurrent.timestamp[s]) {
                         float_t timeStep_s =
-                            ((float_t)(soc_tableCurrentSensor.timestampCurrent[s] - soc_state.previousTimestamp[s])) /
-                            1000.0f;
+                            ((float_t)(soc_tableCurrent.timestamp[s] - soc_state.previousTimestamp[s])) / 1000.0f;
 
                         if (timeStep_s > 0.0f) {
                             /* Current in charge direction negative means SOC increasing --> BAT naming, not ROB */
 
-                            float_t deltaSOC_perc = (((float_t)soc_tableCurrentSensor.current_mA[s] * timeStep_s) /
-                                                     SOC_STRING_CAPACITY_mAs) *
-                                                    100.0f / 1000.0f; /* ((mA) * 1s) / 1As) * 100% */
+                            float_t deltaSOC_perc =
+                                (((float_t)soc_tableCurrent.current_mA[s] * timeStep_s) / SOC_STRING_CAPACITY_mAs) *
+                                100.0f; /* ((mA) * 1s) / 1As) * 100% */
 
-                            float_t charge_As =
-                                fabs((float_t)soc_tableCurrentSensor.current_mA[s] * timeStep_s / 1000.0f);
+                            float_t charge_As = fabs((float_t)soc_tableCurrent.current_mA[s] * timeStep_s / 1000.0f);
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-                            deltaSOC_perc *= (-1.0f);
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+                            deltaSOC_perc *= BS_CURRENT_DIRECTION_FLOAT;
 
                             pSocValues->averageSoc_perc[s] = pSocValues->averageSoc_perc[s] - deltaSOC_perc;
                             pSocValues->minimumSoc_perc[s] = pSocValues->minimumSoc_perc[s] - deltaSOC_perc;
                             pSocValues->maximumSoc_perc[s] = pSocValues->maximumSoc_perc[s] - deltaSOC_perc;
-                            if (BMS_GetCurrentFlowDirection(soc_tableCurrentSensor.current_mA[s]) == BMS_CHARGING) {
+                            if (BMS_GetCurrentFlowDirection(soc_tableCurrent.current_mA[s]) == BMS_CHARGING) {
                                 pSocValues->chargeThroughput_As[s] = pSocValues->chargeThroughput_As[s] + charge_As;
                             } else {
                                 /* When BMS_DISCHARGING and BMS_AT_REST add charge to dischargeThroughput*/
@@ -352,27 +347,25 @@ void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
                             /* Update values in non-volatile memory */
                             SOC_UpdateNvmValues(pSocValues, s);
                         }
-                        soc_state.previousTimestamp[s] = soc_tableCurrentSensor.timestampCurrent[s];
+                        soc_state.previousTimestamp[s] = soc_tableCurrent.timestamp[s];
                     } /* end check if current measurement has been updated */
                     /* update the variable for the next check */
                 } else {
                     /* check if cc measurement has been updated */
-                    if (soc_state.previousTimestamp[s] != soc_tableCurrentSensor.timestampCurrentCounting[s]) {
+                    if (soc_state.previousTimestamp[s] != soc_tableCurrentCounter.timestamp[s]) {
                         float_t deltaSoc_perc =
-                            ((float_t)soc_tableCurrentSensor.currentCounter_As[s] / SOC_STRING_CAPACITY_As) * 100.0f;
+                            ((float_t)soc_tableCurrentCounter.currentCounter_As[s] / SOC_STRING_CAPACITY_As) * 100.0f;
 
                         float_t chargeDifference_As = fabs(
-                            (float_t)soc_tableCurrentSensor.currentCounter_As[s] -
+                            (float_t)soc_tableCurrentCounter.currentCounter_As[s] -
                             soc_state.previousCurrentCountingValue_As[s]);
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-                        deltaSoc_perc *= (-1.0f);
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+                        deltaSoc_perc *= BS_CURRENT_DIRECTION_FLOAT;
 
                         pSocValues->averageSoc_perc[s] = soc_state.ccScalingAverage[s] - deltaSoc_perc;
                         pSocValues->minimumSoc_perc[s] = soc_state.ccScalingMinimum[s] - deltaSoc_perc;
                         pSocValues->maximumSoc_perc[s] = soc_state.ccScalingMaximum[s] - deltaSoc_perc;
-                        if (BMS_GetCurrentFlowDirection(soc_tableCurrentSensor.current_mA[s]) == BMS_CHARGING) {
+                        if (BMS_GetCurrentFlowDirection(soc_tableCurrent.current_mA[s]) == BMS_CHARGING) {
                             pSocValues->chargeThroughput_As[s] = pSocValues->chargeThroughput_As[s] +
                                                                  chargeDifference_As;
                         } else {
@@ -386,8 +379,8 @@ void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
 
                         /* Update values in non-volatile memory */
                         SOC_UpdateNvmValues(pSocValues, s);
-                        soc_state.previousCurrentCountingValue_As[s] = soc_tableCurrentSensor.currentCounter_As[s];
-                        soc_state.previousTimestamp[s] = soc_tableCurrentSensor.timestampCurrentCounting[s];
+                        soc_state.previousCurrentCountingValue_As[s] = soc_tableCurrentCounter.currentCounter_As[s];
+                        soc_state.previousTimestamp[s]               = soc_tableCurrentCounter.timestamp[s];
                     } /* end check if cc measurement has been updated */
                 }
             }

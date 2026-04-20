@@ -28,8 +28,9 @@
 .. |url_doxygen_releases| replace:: https://doxygen.nl/download.html
 
 .. |fox-cli| replace:: ``fox CLI``
+.. |fox-cli-api| replace:: ``fox CLI`` API
+.. |fox-cli-package| replace:: ``fox CLI`` package
 .. |fox-py| replace:: ``fox.py``
-.. |fox-py-api| replace:: ``fox.py`` API
 
 .. |graphviz| replace:: Graphviz
 .. |url_graphviz| replace:: https://graphviz.org/
@@ -190,5 +191,33 @@
 
 .. |tcp-ip-stack| replace:: TCP/IP stack
 .. |tcp-ip| replace:: TCP/IP
+.. |emac| replace:: EMAC
+.. |echo-server| replace:: Echo Server
 
 .. |lauterbach-debugger-shortcut| replace:: ``build/run_t32marm.lnk``
+
+.. |bootloader-host-application| replace:: Bootloader Host Application
+.. |embedded-bootloader| replace:: Embedded Bootloader
+
+.. |uart| replace:: UART
+
+.. |idle-task|             replace:: Idle Task
+.. |engine-task|           replace:: Engine Task
+.. |afe-task|              replace:: AFE Task
+.. |i2c-task|              replace:: I2C Task
+.. |uart-task|             replace:: UART Task
+.. |emac-task|             replace:: EMAC Task
+.. |1ms-task|              replace:: 1ms Task
+.. |10ms-task|             replace:: 10ms Task
+.. |100ms-task|            replace:: 100ms Task
+.. |100ms-algorithms-task| replace:: 100ms Algorithm Task
+.. |ip-task|               replace:: IP-Task
+.. |ip-application-tasks|  replace:: IP Application Tasks
+
+.. |bms-config-file| replace:: ``conf/bms/bms.json``
+.. |foxbms-sym| replace:: ``tools/dbc/foxbms.sym``
+.. |foxbms-dbc| replace:: ``tools/dbc/foxbms.dbc``
+
+.. |virtual-testing-platform| replace:: Virtual Testing Platform
+.. |vtp| replace:: VTP
+.. |hlcu| replace:: HLCU

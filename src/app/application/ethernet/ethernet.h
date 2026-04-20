@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,20 +42,22 @@
 /**
  * @file    ethernet.h
  * @author  foxBMS Team
- * @date    2025-30-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @date    2025-05-30 (date of creation)
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  ETH
  *
  * @brief   Header of the ethernet software
- * @details Here can the application part of the ethernet be placed. For example a TCP-sever.
+ * @details Here can the application part of the ethernet be placed.
+ *          For example a TCP-sever.
  */
 
 #ifndef FOXBMS__ETHERNET_H_
 #define FOXBMS__ETHERNET_H_
 
 /*========== Includes =======================================================*/
+#include "FreeRTOS_IP.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -63,10 +65,22 @@
 
 /*========== Extern Function Prototypes =====================================*/
 
+/**
+ * @brief Initialize the ethernet module.
+ * @details This function prepares initializes the diver layer to communicate
+ * with the TCP stack. This means initializing the PHY and EMAC driver and
+ * making the network parameters as the IP address accessible for the TCP stack.
+ *
+ */
 extern void ETH_Initialize(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+void TEST_ETH_EchoServerInstance(void *pParameters);
+extern void (*ETH_EchoServerInstance_Ptr)(void *pParameters);
+void TEST_ETH_ListenForConnection(void *pParameters);
+extern void (*ETH_ListenForConnection_Ptr)(void *pParameters);
+void TEST_ETH_ConfigureSlidingWindow(Socket_t socket);
 #endif
 
 #endif /* FOXBMS__ETHERNET_H_ */

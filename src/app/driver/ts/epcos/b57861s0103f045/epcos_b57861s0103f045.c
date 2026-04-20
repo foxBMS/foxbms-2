@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    epcos_b57861s0103f045.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -213,6 +213,7 @@ extern int16_t TS_Epc01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
 }
 
 extern int16_t TS_Epc01GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+    /* cspell:ignore vadc */
     float_t temperature_degC = 0.0f;
     float_t vadc_V           = adcVoltage_mV / 1000.0f;
     float_t vadc2            = vadc_V * vadc_V;

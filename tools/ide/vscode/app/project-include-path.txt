@@ -1,3 +1,4 @@
+@@ROOT@@/build
 @@ROOT@@/build/app_embedded/src/app/main
 @@ROOT@@/build/app_embedded/src/app/hal/include
 @@ROOT@@/build/app_embedded/src/app/hal/source
@@ -8,7 +9,6 @@
 @@ROOT@@/src/app/application/bal
 @@ROOT@@/src/app/application/bms
 @@ROOT@@/src/app/application/config
-@@ROOT@@/src/app/application/ethernet
 @@ROOT@@/src/app/application/plausibility
 @@ROOT@@/src/app/application/redundancy
 @@ROOT@@/src/app/application/soa
@@ -18,7 +18,6 @@
 @@ROOT@@/src/app/driver/can/cbs/rx
 @@ROOT@@/src/app/driver/can/cbs/tx-async
 @@ROOT@@/src/app/driver/can/cbs/tx-cyclic
-@@ROOT@@/src/app/driver/checksum
 @@ROOT@@/src/app/driver/config
 @@ROOT@@/src/app/driver/contactor
 @@ROOT@@/src/app/driver/crc
@@ -34,7 +33,6 @@
 @@ROOT@@/src/app/driver/mcu
 @@ROOT@@/src/app/driver/meas
 @@ROOT@@/src/app/driver/pex
-@@ROOT@@/src/app/driver/phy
 @@ROOT@@/src/app/driver/pwm
 @@ROOT@@/src/app/driver/rtc
 @@ROOT@@/src/app/driver/sbc
@@ -45,6 +43,7 @@
 @@ROOT@@/src/app/driver/ts/api
 @@ROOT@@/src/app/driver/ts/epcos/b57251v5103j060
 @@ROOT@@/src/app/driver/ts/epcos/b57861s0103f045
+@@ROOT@@/src/app/driver/ts/epcos/b57332v5103f360
 @@ROOT@@/src/app/driver/ts/fake/none
 @@ROOT@@/src/app/driver/ts/murata/ncxxxxh103
 @@ROOT@@/src/app/driver/ts/vishay/ntcalug01a103g
@@ -62,4 +61,5 @@
 @@ROOT@@/src/app/task/config
 @@ROOT@@/src/app/task/ftask
 @@ROOT@@/src/app/task/os
+@@ROOT@@/src/app/task/timer
 @@ROOT@@/src/version

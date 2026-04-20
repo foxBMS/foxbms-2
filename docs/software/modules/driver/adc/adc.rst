@@ -12,8 +12,8 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/adc.h/adc.c``
-- ``src/app/driver/adc.h/adc.h``
+- ``src/app/driver/adc/adc.c``
+- ``src/app/driver/adc/adc.h``
 
 Configuration
 ^^^^^^^^^^^^^

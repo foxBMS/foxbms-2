@@ -22,7 +22,7 @@ The steps of adding the sensor contain:
 - adding the sensor to the codebase (with lookup table and polynomial),
 - adding the sensor to the unit tests,
 - making known the relevant paths to |vs-code| and
-- using the sensor through ``bms.json``.
+- using the sensor through |bms-config-file|.
 
 Basic Directory Structure
 -------------------------
@@ -78,19 +78,19 @@ b. calculating the temperature with a polynomial function.
 
 Both methods are based on the actual sensor parameters that have to be
 supplied by the manufacturer.
-Often, the manufacturer supplies additional tools or tables in the data sheet
+Often, the manufacturer supplies additional tools or tables in the datasheet
 that allow to calculate both methods easily.
 
 For the lookup-table, a lookup-table containing the relation between
 temperature and resistance of the sensor has to be generated and stored in the
 file implementing it.
-It the responsibility of the implementation to make sure that
+It is the responsibility of the implementation to make sure that
 
 #. interpolation of values between two lookup-table entries,
 #. handling of input values outside the range of the lookup-table and
 #. general error-checking of inputs and outputs
 
-is implemented correctly.
+are implemented correctly.
 
 The polynomial implementation has to calculate the correct temperature from
 the measured voltage and uses for this purpose a set of pre-calculated
@@ -103,6 +103,21 @@ A temperature sensor does not have to implement both methods.
 In the case that one of the methods is not implemented the missing function
 must execute ``FAS_ASSERT(FAS_TRAP);`` when being called in order to make sure
 that this incorrect configuration is uncovered during debugging.
+
+To ensure the sensor's name is written correctly to the
+``ver_foxbmsBuildConfiguration`` struct, its short name has to be added to the
+``VER_TEMPERATURE_SENSOR_e`` enum in the ``app_build_cfg.h`` header.
+
+Furthermore, the ``get_temperature_sensor_name`` function in
+``create_app_build_cfg`` and its helper functions (there is one for each
+manufacturer) have to be updated or added, so the new sensor's short name can
+be retrieved from its complete name in ``bms.json``.
+
+Last but not least the sensor short name has to be added to the
+``f_TemperatureSensors`` enum in the ``foxbms.sym`` file.
+
+The enum's values must be equal to the one in ``app_build_cfg.h``,
+so the build configuration can be read out using CAN.
 
 Implementing the unit tests
 ---------------------------
@@ -137,7 +152,7 @@ Using the sensor
 ----------------
 
 In order to use the new temperature sensor it has to be configured in
-``bms.json``.
+|bms-config-file|.
 For the example the configuration would have to be:
 
 .. code-block::

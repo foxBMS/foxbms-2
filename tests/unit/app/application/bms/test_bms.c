@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -216,11 +216,11 @@ void resetStaticVariablesToDefault(void) {
 
 /*========== Test Cases =====================================================*/
 #define NUM_PRECHARGE_TESTS 13
-STD_RETURN_TYPE_e prechargeExpectedResults[BS_NR_OF_STRINGS][NUM_PRECHARGE_TESTS] = {0};
+BMS_RESULT_PRECHARGE_PROCESS_e prechargeExpectedResults[BS_NR_OF_STRINGS][NUM_PRECHARGE_TESTS] = {0};
 /*
  * mock callback in order to provide custom values to current_tab
  */
-STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_calls) {
+STD_RETURN_TYPE_e SetPrechargingValues(void *pDataToReceiver, int num_calls) {
     int32_t current   = 0;
     int32_t voltage_1 = 0;
     int32_t voltage_2 = 0;
@@ -228,104 +228,98 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
     /* determine a value depending on num_calls (has to be synchronized with test) */
     switch (num_calls) {
         case 0:
-            prechargeExpectedResults[0][0] = STD_OK;
+            prechargeExpectedResults[0][0] = BMS_PRECHARGING_FINISHED;
             /* no current, no voltage difference --> expect OK */
             current   = 0;
             voltage_1 = 0;
             voltage_2 = 0;
             break;
         case 1:
-            prechargeExpectedResults[0][1] = STD_NOT_OK;
+            prechargeExpectedResults[0][1] = BMS_PRECHARGING_ONGOING;
             /* INT32_MAX current, no voltage difference --> expect NOK */
             current   = INT32_MAX;
             voltage_1 = 0;
             voltage_2 = 0;
             break;
         case 2:
-            prechargeExpectedResults[0][2] = STD_NOT_OK;
+            prechargeExpectedResults[0][2] = BMS_PRECHARGING_ONGOING;
             /* INT32_MIN current, no voltage difference --> expect NOK */
             current   = INT32_MIN;
             voltage_1 = 0;
             voltage_2 = 0;
             break;
         case 3:
-            prechargeExpectedResults[0][3] = STD_OK;
+            prechargeExpectedResults[0][3] = BMS_PRECHARGING_FINISHED;
             /* no current, no voltage difference --> expect OK */
             current   = 0;
             voltage_1 = INT32_MAX;
             voltage_2 = INT32_MAX;
             break;
         case 4:
-            prechargeExpectedResults[0][4] = STD_OK;
+            prechargeExpectedResults[0][4] = BMS_PRECHARGING_FINISHED;
             /* no current, no voltage difference --> expect OK */
             current   = 0;
             voltage_1 = INT32_MIN;
             voltage_2 = INT32_MIN;
             break;
         case 5:
-            prechargeExpectedResults[0][5] = STD_NOT_OK;
+            prechargeExpectedResults[0][5] = BMS_PRECHARGING_ONGOING;
             /* no current, maximum voltage difference --> expect NOK */
             current   = 0;
             voltage_1 = INT32_MAX;
             voltage_2 = INT32_MIN;
             break;
         case 6:
-            prechargeExpectedResults[0][6] = STD_NOT_OK;
+            prechargeExpectedResults[0][6] = BMS_PRECHARGING_ONGOING;
             /* no current, maximum voltage difference --> expect NOK */
             current   = 0;
             voltage_1 = INT32_MIN;
             voltage_2 = INT32_MAX;
             break;
         case 7:
-            prechargeExpectedResults[0][7] = STD_NOT_OK;
+            prechargeExpectedResults[0][7] = BMS_PRECHARGING_ONGOING;
             /* current exactly at threshold, no voltage difference --> expect NOK */
             current   = BMS_PRECHARGE_CURRENT_THRESHOLD_mA;
             voltage_1 = 0;
             voltage_2 = 0;
             break;
         case 8:
-            prechargeExpectedResults[0][8] = STD_NOT_OK;
+            prechargeExpectedResults[0][8] = BMS_PRECHARGING_ONGOING;
             /* no current, voltage difference exactly at threshold --> expect NOK */
             current   = 0;
             voltage_1 = BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV;
             voltage_2 = 0;
             break;
         case 9:
-            prechargeExpectedResults[0][9] = STD_NOT_OK;
+            prechargeExpectedResults[0][9] = BMS_PRECHARGING_ONGOING;
             /* no current, voltage difference exactly at threshold --> expect NOK */
             current   = 0;
             voltage_1 = 0;
             voltage_2 = BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV;
             break;
         case 10:
-            prechargeExpectedResults[0][10] = STD_OK;
+            prechargeExpectedResults[0][10] = BMS_PRECHARGING_FINISHED;
             /* current exactly 1 below threshold, no voltage difference --> expect OK */
             current   = BMS_PRECHARGE_CURRENT_THRESHOLD_mA - 1;
             voltage_1 = 0;
             voltage_2 = 0;
             break;
         case 11:
-            prechargeExpectedResults[0][11] = STD_OK;
+            prechargeExpectedResults[0][11] = BMS_PRECHARGING_FINISHED;
             /* no current, voltage difference exactly 1 below threshold --> expect OK */
             current   = 0;
             voltage_1 = BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV - 1;
             voltage_2 = 0;
             break;
         case 12:
-            prechargeExpectedResults[0][12] = STD_OK;
+            prechargeExpectedResults[0][12] = BMS_PRECHARGING_FINISHED;
             /* no current, voltage difference exactly 1 below threshold --> expect OK */
             current   = 0;
             voltage_1 = 0;
             voltage_2 = BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV - 1;
             break;
         default:
-            TEST_FAIL_MESSAGE("DATA_ReadBlock_Callback was called too often");
-    }
-    /* ENTER HIGHEST CASE NUMBER IN EXPECT; checks whether all cases are used */
-    TEST_ASSERT_EQUAL_MESSAGE(12, (NUM_PRECHARGE_TESTS - 1), "Check code of stub. Something does not fit.");
-
-    if (num_calls >= NUM_PRECHARGE_TESTS) {
-        TEST_FAIL_MESSAGE("This stub is fishy, prechargeExpectedResults is too short for the number of calls");
+            TEST_FAIL_MESSAGE("Check code of stub. Something does not fit.");
     }
 
     /* Cast to correct struct in order to properly write current and other values,
@@ -344,29 +338,55 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
 }
 
 /**
- * @brief   Iterate over a callback that supplies various scenarios and check if they work as expected
- * @details This function uses the callback #MockDATA_ReadBlock_Callback() in order to inject
- *          current tables and voltage tables into the returned database tables. The array
- *          #prechargeExpectedResults contains prepared return values against which the output
- *          of #TEST_BMS_CheckPrecharge() is compared.
+ * @brief   Iterate over a function that supplies various scenarios and check if they work as expected
+ * @details This function uses the callback #SetPrechargingValues() in order to inject current tables
+ *          and voltage tables.
  */
-void testCheckPrechargeIterateStub(void) {
-    /* tell CMock to use our callback */
-    DATA_Read1DataBlock_Stub(MockDATA_ReadBlock_Callback);
-
+void testBMS_MonitorPrechargeProcess(void) {
     DATA_BLOCK_PACK_VALUES_s tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
-    /* iterate until we have all covered cases from our stub processed */
+    /* iterate until we have all covered cases from our stub processed
+     * TODO: Fix unit test again for all test cases */
     for (uint8_t i = 0u; i < NUM_PRECHARGE_TESTS; i++) {
+        /* Set precharging values to be tested */
+        SetPrechargingValues(&tablePackValues, i);
         char buffer[30];
         snprintf(buffer, 30, "Loop iteration %d.", i);
         for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-            DIAG_Handler_ExpectAndReturn(
-                DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
-            DIAG_Handler_ExpectAndReturn(
-                DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+            STD_RETURN_TYPE_e currentBelowLimit = STD_NOT_OK;
+            STD_RETURN_TYPE_e voltageBelowLimit = STD_NOT_OK;
+            if ((tablePackValues.invalidStringCurrent[s] == 0u) &&
+                ((MATH_AbsInt32_t(tablePackValues.stringCurrent_mA[s]) < BMS_PRECHARGE_CURRENT_THRESHOLD_mA))) {
+                currentBelowLimit = STD_OK;
+            }
+            if ((tablePackValues.invalidStringVoltage[s] == 0u) && (tablePackValues.invalidHvBusVoltage == 0u)) {
+                if ((MATH_AbsInt64_t(
+                        (int64_t)tablePackValues.stringVoltage_mV[s] -
+                        (int64_t)tablePackValues.highVoltageBusVoltage_mV)) < BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV) {
+                    voltageBelowLimit = STD_OK;
+                }
+            }
+            if ((currentBelowLimit == STD_OK) && (voltageBelowLimit == STD_OK)) {
+                /* BMS_PRECHARGING_FINISHED */
+                DIAG_Handler_ExpectAndReturn(
+                    DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+                DIAG_Handler_ExpectAndReturn(
+                    DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+            } else {
+                if (bms_state.currentSystick - bms_state.startOfPrecharging > BMS_MAXIMUM_PRECHARGE_DURATION_ms) {
+                    /* BMS_PRECHARGING_FAILED */
+                    DIAG_CheckEvent_ExpectAndReturn(
+                        STD_OK, DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_STRING, s, STD_OK);
+                    DIAG_CheckEvent_ExpectAndReturn(
+                        STD_OK, DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_STRING, s, STD_OK);
+                }
+                /* BMS_PRECHARGING_ONGOING */
+            }
             TEST_ASSERT_EQUAL_MESSAGE(
-                prechargeExpectedResults[s][i], TEST_BMS_CheckPrecharge(s, &tablePackValues), buffer);
+                prechargeExpectedResults[s][i],
+                TEST_BMS_MonitorPrechargeProcess(
+                    s, &tablePackValues, BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE, BMS_MAXIMUM_PRECHARGE_DURATION_ms),
+                buffer);
         }
     }
 }
@@ -442,20 +462,33 @@ void testBMS_CheckPrechargeInvalidStringNumber(void) {
     DATA_BLOCK_PACK_VALUES_s tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
     /* Invalid string number */
-    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(BS_NR_OF_STRINGS, &tablePackValues));
+    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_MonitorPrechargeProcess(
+        BS_NR_OF_STRINGS,
+        &tablePackValues,
+        BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE,
+        BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE));
 
     /* Invalid string number */
-    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(BS_NR_OF_STRINGS + 1u, &tablePackValues));
+    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_MonitorPrechargeProcess(
+        BS_NR_OF_STRINGS + 1u,
+        &tablePackValues,
+        BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE,
+        BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE));
 
     /* Invalid string number */
-    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(UINT8_MAX, &tablePackValues));
+    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_MonitorPrechargeProcess(
+        UINT8_MAX,
+        &tablePackValues,
+        BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE,
+        BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE));
 
     /* Valid string number */
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, 0u, DIAG_HANDLER_RETURN_OK);
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, 0u, DIAG_HANDLER_RETURN_OK);
-    TEST_ASSERT_PASS_ASSERT(TEST_BMS_CheckPrecharge(0u, &tablePackValues));
+    TEST_ASSERT_PASS_ASSERT(TEST_BMS_MonitorPrechargeProcess(
+        0u, &tablePackValues, BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE, BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE));
 }
 
 void testBMS_CheckCanRequest(void) {
@@ -597,7 +630,7 @@ void testBmsStateMessageIsRequested(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     /* change state request to init */
-    BMS_SetStateRequest(BMS_STATE_INIT_REQUEST);
+    BMS_SetStateRequest(BMS_STATE_INITIALIZATION_REQUEST);
     /* State changes to Initialisation state -> message transmitted */
     OS_GetTickCount_ExpectAndReturn(0u);
     OS_EnterTaskCritical_Expect();

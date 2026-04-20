@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,13 +39,13 @@
 
 """unit-test for plot_periods"""
 
-import logging
+import logging  # noqa: TID251
 import pathlib
 import unittest
 from io import StringIO
 from unittest.mock import patch
 
-import plot_periods  # pylint: disable=import-error
+import plot_periods
 
 TEST_FILE = pathlib.Path(__file__).parent / "test_log.txt"
 
@@ -72,9 +72,11 @@ class TestPlotPeriods(unittest.TestCase):
     def test_read_from_file(self, mock_stderr):
         """Check if the warning message is generated on entering a wrong file"""
         # Simulate command line args
-        with patch("sys.argv", ["plot_periods.py", "some.txt", "0220"]):
-            with self.assertRaises(SystemExit) as sys_exit:
-                plot_periods.main()
+        with (
+            patch("sys.argv", ["plot_periods.py", "some.txt", "0220"]),
+            self.assertRaises(SystemExit) as sys_exit,
+        ):
+            plot_periods.main()
         # Check the exit code
         self.assertEqual(sys_exit.exception.code, 1)
         # Capture output

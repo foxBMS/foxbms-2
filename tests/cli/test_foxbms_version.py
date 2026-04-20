@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,9 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-
 """Testing file 'cli/foxbms_version.py'."""
 
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -52,33 +52,79 @@ except ModuleNotFoundError:
     from cli import foxbms_version
 
 
-class TestFoxbmsVersion(unittest.TestCase):
-    """TODO"""
+class TestExtractVersion(unittest.TestCase):
+    """Tests the 'extract_version' function"""
 
+    def test_no_match(self):
+        """Regex does not match"""
+        txt = "Line 1\nLine 2\nLine 3"
+        mock_pattern = MagicMock()
+        mock_pattern.search.return_value = None
+        with self.assertRaises(SystemExit) as cm:
+            foxbms_version.extract_version(txt, mock_pattern)
+        self.assertEqual(cm.exception.code, "Could not determine foxBMS 2 version.")
+
+    def test_version_found(self):
+        """Regex matches"""
+        txt = """Text 2\nLine 5\nLine 7 2"""
+        result = foxbms_version.extract_version(
+            txt, re.compile(r"Line (\d{1,} \d{1,})")
+        )
+        self.assertEqual(result, "7 2")
+
+
+@patch("cli.foxbms_version.extract_version")
+class TestGetVersion(unittest.TestCase):
+    """Tests the 'get_version' function"""
+
+    @patch("cli.foxbms_version.Path.read_text")
     @patch("cli.foxbms_version.re.compile")
-    def test_get_version_regex_does_not_match(self, mock_compile):
-        """Regex does not match, test 0"""
-        mock_regex = MagicMock()
-        mock_compile.return_value = mock_regex
-        mock_regex.search.return_value = False
-        with self.assertRaises(SystemExit) as cm:
-            foxbms_version.get_version()
-        self.assertEqual(cm.exception.code, "Could not determine foxBMS 2 version.")
+    def test_no_error(
+        self,
+        mock_compile: MagicMock,
+        mock_read_text: MagicMock,
+        mock_extract_version: MagicMock,
+    ):
+        """Wscript file exists"""
+        txt = '''VERSION = "x.y.z"'''
+        mock_read_text.return_value = txt
+        regex = "pattern"
+        mock_compile.return_value = regex
+        foxbms_version.get_version()
+        mock_extract_version.assert_called_once_with(txt, regex)
 
     @patch("cli.foxbms_version.Path.read_text")
-    def test_get_version_expected_test_found(self, mock_read_text):
-        """Regex does match"""
-        mock_read_text.return_value = '''VERSION = "x.y.z"'''
-        result = foxbms_version.get_version()
-        self.assertEqual(result, "x.y.z")
+    @patch("cli.foxbms_version.re.compile")
+    def test_file_not_found_error(
+        self,
+        mock_compile: MagicMock,
+        mock_read_text: MagicMock,
+        mock_extract_version: MagicMock,
+    ):
+        """Wscript file does not exist"""
+        txt = '''VERSION = "x.y.z"'''
+        mock_read_text.side_effect = [FileNotFoundError, txt]
+        regex = "pattern"
+        mock_compile.return_value = regex
+        foxbms_version.get_version()
+        mock_extract_version.assert_called_once_with(txt, regex)
 
-    @patch("cli.foxbms_version.Path.read_text")
-    def test_get_version_bad_text(self, mock_read_text):
-        """Regex does match"""
-        mock_read_text.return_value = '''VERSION = "foo"'''
-        with self.assertRaises(SystemExit) as cm:
-            foxbms_version.get_version()
-        self.assertEqual(cm.exception.code, "Could not determine foxBMS 2 version.")
+
+@patch("cli.foxbms_version.get_version")
+class TestGetNumericVersion(unittest.TestCase):
+    """Tests the 'get_numeric_version' function"""
+
+    def test_letters(self, mock_get_version: MagicMock):
+        """Test converting from letters to numbers"""
+        mock_get_version.return_value = "x.y.z"
+        result = foxbms_version.get_numeric_version()
+        self.assertEqual(result, "120.121.122")
+
+    def test_numbers(self, mock_get_version: MagicMock):
+        """Test function when version is given with numbers"""
+        mock_get_version.return_value = "1.2.3"
+        result = foxbms_version.get_numeric_version()
+        self.assertEqual(result, "1.2.3")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,59 +37,257 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the common objects for ADES183x-based 'AFE'-drivers."""
 
-import os
+def build(bld):
+    op = f"{bld.env.APPNAME.lower()}-object-"
 
-from waflib.Build import BuildContext
+    bld.recurse(["api", "pec"])
+    bld.recurse(["config"])
 
-
-def build(bld: BuildContext):
-    """Build the common objects for ADES183x-based 'AFE'-drivers."""
-    source = [
-        "adi_ades183x.c",
-        "adi_ades183x_buffers.c",
-        "adi_ades183x_commands_voltages.c",
-        "adi_ades183x_commands.c",
-        "adi_ades183x_helpers.c",
-        "adi_ades183x_initialization.c",
-        "adi_ades183x_temperatures.c",
-        "adi_ades183x_voltages.c",
-        os.path.join("api", "adi_ades183x_afe.c"),
-        os.path.join("api", "adi_ades183x_afe_dma.c"),
-        os.path.join("config", "adi_ades183x_cfg.c"),
-        os.path.join("pec", "adi_ades183x_pec.c"),
-    ]
     # only build the diagnostics objects when these are available
-    if bld.path.find_node("diag/adi_ades183x_diagnostic.c"):
+    have_diagnostic_sources = bld.path.find_node("diag/adi_ades183x_diagnostic.c")
+    dummy = bld.path.find_or_declare("adi_ades183x_defs_diag.h")
+    if have_diagnostic_sources:
+        dummy.delete()
         bld.recurse("diag")
-    else:
-        source.append("adi_ades183x_diagnostic_w.c")
 
-    includes = [
-        os.path.join("..", "..", "..", "..", "config"),
-        os.path.join("..", "..", "..", "..", "mcu"),
-        os.path.join("..", "..", "..", "..", "pex"),
-        os.path.join("..", "..", "..", "..", "rtc"),
-        os.path.join("..", "..", "..", "..", "spi"),
-        os.path.join("..", "..", "..", "..", "ts"),
-        os.path.join("..", "..", "..", "..", "ts", "api"),
-        os.path.join("..", "..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "..", "task", "ftask"),
-        os.path.join("..", "..", "..", "..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver-adi-ades183x-common"
+    if not have_diagnostic_sources:
+        includes = (
+            [
+                "../../../../config",
+                "../../../../spi",
+                "../../../../mcu",
+                "../../../../../engine/config",
+                "../../../../../engine/database",
+                "../../../../../engine/diag",
+                "../../../../../application/config",
+                "../../../../../main/include",
+                "../../../../../task/os",
+            ]
+            + [
+                bld.root.find_node(i).path_from(bld.path)
+                for i in bld.env.FOXBMS_INCLUDES_AFE
+            ]
+            + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        )
+        source = "adi_ades183x_diagnostic_w"
+        bld.objects(
+            source=f"{source}.c",
+            includes=includes,
+            cflags=bld.env.CFLAGS_FOXBMS,
+            target=f"{op}{source}",
+        )
+        data = "typedef enum {\n    ADI_SM_START,\n} ADI_DIAG_e;\n"
+        dummy.write(data, encoding="utf-8")
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../pex",
+            "../../../../rtc",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/config",
+            "../../../../../task/ftask",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x"
     bld.objects(
-        source=source,
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_buffers"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_commands_voltages"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_commands"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_helpers"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_initialization"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_temperatures"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    includes = (
+        [
+            "../../../../config",
+            "../../../../mcu",
+            "../../../../spi",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../main/include",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "adi_ades183x_voltages"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
     )

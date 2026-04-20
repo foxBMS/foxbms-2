@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -53,6 +53,9 @@
  */
 
 /*========== Includes =======================================================*/
+
+#include "foxbms_config.h"
+
 #include "spi.h"
 
 #include "HL_reg_spi.h"
@@ -66,6 +69,7 @@
 #include "mcu.h"
 #include "os.h"
 #include "spi_cfg-helper.h"
+#include "spi_cfg_initialization.h"
 
 #include <stdint.h>
 
@@ -258,7 +262,8 @@ static void SPI_InitializeChipSelects(void) {
 
 /*========== Extern Function Implementations ================================*/
 extern void SPI_Initialize(void) {
-    spiInit();
+    SPI_InitializeSpiInterfaces();
+    SPI_InitializeAfeSpecificSpiInterfaces();
     SPI_InitializeChipSelects();
 }
 
@@ -506,16 +511,14 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
 }
 
 extern STD_RETURN_TYPE_e SPI_Lock(uint8_t spi) {
-    /* AXIVION Routine Generic-MissingParameterAssert: spi: parameter accepts whole range */
+    FAS_ASSERT(spi < spi_nrBusyFlags);
 
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     OS_EnterTaskCritical();
-    if ((spi < spi_nrBusyFlags) && (spi_busyFlags[spi] == SPI_IDLE)) {
+    if (spi_busyFlags[spi] == SPI_IDLE) {
         spi_busyFlags[spi] = SPI_BUSY;
         retVal             = STD_OK;
-    } else {
-        retVal = STD_NOT_OK;
     }
     OS_ExitTaskCritical();
 
@@ -523,12 +526,10 @@ extern STD_RETURN_TYPE_e SPI_Lock(uint8_t spi) {
 }
 
 extern void SPI_Unlock(uint8_t spi) {
-    /* AXIVION Routine Generic-MissingParameterAssert: spi: parameter accepts whole range */
+    FAS_ASSERT(spi < spi_nrBusyFlags);
 
     OS_EnterTaskCritical();
-    if (spi < spi_nrBusyFlags) {
-        spi_busyFlags[spi] = SPI_IDLE;
-    }
+    spi_busyFlags[spi] = SPI_IDLE;
     OS_ExitTaskCritical();
 }
 

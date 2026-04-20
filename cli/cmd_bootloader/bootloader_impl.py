@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,60 +39,52 @@
 
 """Implements the functionalities behind the 'bootloader' command"""
 
-import logging
 import time
+
+# not used to actually log, therefore import is fine
+from collections.abc import Callable
 from dataclasses import asdict
+from logging import WARNING, Filter, LogRecord, getLogger  # noqa: TID251
+from pathlib import Path
+from typing import Any
 
 import can
 from can.typechecking import CanFilter
 from cantools import database
 
+from ..helpers import TOOL
 from ..helpers.click_helpers import echo, recho, secho
 from ..helpers.fcan import CanBusConfig
-from ..helpers.misc import APP_DBC_FILE, BOOTLOADER_DBC_FILE
+from ..helpers.logger import logger
+from ..helpers.path_options import FoxbmsFiles
 from .bootloader import Bootloader, BootloaderStatus
 from .bootloader_can import BootloaderInterfaceCan
 
-# Create the filter to prevent receiving the irrelevant can messages
-db_bootloader = database.load_file(BOOTLOADER_DBC_FILE)
-db_app = database.load_file(APP_DBC_FILE)
+# Filter for received can messages
 can_filters = []
-if isinstance(db_bootloader, database.can.database.Database):  # pragma: no cover
-    can_filters.extend(
-        [
-            CanFilter(can_id=message.frame_id, can_mask=0x7FF)
-            for message in db_bootloader.messages
-        ]
-    )
-if isinstance(db_app, database.can.database.Database):  # pragma: no cover
-    can_filters.extend(
-        [
-            CanFilter(can_id=message.frame_id, can_mask=0x7FF)
-            for message in db_app.messages
-        ]
-    )
 
 
-class RootFilter(logging.Filter):  # pylint:disable=too-few-public-methods
+class FoxPyFilter(Filter):  # pylint:disable=too-few-public-methods
     """Filter to prevent certain messages from being displayed."""
 
-    def filter(self, record):  # pragma: no cover
+    def filter(self, record: LogRecord) -> bool:  # pragma: no cover
+        """Filer ignorable messages"""
         messages_to_suppress = [
             "Can not get the state of bootloader.",
             "Can not get the current number of data transfer loops of bootloader.",
-            "Cannot get any status of bootloader successfully, check "
-            "the CAN connection and the power status of the hardware.",
-            "Can not get all information from bootloader, something went wrong",
+            "Can not retrieve any bootloader information.",
+            "Can not retrieve all bootloader information.",
         ]  # pragma: no cover
         return not any(
             msg in record.getMessage() for msg in messages_to_suppress
         )  # pragma: no cover
 
 
-class PcanFilter(logging.Filter):  # pylint:disable=too-few-public-methods
+class PcanFilter(Filter):  # pylint:disable=too-few-public-methods
     """Filter to prevent certain messages from being displayed."""
 
-    def filter(self, record):  # pragma: no cover
+    def filter(self, record: LogRecord) -> bool:  # pragma: no cover
+        """Filer ignorable messages"""
         messages_to_suppress = [
             "Bus error: an error counter reached the 'heavy'/'warning' limit",
         ]  # pragma: no cover
@@ -101,27 +93,56 @@ class PcanFilter(logging.Filter):  # pylint:disable=too-few-public-methods
         )  # pragma: no cover
 
 
+def _create_filter(app_dbc: Path, bootloader_dbc: Path) -> None:
+    """Create the filter to prevent receiving the irrelevant can messages"""
+    db_bootloader = database.load_file(bootloader_dbc)
+    db_app = database.load_file(app_dbc)
+    if isinstance(db_bootloader, database.can.database.Database):  # pragma: no cover
+        can_filters.extend(
+            [
+                CanFilter(can_id=message.frame_id, can_mask=0x7FF)
+                for message in db_bootloader.messages
+            ]
+        )
+    if isinstance(db_app, database.can.database.Database):  # pragma: no cover
+        can_filters.extend(
+            [
+                CanFilter(can_id=message.frame_id, can_mask=0x7FF)
+                for message in db_app.messages
+            ]
+        )
+
+
 def _add_filters() -> None:
-    # Get the logger
-    root_logger = logging.getLogger()
-    pcan_logger = logging.getLogger("can.pcan")
-    # Add the custom filters to the loggers to disable specified messages
-    root_logger.addFilter(RootFilter())
+    fox_py_logger = getLogger(TOOL)
+    fox_py_logger.addFilter(FoxPyFilter())
+    pcan_logger = getLogger("can.pcan")
     pcan_logger.addFilter(PcanFilter())
 
 
-def _instantiate_bootloader(can_bus: can.BusABC) -> Bootloader:
+def _instantiate_bootloader(
+    can_bus: can.BusABC,
+    app_dbc: Path,
+    bootloader_dbc: Path,
+    foxbms_files: FoxbmsFiles,
+) -> Bootloader:
     can_bus.set_filters(can_filters)
-    interface = BootloaderInterfaceCan(can_bus=can_bus)
-    bl = Bootloader(interface=interface)
-    return bl
+    interface = BootloaderInterfaceCan(
+        can_bus=can_bus, app_dbc=app_dbc, bootloader_dbc=bootloader_dbc
+    )
+    return Bootloader(
+        interface=interface,
+        app=foxbms_files.foxbms_bin_file,
+        crc_table=foxbms_files.foxbms_app_crc_file,
+        program_info=foxbms_files.foxbms_app_info_file,
+    )
 
 
 def _check_bootloader(bl: Bootloader) -> int:
     echo("Checking if the bootloader is online...")
     retval_check_target, _ = bl.check_target()
     if retval_check_target == 0:
-        echo("Bootloader is running.")
+        secho("Bootloader is running.", fg="green")
     elif retval_check_target == 1:
         recho("Bootloader is running, but some information is missing.")
     elif retval_check_target == 2:
@@ -144,16 +165,16 @@ def _check_bootloader_status(
         retval_check_target, bl_info = bl.check_target()
         if retval_check_target == 3:
             if first_check:
-                echo("Waiting for the bootloader to be powered on...")
+                secho("Waiting for the bootloader to be powered on...", fg="green")
                 first_check = False
         elif retval_check_target == 1:
             # Can not retrieve all information from bootloader, try again.
             pass
         elif retval_check_target == 0:
-            echo("Bootloader is online.")
+            secho("Bootloader is online.", fg="green")
             return 0, bl_info
         elif retval_check_target == 2:
-            echo("The foxBMS 2 application is running, aborting.")
+            secho("The foxBMS 2 application is running, aborting.", fg="yellow")
             return 2, bl_info
         else:
             recho("Unknown check value, aborting.")
@@ -162,10 +183,16 @@ def _check_bootloader_status(
     return 5, bl_info  # timeout
 
 
-def catch_bus_initialization_failures(fun):
+def catch_bus_initialization_failures[R](
+    fun: Callable[..., R],
+) -> Callable[..., int | R]:
     """Guard functions that use can.Bus objects"""
 
-    def wrap(*args, **kwargs):
+    def wrap(*args: Any, **kwargs: Any) -> int | R:  # noqa: ANN401
+        if not can_filters:
+            app_dbc = str(kwargs.get("app_dbc"))
+            bootloader_dbc = str(kwargs.get("bootloader_dbc"))
+            _create_filter(Path(app_dbc), Path(bootloader_dbc))
         try:
             return fun(*args, **kwargs)
         except can.exceptions.CanInitializationError as e:
@@ -186,32 +213,54 @@ def catch_bus_initialization_failures(fun):
 
 
 @catch_bus_initialization_failures
-def _check_bootloader_wrapper(*, bus_cfg: CanBusConfig) -> int:
+def _check_bootloader_wrapper(
+    *,
+    bus_cfg: CanBusConfig,
+    app_dbc: Path,
+    bootloader_dbc: Path,
+    foxbms_files: FoxbmsFiles,
+) -> int:
     with can.Bus(**asdict(bus_cfg)) as can_bus:
-        bl = _instantiate_bootloader(can_bus)
+        bl = _instantiate_bootloader(can_bus, app_dbc, bootloader_dbc, foxbms_files)
         return _check_bootloader(bl)
 
 
 @catch_bus_initialization_failures
-def check_bootloader(cfg: CanBusConfig | Bootloader) -> int:
+def check_bootloader(
+    cfg: CanBusConfig | Bootloader,
+    app_dbc: Path,
+    bootloader_dbc: Path,
+    foxbms_files: FoxbmsFiles,
+) -> int:
     """Check the status of the bootloader"""
     _add_filters()
     if isinstance(cfg, Bootloader):
         return _check_bootloader(cfg)
 
     if isinstance(cfg, CanBusConfig):
-        return _check_bootloader_wrapper(bus_cfg=cfg)
+        return _check_bootloader_wrapper(
+            bus_cfg=cfg,
+            app_dbc=app_dbc,
+            bootloader_dbc=bootloader_dbc,
+            foxbms_files=foxbms_files,
+        )
 
     recho("Invalid bootloader configuration.")
     return 99
 
 
 @catch_bus_initialization_failures
-def run_app(*, bus_cfg: CanBusConfig) -> int:
+def run_app(
+    *,
+    bus_cfg: CanBusConfig,
+    app_dbc: Path,
+    bootloader_dbc: Path,
+    foxbms_files: FoxbmsFiles,
+) -> int:
     """Send command to the bootloader to run the application."""
     with can.Bus(**asdict(bus_cfg)) as can_bus:
-        bd = _instantiate_bootloader(can_bus)
-        if check_bootloader(bd):
+        bd = _instantiate_bootloader(can_bus, app_dbc, bootloader_dbc, foxbms_files)
+        if check_bootloader(bd, app_dbc, bootloader_dbc, foxbms_files):
             return 1
         secho("Starting the application...")
         if not bd.run_app():
@@ -222,10 +271,17 @@ def run_app(*, bus_cfg: CanBusConfig) -> int:
 
 
 @catch_bus_initialization_failures
-def reset_bootloader(*, bus_cfg: CanBusConfig, timeout: float = 20.0) -> int:
+def reset_bootloader(
+    *,
+    bus_cfg: CanBusConfig,
+    timeout: float = 20.0,
+    app_dbc: Path,
+    bootloader_dbc: Path,
+    foxbms_files: FoxbmsFiles,
+) -> int:
     """Reset the bootloader."""
     with can.Bus(**asdict(bus_cfg)) as can_bus:
-        bl = _instantiate_bootloader(can_bus)
+        bl = _instantiate_bootloader(can_bus, app_dbc, bootloader_dbc, foxbms_files)
         _add_filters()
 
         bl_status, _ = _check_bootloader_status(bl, timeout)
@@ -242,10 +298,17 @@ def reset_bootloader(*, bus_cfg: CanBusConfig, timeout: float = 20.0) -> int:
 
 
 @catch_bus_initialization_failures
-def load_app(*, bus_cfg: CanBusConfig, timeout: float = 20.0) -> int:
+def load_app(
+    *,
+    bus_cfg: CanBusConfig,
+    timeout: float = 20.0,
+    app_dbc: Path,
+    bootloader_dbc: Path,
+    foxbms_files: FoxbmsFiles,
+) -> int:
     """Load a new binary on the target"""
     with can.Bus(**asdict(bus_cfg)) as can_bus:
-        bl = _instantiate_bootloader(can_bus)
+        bl = _instantiate_bootloader(can_bus, app_dbc, bootloader_dbc, foxbms_files)
         _add_filters()
 
         bl_status, bl_info = _check_bootloader_status(bl, timeout)
@@ -253,8 +316,8 @@ def load_app(*, bus_cfg: CanBusConfig, timeout: float = 20.0) -> int:
             return bl_status
 
         echo("Uploading application to target...")
-        logging_level = logging.getLogger().getEffectiveLevel()
-        show_progressbar = logging_level >= logging.WARNING
+        logging_level = logger.getEffectiveLevel()
+        show_progressbar = logging_level >= WARNING
         if not bl.send_app_binary(bl_info, show_progressbar=show_progressbar):
             recho(
                 "Sending the application binary to the bootloader was not successful."

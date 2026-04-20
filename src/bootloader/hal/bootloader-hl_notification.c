@@ -35,8 +35,8 @@
 /**
  * @file    bootloader-hl_notification.c
  * @date    11-Dec-2018
- * @updated 2025-08-05 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  IGNOR
  *

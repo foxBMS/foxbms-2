@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,16 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
  * @brief   Driver for the ADC module.
  * @details TODO
  */
+
+/* cspell:ignore VREFLOW */
 
 /*========== Includes =======================================================*/
 #include "adc.h"
@@ -62,6 +64,17 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+
+/** ADC voltage reference, high */
+#define ADC_VREFHIGH_mV (5000.0f)
+/** ADC voltage reference, low */
+#define ADC_VREFLOW_mV (0.0f)
+/** ADC conversion factor, 12 bit conversion */
+#define ADC_CONVERSION_FACTOR_12BIT (4096.0f)
+/** ADC conversion factor, 10 bit conversion */
+#define ADC_CONVERSION_FACTOR_10BIT (1024.0f)
+/** ADC conversion offset */
+#define ADC_CONVERSION_OFFSET (0.5f)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -113,7 +126,7 @@ extern void ADC_Control(void) {
 
         case ADC_WAIT_CONVERSION_FINISHED:
             conversionFinished = true;
-            if (ADC_CONVERSION_ENDDBIT != adcIsConversionComplete(adcREG1, adcGROUP1)) {
+            if (ADC_CONVERSION_ENDBIT != adcIsConversionComplete(adcREG1, adcGROUP1)) {
                 conversionFinished = false;
             }
             if (conversionFinished == true) {
@@ -121,7 +134,7 @@ extern void ADC_Control(void) {
             }
             break;
 
-        /* Start initialization procedure, data sheet figure 106 page 79 */
+        /* Start initialization procedure, datasheet figure 106 page 79 */
         case ADC_CONVERSION_FINISHED:
             adcGetData(adcREG1, adcGROUP1, &adc_adc1RawVoltages[0]);
             for (uint8_t i = 0u; i < MCU_ADC1_MAX_NR_CHANNELS; i++) {

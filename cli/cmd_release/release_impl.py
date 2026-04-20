@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,11 +37,48 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements the functionalities behind the 'release' command"""
+"""High-level release command helpers used by ``fox release`` commands."""
 
-from ..helpers.spr import SubprocessResult
+from pathlib import Path
+
+from ..helpers.misc import PROJECT_ROOT
+from . import update_version_core
+
+# Re-exported for compatibility with existing tests and callers.
+MAGIC_DATE = update_version_core.MAGIC_DATE
+RELEASE_ENTRY_TEMPLATE = update_version_core.RELEASE_ENTRY_TEMPLATE
+date_get_today = update_version_core.date_get_today
+get_previous_release = update_version_core.get_previous_release
+update_c_h_files = update_version_core.update_c_h_files
+update_wscript = update_version_core.update_wscript
+update_citation = update_version_core.update_citation
+update_changelog = update_version_core.update_changelog
+update_commit_fragments = update_version_core.update_commit_fragments
+update_release_csv = update_version_core.update_release_csv
 
 
-def dummy() -> SubprocessResult:
-    """Run the dummy command."""
-    return SubprocessResult(0, "", "")
+def update_version(
+    from_version: str, to_version: str, root: Path = PROJECT_ROOT
+) -> int:
+    """Run high-level update-version flow.
+
+    Args:
+        from_version: Previous version value.
+        to_version: New version value.
+        root: Repository root path.
+
+    Returns:
+        ``0`` on success.
+
+    Raises:
+        ValueError: On invalid command arguments or update preconditions.
+    """
+    if not to_version:
+        err_msg = "Don't know to version to bump."
+        raise ValueError(err_msg)
+    if from_version == to_version:
+        err_msg = "--from and --to cannot be the same value"
+        raise ValueError(err_msg)
+
+    update_version_core.apply_update_version(root, from_version, to_version)
+    return 0

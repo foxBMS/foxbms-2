@@ -15,4 +15,3 @@ http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/FreeRTOS_Plus_TCP_Licens
 At this time it is recommended to use BufferAllocation_2.c in which case it is
 essential to use the heap_4.c memory allocation scheme:
 http://www.FreeRTOS.org/a00111.html
-

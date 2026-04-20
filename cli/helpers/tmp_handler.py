@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,8 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implementation of the TmpHandler class to handle a temporary folder and
-its files."""
+"""Temporary directory helper for caching intermediate command artifacts."""
 
 import hashlib
 import tempfile
@@ -48,16 +47,21 @@ from .dirs import CACHE_DIR
 
 
 class TmpHandler:
-    """Class to handle temporary files"""
+    """Create and reuse a temporary working directory."""
 
     def __init__(
         self,
         tmp_dir_parent: Path = CACHE_DIR,
-        tmp_folder_prefix: str = "temp_data_foxcli_",
+        tmp_directory_prefix: str = "temp_data_fox_cli_",
     ) -> None:
-        """Initialise the TmpHandler"""
+        """Initialize the temporary directory handler.
+
+        Args:
+            tmp_dir_parent: Parent directory used to create or find temp dirs.
+            tmp_directory_prefix: Prefix used for managed temp directories.
+        """
         self._tmp_dir_parent = tmp_dir_parent.resolve()
-        self._tmp_folder_prefix = tmp_folder_prefix
+        self._tmp_directory_prefix = tmp_directory_prefix
         current_tmp_dir = self._check_for_tmp_directory()
         if current_tmp_dir is None:
             self.tmp_dir = self._create_tmp_directory()
@@ -65,7 +69,15 @@ class TmpHandler:
             self.tmp_dir = current_tmp_dir
 
     def check_for_tmp_file(self, file_path: Path, file_extension: str) -> Path | None:
-        """Check whether there the data is already saved in the temporary directory."""
+        """Return a cached temporary file path if one already exists.
+
+        Args:
+            file_path: Source file path used for deterministic cache naming.
+            file_extension: Extension to use for the cached file.
+
+        Returns:
+            Cached file path if present, otherwise ``None``.
+        """
         file_name = TmpHandler.get_hash_name(file_path, file_extension)
         file_path = self.tmp_dir / file_name
         if file_path.exists():
@@ -73,26 +85,42 @@ class TmpHandler:
         return None
 
     def _check_for_tmp_directory(self) -> Path | None:
-        """Check whether there is a temporary directory to save the data in."""
+        """Return an existing managed temporary directory if available.
+
+        Returns:
+            Existing managed directory path, otherwise ``None``.
+        """
         dirs = [d for d in self._tmp_dir_parent.iterdir() if d.is_dir()]
         for d in dirs:
-            if self._tmp_folder_prefix in d.name:
+            if self._tmp_directory_prefix in d.name:
                 return d.resolve()
         return None
 
     def _create_tmp_directory(self) -> Path:
-        """Create a temporary directory to save the data in."""
+        """Create and return a new managed temporary directory.
+
+        Returns:
+            Path to the newly created temporary directory.
+        """
         return Path(
-            tempfile.mkdtemp(prefix=self._tmp_folder_prefix, dir=self._tmp_dir_parent)
+            tempfile.mkdtemp(
+                prefix=self._tmp_directory_prefix, dir=self._tmp_dir_parent
+            )
         )
 
     @staticmethod
     def get_hash_name(file_path: Path, file_extension: str) -> Path:
-        """get_hash_name generates a file name based on the
-        absolute path of a file
+        """Generate a deterministic cache filename from an absolute file path.
+
+        Args:
+            file_path: Source file path used as hash input.
+            file_extension: Extension to append to the generated name.
+
+        Returns:
+            Generated cache filename.
         """
         file_path_hash = hashlib.sha256(
             str(file_path.resolve()).encode("utf-8")
         ).hexdigest()
-        file_name = "_".join([file_path_hash, file_path.stem])
+        file_name = f"{file_path_hash}_{file_path.stem}"
         return Path(f"{file_name}.{file_extension}")

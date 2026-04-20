@@ -46,9 +46,11 @@ Detail information for the Flash ECC::
 Linker Script
 -------------
 
-The main linker script is found at ``src\app\main\app.cmd``.
-A derived hex-linker script is found at ``src\app\main\app_hex.cmd``.
-The linker script for the bootloader is found at ``src\bootloader\main\bootloader.cmd``.
+The application linker script is found at ``src/app/main/app.cmd``.
+A derived hex-linker script is found at ``src/app/main/app_hex.cmd``.
+
+The linker script for the bootloader is found at
+``src/bootloader/main/bootloader.cmd``.
 
 The ``MEMORY`` and ``SECTIONS`` directives can be used to configure the
 allocation process.

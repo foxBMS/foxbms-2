@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,7 @@
 
 """Testing file 'cli/cmd_bootloader/bootloader_can_messages.py'."""
 
-import logging
+import logging  # noqa: TID251
 import sys
 import unittest
 from pathlib import Path
@@ -85,10 +85,9 @@ class TestBootloaderCanMessages(unittest.TestCase):
     @patch("cli.cmd_bootloader.bootloader_can_messages.database.load_file")
     def test_init_files_wrong_database_type(self, blu: MagicMock, *_):
         """Test invalid initialization due to wrong type of database file."""
-
         blu.return_value = create_autospec(database.diagnostics.database.Database)
         with self.assertRaises(SystemExit) as cm:
-            Messages(dbc_file=Path("."))
+            Messages(dbc_file=Path())
         self.assertRegex(
             cm.exception.code,
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
@@ -196,7 +195,7 @@ class TestBootloaderCanMessages(unittest.TestCase):
         )
 
     def test_get_message_data_8_bytes(self, *_):
-        """Function to test function test_get_message_data_8_bytes()."""
+        """Function to test function get_message_data_8_bytes."""
         data_8_bytes = 0xFFFFFFFFFFFFFFFF
         msg = self.messages.get_message_data_8_bytes(data_8_bytes)
         self.assertEqual(
@@ -204,7 +203,7 @@ class TestBootloaderCanMessages(unittest.TestCase):
         )
 
     def test_get_message_crc_8_bytes(self, *_):
-        """Function to test function test_get_message_crc_8_bytes()."""
+        """Function to test function get_message_crc_8_bytes."""
         crc_8_bytes = 0xFFFFFFFFFFFFFFFF
         msg = self.messages.get_message_crc_8_bytes(crc_8_bytes)
         self.assertEqual(
@@ -212,7 +211,7 @@ class TestBootloaderCanMessages(unittest.TestCase):
         )
 
     def test_get_message_loop_info(self, *_):
-        """Function to test function test_get_message_loop_info()."""
+        """Function to test function get_message_loop_info."""
         num_of_loop = 100
         msg = self.messages.get_message_loop_info(num_of_loop)
         self.assertEqual(msg, {"Name": "f_BootloaderLoopInfo", "LoopNumber": 100})

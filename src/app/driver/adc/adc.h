@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adc.h
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -71,19 +71,8 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** ADC voltage reference, high */
-#define ADC_VREFHIGH_mV (5000.0f)
-/** ADC voltage reference, low */
-#define ADC_VREFLOW_mV (0.0f)
-/** ADC conversion factor, 12 bit conversion */
-#define ADC_CONVERSION_FACTOR_12BIT (4096.0f)
-/** ADC conversion factor, 10 bit conversion */
-#define ADC_CONVERSION_FACTOR_10BIT (1024.0f)
-/** ADC conversion offset */
-#define ADC_CONVERSION_OFFSET (0.5f)
-
-/** End bit position in ADC Groupx Interrupt Flag Register */
-#define ADC_CONVERSION_ENDDBIT (8u)
+/** End bit position in ADC GroupX Interrupt Flag Register */
+#define ADC_CONVERSION_ENDBIT (8u)
 
 /**
  * State for the ADC conversion

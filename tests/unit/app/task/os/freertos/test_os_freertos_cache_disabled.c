@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_os_freertos_cache_disabled.c
  * @author  foxBMS Team
  * @date    2025-04-09 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,7 +56,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "MockHL_sys_core.h"
-#include "Mockcan_cbs_tx_crash-dump.h"
+#include "Mockcan_cbs_tx_f_crash-dump.h"
 #include "Mockftask.h"
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"

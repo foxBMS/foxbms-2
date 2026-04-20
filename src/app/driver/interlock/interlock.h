@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    interlock.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ILCK
  *
@@ -108,7 +108,7 @@ typedef struct {
     ILCK_STATEMACH_SUB_e substate;     /*!< current substate of the state machine */
     ILCK_STATEMACH_e lastState;        /*!< previous state of the state machine */
     ILCK_STATEMACH_SUB_e lastSubstate; /*!< previous substate of the state machine */
-    uint32_t ErrRequestCounter;        /*!< counts the number of illegal requests to the LTC state machine */
+    uint32_t ErrRequestCounter;        /*!< counts the number of illegal requests to the ILCK state machine */
     uint8_t triggerentry;              /*!< counter for re-entrance protection (function running flag) */
     uint8_t counter;                   /*!< general purpose counter */
 } ILCK_STATE_s;

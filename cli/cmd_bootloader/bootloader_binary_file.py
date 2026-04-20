@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,8 @@
 
 
 """Implementation for handling and preparing an application binary for usage
-with the Bootloader."""
+with the Bootloader.
+"""
 
 import json
 import sys
@@ -66,7 +67,6 @@ CRC_TABLE_COLUMN_IDX = {
 NUM_OF_BYTES_IN_8_BYTES = 8
 
 
-# pylint: disable-next=too-many-instance-attributes
 # pylint: disable-next=too-few-public-methods
 class BootloaderBinaryFile:
     """Class to handle an application binary file and prepare the binary data
@@ -140,7 +140,6 @@ class BootloaderBinaryFile:
         Returns:
             TBD
         """
-
         return int(
             self.array_csv[index_of_8_bytes + 1][
                 CRC_TABLE_COLUMN_IDX["crc_64_bits_hex"]

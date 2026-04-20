@@ -79,7 +79,7 @@ Changed
 - Improve Getting Started section of the documentation.
 - Move balancing, I2C, multiplexer and database initialization implementation
   of the NXP AFE MC33775A driver into separate files.
-- Move ``FreeRTOS`` kernel one subfolder deeper to
+- Move ``FreeRTOS`` kernel one subdirectory deeper to
   ``src/os/freertos/freertos``.
 
 Deprecated

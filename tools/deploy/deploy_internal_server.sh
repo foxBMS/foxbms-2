@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -66,11 +66,6 @@ NAME_COV_SCRIPT_DEPLOY_JOB='id_deploy_scripts_cov_report'
 DIR_COV_SCRIPT_DEPLOY='cov_script'
 COV_SCRIPT_ARTIFACT='build/cli-selftest/.'
 
-# Static program analysis
-NAME_SPA_AXIVION_DEPLOY_JOB='id_deploy_custom_axivion_report'
-DIR_SPA_AXIVION_DEPLOY='axivion'
-SPA_AXIVION_ARTIFACT='custom-reports'
-
 REMOTE="$REMOTE_USER@$REMOTE_HOSTNAME"
 echo "Value of variable REMOTE_HOSTNAME: $REMOTE_HOSTNAME"
 echo "Value of variable REMOTE_USER: $REMOTE_USER"
@@ -81,8 +76,7 @@ echo 'I will try to detect the current CI-job:'
 if [ "$CI_JOB_NAME" != "$NAME_DOC_DEPLOY_JOB" ] && \
    [ "$CI_JOB_NAME" != "$NAME_APP_HOST_UNIT_TEST_COVERAGE_REPORT" ] && \
    [ "$CI_JOB_NAME" != "$NAME_BOOTLOADER_HOST_UNIT_TEST_COVERAGE_REPORT" ] && \
-   [ "$CI_JOB_NAME" != "$NAME_COV_SCRIPT_DEPLOY_JOB" ] && \
-   [ "$CI_JOB_NAME" != "$NAME_SPA_AXIVION_DEPLOY_JOB" ]; then
+   [ "$CI_JOB_NAME" != "$NAME_COV_SCRIPT_DEPLOY_JOB" ]; then
     echo 'Expected environment variables not matched.'
     echo "Value of CI_JOB_NAME is $CI_JOB_NAME."
     echo 'Make sure you are running this script in CI in the right job.'
@@ -144,9 +138,6 @@ elif [ "$CI_JOB_NAME" == "$NAME_BOOTLOADER_HOST_UNIT_TEST_COVERAGE_REPORT" ]; th
 elif [ "$CI_JOB_NAME" == "$NAME_COV_SCRIPT_DEPLOY_JOB" ]; then
     BASE_DIR=$DIR_COV_SCRIPT_DEPLOY
     ARTIFACT=$COV_SCRIPT_ARTIFACT
-elif [ "$CI_JOB_NAME" == "$NAME_SPA_AXIVION_DEPLOY_JOB" ]; then
-    BASE_DIR=$DIR_SPA_AXIVION_DEPLOY
-    ARTIFACT=$SPA_AXIVION_ARTIFACT
 fi
 
 REMOTE_BASE_DIR="$REMOTE_WEB_DIR/$BASE_DIR"

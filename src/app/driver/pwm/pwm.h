@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pwm.h
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -96,7 +96,7 @@ extern void PWM_StopPwm(void);
  */
 extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm);
 
-/**  @brief  Get dutycycle and frequency of input PWM signal */
+/**  @brief  Get duty cycle and frequency of input PWM signal */
 extern PWM_SIGNAL_s PWM_GetPwmData(void);
 
 /**
@@ -108,6 +108,7 @@ extern bool PWM_IsEcapModuleInitialized(void);
 /*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST
 extern int16_t TEST_PWM_GetLinearOffset(void);
+extern void TEST_PWM_GetInitializedBools(bool *ecap, bool *etpwm);
 #endif
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/

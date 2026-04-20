@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,38 +38,37 @@
 # - "This product is derived from foxBMS®"
 
 """Implementation of the CSVHandler class which enables reading data from a
-.csv file"""
+.csv file
+"""
 
 import sys
+from collections.abc import Hashable, Mapping
 from pathlib import Path
 
-import pandas
+import pandas as pd
 from jsonschema import exceptions, validate
-from pyarrow.lib import ArrowInvalid  # pylint: disable=no-name-in-module
 from yaml import safe_load
 
 from ...helpers.click_helpers import recho
-from ...helpers.file_tracker import FileTracker
-from ...helpers.tmp_handler import TmpHandler
-from .csv_handler_interface import CSVHandlerInterface
+from .handler_interface import DataHandlerInterface
 
 
-class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
-    """Class that implements the interface CSVHandler"""
+class CSVHandler(DataHandlerInterface):
+    """Implementation of the CSVHandler"""
 
-    def __init__(self, columns: dict[str, str], skip: int, precision: int) -> None:
+    def __init__(
+        self, columns: dict[str, str], skip: int, precision: int, na_value: str = "NULL"
+    ) -> None:
         """Creates the CSVHandler object"""
         self.columns = columns
         self.skip = skip
         self.precision = precision
+        self.na_value = na_value
 
-    def get_data(self, file_path: Path, no_tmp: bool = True) -> pandas.DataFrame:
+    def get_data(self, file_path: Path, no_tmp: bool = True) -> pd.DataFrame:
         """Read the given file and returns the contained data."""
         try:
             return self._get_data(file_path, no_tmp)
-        except ArrowInvalid as e:
-            recho(f"Parquet Error: {e}")
-            sys.exit(1)
         except (ValueError, TypeError) as e:
             if "do not match columns" in str(e):
                 not_found_columns = str(e).split(":")[1].strip()
@@ -78,47 +77,45 @@ class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
                     f"desired columns {not_found_columns} not found in CSV file."
                 )
             else:
-                recho(f"Error in data config file: {str(e)}")
-            sys.exit(1)
+                recho(f"Error in data config file: {e!s}")
+        except OSError as e:
+            recho(f"Can not access file: {e}")
+        sys.exit(1)
 
-    def _get_data(self, file_path: Path, no_tmp: bool) -> pandas.DataFrame:
+    def _get_data(self, file_path: Path, no_tmp: bool) -> pd.DataFrame:
         """Private function to read the given file and return the
-        contained data without logical error handling"""
-        tmp_handler = TmpHandler(file_path.parent)
-        file_tracker = FileTracker(tmp_handler.tmp_dir)
-        # Check whether the data has already been saved as a parquet file
-        parquet_file_path = tmp_handler.check_for_tmp_file(file_path, "parquet")
-        data_file_changed = file_tracker.check_file_changed(file_path)
-        if parquet_file_path is not None and not data_file_changed and not no_tmp:
-            data = pandas.read_parquet(parquet_file_path, engine="pyarrow")
-        else:
-            # get specific column with datetime type and set values to string
-            # for later dict merge
-            datetime_columns = {
-                x: "string" for x in self.columns if self.columns[x] == "datetime"
-            }
-            string_columns = {
-                x: "string" for x in self.columns if self.columns[x] == "string"
-            }
-            self.columns = self.columns | datetime_columns
-            # Int64 data type supports NaN values in contrary to numpys int64
-            self.columns = {
-                k: (v if v != "int" else "Int64") for (k, v) in self.columns.items()
-            }
-            data = pandas.read_csv(
-                file_path,
-                usecols=list(self.columns.keys()),
-                dtype=self.columns,
-                skiprows=self.skip,
-                parse_dates=list(datetime_columns.keys()),
-            )
-            # Emptfy field are read as NaN values, which cause problems with
-            # string columns during plotting
-            for string_column in string_columns:
-                data[string_column] = data[string_column].fillna("NULL")
-            data = data.round(self.precision)
-            parquet_file_name = tmp_handler.get_hash_name(file_path, "parquet")
-            data.to_parquet((tmp_handler.tmp_dir / parquet_file_name), engine="pyarrow")
+        contained data without logical error handling
+        """
+        data = CSVHandler.get_tmp_data(file_path, no_tmp)
+        if data is not None:
+            return data
+        # get specific column with datetime type and set values to string
+        # for later dict merge
+        datetime_columns = {
+            x: "string" for x in self.columns if self.columns[x] == "datetime"
+        }
+        string_columns = {
+            x: "string" for x in self.columns if self.columns[x] == "string"
+        }
+        self.columns = self.columns | datetime_columns
+        # Int64 data type supports NaN values in contrary to numpy's int64
+        corrected_columns: Mapping[Hashable, str] = {
+            k: (v if v != "int" else "Int64") for (k, v) in self.columns.items()
+        }
+        data = pd.read_csv(
+            file_path,
+            usecols=list(self.columns.keys()),
+            dtype=corrected_columns,
+            skiprows=self.skip,
+            parse_dates=list(datetime_columns.keys()),
+            na_values=self.na_value,
+        )
+        # Empty field are read as NaN values, which cause problems with
+        # string columns during plotting
+        for string_column in string_columns:
+            data[string_column] = data[string_column].fillna(self.na_value)
+        data = data.round(self.precision)
+        CSVHandler.write_tmp_file(data, file_path)
         return data
 
     @staticmethod

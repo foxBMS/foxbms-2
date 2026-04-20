@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -56,17 +56,17 @@ class TestHostPlatform(unittest.TestCase):
 
     @patch("sys.platform", new="linux")
     def test_platform_linux(self):
-        """test for Linux."""
+        """Test for Linux."""
         self.assertEqual(host_platform.get_platform(), "linux")
 
     @patch("sys.platform", new="win32")
     def test_platform_win32(self):
-        """test for Windows."""
+        """Test for Windows."""
         self.assertEqual(host_platform.get_platform(), "win32")
 
     @patch("sys.platform", new="foo")
     def test_platform_unsupported(self):
-        """test for unsupported platform."""
+        """Test for unsupported platform."""
         with self.assertRaises(SystemExit) as cm:
             host_platform.get_platform()
         self.assertEqual(cm.exception.code, "Running on an unsupported platform.")

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_clamp30c.c
  * @author  foxBMS Team
  * @date    2024-05-22 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,6 +68,8 @@ TEST_SOURCE_FILE("diag_cbs_clamp30c.c")
 TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+#define DIAG_EVENT_INVALID (9u)
+
 /** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
 static DATA_BLOCK_ERROR_STATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 
@@ -86,8 +88,14 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testDIAG_SupplyVoltageClamp30c(void) {
     /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1: Assert */
+    /* ======= AT1/3 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_SupplyVoltageClamp30c(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT2/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(DIAG_SupplyVoltageClamp30c(
+        DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_INVALID, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT3/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_SupplyVoltageClamp30c(DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_OK, NULL_PTR, 0u));
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: OK event -> database entry must not change */

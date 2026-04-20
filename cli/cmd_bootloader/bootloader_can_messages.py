@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,8 @@
 
 """This file contains all enums of CAN messages and functions to get specfied
 can messages in dict. The members of the Enum classes that end with 'Str' have
-the string type of value."""
+the string type of value.
+"""
 
 from enum import Enum
 from pathlib import Path
@@ -50,7 +51,6 @@ from cantools import database
 from ..helpers.misc import BOOTLOADER_DBC_FILE
 
 
-# pylint:disable=invalid-name
 class YesNoFlag(Enum):
     """Enum from dbc file"""
 
@@ -127,9 +127,6 @@ class BootFsmState(Enum):
     BootFsmStateError = 5
 
 
-# pylint:enable=invalid-name
-
-
 class AcknowledgeMessageType(TypedDict):
     """This class specify the type of the received acknowledge message."""
 
@@ -169,21 +166,21 @@ class Messages:
 
     def __init__(self, dbc_file: Path = BOOTLOADER_DBC_FILE) -> None:
         if not dbc_file.is_file():
-            raise SystemExit(f"File '{dbc_file}' does not exist.")
+            err = f"File '{dbc_file}' does not exist."
+            raise SystemExit(err)
         db = database.load_file(dbc_file)
         if not isinstance(db, database.can.database.Database):
-            raise SystemExit(
-                f"Expected '{dbc_file}' to contain a CAN database, but "
-                f"type is '{type(db)}'."
-            )
+            err = f"Expected '{dbc_file}' to contain a CAN database, but type is '{type(db)}'."
+            raise SystemExit(err)
         self.db = db
         self.message_names = [
             message.name for message in getattr(self.db, "messages", [])
         ]
         if not self.message_names:
-            raise SystemExit("There are no messages in the database file.")
+            err = "There are no messages in the database file."
+            raise SystemExit(err)
 
-    def _get_message(self, name: str, **kwargs):
+    def _get_message(self, name: str, **kwargs) -> dict:
         """Get valid CAN message.
 
         Args:
@@ -195,9 +192,8 @@ class Messages:
         if name in self.message_names:
             can_message = self.db.get_message_by_name(name)
         else:
-            raise SystemExit(
-                f"The name of message '{name}' cannot be found in the CAN database."
-            )
+            err = f"The name of message '{name}' cannot be found in the CAN database."
+            raise SystemExit(err)
         message = {}
         message["Name"] = name
         signal_names = [signal.name for signal in can_message.signals]
@@ -205,19 +201,15 @@ class Messages:
             if key in signal_names:
                 signal = can_message.get_signal_by_name(key)
                 if not self._check_range(signal, value):
-                    raise SystemExit(
-                        f"The value of the signal '{key}' is out of range."
-                    )
+                    err = f"The value of the signal '{key}' is out of range."
+                    raise SystemExit(err)
                 if not self._check_enum(signal, value):
-                    raise SystemExit(
-                        f"The value of the signal '{key}' is not in the "
-                        "corresponding enum."
-                    )
+                    err = f"The value of the signal '{key}' is not in the corresponding enum."
+                    raise SystemExit(err)
                 message[key] = value
             else:
-                raise SystemExit(
-                    f"Cannot find the signal '{key}' in CAN message '{name}'."
-                )
+                err = f"Cannot find the signal '{key}' in CAN message '{name}'."
+                raise SystemExit(err)
         return message
 
     def _check_range(
@@ -234,9 +226,7 @@ class Messages:
         """
         if signal.maximum is not None and (signal_value > signal.maximum):
             return False
-        if signal.minimum is not None and (signal_value < signal.minimum):
-            return False
-        return True
+        return not (signal.minimum is not None and signal_value < signal.minimum)
 
     def _check_enum(
         self, signal: database.can.signal.Signal, signal_value: int

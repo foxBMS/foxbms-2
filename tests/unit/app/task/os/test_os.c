@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_os.c
  * @author  foxBMS Team
  * @date    2020-03-13 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  OS
  *
@@ -67,7 +67,7 @@
 
 #include "can_cfg.h"
 
-#include "can_cbs_tx_crash-dump.h"
+#include "can_cbs_tx_f_crash-dump.h"
 #include "os.h"
 #include "test_assert_helper.h"
 
@@ -307,4 +307,16 @@ void testOS_CheckTimeHasPassedUINT32_MAXms(void) {
 /** check that the selftest passes */
 void testOS_CheckTimeHasPassedSelfTestSuccessful(void) {
     TEST_ASSERT_EQUAL(STD_OK, OS_CheckTimeHasPassedSelfTest());
+}
+
+/** check when selftest fails */
+void testOS_GetOsTimer(void) {
+    OS_TIMER_s returningTimer = OS_GetOsTimer();
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_1ms, returningTimer.timer_1ms);
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_10ms, returningTimer.timer_10ms);
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_100ms, returningTimer.timer_100ms);
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_sec, returningTimer.timer_sec);
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_min, returningTimer.timer_min);
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_h, returningTimer.timer_h);
+    TEST_ASSERT_EQUAL_HEX8(test_timer->timer_d, returningTimer.timer_d);
 }

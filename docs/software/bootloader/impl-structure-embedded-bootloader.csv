@@ -1,0 +1,5 @@
+Directory                   ; Description
+``src/bootloader/driver``   ; Contains low level driver modules to control the on-board resources.
+``src/bootloader/engine``   ; Contains mid-level engine modules to control the overall program flow.
+``src/bootloader/hal``      ; Contains the build script and the hash code for HALCoGen.
+``src/bootloader/main``     ; Contains the files where the ``main`` function and startup function ``_c_int00`` are implemented. In addition, it also contains the linker script for configuring the memory distribution and the sources supported at the system level.

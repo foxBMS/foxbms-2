@@ -5,5 +5,4 @@
 @@ROOT@@/build/bootloader_host_unit_test/vendor/c_exception/lib
 @@ROOT@@/build/bootloader_host_unit_test/vendor/cmock/src
 @@ROOT@@/build/bootloader_host_unit_test/vendor/unity/src
-@@ROOT@@/tests/unit/opt/**
 @@ROOT@@/tests/unit/support/*

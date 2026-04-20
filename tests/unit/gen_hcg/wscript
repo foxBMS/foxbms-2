@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,11 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Runs HALCoGen in the current directory."""
 
 from waflib.Build import BuildContext, CleanContext
-from waflib.Configure import ConfigurationContext
-from waflib.Options import OptionsContext
 
 TOOLDIR = "../../../tools/waf-tools"
 
@@ -49,10 +46,8 @@ BUILD_VARIANTS = ["app", "bootloader"]
 
 for var in ["app", "bootloader"]:
     for cont in [BuildContext, CleanContext]:
-        # pylint: disable-next=invalid-name
         name = cont.__name__.replace("Context", "").lower()
 
-        # pylint: disable-next=invalid-name
         class tmp_1(cont):
             """Helper class to create the build variant commands"""
 
@@ -66,29 +61,24 @@ for var in ["app", "bootloader"]:
             variant = var
 
 
-def options(opt: OptionsContext):
-    """defines options that can be passed to waf"""
+def options(opt):
+    """Defines options that can be passed to waf"""
     opt.top = "."
 
 
-def configure(cnf: ConfigurationContext):
-    """configures the project"""
+def configure(cnf):
+    """Configures the project"""
     cnf.load("f_hcg", tooldir=TOOLDIR)
 
 
-def build(bld: BuildContext):
+def build(bld):
     """Run HALCoGen"""
     if not bld.variant:
         bld.fatal(
             f"A {bld.cmd} variant must be specified. The build variants are: "
             f"{', '.join(BUILD_VARIANTS)}."
         )
-    remove = [
-        "source/HL_notification.c",
-        "source/HL_sys_main.c",
-        "source/HL_sys_startup.c",
-        "source/HL_sys_link.cmd",
-    ]
+    remove = bld.path.find_node(f"../../../conf/hcg/{bld.variant}-remove.yml")
     source = f"../../../conf/hcg/{bld.variant}.hcg"
     startup_hash = bld.path.find_node(
         f"../../../src/{bld.variant}/hal/{bld.variant}-startup.hash"

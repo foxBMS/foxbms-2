@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,7 +37,18 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements miscellaneous helper functions"""
+"""Shared constants and helper metadata for the foxBMS CLI."""
+
+#: Script name
+TOOL = "fox.py"
 
 #: Tool name
-TOOL = "fox.py"
+TOOL_NAME = "fox CLI"
+
+_PREFIX = "foxbms"
+
+#: Win32 installation prefix
+PREFIX_WIN32 = f"C:/{_PREFIX}"
+
+#: Linux  installation prefix
+PREFIX_LINUX = f"/opt/{_PREFIX}"

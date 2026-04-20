@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,7 @@
 
 import io
 import json
-import logging
+import logging  # noqa: TID251
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -70,7 +70,14 @@ try:
         run_app,
     )
     from cli.helpers.fcan import CanBusConfig
-    from cli.helpers.misc import FOXBMS_BIN_FILE
+    from cli.helpers.misc import (
+        APP_DBC_FILE,
+        BOOTLOADER_DBC_FILE,
+        FOXBMS_APP_CRC_FILE,
+        FOXBMS_APP_INFO_FILE,
+        FOXBMS_BIN_FILE,
+    )
+    from cli.helpers.path_options import FoxbmsFiles
 
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
@@ -86,7 +93,14 @@ except ModuleNotFoundError:
         run_app,
     )
     from cli.helpers.fcan import CanBusConfig
-    from cli.helpers.misc import FOXBMS_BIN_FILE
+    from cli.helpers.misc import (
+        APP_DBC_FILE,
+        BOOTLOADER_DBC_FILE,
+        FOXBMS_APP_CRC_FILE,
+        FOXBMS_APP_INFO_FILE,
+        FOXBMS_BIN_FILE,
+    )
+    from cli.helpers.path_options import FoxbmsFiles
 
 PROGRAM = {
     "len_of_program_in_bytes": 16,
@@ -132,7 +146,6 @@ ARRAY_CSV = np.array(
 RETURN_HASH = "1691115346d2814fcf79829becdc0fa096dac126695b7901907fec2e1b11c389"
 
 
-# pylint: disable=unused-argument
 @patch(
     "cli.cmd_bootloader.bootloader_binary_file.get_sha256_file_hash_str",
     return_value=RETURN_HASH,
@@ -146,7 +159,11 @@ class TestBootloaderImpl(unittest.TestCase):
     """Class to test the module bootloader_impl."""
 
     def setUp(self):
-        pass
+        self.foxbms_files = FoxbmsFiles(
+            foxbms_app_crc_file=FOXBMS_APP_CRC_FILE,
+            foxbms_app_info_file=FOXBMS_APP_INFO_FILE,
+            foxbms_bin_file=FOXBMS_BIN_FILE,
+        )
 
     def tearDown(self):
         pass
@@ -161,7 +178,12 @@ class TestBootloaderImpl(unittest.TestCase):
         # Case 1: the input is neither Bootloader nor CanBusConfig
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = check_bootloader(None)
+            ret = check_bootloader(
+                None,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(99, ret)
@@ -179,7 +201,12 @@ class TestBootloaderImpl(unittest.TestCase):
             with can.interface.Bus("test", interface="virtual") as can_bus:
                 interface = BootloaderInterfaceCan(can_bus=can_bus)
                 bd = Bootloader(interface=interface)
-                ret = check_bootloader(bd)
+                ret = check_bootloader(
+                    bd,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -199,7 +226,12 @@ class TestBootloaderImpl(unittest.TestCase):
             with can.interface.Bus("test", interface="virtual") as can_bus:
                 interface = BootloaderInterfaceCan(can_bus=can_bus)
                 bd = Bootloader(interface=interface)
-                ret = check_bootloader(bd)
+                ret = check_bootloader(
+                    bd,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(1, ret)
@@ -216,7 +248,12 @@ class TestBootloaderImpl(unittest.TestCase):
             with can.interface.Bus("test", interface="virtual") as can_bus:
                 interface = BootloaderInterfaceCan(can_bus=can_bus)
                 bd = Bootloader(interface=interface)
-                ret = check_bootloader(bd)
+                ret = check_bootloader(
+                    bd,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(2, ret)
@@ -235,7 +272,12 @@ class TestBootloaderImpl(unittest.TestCase):
             with can.interface.Bus("test", interface="virtual") as can_bus:
                 interface = BootloaderInterfaceCan(can_bus=can_bus)
                 bd = Bootloader(interface=interface)
-                ret = check_bootloader(bd)
+                ret = check_bootloader(
+                    bd,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(3, ret)
@@ -250,7 +292,12 @@ class TestBootloaderImpl(unittest.TestCase):
             with can.interface.Bus("test", interface="virtual") as can_bus:
                 interface = BootloaderInterfaceCan(can_bus=can_bus)
                 bd = Bootloader(interface=interface)
-                ret = check_bootloader(bd)
+                ret = check_bootloader(
+                    bd,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(4, ret)
@@ -268,7 +315,12 @@ class TestBootloaderImpl(unittest.TestCase):
             can_bus_config = CanBusConfig(
                 interface="virtual", channel=None, bitrate=None
             )
-            ret = check_bootloader(can_bus_config)
+            ret = check_bootloader(
+                can_bus_config,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -288,7 +340,12 @@ class TestBootloaderImpl(unittest.TestCase):
             can_bus_config = CanBusConfig(
                 interface="virtual", channel=None, bitrate=None
             )
-            ret = check_bootloader(can_bus_config)
+            ret = check_bootloader(
+                can_bus_config,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(1, ret)
@@ -305,7 +362,12 @@ class TestBootloaderImpl(unittest.TestCase):
             can_bus_config = CanBusConfig(
                 interface="virtual", channel=None, bitrate=None
             )
-            ret = check_bootloader(can_bus_config)
+            ret = check_bootloader(
+                can_bus_config,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(2, ret)
@@ -323,7 +385,12 @@ class TestBootloaderImpl(unittest.TestCase):
             can_bus_config = CanBusConfig(
                 interface="virtual", channel=None, bitrate=None
             )
-            ret = check_bootloader(can_bus_config)
+            ret = check_bootloader(
+                can_bus_config,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(3, ret)
@@ -338,7 +405,12 @@ class TestBootloaderImpl(unittest.TestCase):
             can_bus_config = CanBusConfig(
                 interface="virtual", channel=None, bitrate=None
             )
-            ret = check_bootloader(can_bus_config)
+            ret = check_bootloader(
+                can_bus_config,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(4, ret)
@@ -354,7 +426,12 @@ class TestBootloaderImpl(unittest.TestCase):
             can_bus_config = CanBusConfig(
                 interface="virtual", channel=None, bitrate=None
             )
-            ret = check_bootloader(can_bus_config)
+            ret = check_bootloader(
+                can_bus_config,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(5, ret)
@@ -385,7 +462,12 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = run_app(bus_cfg=can_bus_config)
+                ret = run_app(
+                    bus_cfg=can_bus_config,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(1, ret)
@@ -398,7 +480,12 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = run_app(bus_cfg=can_bus_config)
+                ret = run_app(
+                    bus_cfg=can_bus_config,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(2, ret)
@@ -411,7 +498,12 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = run_app(bus_cfg=can_bus_config)
+                ret = run_app(
+                    bus_cfg=can_bus_config,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -426,7 +518,12 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = run_app(bus_cfg=can_bus_config)
+                ret = run_app(
+                    bus_cfg=can_bus_config,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(5, ret)
@@ -436,12 +533,8 @@ class TestBootloaderImpl(unittest.TestCase):
     @patch.object(json, "loads", return_value=PROGRAM)
     @patch.object(Bootloader, "check_target")
     @patch.object(Bootloader, "reset_bootloader")
-    def test_reset_bootloader(  # pylint: disable=too-many-arguments
-        self,
-        mock_reset_bootloader,
-        mock_check_target,
-        mock_load,
-        *_,
+    def test_reset_bootloader(
+        self, mock_reset_bootloader, mock_check_target, mock_load, *_
     ):
         """Function to test function run_app()."""
         can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
@@ -455,7 +548,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+                ret = reset_bootloader(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -475,7 +574,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+                ret = reset_bootloader(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(5, ret)
@@ -487,7 +592,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+                ret = reset_bootloader(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(2, ret)
@@ -499,7 +610,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+                ret = reset_bootloader(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(3, ret)
@@ -515,7 +632,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+                ret = reset_bootloader(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(4, ret)
@@ -531,7 +654,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+                ret = reset_bootloader(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(5, ret)
@@ -542,7 +671,7 @@ class TestBootloaderImpl(unittest.TestCase):
     @patch.object(click, "progressbar")
     @patch.object(Bootloader, "check_target")
     @patch.object(Bootloader, "send_app_binary")
-    # pylint: disable-next=too-many-positional-arguments,too-many-arguments,too-many-statements
+    # pylint: disable-next=too-many-statements
     def test_load_app(
         self,
         mock_send_app_binary,
@@ -552,7 +681,6 @@ class TestBootloaderImpl(unittest.TestCase):
         *_,
     ):
         """Function to test function run_app()."""
-
         mock_progressbar.return_value.__enter__.return_value = MagicMock()
 
         can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
@@ -566,7 +694,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -588,7 +722,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -610,7 +750,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -631,7 +777,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(5, ret)
@@ -643,7 +795,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(2, ret)
@@ -655,7 +813,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(3, ret)
@@ -671,7 +835,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(4, ret)
@@ -691,7 +861,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         self.assertEqual(5, ret)
         self.assertEqual(
             err,
@@ -707,7 +883,13 @@ class TestBootloaderImpl(unittest.TestCase):
         with patch("can.interfaces.pcan.PcanBus"):
             _err, _out = io.StringIO(), io.StringIO()
             with redirect_stderr(_err), redirect_stdout(_out):
-                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+                ret = load_app(
+                    bus_cfg=can_bus_config,
+                    timeout=0.01,
+                    app_dbc=APP_DBC_FILE,
+                    bootloader_dbc=BOOTLOADER_DBC_FILE,
+                    foxbms_files=self.foxbms_files,
+                )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(5, ret)
@@ -717,20 +899,34 @@ class TestBootloaderImpl(unittest.TestCase):
 
 @patch("cli.cmd_bootloader.bootloader_impl.BootloaderInterfaceCan")
 @patch("cli.cmd_bootloader.bootloader_impl.Bootloader")
-class TestBootloaderImpl_InstantiateBootloader(unittest.TestCase):  # pylint:disable=invalid-name
+class TestBootloaderImpl_InstantiateBootloader(unittest.TestCase):
     """Test '_instantiate_bootloader' function"""
+
+    def setUp(self):
+        self.foxbms_files = FoxbmsFiles(
+            foxbms_app_crc_file=FOXBMS_APP_CRC_FILE,
+            foxbms_app_info_file=FOXBMS_APP_INFO_FILE,
+            foxbms_bin_file=FOXBMS_BIN_FILE,
+        )
 
     def test(self, _: MagicMock, bic: MagicMock):
         """Call function under test"""
         bus = MagicMock()
-        ret = _instantiate_bootloader(bus)  # type:ignore
+        ret = _instantiate_bootloader(
+            bus,
+            app_dbc=APP_DBC_FILE,
+            bootloader_dbc=BOOTLOADER_DBC_FILE,
+            foxbms_files=self.foxbms_files,
+        )  # type:ignore
         self.assertIn("Bootloader()", str(ret))
-        bic.assert_called_once_with(can_bus=bus)
+        bic.assert_called_once_with(
+            can_bus=bus, app_dbc=APP_DBC_FILE, bootloader_dbc=BOOTLOADER_DBC_FILE
+        )
 
 
 @patch("cli.cmd_bootloader.bootloader_impl.Bootloader")
 @patch("cli.cmd_bootloader.bootloader_impl.time")
-class TestBootloaderImpl_CheckBootloaderStatus(unittest.TestCase):  # pylint:disable=invalid-name
+class TestBootloaderImpl_CheckBootloaderStatus(unittest.TestCase):
     """Test '_check_bootloader_status' function"""
 
     def test_timeout(self, t: MagicMock, *_: MagicMock):
@@ -836,7 +1032,7 @@ class TestBootloaderImpl_CheckBootloaderStatus(unittest.TestCase):  # pylint:dis
 
 
 @patch("cli.cmd_bootloader.bootloader_impl.Bootloader")
-class TestBootloaderImpl_CheckBootloader(unittest.TestCase):  # pylint:disable=invalid-name
+class TestBootloaderImpl_CheckBootloader(unittest.TestCase):
     """Testing '_check_bootloader' function."""
 
     def test__check_bootloader_ok(self, mock_bl: MagicMock):
@@ -925,11 +1121,23 @@ class TestBootloaderImpl_CheckBootloader(unittest.TestCase):  # pylint:disable=i
 class TestBootloaderImplCheckBootloader(unittest.TestCase):
     """Testing 'check_bootloader' function."""
 
+    def setUp(self):
+        self.foxbms_files = FoxbmsFiles(
+            foxbms_app_crc_file=FOXBMS_APP_CRC_FILE,
+            foxbms_app_info_file=FOXBMS_APP_INFO_FILE,
+            foxbms_bin_file=FOXBMS_BIN_FILE,
+        )
+
     def test_check_bootloader_bootloader_object(self, mock_cb: MagicMock):
         """Check case a Bootloader object is passed as argument."""
         mock_cb.return_value = 1
         mock_bl = create_autospec(Bootloader)
-        ret = check_bootloader(mock_bl)
+        ret = check_bootloader(
+            mock_bl,
+            app_dbc=APP_DBC_FILE,
+            bootloader_dbc=BOOTLOADER_DBC_FILE,
+            foxbms_files=self.foxbms_files,
+        )
         self.assertEqual(1, ret)
 
     @patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
@@ -947,14 +1155,24 @@ class TestBootloaderImplCheckBootloader(unittest.TestCase):
         bus.return_value.__enter__.return_value = MagicMock()
         _instantiate_bootloader.return_value = MagicMock()
         tmp = create_autospec(CanBusConfig)
-        ret = check_bootloader(tmp)
+        ret = check_bootloader(
+            tmp,
+            app_dbc=APP_DBC_FILE,
+            bootloader_dbc=BOOTLOADER_DBC_FILE,
+            foxbms_files=self.foxbms_files,
+        )
         self.assertEqual(1, ret)
 
     def test_check_bootloader_invalid_object(self, *_: tuple[MagicMock]):
         """Invalid bootloader configuration."""
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = check_bootloader(None)  # type: ignore
+            ret = check_bootloader(
+                None,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )  # type: ignore
         err, out = _err.getvalue(), _out.getvalue()
         self.assertEqual(99, ret)
         self.assertEqual(err, "Invalid bootloader configuration.\n")
@@ -968,6 +1186,13 @@ class TestBootloaderImplCheckBootloader(unittest.TestCase):
 class TestBootloaderImplRunApp(unittest.TestCase):
     """Testing 'run_app' function."""
 
+    def setUp(self):
+        self.foxbms_files = FoxbmsFiles(
+            foxbms_app_crc_file=FOXBMS_APP_CRC_FILE,
+            foxbms_app_info_file=FOXBMS_APP_INFO_FILE,
+            foxbms_bin_file=FOXBMS_BIN_FILE,
+        )
+
     def test__check_bootloader_check_fails(
         self,
         m_check_bootloader: MagicMock,
@@ -978,14 +1203,19 @@ class TestBootloaderImplRunApp(unittest.TestCase):
         """Run of the app fails."""
         bus.return_value.__enter__.return_value = MagicMock()
         mock_bl = MagicMock()
-        mock_bl.run_app.return_value = False
+        mock_bl.run_app.return_value = False  # pylint:disable=no-member,useless-suppression
         _instantiate_bootloader.return_value = mock_bl
 
         m_check_bootloader.return_value = 1
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = run_app(bus_cfg=MagicMock())
+            ret = run_app(
+                bus_cfg=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(1, ret)
@@ -994,7 +1224,7 @@ class TestBootloaderImplRunApp(unittest.TestCase):
         bus.assert_called_once_with()
         _instantiate_bootloader.assert_called_once()
         m_check_bootloader.assert_called_once()
-        mock_bl.run_app.assert_not_called()  # pylint: disable=no-member
+        mock_bl.run_app.assert_not_called()  # pylint:disable=no-member,useless-suppression
 
     def test__check_bootloader_app_successfully_started(
         self,
@@ -1013,7 +1243,12 @@ class TestBootloaderImplRunApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = run_app(bus_cfg=MagicMock())
+            ret = run_app(
+                bus_cfg=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -1022,7 +1257,7 @@ class TestBootloaderImplRunApp(unittest.TestCase):
         bus.assert_called_once_with()
         _instantiate_bootloader.assert_called_once()
         m_check_bootloader.assert_called_once()
-        mock_bl.run_app.assert_called_once()  # pylint: disable=no-member
+        mock_bl.run_app.assert_called_once()  # pylint:disable=no-member,useless-suppression
 
     def test__check_bootloader_app_not_started(
         self,
@@ -1041,7 +1276,12 @@ class TestBootloaderImplRunApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = run_app(bus_cfg=MagicMock())
+            ret = run_app(
+                bus_cfg=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(2, ret)
@@ -1050,7 +1290,7 @@ class TestBootloaderImplRunApp(unittest.TestCase):
         bus.assert_called_once_with()
         _instantiate_bootloader.assert_called_once()
         m_check_bootloader.assert_called_once()
-        mock_bl.run_app.assert_called_once()  # pylint: disable=no-member
+        mock_bl.run_app.assert_called_once()  # pylint:disable=no-member,useless-suppression
 
 
 @patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
@@ -1059,6 +1299,13 @@ class TestBootloaderImplRunApp(unittest.TestCase):
 @patch("cli.cmd_bootloader.bootloader_impl._check_bootloader_status")
 class TestBootloaderImplResetBootloader(unittest.TestCase):
     """Testing 'reset_bootloader' function."""
+
+    def setUp(self):
+        self.foxbms_files = FoxbmsFiles(
+            foxbms_app_crc_file=FOXBMS_APP_CRC_FILE,
+            foxbms_app_info_file=FOXBMS_APP_INFO_FILE,
+            foxbms_bin_file=FOXBMS_BIN_FILE,
+        )
 
     def test_reset_bootloader_check_unsuccessful(
         self,
@@ -1074,7 +1321,13 @@ class TestBootloaderImplResetBootloader(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = reset_bootloader(bus_cfg=MagicMock(), timeout=MagicMock())
+            ret = reset_bootloader(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(-1, ret)
@@ -1104,7 +1357,13 @@ class TestBootloaderImplResetBootloader(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = reset_bootloader(bus_cfg=MagicMock(), timeout=-1)
+            ret = reset_bootloader(
+                bus_cfg=MagicMock(),
+                timeout=-1,
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(0, ret)
@@ -1115,7 +1374,7 @@ class TestBootloaderImplResetBootloader(unittest.TestCase):
         bus.assert_called_once_with()
         _instantiate_bootloader.assert_called_once()
         _check_bootloader_status.assert_called_once()
-        mock_bl.reset_bootloader.assert_called_once()  # pylint: disable=no-member
+        mock_bl.reset_bootloader.assert_called_once()  # pylint:disable=no-member,useless-suppression
 
     def test_reset_bootloader_reset_unsuccessful(
         self,
@@ -1136,7 +1395,13 @@ class TestBootloaderImplResetBootloader(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = reset_bootloader(bus_cfg=MagicMock(), timeout=MagicMock())
+            ret = reset_bootloader(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(4, ret)
@@ -1145,7 +1410,7 @@ class TestBootloaderImplResetBootloader(unittest.TestCase):
         bus.assert_called_once_with()
         _instantiate_bootloader.assert_called_once()
         _check_bootloader_status.assert_called_once()
-        mock_bl.reset_bootloader.assert_called_once()  # pylint: disable=no-member
+        mock_bl.reset_bootloader.assert_called_once()  # pylint:disable=no-member,useless-suppression
 
 
 @patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
@@ -1154,6 +1419,13 @@ class TestBootloaderImplResetBootloader(unittest.TestCase):
 @patch("cli.cmd_bootloader.bootloader_impl._check_bootloader_status")
 class TestBootloaderImplLoadApp(unittest.TestCase):
     """Testing 'load_app' function."""
+
+    def setUp(self):
+        self.foxbms_files = FoxbmsFiles(
+            foxbms_app_crc_file=FOXBMS_APP_CRC_FILE,
+            foxbms_app_info_file=FOXBMS_APP_INFO_FILE,
+            foxbms_bin_file=FOXBMS_BIN_FILE,
+        )
 
     def test_bus_initialization_error_base_init_exception(
         self, _1: MagicMock, _2: MagicMock, mock_can_bus: MagicMock, _3: MagicMock
@@ -1166,7 +1438,13 @@ class TestBootloaderImplLoadApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+            ret = load_app(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(ret, 5)
@@ -1187,7 +1465,13 @@ class TestBootloaderImplLoadApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+            ret = load_app(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(ret, 5)
@@ -1210,7 +1494,13 @@ class TestBootloaderImplLoadApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+            ret = load_app(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(ret, 5)
@@ -1234,7 +1524,13 @@ class TestBootloaderImplLoadApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+            ret = load_app(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
         self.assertEqual(-1, ret)
         self.assertEqual(err, "")
@@ -1263,7 +1559,13 @@ class TestBootloaderImplLoadApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            result = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+            result = load_app(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(result, 0)
@@ -1298,7 +1600,13 @@ class TestBootloaderImplLoadApp(unittest.TestCase):
 
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            result = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+            result = load_app(
+                bus_cfg=MagicMock(),
+                timeout=MagicMock(),
+                app_dbc=APP_DBC_FILE,
+                bootloader_dbc=BOOTLOADER_DBC_FILE,
+                foxbms_files=self.foxbms_files,
+            )
         err, out = _err.getvalue(), _out.getvalue()
 
         self.assertEqual(result, 4)

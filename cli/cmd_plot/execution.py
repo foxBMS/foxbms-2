@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,9 +44,10 @@ import warnings
 from pathlib import Path
 from typing import TypedDict, Unpack
 
-from yaml import YAMLError, safe_load
+from yaml import YAMLError
 
 from ..helpers.click_helpers import recho
+from ..helpers.config import read_config
 from ..helpers.misc import PROJECT_BUILD_ROOT, file_name_from_current_time
 from .data_handling.data_handler_factory import DataHandlerFactory
 from .data_handling.data_source_types import DataSourceTypes
@@ -64,23 +65,22 @@ class KwargsTyping(TypedDict):
 class Executor:  # pylint: disable=too-few-public-methods
     """Class to execute the plot software"""
 
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
     def __init__(
         self,
         input_data: list[Path],
-        data_config: Path,
         plot_config: Path,
+        data_config: Path | None = None,
         output: Path | None = None,
         **kwargs: Unpack[KwargsTyping],
     ) -> None:
         """Initialise the Executor"""
         self.input_data = input_data
-        data_source_type = kwargs.get("data_source_type", None)
+        data_source_type = kwargs.get("data_source_type")
         self.data_source_type = Executor._get_data_source_type(
             data_source_type, input_data
         )
-        self.data_config = self._read_config(data_config)
-        self.plot_config = self._read_config(plot_config)
+        self.data_config = data_config
+        self.plot_config = plot_config
         if (output is None) or (Path(output).is_file()):
             output = PROJECT_BUILD_ROOT / "plots" / file_name_from_current_time()
         self.output = output
@@ -99,7 +99,7 @@ class Executor:  # pylint: disable=too-few-public-methods
                 plot_dir = Path(self.output) / Path(file).stem
                 plot_dir.mkdir(parents=True, exist_ok=True)
                 # Create and show/save a plot for each graph in plot_config
-                for graph_config in self.plot_config:
+                for graph_config in read_config(self.plot_config):
                     # reinitialize the context manager to avoid checking old warnings
                     with warnings.catch_warnings(record=True) as w:
                         graph_drawer = GraphDrawerFactory().get_object(graph_config)
@@ -107,12 +107,14 @@ class Executor:  # pylint: disable=too-few-public-methods
                         graph_drawer.save(plot_dir)
                         graph_drawer.show()
                         Executor._handle_pyplot_warnings(w, graph_drawer)
-        except TypeError:
-            # Handles the case where self.plot_config is not a list
-            recho(
-                "Plot configuration is not a list of dictionaries. "
-                "Please check the plot configuration format."
-            )
+        except (
+            UnicodeDecodeError,
+            YAMLError,
+            FileNotFoundError,
+            OSError,
+            TypeError,
+        ) as err:
+            recho(f"Plot creation failed: {err}")
             sys.exit(1)
 
     def _get_data_files(self) -> list[Path]:
@@ -131,22 +133,13 @@ class Executor:  # pylint: disable=too-few-public-methods
                 sys.exit(1)
         return files
 
-    def _read_config(self, config_path: Path) -> dict:
-        """Read the given configuration file and save all contained data"""
-        try:
-            with open(config_path, encoding="utf-8") as stream:
-                config_content = safe_load(stream=stream)
-            return config_content
-        except (UnicodeDecodeError, YAMLError) as err:
-            recho(f"Invalid configuration file {config_path}: {err}")
-            sys.exit(1)
-
     @staticmethod
     def _get_data_source_type(
         data_source_type: str | None, input_data: list[Path]
     ) -> DataSourceTypes:
         """Determines the data source type depending on the passed input data
-        and the type string"""
+        and the type string
+        """
         if data_source_type is None:
             num_dirs = len([d for d in input_data if d.is_dir()])
             if num_dirs > 0:

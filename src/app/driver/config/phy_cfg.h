@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,9 +42,9 @@
 /**
  * @file    phy_cfg.h
  * @author  foxBMS Team
- * @date    2025-30-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @date    2025-05-30 (date of creation)
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  PHY
  *
@@ -69,6 +69,16 @@
 #define PHY_HW_RESET_TIME                    (1u) /* At least 720 ns needed */
 #define PHY_HW_POST_RESET_STABILIZATION_TIME (2u)
 #define PHY_AUTO_NEG_DELAY_TIME              (100u)
+#define PHY_LINK_DELAY_TIME                  (500u)
+#define PHY_LINK_RETRY_DELAY_TIME            (10u)
+
+#define PHY_MAX_ID_READ_COUNT (0xFu)
+
+#ifndef UNITY_UNIT_TEST
+#define PHY_LINK_RETRIES (0xFFu)
+#else
+#define PHY_LINK_RETRIES (0xFu)
+#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

@@ -1,0 +1,311 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+
+from waflib.Build import BuildContext
+
+
+def build(bld: BuildContext) -> None:
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/can_cfg_rx.c"),
+            bld.srcnode.find_node("src/app/driver/config/can_cfg.c"),
+            bld.srcnode.find_node("src/app/engine/config/database_cfg.c"),
+            bld.path.find_node("test_can_cfg_rx.c"),
+        ],
+        target="test-app-can_cfg_rx",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/can"),
+            bld.srcnode.find_node("src/app/driver/can/cbs/rx"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/foxmath"),
+            bld.srcnode.find_node("src/app/driver/imd"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/driver/can/can.h"),
+            bld.srcnode.find_node("src/app/driver/can/cbs/rx/can_cbs_rx.h"),
+            bld.srcnode.find_node("src/app/engine/database/database.h"),
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/driver/foxmath/foxmath.h"),
+            bld.srcnode.find_node("src/app/task/ftask/ftask.h"),
+            bld.srcnode.find_node("src/app/driver/imd/imd.h"),
+            bld.srcnode.find_node("src/os/freertos/freertos/include/mpu_prototypes.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/can_cfg_tx_cyclic.c"),
+            bld.srcnode.find_node("src/app/driver/config/can_cfg.c"),
+            bld.srcnode.find_node("src/app/engine/config/database_cfg.c"),
+            bld.path.find_node("test_can_cfg_tx_cyclic.c"),
+        ],
+        target="test-app-can_cfg_tx_cyclic",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/can"),
+            bld.srcnode.find_node("src/app/driver/can/cbs"),
+            bld.srcnode.find_node("src/app/driver/can/cbs/tx-cyclic"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/foxmath"),
+            bld.srcnode.find_node("src/app/driver/fram"),
+            bld.srcnode.find_node("src/app/driver/imd"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/engine/sys_mon"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/driver/can/can.h"),
+            bld.srcnode.find_node(
+                "src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h"
+            ),
+            bld.srcnode.find_node("src/app/engine/database/database.h"),
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/driver/foxmath/foxmath.h"),
+            bld.srcnode.find_node("src/app/task/ftask/ftask.h"),
+            bld.srcnode.find_node("src/app/driver/imd/imd.h"),
+            bld.srcnode.find_node("src/os/freertos/freertos/include/mpu_prototypes.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/can_cfg.c"),
+            bld.srcnode.find_node("src/app/engine/config/database_cfg.c"),
+            bld.path.find_node("test_can_cfg.c"),
+        ],
+        target="test-app-can_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/can"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/foxmath"),
+            bld.srcnode.find_node("src/app/driver/imd"),
+            bld.srcnode.find_node("src/app/driver/rtc"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+            bld.srcnode.find_node("src/app/task/config"),
+            bld.srcnode.find_node("src/app/task/ftask"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/driver/can/can.h"),
+            bld.srcnode.find_node("src/app/engine/database/database.h"),
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/driver/foxmath/foxmath.h"),
+            bld.srcnode.find_node("src/app/task/ftask/ftask.h"),
+            bld.srcnode.find_node("src/app/driver/imd/imd.h"),
+            bld.srcnode.find_node("src/os/freertos/freertos/include/mpu_prototypes.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/contactor_cfg.c"),
+            bld.path.find_node("test_contactor_cfg.c"),
+        ],
+        target="test-app-contactor_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/sps"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/dma_cfg.c"),
+            bld.path.find_node("test_dma_cfg.c"),
+        ],
+        target="test-app-dma_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/fram_cfg.c"),
+            bld.path.find_node("test_fram_cfg.c"),
+        ],
+        target="test-app-fram_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/pex_cfg.c"),
+            bld.path.find_node("test_pex_cfg.c"),
+        ],
+        target="test-app-pex_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_adi.c"),
+            bld.path.find_node("test_spi_cfg_adi.c"),
+        ],
+        target="test-app-spi_cfg_adi",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_debug.c"),
+            bld.path.find_node("test_spi_cfg_debug.c"),
+        ],
+        target="test-app-spi_cfg_debug",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_generic.c"),
+            bld.path.find_node("test_spi_cfg_generic.c"),
+        ],
+        target="test-app-spi_cfg_generic",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_mxm.c"),
+            bld.path.find_node("test_spi_cfg_mxm.c"),
+        ],
+        target="test-app-spi_cfg_mxm",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_nxp.c"),
+            bld.path.find_node("test_spi_cfg_nxp.c"),
+        ],
+        target="test-app-spi_cfg_nxp",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_st.c"),
+            bld.path.find_node("test_spi_cfg_st.c"),
+        ],
+        target="test-app-spi_cfg_st",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg_ti.c"),
+            bld.path.find_node("test_spi_cfg_ti.c"),
+        ],
+        target="test-app-spi_cfg_ti",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/spi_cfg.c"),
+            bld.path.find_node("test_spi_cfg.c"),
+        ],
+        target="test-app-spi_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/config/sps_cfg.c"),
+            bld.path.find_node("test_sps_cfg.c"),
+        ],
+        target="test-app-sps_cfg",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/sps"),
+        ],
+    )

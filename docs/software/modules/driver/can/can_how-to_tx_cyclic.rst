@@ -8,7 +8,7 @@ In the symbol file the message is implemented as ``f_BmsState`` (prefix
 ``f`` followed by the message name) and the message ID ``0x220``.
 As the message is transmitted (``tx``) from the point of view of the BMS, the
 comment in the symbol file must be
-``Message containing the foxBMS system state (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)``.
+``Message contains general BMS state information (in:can_cbs_tx_f_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)``.
 The changed symbol file must be saved and - as changes are applied - the dbc
 file must be exported again.
 
@@ -58,7 +58,7 @@ Callback Function
 """""""""""""""""
 
 The callback declaration must be added to the file
-``src/app/driver/can/cbs/tx/can_cbs_tx_cyclic.h``.
+``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h``.
 
 .. literalinclude:: ./can_how-to_tx_cyclic.c
    :language: C
@@ -66,11 +66,11 @@ The callback declaration must be added to the file
    :start-after: example-can-tx-cyclic-messages-callback-declaration-start
    :end-before: example-can-tx-cyclic-messages-callback-declaration-end
    :caption: Declaration of the callback function in
-             ``src/app/driver/can/cbs/tx/can_cbs_tx_cyclic.h``
+             ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h``
 
 The callback definition must be done in the appropriate implementation file,
 i.e., for the BMS state message in
-``src/app/driver/can/cbs/tx/can_cbs_tx_bms-state.c``.
+``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_bms-state.c``.
 
 .. literalinclude:: ./can_how-to_tx_cyclic.c
    :language: C
@@ -78,7 +78,7 @@ i.e., for the BMS state message in
    :start-after: example-can-tx-cyclic-messages-callback-definition-start
    :end-before: example-can-tx-cyclic-messages-callback-definition-end
    :caption: Definition of the callback function in
-             ``src/app/driver/can/cbs/tx/can_cbs_tx_bms-state.c``
+             ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_f_bms-state.c``
 
 Required Variables Adaptations
 """"""""""""""""""""""""""""""

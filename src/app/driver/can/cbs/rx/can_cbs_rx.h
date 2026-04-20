@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_rx.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__CAN_CBS_RX_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 
 #include "can_cfg.h"
 
@@ -67,25 +68,13 @@
 
 /*========== Extern Function Prototypes =====================================*/
 
-/** RX callback functions @{ */
 /**
- * @brief   CAN Rx callback function for IMD info messages
+ * @brief   CAN Rx callback function for debug messages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
-extern uint32_t CANRX_ImdInfo(
-    CAN_MESSAGE_PROPERTIES_s message,
-    const uint8_t *const kpkCanData,
-    const CAN_SHIM_s *const kpkCanShim);
-
-/**
- * @brief   CAN Rx callback function for IMD response messages
- * @param[in] message     contains the message ID, DLC and endianness
- * @param[in] kpkCanData  payload of can frame
- * @param[in] kpkCanShim  shim to the database entries
- */
-extern uint32_t CANRX_ImdResponse(
+extern uint32_t CANRX_Debug(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
@@ -101,39 +90,46 @@ extern uint32_t CANRX_BmsStateRequest(
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 
+#if (defined(FOXBMS_CS_ISABELLENHUETTE_IVT_S) && (FOXBMS_CS_ISABELLENHUETTE_IVT_S == 1))
 /**
  * @brief   CAN Rx callback function for current sensor measurements
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
-extern uint32_t CANRX_CurrentSensor(
+extern uint32_t CANRX_CsIsabellenhuetteIvtS(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
+#endif /* FOXBMS_CS_ISABELLENHUETTE_IVT_S */
 
+#if (defined(FOXBMS_CS_LEM_CAB500) && (FOXBMS_CS_LEM_CAB500 == 1))
 /**
- * @brief   CAN Rx callback function for debug messages
+ * @brief   CAN Rx callback function for the LEM current sensor measurements
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
-extern uint32_t CANRX_Debug(
+extern uint32_t CANRX_CsLemCab500(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
+#endif /* FOXBMS_CS_LEM_CAB500 */
 
+#ifdef FOXBMS_AS_HONEYWELL_BAS6C_X00
 /**
  * @brief   CAN Rx callback function for aerosol sensor messages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
-extern uint32_t CANRX_AerosolSensor(
+extern uint32_t CANRX_AsHoneywellBas6cX00(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
+#endif /* FOXBMS_AS_HONEYWELL_BAS6C_X00 */
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /**
  * @brief   CAN Rx callback function to handle cell-temperatures message
  * @param[in] message     contains the message ID, DLC and endianness
@@ -155,16 +151,40 @@ extern uint32_t CANRX_CellVoltages(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
-/**@}*/
+#endif /* FOXBMS_AFE_DRIVER_DEBUG_CAN */
+
+#if (defined(FOXBMS_IMD_BENDER_ISO165C) && (FOXBMS_IMD_BENDER_ISO165C == 1))
+/** RX callback functions */
+/**
+ * @brief   CAN Rx callback function for IMD info messages
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] kpkCanData  payload of can frame
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANRX_ImdBenderIso165cInfo(
+    CAN_MESSAGE_PROPERTIES_s message,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   CAN Rx callback function for IMD response messages
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] kpkCanData  payload of can frame
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANRX_ImdBenderIso165cResponse(
+    CAN_MESSAGE_PROPERTIES_s message,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim);
 
 /**
  * @brief   Gets data from IMD Info message and stores it in data table
  * @param   kpkCanData Can data from the IMD Info message
- * @param   pTableInsulationMonitoring Pointer to the data table where data will be written
+ * @param   pTableInsulation Pointer to the data table where data will be written
  */
-void CANRX_ImdInfoGetDataFromMessage(
+void CANRX_ImdBenderIso165cInfoGetDataFromMessage(
     const uint8_t *const kpkCanData,
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+    DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /**
  * @brief   Checks the current measurement mode
@@ -172,39 +192,39 @@ void CANRX_ImdInfoGetDataFromMessage(
  * @param   mode Mode that the actual value is compared to
  * @return  True if mode from can data and mode are equal
  */
-bool CANRX_ImdInfoCheckMeasurementMode(const uint8_t *const kpkCanData, uint8_t mode);
+bool CANRX_ImdBenderIso165cInfoCheckMeasurementMode(const uint8_t *const kpkCanData, uint8_t mode);
 
 /**
  * @brief   Checks if self test has been executed
  * @param   kpkCanData Can data from the IMD Info message
  * @return  true if self test has been executed
  */
-bool CANRX_ImdInfoHasSelfTestBeenExecuted(const uint8_t *const kpkCanData);
+bool CANRX_ImdBenderIso165cInfoHasSelfTestBeenExecuted(const uint8_t *const kpkCanData);
 
 /**
  * @brief   Checks if self test has finished
  * @param   kpkCanData Can data from the IMD Info message
  * @return  true if self test has finished
  */
-bool CANRX_ImdInfoIsSelfTestFinished(const uint8_t *const kpkCanData);
+bool CANRX_ImdBenderIso165cInfoIsSelfTestFinished(const uint8_t *const kpkCanData);
 
 /**
  * @brief   Gets insulation resistance from IMD response message and stores it in the data table
  * @param   kpkCanData Can data from the IMD Info message
- * @param   pTableInsulationMonitoring Pointer to the data table where data will be written
+ * @param   pTableInsulation Pointer to the data table where data will be written
  */
-void CANRX_ImdResponseReadInsulationResistance(
+void CANRX_ImdBenderIso165cResponseReadInsulationResistance(
     const uint8_t *const kpkCanData,
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+    DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /**
  * @brief   Gets tendency of the insulation fault from IMD response message and stores it in the data table
  * @param   kpkCanData Can data from the IMD Info message
- * @param   pTableInsulationMonitoring Pointer to the data table where data will be written
+ * @param   pTableInsulation Pointer to the data table where data will be written
  */
-void CANRX_ImdResponseCheckInsulationFaultTendency(
+void CANRX_ImdBenderIso165cResponseCheckInsulationFaultTendency(
     const uint8_t *const kpkCanData,
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+    DATA_BLOCK_INSULATION_s *pTableInsulation);
 
 /**
  * @brief   Checks the current relay state of one relay
@@ -213,11 +233,12 @@ void CANRX_ImdResponseCheckInsulationFaultTendency(
  * @param   relayState Relay state that the actual value is compared to
  * @return  True if relay state from can data and relay are equal
  */
-bool CANRX_ImdResponseCheckRelayState(const uint8_t *const kpkCanData, uint8_t relay, uint8_t relayState);
+bool CANRX_ImdBenderIso165cResponseCheckRelayState(const uint8_t *const kpkCanData, uint8_t relay, uint8_t relayState);
+#endif /* FOXBMS_IMD_BENDER_ISO165C */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c */
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_cs_isabellenhuette-ivt-s.c */
 extern void TEST_CANRX_HandleChannelError(const CAN_SHIM_s *const kpkCanShim, uint32_t messageId, uint8_t stringNumber);
 extern void TEST_CANRX_ResetError(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber);
 extern void TEST_CANRX_HandleMeasurementError(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber);
@@ -237,7 +258,7 @@ extern void TEST_CANRX_SetCoulombCounting(const CAN_SHIM_s *const kpkCanShim, ui
 extern void TEST_CANRX_SetEnergyCounting(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
 extern uint8_t TEST_CANRX_SetStringNumberBasedOnCanMessageId(uint32_t messageId);
 
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_debug.c */
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_f_debug.c */
 extern uint8_t TEST_CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern uint8_t TEST_CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern uint8_t TEST_CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -256,6 +277,7 @@ extern void TEST_CANRX_TriggerUptimeInfoMessage(void);
 extern void TEST_CANRX_TriggerBootTimestampMessage(void);
 extern void TEST_CANRX_TriggerCommitHashMessage(void);
 extern void TEST_CANRX_TriggerBuildConfigurationMessage(void);
+extern void TEST_CANRX_TriggerIdentifyHardwareMessage(void);
 
 extern bool TEST_CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfMcuUniqueDieIdIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -268,6 +290,7 @@ extern bool TEST_CANRX_CheckIfUptimeInfoIsRequested(uint64_t messageData, CAN_EN
 extern bool TEST_CANRX_CheckIfBootTimestampIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern bool TEST_CANRX_CheckIfIdentifyHardwareIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 extern void TEST_CANRX_ProcessVersionInformationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessRtcMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -275,38 +298,59 @@ extern void TEST_CANRX_ProcessSoftwareResetMux(uint64_t messageData, CAN_ENDIANN
 extern void TEST_CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_CANRX_ProcessIdentifyHardwareMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 extern void TEST_CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_SetParticulateMatterConcentration(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_SetAerosolSensorCrcCheckCode(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_bms-state-request.c */
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_f_bms-state-request.c */
 extern void TEST_CANRX_ClearAllPersistentFlags(uint64_t messageData);
 extern void TEST_CANRX_HandleModeRequest(uint64_t messageData, const CAN_SHIM_s *const kpkCanShim);
 extern void TEST_CANRX_HandleBalancingRequest(uint64_t messageData);
 extern void TEST_CANRX_SetBalancingThreshold(uint64_t messageData);
 
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_cell-temperatures.c */
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_afe_cell-temperatures.c */
 extern void TEST_CANRX_GetCanAfeCellTemperaturesFromMessage(
     CAN_CAN2AFE_CELL_TEMPERATURES_QUEUE_s *pCellTemperatures,
     uint64_t messageData);
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_cell-voltages.c */
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_afe_cell-voltages.c */
 extern void TEST_CANRX_GetCanAfeCellVoltagesFromMessage(
     CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s *pCellVoltages,
     uint64_t messageData);
+#endif
 
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.c*/
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-info.c*/
 extern void TEST_CANRX_TransferImdInfoMessageToCanBuffer(
     uint8_t messageDlc,
     const uint8_t *const kpkCanData,
     CAN_BUFFER_ELEMENT_s *canBuffer);
 
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd-response.c*/
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso175c-info.c*/
+extern void TEST_CANRX_GetMeasuredResistance(uint64_t messageData, DATA_BLOCK_INSULATION_s *pTableInsulation);
+extern void TEST_CANRX_GetImcStatus(uint64_t messageData, DATA_BLOCK_INSULATION_s *pTableInsulation);
+extern void TEST_CANRX_GetVifcStatus(uint64_t messageData, DATA_BLOCK_INSULATION_s *pTableInsulation);
+
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-response.c*/
 extern void TEST_CANRX_TransferImdResponseMessageToCanBuffer(
     uint8_t messageDlc,
     const uint8_t *const kpkCanData,
     CAN_BUFFER_ELEMENT_s *canBuffer);
+
+extern void TEST_CANRX_LemHandleSensorData(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint32_t messageId,
+    uint8_t stringNumber,
+    int32_t signalData);
+extern void TEST_CANRX_LemSetCurrent(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern uint8_t TEST_CANRX_LemSetStringNumberBasedOnCanMessageId(uint32_t messageId);
+extern void TEST_CANRX_LemResetError(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber);
+extern void TEST_CANRX_LemHandleChannelError(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint32_t messageId,
+    uint8_t stringNumber);
 #endif
 
 #endif /* FOXBMS__CAN_CBS_RX_H_ */

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.3.2
+ * FreeRTOS+TCP V4.3.3
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -327,19 +327,18 @@
                 case ndICMP_REDIRECTED_HEADER: /* 4 */
                     break;
 
-
                 case ndICMP_MTU_OPTION: /* 5 */
                    {
                         #if ipconfigHAS_PRINTF == 1
-                        uint32_t ulMTU;
+                            uint32_t ulMTU;
+                            ( void ) ulMTU;
 
-                        /* ulChar2u32 returns host-endian numbers. */
-                        ulMTU = ulChar2u32( &( pucBytes[ uxIndex + 4U ] ) );
-                        FreeRTOS_printf( ( "RA: MTU = %u\n", ( unsigned int ) ulMTU ) );
+                            /* ulChar2u32 returns host-endian numbers. */
+                            ulMTU = ulChar2u32( &( pucBytes[ uxIndex + 4U ] ) );
+                            FreeRTOS_printf( ( "RA: MTU = %u\n", ( unsigned int ) ulMTU ) );
                         #endif /* ipconfigHAS_PRINTF == 1 */
-                    }
-                    break;
-
+                   }
+                   break;
 
                 default:
                     FreeRTOS_printf( ( "RA: Type 0x%02x not implemented\n", ucType ) );

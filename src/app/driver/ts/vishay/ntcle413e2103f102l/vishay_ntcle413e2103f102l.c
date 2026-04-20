@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    vishay_ntcle413e2103f102l.c
  * @author  foxBMS Team
  * @date    2021-11-03 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -71,12 +71,16 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /** LUT filled from higher resistance to lower resistance */
-static const TS_TEMPERATURE_SENSOR_LUT_s ts_ntcle413e2103f102lLut[] = {
-    {-40, 190953.0f}, {-35, 145953.0f}, {-30, 112440.0f}, {-25, 87285.0f}, {-20, 68260.0f}, {-15, 53762.0f},
-    {-10, 42636.0f},  {-5, 34038.0f},   {0, 27348.0f},    {5, 22108.0f},   {10, 17979.0f},  {15, 17706.0f},
-    {20, 12904.0f},   {25, 10000.0f},   {30, 8310.8f},    {35, 6941.1f},   {40, 5824.9f},   {45, 4910.6f},
-    {50, 4158.3f},    {55, 3536.2f},    {60, 3019.7f},    {65, 2588.8f},   {70, 2228.0f},   {75, 1924.6f},
-    {80, 1668.4f},    {85, 1451.3f},    {90, 1266.7f},    {95, 1109.2f},   {100, 974.26f},  {105, 858.33f}};
+static const TS_TEMPERATURE_SENSOR_LUT_s
+    ts_ntcle413e2103f102lLut[] =
+        {
+            {-400, 190953.0f}, {-350, 145953.0f}, {-300, 112440.0f}, {-250, 87285.0f}, {-200, 68260.0f},
+            {-150, 53762.0f},  {-100, 42636.0f},  {-50, 34038.0f},   {0, 27348.0f},    {50, 22108.0f},
+            {100, 17979.0f}, /*{15, 17706.0f},{20, 12904.0f},*/
+            {150, 14706.0f},   {200, 12094.0f},   {250, 10000.0f},   {300, 8310.8f},   {350, 6941.1f},
+            {400, 5824.9f},    {450, 4910.6f},    {500, 4158.3f},    {550, 3536.2f},   {600, 3019.7f},
+            {650, 2588.8f},    {700, 2228.0f},    {750, 1924.6f},    {800, 1668.4f},   {850, 1451.3f},
+            {900, 1266.7f},    {950, 1109.2f},    {1000, 974.26f},   {1050, 858.33f}};
 
 /** size of the #ts_ntcle413e2103f102lLut LUT */
 static const uint16_t ts_ntcle413e2103f102lLutSize = sizeof(ts_ntcle413e2103f102lLut) /

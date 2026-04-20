@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,52 +37,87 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the common objects for MC3377x-based 'AFE'-drivers."""
 
-from waflib.Build import BuildContext
+def build(bld):
+    op = f"{bld.env.APPNAME.lower()}-object-"
 
-
-def build(bld: BuildContext):
-    """Build the common objects for MC3377x-based 'AFE'-drivers."""
     bld.recurse("vendor")
-    source = [
-        "nxp_mc3377x.c",
-        "nxp_mc3377x_afe_dma.c",
-        "nxp_mc3377x_database.c",
-        "nxp_mc3377x_helpers.c",
-        "nxp_mc3377x_mux.c",
-        "nxp_mc3377x-ll.c",
-    ]
 
-    includes = [
-        "vendor",
-        "../../../../config",
-        "../../../../dma",
-        "../../../../foxmath",
-        "../../../../io",
-        "../../../../mcu",
-        "../../../../pex",
-        "../../../../rtc",
-        "../../../../spi",
-        "../../../../ts",
-        "../../../../ts/api",
-        "../../../../../application/config",
-        "../../../../../engine/config",
-        "../../../../../engine/database",
-        "../../../../../engine/diag",
-        "../../../../../main/include",
-        "../../../../../task/config",
-        "../../../../../task/config",
-        "../../../../../task/ftask",
-        "../../../../../task/os",
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver-nxp-mc3377x-common"
+    includes = (
+        [
+            "vendor",
+            "../../../../config",
+            "../../../../dma",
+            "../../../../foxmath",
+            "../../../../io",
+            "../../../../mcu",
+            "../../../../pex",
+            "../../../../rtc",
+            "../../../../spi",
+            "../../../../ts",
+            "../../../../ts/api",
+            "../../../../../application/config",
+            "../../../../../engine/config",
+            "../../../../../engine/database",
+            "../../../../../engine/diag",
+            "../../../../../main/include",
+            "../../../../../task/config",
+            "../../../../../task/config",
+            "../../../../../task/ftask",
+            "../../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+
+    source = "nxp_mc3377x_afe_dma"
     bld.objects(
-        source=source,
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc3377x_database"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc3377x_helpers"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc3377x_mux"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc3377x-ll"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc3377x"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
     )

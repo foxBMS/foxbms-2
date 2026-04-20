@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,18 +40,17 @@
 """Script to plot time period in between signals"""
 
 import argparse
-import logging
+import logging  # noqa: TID251
 import sys
 from pathlib import Path
-from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 def extract_timestamps_for_ids(
-    log_file: Path, target_ids: List[str]
-) -> Dict[str, List[float]]:
+    log_file: Path, target_ids: list[str]
+) -> dict[str, list[float]]:
     """Extracts the timestamps for each target id"""
     # Check if the file exists
     if not log_file.exists():
@@ -73,8 +72,8 @@ def extract_timestamps_for_ids(
     return timestamps
 
 
-def plot_stats(difference: List[float], target_id: str, show: bool = False) -> None:
-    """plots the periods along with statistics"""
+def plot_stats(difference: list[float], target_id: str, show: bool = False) -> None:
+    """Plots the periods along with statistics"""
     min_diff = min(difference)
     max_diff = max(difference)
     mean_diff = np.mean(difference)
@@ -122,9 +121,9 @@ def plot_stats(difference: List[float], target_id: str, show: bool = False) -> N
 
 
 def plot_time_differences_for_ids(
-    log_file: Path, target_ids: List[str], show: bool = False
+    log_file: Path, target_ids: list[str], show: bool = False
 ) -> None:
-    """calls extract timestamp function and statistics plotting function"""
+    """Calls extract timestamp function and statistics plotting function"""
     timestamps = extract_timestamps_for_ids(log_file, target_ids)
     for target_id in target_ids:
         if not timestamps[target_id]:
@@ -145,7 +144,7 @@ def plot_time_differences_for_ids(
 
 
 def main() -> None:
-    "Takes path and IDs are argument and calls the plot function"
+    """Takes path and IDs are argument and calls the plot function"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",

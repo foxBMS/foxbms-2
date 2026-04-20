@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -111,7 +111,7 @@
  *
  * The payload-length has to be consistent with the payload.
  * Payload-lengths of one will write to one register only. Longer payloads
- * will write to adjacent registers. Please see the MAX17841B data sheet
+ * will write to adjacent registers. Please see the MAX17841B datasheet
  * for reference.
  *
  * @param[in,out] pInstance pointer to the state of the MAX17841B-state-machine
@@ -138,7 +138,7 @@ static STD_RETURN_TYPE_e MXM_41BRegisterWrite(
  *
  * The RX buffer length has to be consistent with the RX buffer.
  * RX buffer lengths of one will read one register only. Longer RX buffers
- * will read also from adjacent registers. Please see the MAX17841B data sheet
+ * will read also from adjacent registers. Please see the MAX17841B datasheet
  * for reference.
  *
  * @param[in,out] pInstance pointer to the state of the MAX17841B-state-machine
@@ -447,7 +447,7 @@ static void MXM_41BStateHandlerInit(MXM_41B_INSTANCE_s *pInstance) {
             pInstance->substate = MXM_41B_INIT_WRITE_DEFAULT_VALUES;
         }
     } else if (pInstance->substate == MXM_41B_INIT_WRITE_DEFAULT_VALUES) {
-        /* set default register values according to data sheet */
+        /* set default register values according to datasheet */
         MXM_41BInitializeRegisterCopies(pInstance);
         const STD_RETURN_TYPE_e retval = MXM_41BConfigRegisterWrite(pInstance);
         if (retval == STD_OK) {

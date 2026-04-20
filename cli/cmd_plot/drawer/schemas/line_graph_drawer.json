@@ -20,6 +20,18 @@
         "date_format": {
           "type": "string"
         },
+        "start_date": {
+          "type": "string"
+        },
+        "time_factor": {
+          "type": "integer"
+        },
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
         "y1": {
           "type": "object",
           "properties": {

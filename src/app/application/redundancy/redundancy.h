@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    redundancy.h
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -164,13 +164,13 @@ extern bool TEST_MRC_ValidateCellVoltageMeasurement(
 extern bool TEST_MRC_ValidateCellTemperatureMeasurement(
     DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureBase,
     DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureRedundancy0);
-extern void TEST_MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
-extern void TEST_MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
+extern void TEST_MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_s *pTableCurrent);
+extern void TEST_MRC_ValidatePowerMeasurement(DATA_BLOCK_POWER_s *pTablePower);
 extern void TEST_MRC_ValidateStringVoltageMeasurement(
-    DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor,
+    DATA_BLOCK_SYSTEM_VOLTAGE_1_s *pTableSystemVoltage1,
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage);
 extern void TEST_MRC_ValidateBatteryVoltageMeasurement(void);
-extern void TEST_MRC_ValidateHighVoltageMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
+extern void TEST_MRC_ValidateHighVoltageMeasurement(DATA_BLOCK_SYSTEM_VOLTAGE_3_s *pTableSystemVoltage3);
 extern STD_RETURN_TYPE_e TEST_MRC_CalculateCellVoltageMinMaxAverage(
     DATA_BLOCK_CELL_VOLTAGE_s *pValidatedVoltages,
     DATA_BLOCK_MIN_MAX_s *pMinMaxAverageValues);

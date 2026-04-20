@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,12 +39,12 @@
 
 """Implements the functionalities behind the 'waf' command"""
 
-import logging
 from pathlib import Path
 from subprocess import PIPE
 from sys import executable
 
 from ..helpers.host_platform import get_platform
+from ..helpers.logger import logger
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
@@ -54,23 +54,49 @@ WAF_BASE_CMD = [executable, str(WAF_BIN)]
 
 if get_platform() == "win32":
     # on Windows, the GUI is launched through 'pythonw.exe' and we do not want
-    # to launch the build process trough 'pythonw.exe' as this creates poping
+    # to launch the build process trough 'pythonw.exe' as this creates popping
     # up terminals.
     WAF_BASE_CMD = [executable.replace("pythonw.exe", "python.exe"), str(WAF_BIN)]
 
 
 def run_waf(
-    args: list[str], cwd: str | Path = WAF_DEFAULT_CWD, stdout=PIPE, stderr=PIPE
+    args: list[str],
+    cwd: str | Path = WAF_DEFAULT_CWD,
+    stdout: int | None = PIPE,
+    stderr: int | None = PIPE,
 ) -> SubprocessResult:
-    """Run the waf binary with the provided arguments."""
+    """Execute ``waf`` with the provided argument list.
+
+    Args:
+        args: Command-line arguments passed to ``waf``.
+        cwd: Working directory used for process execution.
+        stdout: Optional stream configuration for standard output.
+        stderr: Optional stream configuration for standard error.
+
+    Returns:
+        A :class:`SubprocessResult` containing command execution details.
+    """
     cmd = WAF_BASE_CMD + args
-    logging.debug("%s", " ".join(cmd))
+    logger.debug("%s", " ".join(cmd))
     return run_process(cmd, cwd=cwd, stdout=stdout, stderr=stderr)
 
 
 def run_top_level_waf(
-    args: list[str], cwd: str | Path = WAF_DEFAULT_CWD, stdout=PIPE, stderr=PIPE
+    args: list[str],
+    stdout: int | None = PIPE,
+    stderr: int | None = PIPE,
 ) -> SubprocessResult:
-    """Run the waf binary with the provided arguments."""
-    ret = run_waf(args, cwd=cwd, stdout=stdout, stderr=stderr)
-    return ret
+    """Execute ``waf`` from the project top-level context.
+
+    This wrapper currently delegates directly to :func:`run_waf` and exists as
+    a dedicated top-level call site for command handlers.
+
+    Args:
+        args: Command-line arguments passed to ``waf``.
+        stdout: Optional stream configuration for standard output.
+        stderr: Optional stream configuration for standard error.
+
+    Returns:
+        A :class:`SubprocessResult` containing command execution details.
+    """
+    return run_waf(args, cwd=WAF_DEFAULT_CWD, stdout=stdout, stderr=stderr)

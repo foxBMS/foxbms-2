@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -317,6 +317,44 @@ class TestCheckDoxygenComment(unittest.TestCase):
         with redirect_stderr(err):
             result = check_doxygen.check_doxygen(files, self.version)
         self.assertEqual(result, 0)
+
+    def test_default_confidential_offset_is_used_without_bsd_header(self):
+        """Use confidential default offset when file has no SPDX marker and no index map entry."""
+        content = "\n".join(  # noqa: FLY002
+            [
+                "header 0",
+                "header 1",
+                "header 2",
+                "header 3",
+                "header 4",
+                "header 5",
+                "header 6",
+                "header 7",
+                "header 8",
+                "/**",
+                " * @file    default-offset.c",
+                " * @author  foxBMS Team",
+                " * @date    2026-03-27 (date of creation)",
+                " * @updated 2026-03-27 (date of last update)",
+                " * @version v1.2.3",
+                " * @ingroup APP",
+                " * @prefix  BMS",
+                " *",
+                " * @brief   BRIEF",
+                " * More brief text.",
+                " * @details DETAILS",
+            ]
+        )
+        file_mock = MagicMock(spec=Path)
+        file_mock.as_posix.return_value = "mock/default-offset.c"
+        file_mock.name = "default-offset.c"
+        file_mock.read_text.return_value = content
+
+        err = io.StringIO()
+        with redirect_stderr(err):
+            result = check_doxygen.run_check(file_mock, "1.2.3")
+        self.assertEqual(result, 0)
+        self.assertEqual(err.getvalue(), "")
 
 
 if __name__ == "__main__":

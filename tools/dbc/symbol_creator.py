@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,16 +40,16 @@
 """Template for Python scripts"""
 
 import argparse
-import logging
+import logging  # noqa: TID251
 import math
 from pathlib import Path
 
 SCRIPT_PATH = Path(__file__).parent.resolve()
 
 
-def sym_hex(number):
-    """fix hex number output for sym files"""
-    out = hex(number)[2:]
+def sym_hex(number: int) -> str:
+    """Fix hex number output for sym files"""
+    out = f"{number:x}"
     try:
         out_as_hex = "0x" + out.upper()
         if int(out_as_hex, 0) > 9:
@@ -59,7 +59,7 @@ def sym_hex(number):
     return out
 
 
-def main():
+def main() -> None:
     """This script produces a symbol file for cell voltages and temperatures"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -104,11 +104,11 @@ def main():
     volts = []
     name = "CellVoltage"
     cycle_time_ms = str(math.ceil(args.number_of_cells / 4) * 100)
-    for i in range(0, args.number_of_cells):
+    for i in range(args.number_of_cells):
         volts.append("[f_CellVoltages]")
         if not i:
             volts.append(
-                "ID=250h // (in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx)"
+                "ID=250h // (in:can_cbs_tx_f_cell-voltages.c:CANTX_CellVoltages, fv:tx)"
             )
         # pylint: disable=line-too-long
         # fmt: off
@@ -135,11 +135,11 @@ def main():
     temps = []
     name = "CellTemperature"
     cycle_time_ms = str(math.ceil(args.number_of_cell_temperatures / 6) * 100)
-    for i in range(0, args.number_of_cell_temperatures):
+    for i in range(args.number_of_cell_temperatures):
         temps.append("[f_CellTemperatures]")
         if not i:
             temps.append(
-                "ID=260h // (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx)"
+                "ID=260h // (in:can_cbs_tx_f_cell-temperatures.c:CANTX_CellTemperatures, fv:tx)"
             )
         # pylint: disable=line-too-long
         # fmt: off

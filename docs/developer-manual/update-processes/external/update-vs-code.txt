@@ -1,1 +1,1 @@
-|vs-code| is auto-updated itself.
+|vs-code| auto-updates itself.

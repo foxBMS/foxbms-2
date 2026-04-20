@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,52 +38,23 @@
 # - "This product is derived from foxBMS®"
 
 
-"""Build the TI DP83869 driver in case TCP support is enabled; otherwise a
-dummy function is compiled."""
-
-
 def build(bld):
-    """Build the TI DP83869 driver in case TCP support is enabled; otherwise a
-    dummy function is compiled."""
+    op = f"{bld.env.APPNAME.lower()}-object-"
+
     includes = [
+        "../config",
+        "../io",
+        "../mcu",
+        "../../application/config",
+        "../../engine/config",
+        "../../engine/database",
+        "../../task/os",
         "../../main/include",
-    ]
-    if bld.env.TCP_SUPPORT:
-        source = ["dp83869.c"]
-        includes.extend(
-            [
-                "../../application/config",
-                "../../engine/config",
-                "../../engine/database",
-                "../../task/os",
-                "../config",
-                "../io",
-                "../mcu",
-            ]
-        )
-        includes.extend(bld.env.INCLUDES_RTOS)
-    else:
-        code = (
-            '#include "fstd_types.h"\n\n'
-            "#include <stdint.h>\n\n"
-            "STD_RETURN_TYPE_e PHY_Initialize(uint32_t mdioBaseAddress) {\n"
-            "    (void)mdioBaseAddress;\n"
-            "    return STD_OK;\n"
-            "}\n"
-        )
-        dummy_phy = bld.path.find_or_declare("dummy-phy.c")
-        try:
-            if dummy_phy.h_file().hex() != "27da261929a15a77f310bf7722052fd3":
-                raise FileNotFoundError
-        except FileNotFoundError:
-            dummy_phy.parent.mkdir()
-            dummy_phy.write(code)
-        source = [dummy_phy]
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-objects-phy"
+    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    source = "dp83869"
     bld.objects(
-        source=source,
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
     )

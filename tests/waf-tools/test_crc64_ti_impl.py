@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,14 +37,15 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Testing file 'cli/cmd_bootloader/crc64_ti_impl.py'."""
+
+"""Testing file 'tools/waf-tools/crc64_ti_impl.py'."""
 
 import sys
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[2] / "tools/waf-tools"))
-import crc64_ti_impl  # pylint: disable=import-error,wrong-import-position
+import crc64_ti_impl  # pylint: disable=wrong-import-position
 
 
 class TestCRC64TIImpl(unittest.TestCase):

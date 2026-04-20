@@ -1,4 +1,4 @@
-/* c0c40b9d037bb0eb743c359247de721e */
+/* 19b1c8599be7937c5704987c3a5ee556 */
 
 /* Aligned with names in "MEMORY" in the elf-linker script */
 ROMS
@@ -19,11 +19,11 @@ ROMS
 
     /* RAM */
     STACKS                  : origin = 0x08000000
-                              length = 0x800
-    KERNEL_DATA             : origin = 0x08000800
-                              length = 0x1000
-    RAM                     : origin = 0x08001800
-                              length = 0x7C800
+                              length = 0x1800
+    KERNEL_DATA             : origin = 0x08001800
+                              length = 0xB000
+    RAM                     : origin = 0x0800C800
+                              length = 0x71800
     SHARED_RAM              : origin = 0x0807E000
                               length = 0x2000
 

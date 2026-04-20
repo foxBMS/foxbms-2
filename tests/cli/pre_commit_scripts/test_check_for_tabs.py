@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -60,14 +60,13 @@ class TestForTabs(unittest.TestCase):
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
 
     def test_ok(self):
-        """line starts with comment"""
+        """Line starts with comment"""
         test = "no-tabs.txt"
         result = check_for_tabs.main([str(self.tests_dir / test)])
         self.assertEqual(result, 0)
 
     def test_not_ok_0(self):
         """No tabs"""
-
         test = "tabs_0.txt"
         err = io.StringIO()
         with redirect_stderr(err):
@@ -82,7 +81,6 @@ class TestForTabs(unittest.TestCase):
 
     def test_not_ok_1(self):
         """ASCII file with tabs"""
-
         test = "tabs_1.txt"
         err = io.StringIO()
         with redirect_stderr(err):
@@ -99,7 +97,6 @@ class TestForTabs(unittest.TestCase):
 
     def test_not_ok_2(self):
         """UTF-16-LE file with tabs"""
-
         test = "tabs_2.txt"
         err = io.StringIO()
         with redirect_stderr(err):

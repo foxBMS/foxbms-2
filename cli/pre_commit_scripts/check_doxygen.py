@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -66,6 +66,17 @@ IDX_DEFAULTS = {
 IDX_MAP = {
     "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.c": 22,
     "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.h": 22,
+    "src/app/driver/config/spi_cfg_adi.c": 34,
+    "src/app/driver/config/spi_cfg_dtnxp.c": 34,
+    "src/app/driver/config/spi_cfg_generic.c": 34,
+    "src/app/driver/config/spi_cfg_mxm.c": 34,
+    "src/app/driver/config/spi_cfg_nxp.c": 34,
+    "src/app/driver/config/spi_cfg_st.c": 34,
+    "src/app/driver/config/spi_cfg_ti.c": 34,
+    "src/app/driver/emac/emac-low-level.c": 34,
+    "src/app/driver/emac/emac-low-level.h": 34,
+    "src/app/driver/emac/emac.c": 34,
+    "src/app/driver/emac/emac.h": 34,
     "src/app/driver/phy/dp83869.c": 34,
     "src/app/driver/phy/dp83869.h": 34,
     "src/app/hal/app-hl_notification.c": 34,
@@ -80,20 +91,45 @@ IGNORE_ERROR = {
     "author": [
         "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.c",
         "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.h",
-        "src/app/hal/app-hl_notification.c",
+        "src/app/driver/config/spi_cfg_adi.c",
+        "src/app/driver/config/spi_cfg_dtnxp.c",
+        "src/app/driver/config/spi_cfg_generic.c",
+        "src/app/driver/config/spi_cfg_mxm.c",
+        "src/app/driver/config/spi_cfg_nxp.c",
+        "src/app/driver/config/spi_cfg_st.c",
+        "src/app/driver/config/spi_cfg_ti.c",
+        "src/app/driver/emac/emac-low-level.c",
+        "src/app/driver/emac/emac-low-level.h",
+        "src/app/driver/emac/emac.c",
+        "src/app/driver/emac/emac.h",
         "src/app/driver/phy/dp83869.c",
         "src/app/driver/phy/dp83869.h",
+        "src/app/hal/app-hl_notification.c",
         "src/app/main/fstartup.c",
         "src/bootloader/hal/bootloader-hl_notification.c",
         "src/bootloader/main/fstartup.c",
     ],
     "date": [
+        "src/app/driver/config/spi_cfg_adi.c",
+        "src/app/driver/config/spi_cfg_dtnxp.c",
+        "src/app/driver/config/spi_cfg_generic.c",
+        "src/app/driver/config/spi_cfg_mxm.c",
+        "src/app/driver/config/spi_cfg_nxp.c",
+        "src/app/driver/config/spi_cfg_st.c",
+        "src/app/driver/config/spi_cfg_ti.c",
         "src/app/hal/app-hl_notification.c",
         "src/app/main/fstartup.c",
         "src/bootloader/hal/bootloader-hl_notification.c",
         "src/bootloader/main/fstartup.c",
     ],
-    "version": [],
+    "file": [
+        "tests/waf-tools/fixtures/create_app_build_cfg/expected-app_build_cfg.c",
+        "tests/waf-tools/fixtures/create_version/expected-version.c",
+    ],
+    "version": [
+        "tests/waf-tools/fixtures/create_app_build_cfg/expected-app_build_cfg.c",
+        "tests/waf-tools/fixtures/create_version/expected-version.c",
+    ],
 }
 
 
@@ -105,8 +141,8 @@ def run_check(filename: Path, version: str) -> int:
         filename: Path to the C file.
         version: foxBMS version string to check in the @version field.
 
-    Return:
-        Number of detected formatting or presence errors.
+    Returns:
+        Number of detected formatting and presence errors.
 
     """
     fp = filename.as_posix()
@@ -130,7 +166,10 @@ def run_check(filename: Path, version: str) -> int:
         err += 1
         print(f"{fp}: Doxygen comment start marker is missing.", file=sys.stderr)
     try:
-        if txt_lines[offset + 1] != f" * @file    {filename.name}":
+        if (
+            txt_lines[offset + 1] != f" * @file    {filename.name}"
+            and fp not in IGNORE_ERROR["file"]
+        ):
             err += 1
             print(f"{fp}: Doxygen @file field is wrong/missing.", file=sys.stderr)
     except IndexError:
@@ -223,8 +262,8 @@ def check_doxygen(files: Sequence[Path], version: str) -> int:
         files: Iterable of file paths to check.
         version: foxBMS version string to check in the @version field.
 
-    Return:
-       Total number of issues found across all files.
+    Returns:
+        Total number of issues found across all files.
 
     """
     err = 0
@@ -239,8 +278,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     Args:
         argv: Optional sequence of command-line arguments.
 
-    Return:
-        Exit code. 0 if all files are correct, >0 otherwise.
+    Returns:
+        Exit code (``0`` if all files are correct, ``>0`` otherwise).
 
     """
     parser = argparse.ArgumentParser()

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
@@ -142,7 +142,7 @@
 /**@}*/
 
 /**
- * @brief   nominal cell voltage according to data sheet
+ * @brief   nominal cell voltage according to datasheet
  * @ptype   int
  * @unit    mV
  */

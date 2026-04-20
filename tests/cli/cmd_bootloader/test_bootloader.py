@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,9 +39,7 @@
 
 """Testing file 'cli/cmd_bootloader/bootloader.py'."""
 
-import io
 import json
-import logging
 import sys
 import time
 import unittest
@@ -67,17 +65,11 @@ except ModuleNotFoundError:
     from cli.cmd_bootloader.bootloader_can_messages import BootFsmState, CanFsmState
     from cli.helpers.misc import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
 
-# Redirect message or not
-MSG_REDIRECT = True
-
 # Other paths
 PATH_TEMP = Path(__file__).parent / "temp"
 
 
 # pylint: disable=protected-access
-@patch.object(logging, "info", return_value=None)
-@patch.object(logging, "warning", return_value=None)
-@patch.object(logging, "error", return_value=None)
 class TestBootloader(unittest.TestCase):
     """Class to test Bootloader class."""
 
@@ -89,10 +81,6 @@ class TestBootloader(unittest.TestCase):
     def setUp(
         self, mock_read_text, mock_loads, mock_genfromtxt, mock_get_sha256_file_hash_str
     ):
-        # Redirect the sys.stdout to the StringIO object
-        if MSG_REDIRECT:
-            sys.stdout = io.StringIO()
-
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus(
             "test", interface="virtual", preserve_timestamps=True
@@ -249,41 +237,38 @@ class TestBootloader(unittest.TestCase):
         mock_get_bootloader_state.return_value = (None, None)
         mock_get_current_num_of_loops.return_value = None
         mock_get_foxbms_state.return_value = None
-        mock_get_bootloader_version_num.return_value = (
-            None,
-            None,
-            None,
-        )
+        mock_get_bootloader_version_num.return_value = (None, None, None)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
+        self.assertEqual((3, BootloaderStatus(None, None, None)), ret)
         self.assertEqual(
-            (3, BootloaderStatus(None, None, None)), self.bd.check_target()
+            ["ERROR:fox.py:Can not retrieve any bootloader information."], log.output
         )
 
         # Case 2-1: return 1, partial information of bootloader can not be reached.
         mock_get_bootloader_state.return_value = (None, "BootFsmStateWait")
         mock_get_current_num_of_loops.return_value = 2
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            1,
-            2,
-        )
+        mock_get_bootloader_version_num.return_value = (6, 1, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
+        self.assertEqual((1, BootloaderStatus(None, "BootFsmStateWait", 2)), ret)
         self.assertEqual(
-            (1, BootloaderStatus(None, "BootFsmStateWait", 2)), self.bd.check_target()
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 2-2: return 1, partial information of bootloader can not be reached.
-        mock_get_bootloader_state.return_value = (
-            "CanFsmStateNoCommunication",
-            None,
-        )
+        mock_get_bootloader_state.return_value = ("CanFsmStateNoCommunication", None)
         mock_get_current_num_of_loops.return_value = 2
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            1,
-            2,
+        mock_get_bootloader_version_num.return_value = (6, 1, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
+        self.assertEqual(
+            (1, BootloaderStatus("CanFsmStateNoCommunication", None, 2)), ret
         )
         self.assertEqual(
-            (1, BootloaderStatus("CanFsmStateNoCommunication", None, 2)),
-            self.bd.check_target(),
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 2-3: return 1, partial information of bootloader can not be reached.
@@ -292,11 +277,9 @@ class TestBootloader(unittest.TestCase):
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = None
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            1,
-            2,
-        )
+        mock_get_bootloader_version_num.return_value = (6, 1, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
         self.assertEqual(
             (
                 1,
@@ -304,7 +287,11 @@ class TestBootloader(unittest.TestCase):
                     "CanFsmStateNoCommunication", "BootFsmStateWait", None
                 ),
             ),
-            self.bd.check_target(),
+            ret,
+        )
+        self.assertEqual(
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 2-4: return 1, partial information of bootloader can not be reached.
@@ -313,14 +300,16 @@ class TestBootloader(unittest.TestCase):
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 2
-        mock_get_bootloader_version_num.return_value = (
-            None,
-            1,
-            2,
-        )
+        mock_get_bootloader_version_num.return_value = (None, 1, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
         self.assertEqual(
             (1, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
-            self.bd.check_target(),
+            ret,
+        )
+        self.assertEqual(
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 2-5: return 1, partial information of bootloader can not be reached.
@@ -329,14 +318,16 @@ class TestBootloader(unittest.TestCase):
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 2
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            None,
-            2,
-        )
+        mock_get_bootloader_version_num.return_value = (6, None, 2)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
         self.assertEqual(
             (1, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
-            self.bd.check_target(),
+            ret,
+        )
+        self.assertEqual(
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 2-6: return 1, partial information of bootloader can not be reached.
@@ -345,30 +336,29 @@ class TestBootloader(unittest.TestCase):
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 2
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            1,
-            None,
-        )
+        mock_get_bootloader_version_num.return_value = (6, 1, None)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
         self.assertEqual(
             (1, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
-            self.bd.check_target(),
+            ret,
+        )
+        self.assertEqual(
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 2-6: return 1, partial information of bootloader can not be reached.
-        mock_get_bootloader_state.return_value = (
-            None,
-            None,
-        )
+        mock_get_bootloader_state.return_value = (None, None)
         mock_get_current_num_of_loops.return_value = None
         mock_get_foxbms_state.return_value = None
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            1,
-            None,
-        )
+        mock_get_bootloader_version_num.return_value = (6, 1, None)
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.check_target()
+        self.assertEqual((1, BootloaderStatus(None, None, None)), ret)
         self.assertEqual(
-            (1, BootloaderStatus(None, None, None)), self.bd.check_target()
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
         # Case 3-1: return 2, foxBMS is running.
@@ -378,9 +368,8 @@ class TestBootloader(unittest.TestCase):
         )
         mock_get_current_num_of_loops.return_value = None
         mock_get_foxbms_state.return_value = "test_bms_state"
-        self.assertEqual(
-            (2, BootloaderStatus(None, None, None)), self.bd.check_target()
-        )
+        ret = self.bd.check_target()
+        self.assertEqual((2, BootloaderStatus(None, None, None)), ret)
 
         # Case 4-1: return 0, bootloader is runnning, and all information can
         # be received.
@@ -389,14 +378,11 @@ class TestBootloader(unittest.TestCase):
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 2
-        mock_get_bootloader_version_num.return_value = (
-            6,
-            1,
-            2,
-        )
+        mock_get_bootloader_version_num.return_value = (6, 1, 2)
+        ret = self.bd.check_target()
         self.assertEqual(
             (0, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
-            self.bd.check_target(),
+            ret,
         )
 
     @patch.object(BootloaderInterfaceCan, "send_crc")
@@ -410,23 +396,44 @@ class TestBootloader(unittest.TestCase):
         # False Exit Case 1
         mock_wait_can_ack_msg.return_value = None
         mock_send_crc.return_value = (True, True)
-        self.assertFalse(self.bd.send_and_validate_vector_table())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_and_validate_vector_table()
+        self.assertFalse(ret)
+        self.assertEqual(["ERROR:fox.py:Cannot send the vector table."], log.output)
+
         # False Exit Case 2
         mock_wait_can_ack_msg.return_value = {"fake message": 1}
         mock_send_crc.return_value = (False, True)
-        self.assertFalse(self.bd.send_and_validate_vector_table())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_and_validate_vector_table()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot send the CRC of the vector table."], log.output
+        )
+
         # False Exit Case 3
         mock_wait_can_ack_msg.return_value = {"fake message": 1}
         mock_send_crc.return_value = (False, False)
-        self.assertFalse(self.bd.send_and_validate_vector_table())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_and_validate_vector_table()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot send the CRC of the vector table."], log.output
+        )
+
         # False Exit Case 4
         mock_wait_can_ack_msg.return_value = {"fake message": 1}
         mock_send_crc.return_value = (True, False)
-        self.assertFalse(self.bd.send_and_validate_vector_table())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_and_validate_vector_table()
+        self.assertFalse(ret)
+        self.assertEqual(["ERROR:fox.py:Vector table is not validated."], log.output)
+
         # True Exit Case
         mock_wait_can_ack_msg.return_value = {"fake message": 1}
         mock_send_crc.return_value = (True, True)
-        self.assertTrue(self.bd.send_and_validate_vector_table())
+        ret = self.bd.send_and_validate_vector_table()
+        self.assertTrue(ret)
 
     @patch.object(BootloaderInterfaceCan, "wait_can_ack_msg")
     @patch.object(BootloaderInterfaceCan, "send_data_to_bootloader")
@@ -448,7 +455,13 @@ class TestBootloader(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         mock_wait_can_ack_msg.return_value = None
-        self.assertFalse(self.bd.send_data_as_a_sub_sector(1, 1024))
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_data_as_a_sub_sector(1, 1024)
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:loop_1 to loop_1024 data could not be send."], log.output
+        )
+
         # True Case
         mock_get_crc_and_data_by_index.return_value = (
             0xFFFFFFFFFFFFFFFF,
@@ -456,6 +469,7 @@ class TestBootloader(unittest.TestCase):
         )
         mock_wait_can_ack_msg.return_value = {"fake message": 1}
         self.assertTrue(self.bd.send_data_as_a_sub_sector(1, 1024))
+
         # Check if the data has been sent 1024 times
         mock_send_data_to_bootloader.reset_mock()
         self.bd.send_data_as_a_sub_sector(1, 1024)
@@ -491,6 +505,7 @@ class TestBootloader(unittest.TestCase):
             times_of_repeat=0,
         )
         self.assertEqual(mock_send_data_as_a_sub_sector.call_count, 16)
+
         # Case 2: one subsector has been not successfully sent.
         mock_send_data_as_a_sub_sector.reset_mock()
         mock_send_data_as_a_sub_sector.return_value = False
@@ -499,15 +514,18 @@ class TestBootloader(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         mock_send_crc.return_value = (True, True)
-        self.assertFalse(
-            self.bd.send_data_as_a_sector(
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_data_as_a_sector(
                 i_loop=1,
                 total_num_of_loops=16384,
                 size_of_sector_in_loops=16384,
                 times_of_repeat=0,
             )
-        )
+        self.assertFalse(ret)
         self.assertEqual(mock_send_data_as_a_sub_sector.call_count, 1)
+        self.assertEqual(
+            ["ERROR:fox.py:Error when sending data as subsector."], log.output
+        )
         # Case 3: one subsector has been not successfully sent, but
         # times_of_repeat is 1 .
         mock_send_data_as_a_sub_sector.reset_mock()
@@ -516,16 +534,21 @@ class TestBootloader(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
             0xFFFFFFFFFFFFFFFF,
         )
+
         mock_send_crc.return_value = (True, True)
-        self.assertFalse(
-            self.bd.send_data_as_a_sector(
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_data_as_a_sector(
                 i_loop=1,
                 total_num_of_loops=16384,
                 size_of_sector_in_loops=16384,
                 times_of_repeat=1,
             )
-        )
+        self.assertFalse(ret)
         self.assertEqual(mock_send_data_as_a_sub_sector.call_count, 2)
+        self.assertEqual(
+            ["ERROR:fox.py:Error when sending data as subsector."], log.output
+        )
+
         # Case 4: CRC has not been received by bootloader.
         mock_send_data_as_a_sub_sector.reset_mock()
         mock_send_data_as_a_sub_sector.return_value = True
@@ -534,14 +557,19 @@ class TestBootloader(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         mock_send_crc.return_value = (False, True)
-        self.assertFalse(
-            self.bd.send_data_as_a_sector(
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_data_as_a_sector(
                 i_loop=1,
                 total_num_of_loops=16384,
                 size_of_sector_in_loops=16384,
                 times_of_repeat=1,
             )
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:The CRC cannot be received by the embedded bootloader."],
+            log.output,
         )
+
         # Case 5: the validation process in bootloader fails.
         mock_send_data_as_a_sub_sector.reset_mock()
         mock_send_data_as_a_sub_sector.return_value = True
@@ -550,14 +578,22 @@ class TestBootloader(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         mock_send_crc.return_value = (True, False)
-        self.assertFalse(
-            self.bd.send_data_as_a_sector(
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_data_as_a_sector(
                 i_loop=1,
                 total_num_of_loops=16384,
                 size_of_sector_in_loops=16384,
                 times_of_repeat=1,
             )
+
+        self.assertFalse(ret)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:The validation process for this sector in the bootloader failed."
+            ],
+            log.output,
         )
+
         # Case 6: true case.
         mock_send_data_as_a_sub_sector.reset_mock()
         mock_send_data_as_a_sub_sector.return_value = True
@@ -566,14 +602,13 @@ class TestBootloader(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         mock_send_crc.return_value = (True, True)
-        self.assertTrue(
-            self.bd.send_data_as_a_sector(
-                i_loop=1,
-                total_num_of_loops=16384,
-                size_of_sector_in_loops=16384,
-                times_of_repeat=1,
-            )
+        ret = self.bd.send_data_as_a_sector(
+            i_loop=1,
+            total_num_of_loops=16384,
+            size_of_sector_in_loops=16384,
+            times_of_repeat=1,
         )
+        self.assertTrue(ret)
 
         # Case 7: true case, show progressbar.
         mock_send_data_as_a_sub_sector.reset_mock()
@@ -585,16 +620,15 @@ class TestBootloader(unittest.TestCase):
         mock_send_crc.return_value = (True, True)
         with patch("click.progressbar") as mock_progressbar:
             mock_progressbar.return_value.__enter__.return_value = MagicMock()
-            self.assertTrue(
-                self.bd.send_data_as_a_sector(
-                    i_loop=1,
-                    total_num_of_loops=16384,
-                    size_of_sector_in_loops=16384,
-                    times_of_repeat=1,
-                    progressbar=mock_progressbar,
-                    progressbar_sector_steps=20,
-                )
+            ret = self.bd.send_data_as_a_sector(
+                i_loop=1,
+                total_num_of_loops=16384,
+                size_of_sector_in_loops=16384,
+                times_of_repeat=1,
+                progressbar=mock_progressbar,
+                progressbar_sector_steps=20,
             )
+            self.assertTrue(ret)
 
     @patch.object(Bootloader, "_get_sector_size_using_num_of_data_loops")
     @patch.object(Bootloader, "send_data_as_a_sector")
@@ -613,16 +647,32 @@ class TestBootloader(unittest.TestCase):
         )
         self.bd.binary_file = cast(BootloaderBinaryFile, self.bd.binary_file)
         self.bd.binary_file.len_of_program_in_8_bytes = 32768
+
         # Case return false 1: resume sending with the current loop number of 16384
         mock_get_sector_size_using_num_of_data_loops.return_value = None
         mock_send_data_as_a_sector.reset_mock()
         mock_send_data_as_a_sector.return_value = True
-        self.assertFalse(self.bd.send_app_data(1))
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_app_data(1)
+        self.assertFalse(ret)
+        self.assertEqual(
+            [
+                "ERROR:fox.py:Cannot find the size of the sector using the loop number '1'."
+            ],
+            log.output,
+        )
+
         # Case return false 2: resume sending with the current loop number of 16384
         mock_get_sector_size_using_num_of_data_loops.return_value = 16384
         mock_send_data_as_a_sector.reset_mock()
         mock_send_data_as_a_sector.return_value = False
-        self.assertFalse(self.bd.send_app_data(1))
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_app_data(1)
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot transfer this sector of data."], log.output
+        )
+
         # Case return true: resume sending with the current loop number of 16384
         mock_get_sector_size_using_num_of_data_loops.return_value = 16384
         mock_send_data_as_a_sector.reset_mock()
@@ -634,20 +684,32 @@ class TestBootloader(unittest.TestCase):
         """Function to test function reset_bootloader()."""
         # Case 1: return True.
         mock_reset_bootloader.return_value = True
-        self.assertTrue(self.bd.reset_bootloader())
+        ret = self.bd.reset_bootloader()
+        self.assertTrue(ret)
+
         # Case 2: return False.
         mock_reset_bootloader.return_value = False
-        self.assertFalse(self.bd.reset_bootloader())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.reset_bootloader()
+        self.assertFalse(ret)
+        self.assertEqual(["ERROR:fox.py:Cannot reset bootloader."], log.output)
 
     @patch.object(BootloaderInterfaceCan, "run_app_on_bootloader")
     def test_run_app(self, mock_run_app_on_bootloader, *_):
         """Function to test function run_app()."""
         # Case 1: False case.
         mock_run_app_on_bootloader.return_value = False
-        self.assertFalse(self.bd.run_app())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.run_app()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot inform embedded bootloader to run app."], log.output
+        )
+
         # Case 2: True case.
         mock_run_app_on_bootloader.return_value = True
-        self.assertTrue(self.bd.run_app())
+        ret = self.bd.run_app()
+        self.assertTrue(ret)
 
     @patch.object(BootloaderInterfaceCan, "send_program_info")
     @patch.object(BootloaderInterfaceCan, "start_transfer")
@@ -656,11 +718,24 @@ class TestBootloader(unittest.TestCase):
         # Case 1: start_transfer fails.
         mock_start_transfer.return_value = False
         mock_send_program_info.return_value = True
-        self.assertFalse(self.bd.send_pre_info())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_pre_info()
+        self.assertFalse(ret)
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot start to send the application program."], log.output
+        )
+
         # Case 2: send_program_info fails.
         mock_start_transfer.return_value = True
         mock_send_program_info.return_value = False
-        self.assertFalse(self.bd.send_pre_info())
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = self.bd.send_pre_info()
+
+        self.assertFalse(ret)
+
+        self.assertEqual(
+            ["ERROR:fox.py:Cannot send pre-info to the bootloader."], log.output
+        )
         # Case 3: successfully sent.
         mock_start_transfer.return_value = True
         mock_send_program_info.return_value = True
@@ -714,8 +789,8 @@ class TestBootloader(unittest.TestCase):
     @patch.object(np, "genfromtxt")
     @patch.object(json, "loads")
     @patch.object(Path, "read_text")
-    # pylint: disable-next=too-many-statements,too-many-arguments,too-many-positional-arguments
-    def test_send_app_binary(
+    # pylint: disable-next=too-many-statements
+    def test_send_app_binary(  # noqa: PLR0913
         self,
         mock_read_text,
         mock_loads,
@@ -835,14 +910,15 @@ class TestBootloader(unittest.TestCase):
         mock_send_and_validate_vector_table.return_value = True
         with patch("click.progressbar") as mock_progressbar:
             mock_progressbar.return_value.__enter__.return_value = MagicMock()
-            self.assertFalse(
-                bd.send_app_binary(
+            with self.assertLogs("fox.py", level="ERROR") as log:
+                ret = bd.send_app_binary(
                     BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
                     show_progressbar=True,
                 )
-            )
+            self.assertFalse(ret)
         self.assertEqual(mock_send_app_data.call_count, 3)
         self.assertEqual(mock_send_and_validate_vector_table.call_count, 0)
+        self.assertEqual(["ERROR:fox.py:Error while sending app data."], log.output)
 
         # Case 6-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data fails.
@@ -853,14 +929,15 @@ class TestBootloader(unittest.TestCase):
         mock_send_app_data.return_value = False
         mock_send_and_validate_vector_table.reset_mock()
         mock_send_and_validate_vector_table.return_value = True
-        self.assertFalse(
-            bd.send_app_binary(
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = bd.send_app_binary(
                 BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
                 show_progressbar=False,
             )
-        )
+        self.assertFalse(ret)
         self.assertEqual(mock_send_app_data.call_count, 3)
         self.assertEqual(mock_send_and_validate_vector_table.call_count, 0)
+        self.assertEqual(["ERROR:fox.py:Error while sending app data."], log.output)
 
         # Case 7-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data successfully,
@@ -874,14 +951,15 @@ class TestBootloader(unittest.TestCase):
         mock_send_and_validate_vector_table.return_value = False
         with patch("click.progressbar") as mock_progressbar:
             mock_progressbar.return_value.__enter__.return_value = MagicMock()
-            self.assertFalse(
-                bd.send_app_binary(
+            with self.assertLogs("fox.py", level="ERROR") as log:
+                ret = bd.send_app_binary(
                     BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
                     show_progressbar=True,
                 )
-            )
+            self.assertFalse(ret)
         self.assertEqual(mock_send_app_data.call_count, 1)
         self.assertEqual(mock_send_and_validate_vector_table.call_count, 3)
+        self.assertEqual(["ERROR:fox.py:Error while sending app data."], log.output)
 
         # Case 7-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data successfully,
@@ -893,14 +971,15 @@ class TestBootloader(unittest.TestCase):
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.reset_mock()
         mock_send_and_validate_vector_table.return_value = False
-        self.assertFalse(
-            bd.send_app_binary(
+        with self.assertLogs("fox.py", level="ERROR") as log:
+            ret = bd.send_app_binary(
                 BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
                 show_progressbar=False,
             )
-        )
+        self.assertFalse(ret)
         self.assertEqual(mock_send_app_data.call_count, 1)
         self.assertEqual(mock_send_and_validate_vector_table.call_count, 3)
+        self.assertEqual(["ERROR:fox.py:Error while sending app data."], log.output)
 
         # Case 8-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data successfully,
@@ -919,7 +998,7 @@ class TestBootloader(unittest.TestCase):
 
 
 # Another testing approach
-# pylint:disable=too-many-lines,missing-function-docstring,no-member
+# pylint:disable=too-many-lines,no-member,useless-suppression
 try:
     from cli.cmd_bootloader.bootloader import Bootloader
     from cli.cmd_bootloader.bootloader_can_messages import (
@@ -958,14 +1037,13 @@ class TestBootloaderStartApp(unittest.TestCase):
 
     def test_run_app_error(self):
         """Function to test function run_app()."""
-
         self.bl.interface.run_app_on_bootloader.return_value = False
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = self.bl.run_app(self.bl)
 
         self.assertFalse(ret)
         self.assertEqual(
-            ["ERROR:root:Cannot inform embedded bootloader to run app."],
+            ["ERROR:fox.py:Cannot inform embedded bootloader to run app."],
             log.output,
         )
 
@@ -988,13 +1066,13 @@ class TestBootloaderResetBootloader(unittest.TestCase):
     def test_reset_bootloader_error(self):
         """Function to test function reset_bootloader()."""
         self.bl.interface.reset_bootloader.return_value = False
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = self.bl.reset_bootloader(self.bl)
         self.assertFalse(ret)
         self.assertEqual(
             [
-                "INFO:root:Resetting bootloader ...",
-                "ERROR:root:Cannot reset bootloader.",
+                "INFO:fox.py:Resetting bootloader ...",
+                "ERROR:fox.py:Cannot reset bootloader.",
             ],
             log.output,
         )
@@ -1003,13 +1081,13 @@ class TestBootloaderResetBootloader(unittest.TestCase):
         """Function to test function reset_bootloader()."""
         self.bl.interface = MagicMock()
         self.bl.interface.reset_bootloader.return_value = True
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = self.bl.reset_bootloader(self.bl)
         self.assertTrue(ret)
         self.assertEqual(
             [
-                "INFO:root:Resetting bootloader ...",
-                "INFO:root:Successfully reset bootloader.",
+                "INFO:fox.py:Resetting bootloader ...",
+                "INFO:fox.py:Successfully reset bootloader.",
             ],
             log.output,
         )
@@ -1030,13 +1108,13 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
     def test_send_pre_info_error(self):
         """Function to test function send_pre_info()."""
         self.bl.interface.start_transfer.return_value = False
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = self.bl.send_pre_info(self.bl)
         self.assertFalse(ret)
         self.assertEqual(
             [
-                "INFO:root:Prepare bootloader to start receiving program info...",
-                "ERROR:root:Cannot start to send the application program.",
+                "INFO:fox.py:Prepare bootloader to start receiving program info...",
+                "ERROR:fox.py:Cannot start to send the application program.",
             ],
             log.output,
         )
@@ -1046,15 +1124,15 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
         self.bl.interface.start_transfer.return_value = True
         self.bl.interface.send_program_info.return_value = False
 
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = self.bl.send_pre_info(self.bl)
         self.assertFalse(ret)
         self.assertEqual(
             [
-                "INFO:root:Prepare bootloader to start receiving program info...",
-                "INFO:root:Sending program info: len_of_program_in_bytes 16, "
+                "INFO:fox.py:Prepare bootloader to start receiving program info...",
+                "INFO:fox.py:Sending program info: len_of_program_in_bytes 16, "
                 "num_of_transfer_loops 2...",
-                "ERROR:root:Cannot send pre-info to the bootloader.",
+                "ERROR:fox.py:Cannot send pre-info to the bootloader.",
             ],
             log.output,
         )
@@ -1064,15 +1142,15 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
         self.bl.interface.start_transfer.return_value = True
         self.bl.interface.send_program_info.return_value = True
 
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = self.bl.send_pre_info(self.bl)
         self.assertTrue(ret)
         self.assertEqual(
             [
-                "INFO:root:Prepare bootloader to start receiving program info...",
-                "INFO:root:Sending program info: len_of_program_in_bytes 16, "
+                "INFO:fox.py:Prepare bootloader to start receiving program info...",
+                "INFO:fox.py:Sending program info: len_of_program_in_bytes 16, "
                 "num_of_transfer_loops 2...",
-                "INFO:root:Successfully send pre-info to the bootloader.",
+                "INFO:fox.py:Successfully send pre-info to the bootloader.",
             ],
             log.output,
         )
@@ -1099,11 +1177,11 @@ class TestBootloaderSendDataAsASubSector(unittest.TestCase):
     def test_send_data_as_a_sub_sector_success(self, *_: tuple[MagicMock]):
         self.bl.interface.wait_can_ack_msg.return_value = {"foo": "bar"}
 
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = self.bl.send_data_as_a_sub_sector(self.bl, 1, 1024)
         self.assertEqual(
             [
-                "INFO:root:loop_1 to loop_1024 data have been successfully sent! "
+                "INFO:fox.py:loop_1 to loop_1024 data have been successfully sent! "
                 "It takes in total 0.0 s"
             ],
             log.output,
@@ -1122,10 +1200,10 @@ class TestBootloaderSendDataAsASubSector(unittest.TestCase):
     def test_send_data_as_a_sub_sector_error(self, *_: tuple[MagicMock]):
         self.bl.interface.wait_can_ack_msg.return_value = None
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = self.bl.send_data_as_a_sub_sector(self.bl, 1, 1024)
         self.assertEqual(
-            ["ERROR:root:loop_1 to loop_1024 data could not be send."],
+            ["ERROR:fox.py:loop_1 to loop_1024 data could not be send."],
             log.output,
         )
 
@@ -1140,7 +1218,7 @@ class TestBootloaderSendDataAsASubSector(unittest.TestCase):
         )
 
 
-class TestBootloader_GetSubSectorLoops(unittest.TestCase):  # pylint:disable=invalid-name
+class TestBootloader_GetSubSectorLoops(unittest.TestCase):
     """Test '_get_sub_sector_loops' method of the 'Bootloader' class."""
 
     def setUp(self):
@@ -1207,11 +1285,11 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         self.bl.interface.get_bootloader_version_num.return_value = (None, None, None)
         self.bl.interface.get_foxbms_state.return_value = None
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(ret, (3, BootloaderStatus(None, None, None)))
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve any bootloader information."], log.output
+            ["ERROR:fox.py:Can not retrieve any bootloader information."], log.output
         )
 
     def test_check_target_2_1(self):
@@ -1220,11 +1298,12 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         self.bl.interface.get_current_num_of_loops.return_value = 2
         self.bl.interface.get_bootloader_version_num.return_value = (6, 1, 2)
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(ret, (1, BootloaderStatus(None, "BootFsmStateWait", 2)))
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_2_2(self):
@@ -1236,13 +1315,14 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         self.bl.interface.get_current_num_of_loops.return_value = 2
         self.bl.interface.get_bootloader_version_num.return_value = (6, 1, 2)
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(
             ret, (1, BootloaderStatus("CanFsmStateNoCommunication", None, 2))
         )
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_2_3(self):
@@ -1254,7 +1334,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         self.bl.interface.get_current_num_of_loops.return_value = None
         self.bl.interface.get_bootloader_version_num.return_value = (6, 1, 2)
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(
             ret,
@@ -1266,7 +1346,8 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_2_4(self):
@@ -1277,14 +1358,15 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         )
         self.bl.interface.get_current_num_of_loops.return_value = 2
         self.bl.interface.get_bootloader_version_num.return_value = (None, 1, 2)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(
             ret,
             (1, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
         )
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_2_5(self):
@@ -1295,14 +1377,15 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         )
         self.bl.interface.get_current_num_of_loops.return_value = 2
         self.bl.interface.get_bootloader_version_num.return_value = (6, None, 2)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(
             ret,
             (1, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
         )
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_2_6(self):
@@ -1313,14 +1396,15 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         )
         self.bl.interface.get_current_num_of_loops.return_value = 2
         self.bl.interface.get_bootloader_version_num.return_value = (6, 1, None)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(
             ret,
             (1, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 2)),
         )
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_2_7(self):
@@ -1329,11 +1413,12 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         self.bl.interface.get_current_num_of_loops.return_value = None
         self.bl.interface.get_foxbms_state.return_value = None
         self.bl.interface.get_bootloader_version_num.return_value = (6, 1, None)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.check_target(self.bl)
         self.assertEqual(ret, (1, BootloaderStatus(None, None, None)))
         self.assertEqual(
-            ["ERROR:root:Cannot retrieve all information from bootloader."], log.output
+            ["ERROR:fox.py:Can not retrieve all information from bootloader."],
+            log.output,
         )
 
     def test_check_target_3_1(self):
@@ -1342,12 +1427,14 @@ class TestBootloaderCheckTarget(unittest.TestCase):
         self.bl.interface.get_current_num_of_loops.return_value = None
         self.bl.interface.get_foxbms_state.return_value = "test_bms_state"
         self.bl.interface.get_bootloader_version_num.return_value = (6, 1, None)
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.check_target(self.bl)
 
         self.assertEqual(ret, (2, BootloaderStatus(None, None, None)))
         self.assertEqual(
-            ["INFO:root:foxBMS application is running. foxBMS status: test_bms_state "],
+            [
+                "INFO:fox.py:foxBMS application is running. foxBMS status: test_bms_state "
+            ],
             log.output,
         )
 
@@ -1390,55 +1477,55 @@ class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
             16510180501024141744,
         ]
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_and_validate_vector_table(self.bl)
         self.assertFalse(ret)
-        self.assertEqual(["ERROR:root:Cannot send the vector table."], log.output)
+        self.assertEqual(["ERROR:fox.py:Cannot send the vector table."], log.output)
 
     def test_send_and_validate_vector_table_2(self):
         # False Exit Case 2
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (False, True)
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_and_validate_vector_table(self.bl)
         self.assertFalse(ret)
         self.assertEqual(
-            ["ERROR:root:Cannot send the CRC of the vector table."], log.output
+            ["ERROR:fox.py:Cannot send the CRC of the vector table."], log.output
         )
 
     def test_send_and_validate_vector_table_3(self):
         # False Exit Case 3
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (False, False)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_and_validate_vector_table(self.bl)
         self.assertFalse(ret)
         self.assertEqual(
-            ["ERROR:root:Cannot send the CRC of the vector table."], log.output
+            ["ERROR:fox.py:Cannot send the CRC of the vector table."], log.output
         )
 
     def test_send_and_validate_vector_table_4(self):
         # False Exit Case 4
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (True, False)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_and_validate_vector_table(self.bl)
         self.assertFalse(ret)
-        self.assertEqual(["ERROR:root:Vector table is not validated."], log.output)
+        self.assertEqual(["ERROR:fox.py:Vector table is not validated."], log.output)
 
     def test_send_and_validate_vector_table_success(self):
         # True Exit Case
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (True, True)
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_and_validate_vector_table(self.bl)
         self.assertTrue(ret)
         self.assertEqual(
             [
-                "INFO:root:Sending vector table...",
-                "INFO:root:Successfully sent vector table.",
-                "INFO:root:The vector table has been successfully validated.",
+                "INFO:fox.py:Sending vector table...",
+                "INFO:fox.py:Successfully sent vector table.",
+                "INFO:fox.py:The vector table has been successfully validated.",
             ],
             log.output,
         )
@@ -1462,11 +1549,11 @@ class TestBootloaderSendADataAsASubSector(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         self.bl.interface.wait_can_ack_msg.return_value = None
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_data_as_a_sub_sector(self.bl, 1, 1024)
         self.assertFalse(ret)
         self.assertEqual(
-            ["ERROR:root:loop_1 to loop_1024 data could not be send."],
+            ["ERROR:fox.py:loop_1 to loop_1024 data could not be send."],
             log.output,
         )
 
@@ -1477,12 +1564,12 @@ class TestBootloaderSendADataAsASubSector(unittest.TestCase):
             0xFFFFFFFFFFFFFFFF,
         )
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_data_as_a_sub_sector(self.bl, 1, 1024)
         self.assertTrue(ret)
         self.assertRegex(
             log.output[0],
-            r"INFO:root:loop_1 to loop_1024 data have been successfully sent! "
+            r"INFO:fox.py:loop_1 to loop_1024 data have been successfully sent! "
             r"It takes in total .* s",
         )
 
@@ -1530,7 +1617,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         # Case 1: each subsector has been successfully sent.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (True, True)
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             Bootloader.send_data_as_a_sector(
                 self.bl,
                 i_loop=1,
@@ -1543,10 +1630,10 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.assertEqual(self.bl._get_sub_sector_loops.call_count, 16)  # pylint:disable=protected-access
         self.assertEqual(
             [
-                "INFO:root:This sector is from i_loop 1 to 16384",
-                "INFO:root:Finished sending '1' to '16384' data for this sector. "
+                "INFO:fox.py:This sector is from i_loop 1 to 16384",
+                "INFO:fox.py:Finished sending '1' to '16384' data for this sector. "
                 "Starting validation...",
-                "INFO:root:Successfully sent sector (loop_1 to loop_16384) (took 0.0 s).",
+                "INFO:fox.py:Successfully sent sector (loop_1 to loop_16384) (took 0.0 s).",
             ],
             log.output,
         )
@@ -1556,7 +1643,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.bl.send_data_as_a_sub_sector.return_value = False
         self.bl.interface.send_crc.return_value = (True, True)
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_data_as_a_sector(
                 self.bl,
                 i_loop=1,
@@ -1569,7 +1656,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.assertEqual(self.bl.send_data_as_a_sub_sector.call_count, 1)
         self.assertEqual(self.bl._get_sub_sector_loops.call_count, 1)  # pylint:disable=protected-access
         self.assertEqual(
-            ["ERROR:root:Error when sending data as subsector."], log.output
+            ["ERROR:fox.py:Error when sending data as subsector."], log.output
         )
 
     def test_send_data_as_a_sector_3(self):
@@ -1578,7 +1665,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.bl.send_data_as_a_sub_sector.return_value = False
         self.bl.interface.send_crc.return_value = (True, True)
 
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_data_as_a_sector(
                 self.bl,
                 i_loop=1,
@@ -1590,14 +1677,14 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.assertEqual(self.bl.send_data_as_a_sub_sector.call_count, 2)
         self.assertEqual(self.bl._get_sub_sector_loops.call_count, 1)  # pylint:disable=protected-access
         self.assertEqual(
-            ["ERROR:root:Error when sending data as subsector."], log.output
+            ["ERROR:fox.py:Error when sending data as subsector."], log.output
         )
 
     def test_send_data_as_a_sector_4(self):
         # Case 4: CRC has not been received by bootloader.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (False, True)
-        with self.assertLogs("root", level="ERROR") as log:
+        with self.assertLogs("fox.py", level="ERROR") as log:
             ret = Bootloader.send_data_as_a_sector(
                 self.bl,
                 i_loop=1,
@@ -1608,7 +1695,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.assertFalse(ret)
         self.assertEqual(self.bl._get_sub_sector_loops.call_count, 16)  # pylint:disable=protected-access
         self.assertEqual(
-            ["ERROR:root:The CRC cannot be received by the embedded bootloader."],
+            ["ERROR:fox.py:The CRC cannot be received by the embedded bootloader."],
             log.output,
         )
 
@@ -1616,7 +1703,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         # Case 5: the validation process in bootloader fails.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (True, False)
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_data_as_a_sector(
                 self.bl,
                 i_loop=1,
@@ -1628,10 +1715,10 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.assertEqual(self.bl._get_sub_sector_loops.call_count, 16)  # pylint:disable=protected-access
         self.assertEqual(
             [
-                "INFO:root:This sector is from i_loop 1 to 16384",
-                "INFO:root:Finished sending '1' to '16384' data for this "
+                "INFO:fox.py:This sector is from i_loop 1 to 16384",
+                "INFO:fox.py:Finished sending '1' to '16384' data for this "
                 "sector. Starting validation...",
-                "ERROR:root:The validation process for this sector in the bootloader failed.",
+                "ERROR:fox.py:The validation process for this sector in the bootloader failed.",
             ],
             log.output,
         )
@@ -1641,7 +1728,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         # Case 6: true case.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (True, True)
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_data_as_a_sector(
                 self.bl,
                 i_loop=1,
@@ -1653,10 +1740,10 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         self.assertEqual(self.bl._get_sub_sector_loops.call_count, 16)  # pylint:disable=protected-access
         self.assertEqual(
             [
-                "INFO:root:This sector is from i_loop 1 to 16384",
-                "INFO:root:Finished sending '1' to '16384' data for this sector. "
+                "INFO:fox.py:This sector is from i_loop 1 to 16384",
+                "INFO:fox.py:Finished sending '1' to '16384' data for this sector. "
                 "Starting validation...",
-                "INFO:root:Successfully sent sector (loop_1 to loop_16384) (took 0.0 s).",
+                "INFO:fox.py:Successfully sent sector (loop_1 to loop_16384) (took 0.0 s).",
             ],
             log.output,
         )
@@ -1702,13 +1789,13 @@ class TestBootloaderSendAppData(unittest.TestCase):
         # Case return false 1: resume sending with the current loop number of 16384
         self.bl._get_sector_size_using_num_of_data_loops.return_value = None  # pylint:disable=protected-access
         self.bl.send_data_as_a_sector.return_value = True
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_app_data(self.bl, 1)
 
         self.assertFalse(ret)
         self.assertEqual(
             [
-                "ERROR:root:Cannot find the size of the sector using the loop number '1'."
+                "ERROR:fox.py:Cannot find the size of the sector using the loop number '1'."
             ],
             log.output,
         )
@@ -1717,11 +1804,11 @@ class TestBootloaderSendAppData(unittest.TestCase):
         # Case return false 2: resume sending with the current loop number of 16384
         self.bl._get_sector_size_using_num_of_data_loops.return_value = 16384  # pylint:disable=protected-access
         self.bl.send_data_as_a_sector.return_value = False
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_app_data(self.bl, 1)
         self.assertFalse(ret)
         self.assertEqual(
-            ["ERROR:root:Cannot transfer this sector of data."],
+            ["ERROR:fox.py:Cannot transfer this sector of data."],
             log.output,
         )
 
@@ -1731,11 +1818,11 @@ class TestBootloaderSendAppData(unittest.TestCase):
         # Case return true: resume sending with the current loop number of 16384
         self.bl._get_sector_size_using_num_of_data_loops.return_value = 16384  # pylint:disable=protected-access
         self.bl.send_data_as_a_sector.return_value = True
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_app_data(self.bl, 1)
         self.assertTrue(ret)
         self.assertEqual(
-            ["INFO:root:Successfully finish sending loop data (took 0.0 s)."],
+            ["INFO:fox.py:Successfully finish sending loop data (took 0.0 s)."],
             log.output,
         )
 
@@ -1751,7 +1838,6 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
 
     def test_send_app_binary_success_including_progress_bar(self, *_):
         """Function to test function send_app_binary()."""
-
         # Case 1-8: bootloader is at the initial status, every thing runs well,
         # the progress progressbar will be shown.
         self.bl.send_pre_info.return_value = True
@@ -1838,7 +1924,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.bl.send_and_validate_vector_table.return_value = True
         with patch("click.progressbar") as mock_progressbar:
             mock_progressbar.return_value.__enter__.return_value = MagicMock()
-            with self.assertLogs("root", level="INFO") as log:
+            with self.assertLogs("fox.py", level="INFO") as log:
                 ret = Bootloader.send_app_binary(
                     self.bl,
                     BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
@@ -1849,7 +1935,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.assertEqual(self.bl.send_and_validate_vector_table.call_count, 0)
         self.assertEqual(
             [
-                "ERROR:root:Error while sending app data.",
+                "ERROR:fox.py:Error while sending app data.",
             ],
             log.output,
         )
@@ -1863,7 +1949,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.bl.send_app_data.return_value = False
         self.bl.send_and_validate_vector_table.return_value = True
 
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_app_binary(
                 self.bl,
                 BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
@@ -1875,7 +1961,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.assertEqual(self.bl.send_and_validate_vector_table.call_count, 0)
         self.assertEqual(
             [
-                "ERROR:root:Error while sending app data.",
+                "ERROR:fox.py:Error while sending app data.",
             ],
             log.output,
         )
@@ -1891,7 +1977,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.bl.send_and_validate_vector_table.return_value = False
         with patch("click.progressbar") as mock_progressbar:
             mock_progressbar.return_value.__enter__.return_value = MagicMock()
-            with self.assertLogs("root", level="INFO") as log:
+            with self.assertLogs("fox.py", level="INFO") as log:
                 ret = Bootloader.send_app_binary(
                     self.bl,
                     BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
@@ -1902,7 +1988,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.assertEqual(self.bl.send_and_validate_vector_table.call_count, 3)
         self.assertEqual(
             [
-                "ERROR:root:Error while sending app data.",
+                "ERROR:fox.py:Error while sending app data.",
             ],
             log.output,
         )
@@ -1916,7 +2002,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.bl.send_pre_info.return_value = True
         self.bl.send_app_data.return_value = True
         self.bl.send_and_validate_vector_table.return_value = False
-        with self.assertLogs("root", level="INFO") as log:
+        with self.assertLogs("fox.py", level="INFO") as log:
             ret = Bootloader.send_app_binary(
                 self.bl,
                 BootloaderStatus("CanFsmStateError", "BootFsmStateWait", 100),
@@ -1927,7 +2013,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         self.assertEqual(self.bl.send_and_validate_vector_table.call_count, 3)
         self.assertEqual(
             [
-                "ERROR:root:Error while sending app data.",
+                "ERROR:fox.py:Error while sending app data.",
             ],
             log.output,
         )
@@ -1975,7 +2061,7 @@ class TestBootloaderCheckIfBootloaderAtTheBeginning(unittest.TestCase):
         )
 
 
-class TestBootloader_GetSectorSizeUsingNumOfDataLoops(unittest.TestCase):  # pylint:disable=invalid-name
+class TestBootloader_GetSectorSizeUsingNumOfDataLoops(unittest.TestCase):
     """Test static method '_get_sector_size_using_num_of_data_loops'."""
 
     def test_get_sector_size_using_num_of_data_loops(self, *_):
@@ -1993,7 +2079,8 @@ class TestBootloader_GetSectorSizeUsingNumOfDataLoops(unittest.TestCase):  # pyl
             )
             self.assertEqual(size_of_sector_in_loops, int(size_of_sector_bytes / 8))
             if not size_of_sector_in_loops:
-                raise AttributeError("Unexpected intermediate testing result")
+                err_msg = "Unexpected intermediate testing result"
+                raise AttributeError(err_msg)
             # Largest data loop number
             size_of_sector_in_loops = (  # pylint:disable-next=protected-access
                 Bootloader._get_sector_size_using_num_of_data_loops(
@@ -2002,7 +2089,8 @@ class TestBootloader_GetSectorSizeUsingNumOfDataLoops(unittest.TestCase):  # pyl
             )
             self.assertEqual(size_of_sector_in_loops, int(size_of_sector_bytes / 8))
             if not size_of_sector_in_loops:
-                raise AttributeError("Unexpected intermediate testing result")
+                err_msg = "Unexpected intermediate testing result"
+                raise AttributeError(err_msg)
             # Update for testing the next sector
             i_loops_start += size_of_sector_in_loops
         # None return

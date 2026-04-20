@@ -160,16 +160,16 @@ Installing TI HALCoGen may take a while.
 
 ## Install Virtual Python Environment
 
-1. Create a virtual environment **2025-06-pale-fox** by running:
+1. Create a virtual environment **2025-11-pale-fox** by running:
 
    ```pwsh
-   py -3.12 -m venv C:\foxbms\envs\2025-06-pale-fox
+   py -3.12 -m venv C:\foxbms\envs\2025-11-pale-fox
    ```
 
 1. Activate the virtual environment by running:
 
    ```pwsh
-   C:\foxbms\envs\2025-06-pale-fox\Scripts\activate.ps1
+   C:\foxbms\envs\2025-11-pale-fox\Scripts\activate.ps1
    ```
 
 1. Install the required packages by running:
@@ -244,25 +244,25 @@ C:\foxbms\Ruby\Ruby34-x64\bin\gem.cmd install --install-dir C:\foxbms\Ceedling\1
 
 ## Install Graphviz
 
-1. Download Graphviz version 13.0.0 from
+1. Download Graphviz version 14.0.0 from
   [https://graphviz.org/download](https://graphviz.org/download)
   (use this
-  [zip-archive](https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.0.0/windows_10_cmake_Release_Graphviz-13.0.0-win64.zip)).
+  [zip-archive](https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.0.0/windows_10_cmake_Release_Graphviz-14.0.0-win64.zip)).
 1. Extract the archive.
-1. Copy the extracted archive to `C:\foxbms\Graphviz\13.0.0`.
+1. Copy the extracted archive to `C:\foxbms\Graphviz\14.0.0`.
 1. Verify that `dot.exe` is available at
-   `C:\foxbms\Graphviz\13.0.0\bin\dot.exe`.
+   `C:\foxbms\Graphviz\14.0.0\bin\dot.exe`.
 
 ## Install drawio-desktop
 
-1. Download drawio-desktop version 27.0.9 from
+1. Download drawio-desktop version 28.1.2 from
    [https://github.com/jgraph/drawio-desktop/releases](https://github.com/jgraph/drawio-desktop/releases)
    (use this
-   [zip-archive](https://github.com/jgraph/drawio-desktop/releases/download/v27.0.9/draw.io-27.0.9-windows.zip)).
+   [zip-archive](https://github.com/jgraph/drawio-desktop/releases/download/v28.1.2/draw.io-28.1.2-windows.zip)).
 1. Extract the archive.
-1. Copy the extracted archive to `C:\foxbms\draw.io\27.0.9`.
+1. Copy the extracted archive to `C:\foxbms\draw.io\28.1.2`.
 1. Verify that `draw.io.exe` is available at
-    `C:\foxbms\draw.io\27.0.9\draw.io.exe`.
+    `C:\foxbms\draw.io\28.1.2\draw.io.exe`.
 
 ## Install VS Code
 

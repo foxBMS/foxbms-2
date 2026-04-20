@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -49,10 +49,13 @@ from unittest.mock import MagicMock, Mock, call, patch
 try:
     from cli.cmd_plot.data_handling.data_source_types import DataSourceTypes
     from cli.cmd_plot.execution import Executor
+    from cli.helpers.config import read_config
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_plot.data_handling.data_source_types import DataSourceTypes
     from cli.cmd_plot.execution import Executor
+    from cli.helpers.config import read_config
+
 PATH_DATA = Path(__file__).parent / "test_data"
 PATH_EXECUTION = Path(__file__).parent / "test_execution"
 
@@ -72,15 +75,6 @@ class TestInit(unittest.TestCase):
     def test_init_valid_config(self) -> None:
         """Tests the init with valid config"""
         Executor(**self.config)
-
-    def test_read_config_invalid_yaml(self) -> None:
-        """Tests the read_config method with a valid yaml"""
-        self.config["plot_config"] = PATH_EXECUTION / "test_yaml_error.yaml"
-        buf = io.StringIO()
-        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            Executor(**self.config)
-        self.assertEqual(cm.exception.code, 1)
-        self.assertTrue("Invalid configuration file" in buf.getvalue())
 
     def test_data_source_type_none(self) -> None:
         """Test the get_data_source_type method with data_source_type as None"""
@@ -109,19 +103,10 @@ class TestInit(unittest.TestCase):
         exe = Executor(**self.config)
         self.assertEqual(exe.data_source_type, DataSourceTypes["CSV"])
 
-    def test_plot_config_not_a_list(self) -> None:
-        """Test the create_plots method with a plot configuration not containing a list"""
-        buf = io.StringIO()
-        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            exe = Executor(**self.config)
-            exe.plot_config = 12
-            exe.create_plots()
-        self.assertEqual(cm.exception.code, 1)
-        self.assertIn(
-            "Plot configuration is not a list of dictionaries.", buf.getvalue()
-        )
 
-
+@patch("pathlib.Path.mkdir")
+@patch("cli.cmd_plot.drawer.graph_drawer_factory.GraphDrawerFactory.get_object")
+@patch("cli.cmd_plot.data_handling.data_handler_factory.DataHandlerFactory.get_object")
 class TestCreatePlots(unittest.TestCase):
     """Class to test the create_plots method of the Executor class"""
 
@@ -135,16 +120,11 @@ class TestCreatePlots(unittest.TestCase):
         }
         self.executor = Executor(**self.config)
 
-    @patch("pathlib.Path.mkdir")
-    @patch("cli.cmd_plot.drawer.graph_drawer_factory.GraphDrawerFactory.get_object")
-    @patch(
-        "cli.cmd_plot.data_handling.data_handler_factory.DataHandlerFactory.get_object"
-    )
     def test_create_plots(
         self, mock_data_get: Mock, mock_drawer_get: Mock, mock_mkdir: Mock
     ) -> None:
         """Tests the create_plots method with valid executor object"""
-        self.executor.create_plots()  # pylint: disable=protected-access
+        self.executor.create_plots()
         mock_data_get.assert_called_once_with(
             self.executor.data_source_type, self.executor.data_config
         )
@@ -152,13 +132,31 @@ class TestCreatePlots(unittest.TestCase):
         data_files = self.executor._get_data_files()  # pylint: disable=protected-access
         for file in data_files:
             plot_dir = Path(self.executor.output) / Path(file).stem
-            for graph_config in self.executor.plot_config:
+            for graph_config in read_config(self.executor.plot_config):
                 mock_drawer_get.assert_has_calls([call(graph_config)])
                 mock_drawer_get().draw.assert_has_calls(
                     [call(data=mock_data_get().get_data())]
                 )
                 mock_drawer_get().save.assert_has_calls([call(plot_dir)])
                 mock_drawer_get().show.assert_called_with()
+
+    def test_plot_config_not_a_list(self, *_: list[Mock]) -> None:
+        """Test the create_plots method with a plot configuration not containing a list"""
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            self.executor.plot_config = 12
+            self.executor.create_plots()
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("Plot creation failed:", buf.getvalue())
+
+    def test_read_config_invalid_yaml(self, *_: list[Mock]) -> None:
+        """Tests the read_config method with a valid yaml"""
+        self.config["plot_config"] = PATH_EXECUTION / "test_yaml_error.yaml"
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            Executor(**self.config).create_plots()
+        self.assertEqual(cm.exception.code, 1)
+        self.assertTrue("Plot creation failed" in buf.getvalue())
 
 
 class TestGetDataFiles(unittest.TestCase):
@@ -201,7 +199,8 @@ class TestHandlePyplotWarnings(unittest.TestCase):
 
     def test_empty_warning_handle(self) -> None:
         """Tests the handle_pyplot_warnings method in case the warning_handle
-        parameter is empty"""
+        parameter is empty
+        """
         buf = io.StringIO()
         graph_drawer = Mock()
         with redirect_stderr(buf):

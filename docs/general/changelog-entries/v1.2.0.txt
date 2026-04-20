@@ -35,7 +35,7 @@ Changed
 - Sort the SPI formats so that there are no conflicts between the configuration
   on SPI1 and SPI4 (Both are connected to the interface connector).
 - Control the pins of the interface for LTC AFEs with the port expander on the
-  |foxbms| master board.
+  BMS-Master.
 - The documentation build defaults now only to ``html`` and ``spelling``,
   .i.e., ``linkcheck`` has been removed.
 - Increased stack size of 10ms task to 5120 bytes (from 4096).

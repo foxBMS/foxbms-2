@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_utils.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockos.h"
 
 #include "fstd_types.h"
 #include "test_assert_helper.h"
@@ -119,4 +120,40 @@ void testUTIL_ExtractCharactersFromString(void) {
     UTIL_ExtractCharactersFromString(&testExtractedCharacters, testString, 11u, 6u, 8u);
     /* ======= RT3/3: Test output verification */
     TEST_ASSERT_EQUAL(0x6721313233u, testExtractedCharacters);
+}
+
+/**
+ * @brief   Testing UTIL_SeedRandomNumber
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: Set seed
+ */
+void testUTIL_SeedRandomNumber(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* ======= RT1/1: Call function under test */
+    UTIL_SeedRandomNumber(0x4364);
+    uint32_t nextRandomNumber = UTIL_GetSeed();
+    TEST_ASSERT_EQUAL(0x4364, nextRandomNumber);
+}
+
+/**
+ * @brief   Testing UTIL_SeedRandomNumber
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: Get one random number
+ */
+void testUTIL_GetPseudoRandomNumber(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    OS_GetTickCount_ExpectAndReturn(0);
+    /* ======= RT1/1: Call function under test */
+    uint32_t randomNumber = UTIL_GetPseudoRandomNumber();
+    TEST_ASSERT_NOT_EQUAL(0x4364, randomNumber);
 }

@@ -1,0 +1,14 @@
+Field,Type,Description,Constraints
+name,str,Cell model/name,required
+manufacturer,str,Cell manufacturer,required
+shape,str,"e.g., ""cylindrical"", ""prismatic""",required
+chemistry,str,"e.g., ""NMC"", ""LFP""",required
+height,float,Physical height,required
+length,float,Physical length,required
+width,float,Physical width,"required; if ``shape == ""cylindrical""``, must equal ``length``"
+weight,float,Mass of the cell,required
+temperature_max,float,Maximum allowed temperature,"must be >= ``temperature_min``"
+temperature_min,float,Minimum allowed temperature,"must be <= ``temperature_max``"
+voltage_min,float,Minimum allowed voltage,"must be <= ``voltage_max``"
+voltage_max,float,Maximum allowed voltage,"must be >= ``voltage_min``"
+voltage_nom,float,Nominal cell voltage,"must be >= ``voltage_min`` and <= ``voltage_max``"

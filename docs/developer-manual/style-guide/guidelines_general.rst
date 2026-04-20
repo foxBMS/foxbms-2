@@ -101,6 +101,9 @@ development.
 Further General Rules
 ---------------------
 
+..
+   cspell:ignore FEFF
+
 - Optimize for readability using descriptive names that would be clear even to
   people on a different team.
 - Use names that describe the purpose or intent of the object.

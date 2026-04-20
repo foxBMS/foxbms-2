@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,6 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore initialdir
+
 """Implements the functionalities behind the 'gui' command"""
 
 import ctypes
@@ -45,22 +47,38 @@ import webbrowser
 from dataclasses import dataclass
 from tkinter import filedialog, ttk
 
-from ..cmd_ide.ide_impl import (
-    open_ide_app,
-    open_ide_bootloader,
-    open_ide_cli,
-    open_ide_embedded_unit_test_app,
-    open_ide_embedded_unit_test_bootloader,
-    open_ide_generic,
-)
 from ..helpers.host_platform import get_platform
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.misc import PROJECT_ROOT, ROOT_IS_PROJECT, get_file_path
+from ..helpers.package_helpers import check_project
 from .frame_bootloader.bootloader_gui import BootloaderFrame
 from .frame_build.build_gui import BuildFrame
 from .frame_cli_unittest.cli_unittest_gui import CliUnittestFrame
 from .frame_embedded_ut.embedded_ut_gui import EmbeddedUtFrame
 from .frame_plot.plot_gui import PlotFrame
 from .frame_run.run_gui import RunFrame
+from .frame_sim.sim_gui import SimulateBmsFrame
+
+if ROOT_IS_PROJECT:
+    from ..cmd_ide.ide_impl import (
+        open_ide_app,
+        open_ide_bootloader,
+        open_ide_cli,
+        open_ide_embedded_unit_test_app,
+        open_ide_embedded_unit_test_bootloader,
+        open_ide_generic,
+    )
+else:
+
+    def dummy() -> int:
+        """Do nothing"""
+        return 0
+
+    open_ide_app = dummy
+    open_ide_bootloader = dummy
+    open_ide_cli = dummy
+    open_ide_embedded_unit_test_app = dummy
+    open_ide_embedded_unit_test_bootloader = dummy
+    open_ide_generic = dummy
 
 
 @dataclass
@@ -71,6 +89,7 @@ class GuiAttributes:
     s: tuple[int, int]
 
     def __post_init__(self) -> None:
+        """Create readable names"""
         self.sx = self.s[0]
         self.sy = self.s[1]
 
@@ -80,16 +99,18 @@ class FoxGui(tk.Tk):
 
     def __init__(self) -> None:
         if get_platform() == "win32":
-            myappid = "fraunhofer-iisb.foxbms"
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            my_app_id = "fraunhofer-iisb.foxbms"
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
         super().__init__()
         self.cattrs = GuiAttributes("darkgrey", (768, 576))
         self.configure(background=self.cattrs.bg)
         self.minsize(self.cattrs.sx, self.cattrs.sy)
         self.title("foxBMS 2")
-        self.license_file = PROJECT_ROOT / "LICENSE.md"
-
-        self.iconbitmap(True, "docs/_static/favicon.ico")
+        self.license_file = get_file_path() / "LICENSE.md"
+        if ROOT_IS_PROJECT:
+            self.iconbitmap(True, str(get_file_path() / "docs/_static/favicon.ico"))
+        else:
+            self.iconbitmap(True, str(get_file_path() / "favicon.ico"))
 
         # File menu
         menu = tk.Menu(self, tearoff=0)
@@ -102,23 +123,24 @@ class FoxGui(tk.Tk):
         menu_file.add_command(label="Exit", command=self.quit)
 
         # Tools menu
-        menu_tools = tk.Menu(menu, tearoff=0)
-        menu.add_cascade(label="Tools", menu=menu_tools)
-        sub_menu = tk.Menu(menu_tools, tearoff=False)
-        sub_menu.add_command(label="Generic", command=self.open_vs_code_generic_cb)
-        sub_menu.add_command(label="App", command=self.open_vs_code_app_cb)
-        sub_menu.add_command(label="fox CLI", command=self.open_vs_code_cli_cb)
-        sub_menu.add_command(
-            label="App Unit Tests", command=self.open_vs_code_app_unit_test_cb
-        )
-        sub_menu.add_command(
-            label="Bootloader", command=self.open_vs_code_bootloader_cb
-        )
-        sub_menu.add_command(
-            label="Bootloader Unit Tests",
-            command=self.open_vs_code_bootloader_unit_test_cb,
-        )
-        menu_tools.add_cascade(label="VS Code", menu=sub_menu)
+        if ROOT_IS_PROJECT:
+            menu_tools = tk.Menu(menu, tearoff=0)
+            menu.add_cascade(label="Tools", menu=menu_tools)
+            sub_menu = tk.Menu(menu_tools, tearoff=False)
+            sub_menu.add_command(label="Generic", command=self.open_vs_code_generic_cb)
+            sub_menu.add_command(label="App", command=self.open_vs_code_app_cb)
+            sub_menu.add_command(label="fox CLI", command=self.open_vs_code_cli_cb)
+            sub_menu.add_command(
+                label="App Unit Tests", command=self.open_vs_code_app_unit_test_cb
+            )
+            sub_menu.add_command(
+                label="Bootloader", command=self.open_vs_code_bootloader_cb
+            )
+            sub_menu.add_command(
+                label="Bootloader Unit Tests",
+                command=self.open_vs_code_bootloader_unit_test_cb,
+            )
+            menu_tools.add_cascade(label="VS Code", menu=sub_menu)
 
         # Help menu
         menu_help = tk.Menu(menu, tearoff=0)
@@ -138,7 +160,7 @@ class FoxGui(tk.Tk):
 
         self.notebook = ttk.Notebook(self)
         # Pack the Notebook widget
-        self.notebook.pack(expand=True, fill="both")
+        self.notebook.pack(expand=True, fill=tk.BOTH)
 
         text_frame = ttk.Frame(self)
         text_frame.pack(expand=True, fill=tk.BOTH)
@@ -159,23 +181,29 @@ class FoxGui(tk.Tk):
         )
         self.text.config(state="disabled")
 
-        tab_build = BuildFrame(self.notebook, self.text)
-        self.notebook.add(tab_build, text="Build")
-
         tab_bootloader = BootloaderFrame(self.notebook, self.text)
         self.notebook.add(tab_bootloader, text="Bootloader")
 
         tab_plot = PlotFrame(self.notebook, self.text)
         self.notebook.add(tab_plot, text="Plot")
 
-        tab_embedded_ut = EmbeddedUtFrame(self.notebook, self.text)
-        self.notebook.add(tab_embedded_ut, text="Embedded Unit Tests")
-
-        tab_cli_unittest = CliUnittestFrame(self.notebook, self.text)
-        self.notebook.add(tab_cli_unittest, text="fox CLI Unit Tests")
-
         tab_run = RunFrame(self.notebook, self.text)
         self.notebook.add(tab_run, text="Run Program/Script")
+
+        tab_sim_bms = SimulateBmsFrame(self.notebook, self.text)
+        self.notebook.add(tab_sim_bms, text="Simulate BMS")
+
+        if ROOT_IS_PROJECT:
+            tab_build = BuildFrame(self.notebook, self.text)
+            self.notebook.insert(0, tab_build, text="Build")
+
+            tab_embedded_ut = EmbeddedUtFrame(self.notebook, self.text)
+            self.notebook.insert(3, tab_embedded_ut, text="Embedded Unit Tests")
+
+            tab_cli_unittest = CliUnittestFrame(self.notebook, self.text)
+            self.notebook.insert(4, tab_cli_unittest, text="fox CLI Unit Tests")
+
+            self.notebook.select(0)
 
         self.notebook.bind("<<NotebookTabChanged>>", self.tab_changed_cb)
 
@@ -189,11 +217,13 @@ class FoxGui(tk.Tk):
         current_tab.write_text()
 
     def close_window(self) -> None:
-        """Close all open file-streams"""
+        """Close all open file-streams and processes"""
         for tab_name in self.notebook.tabs():
             tab_obj = self.notebook.nametowidget(tab_name)
             if hasattr(tab_obj, "file_stream"):
                 tab_obj.file_stream.close()
+            if "simulate" in tab_name and tab_obj.sim_active:
+                tab_obj.start_stop_sim_cb()
             log_file = tab_obj.file_path
             if log_file.exists():
                 log_file.unlink()
@@ -239,53 +269,65 @@ class FoxGui(tk.Tk):
             fg="blue",
             cursor="hand2",
         )
-        click_license_text.bind("<Button-1>", lambda e: self.view_license_cb())
+        click_license_text.bind("<Button-1>", lambda _: self.view_license_cb())
         click_license_text.place(x=158, y=51)
         image = tk.PhotoImage(file="docs/_static/foxbms-with-claim250px.png")
         label = tk.Label(dialog, image=image, bg=self.cattrs.bg)
         label.image = image  # type: ignore[attr-defined]
         label.place(x=int(-image.width() / 2 + size[0] / 2), y=74)
 
+    @check_project
     def open_vs_code_generic_cb(
         self,
         event: tk.Event | None = None,  # type: ignore[type-arg]
     ) -> None:
         """Open VS Code in the repository root"""
+        # Decorator prevents function from being executed if it is not available
         open_ide_generic()
 
+    @check_project
     def open_vs_code_app_cb(
         self,
         event: tk.Event | None = None,  # type: ignore[type-arg]
     ) -> None:
         """Open VS Code in the 'src/app' directory"""
+        # Decorator prevents function from being executed if it is not available
         open_ide_app()
 
+    @check_project
     def open_vs_code_cli_cb(
         self,
         event: tk.Event | None = None,  # type: ignore[type-arg]
     ) -> None:
         """Open VS Code in the 'cli' directory"""
+        # Decorator prevents function from being executed if it is not available
         open_ide_cli()
 
+    @check_project
     def open_vs_code_app_unit_test_cb(
         self,
         event: tk.Event | None = None,  # type: ignore[type-arg]
     ) -> None:
         """Open VS Code in the 'tests/unit/app' directory"""
+        # Decorator prevents function from being executed if it is not available
         open_ide_embedded_unit_test_app()
 
+    @check_project
     def open_vs_code_bootloader_cb(
         self,
         event: tk.Event | None = None,  # type: ignore[type-arg]
     ) -> None:
         """Open VS Code in the 'src/bootloader' directory"""
+        # Decorator prevents function from being executed if it is not available
         open_ide_bootloader()
 
+    @check_project
     def open_vs_code_bootloader_unit_test_cb(
         self,
         event: tk.Event | None = None,  # type: ignore[type-arg]
     ) -> None:
         """Open VS Code in the 'tests/unit/bootloader' directory"""
+        # Decorator prevents function from being executed if it is not available
         open_ide_embedded_unit_test_bootloader()
 
 

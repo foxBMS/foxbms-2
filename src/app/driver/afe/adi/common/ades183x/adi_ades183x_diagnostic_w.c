@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_diagnostic_w.c
  * @author  foxBMS Team
  * @date    2023-10-09 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -68,8 +68,40 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/**
+ * @brief   Gets the diagnostic status - dummy function
+ * @param   adiState state of the adi driver
+ * @return  true if a first complete diagnostic cycle was made, false otherwise
+ */
+static bool ADI_IsFirstDiagnosticCycleFinished(ADI_STATE_s *adiState);
+
+/**
+ * @brief   sets the diagnostic complete status - dummy function
+ * @param   adiState state of the adi driver
+ */
+static void ADI_SetFirstDiagnosticCycleFinished(ADI_STATE_s *adiState);
 
 /*========== Static Function Implementations ================================*/
+
+#pragma diag_push
+#pragma diag_suppress 179
+/* dummy function */
+static bool ADI_IsFirstDiagnosticCycleFinished(ADI_STATE_s *adiState) {
+    FAS_ASSERT(adiState != NULL_PTR);
+    return (adiState->firstDiagnosticMade);
+}
+#pragma diag_pop
+
+#pragma diag_push
+#pragma diag_suppress 179
+/* dummy function */
+static void ADI_SetFirstDiagnosticCycleFinished(ADI_STATE_s *adiState) {
+    FAS_ASSERT(adiState != NULL_PTR);
+    OS_EnterTaskCritical();
+    adiState->firstDiagnosticMade = true;
+    OS_ExitTaskCritical();
+}
+#pragma diag_pop
 
 /*========== Extern Function Implementations ================================*/
 
@@ -116,7 +148,16 @@ extern bool ADI_EvaluateDiagnosticStringAndModuleVoltages(ADI_STATE_s *adiState,
     return retVal;
 }
 
+extern void ADI_InitializeDiagnosis(ADI_STATE_s *adiState) {
+    (void)adiState;
+}
+
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
+extern bool TEST_ADI_IsFirstDiagnosticCycleFinished(ADI_STATE_s *adiState) {
+    return ADI_IsFirstDiagnosticCycleFinished(adiState);
+}
+extern void TEST_ADI_SetFirstDiagnosticCycleFinished(ADI_STATE_s *adiState) {
+    ADI_SetFirstDiagnosticCycleFinished(adiState);
+}
 #endif

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -65,7 +65,7 @@ class TestSpR(unittest.TestCase):
         return super().setUp()
 
     def test_prepare_subprocess_output(self):
-        """basic prepare_subprocess_output test"""
+        """Basic prepare_subprocess_output test"""
         ret = prepare_subprocess_output(-1, b"foxBMS", b"dummy")
         self.assertEqual(-1, ret.returncode)
         self.assertEqual("foxBMS", ret.out)
@@ -76,8 +76,8 @@ class TestSpR(unittest.TestCase):
         self.assertEqual("", ret.out)
         self.assertEqual("", ret.err)
 
-    def test_add_sprs(self):
-        """test adding of two 'SubprocessResults'"""
+    def test_add_spr(self):
+        """Test adding of two 'SubprocessResults'"""
         ret = prepare_subprocess_output(
             -1, b"foxBMS", b"dummy"
         ) + prepare_subprocess_output(1, b"1", b"2")
@@ -86,7 +86,7 @@ class TestSpR(unittest.TestCase):
         self.assertEqual("dummy\n\n2", ret.err)
 
     def test_run_process_no_program(self):
-        """test running a program, without providing a program"""
+        """Test running a program, without providing a program"""
         buf = io.StringIO()
         with redirect_stderr(buf):
             ret = run_process([])
@@ -96,7 +96,7 @@ class TestSpR(unittest.TestCase):
         self.assertIn("No program provided.", buf.getvalue())
 
     def test_run_process_invalid_program(self):
-        """test running a program, without providing a valid program"""
+        """Test running a program, without providing a valid program"""
         cmd = ["does-not-exist"]
         buf = io.StringIO()
         with redirect_stderr(buf):

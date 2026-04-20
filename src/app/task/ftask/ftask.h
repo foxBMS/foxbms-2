@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -57,6 +57,8 @@
 #define FOXBMS__FTASK_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "can_cfg.h"
 #include "ftask_cfg.h"
 
@@ -97,17 +99,28 @@
 #define FTSK_RTC_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(RTC_TIME_DATA_s))
 
 /** Length of queue that is used for I2C transmission over NXP slave */
-#define FTSK_AFEI2C_QUEUE_LENGTH (1u)
+#define FTSK_AFE_I2C_QUEUE_LENGTH (1u)
 /** Size of queue item that is used for I2C transmission over NXP slave */
-#define FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(AFE_I2C_QUEUE_s))
+#define FTSK_AFE_I2C_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(AFE_I2C_QUEUE_s))
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** Length of queue that is used for data transmission from CAN to AFE slave */
 #define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH (5u)
 #define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH     (5u)
+#endif
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** Size of queue item that is used for data transmission from CAN to AFE slave */
 #define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_CAN2AFE_CELL_TEMPERATURES_QUEUE_s))
 #define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES     (sizeof(CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s))
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/** Length of queue that is used in the UART module for receiving messages */
+#define FTSK_UART_RX_QUEUE_LENGTH (1024u)
+/** Size of queue item that is used in the UART driver */
+#define FTSK_UART_RX_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(uint8_t))
+#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** database queue */
@@ -132,11 +145,17 @@ extern OS_QUEUE ftsk_rtcSetTimeQueue;
 extern OS_QUEUE ftsk_afeToI2cQueue;
 extern OS_QUEUE ftsk_afeFromI2cQueue;
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** handle of the queue to transmit the received can message (cell temperature / cell voltage) to the debug/can afe */
 extern OS_QUEUE ftsk_canToAfeCellVoltagesQueue;
-
 /** handle of the queue to transmit the received can message (cell temperature / cell voltage) to the debug/can afe */
 extern OS_QUEUE ftsk_canToAfeCellTemperaturesQueue;
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/** UART driver data queue for RX messages */
+extern OS_QUEUE ftsk_uartRxQueue;
+#endif
 
 /** indicator whether the queues have successfully been initialized to be used
  * in other parts of the software  */
@@ -221,11 +240,28 @@ extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters);
  */
 extern void FTSK_CreateTaskI2c(void *const pvParameters);
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /**
  * @brief   Creation of continuously running task for AFEs
  * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskAfe(void *const pvParameters);
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/**
+ * @brief   Creation of continuously running task for Uart
+ * @param   pvParameters parameter for the to task
+ */
+extern void FTSK_CreateTaskUart(void *const pvParameters);
+#endif
+
+#if defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1)
+/**
+ * @brief   Creation of continuously running task for EMAC
+ */
+extern void FTSK_CreateTaskEmac(void *const pvParameters);
+#endif
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

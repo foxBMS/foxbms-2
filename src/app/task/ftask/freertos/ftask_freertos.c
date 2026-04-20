@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask_freertos.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -53,6 +53,8 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "general.h"
 
 #include "can_cfg.h"
@@ -80,8 +82,23 @@
 /** @brief Stack size of cyclic 100 ms task for algorithms in words */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_WORDS \
     FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES)
+
+#define FTSK_TASK_I2C_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_I2C_STACK_SIZE_IN_BYTES)
+
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /** @brief Stack size of continuously running task for AFEs */
 #define FTSK_TASK_AFE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_AFE_STACK_SIZE_IN_BYTES)
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/** @brief Stack size of continuously running task for UART */
+#define FTSK_TASK_UART_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_UART_STACK_SIZE_IN_BYTES)
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+/** @brief Stack size of continuously running task for EMAC */
+#define FTSK_TASK_EMAC_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_EMAC_STACK_SIZE_IN_BYTES)
+#endif
 
 /** size of storage area for the database queue */
 #define FTSK_DATABASE_QUEUE_STORAGE_AREA (FTSK_DATABASE_QUEUE_LENGTH * FTSK_DATABASE_QUEUE_ITEM_SIZE_IN_BYTES)
@@ -99,21 +116,40 @@
 /** size of storage area for the RTC set time queue*/
 #define FTSK_RTC_QUEUE_STORAGE_AREA (FTSK_RTC_QUEUE_LENGTH * FTSK_RTC_QUEUE_ITEM_SIZE_IN_BYTES)
 
-/** size of storage area for the I2C over AFE slave queue*/
-#define FTSK_AFEI2C_QUEUE_STORAGE_AREA (FTSK_AFEI2C_QUEUE_LENGTH * FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES)
+/** size of storage area for the I2C over AFE BMS-Slave queue*/
+#define FTSK_AFE_I2C_QUEUE_STORAGE_AREA (FTSK_AFE_I2C_QUEUE_LENGTH * FTSK_AFE_I2C_QUEUE_ITEM_SIZE_IN_BYTES)
 
-/** size of storage area for the CAN to AFE slave queue*/
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
+/** size of storage area for the CAN to AFE BMS-Slave queue*/
 #define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_STORAGE_AREA \
     (FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH * FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_ITEM_SIZE_IN_BYTES)
 #define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_STORAGE_AREA \
     (FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH * FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES)
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/** size of storage area for the UART Rx queue*/
+#define FTSK_UART_RX_QUEUE_STORAGE_AREA (FTSK_UART_RX_QUEUE_LENGTH * FTSK_UART_RX_QUEUE_ITEM_SIZE_IN_BYTES)
+#endif
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /** @brief Definition of task handle for the AFE task */
 OS_TASK_HANDLE ftsk_taskHandleAfe;
+#endif
+
 OS_TASK_HANDLE ftsk_taskHandleI2c;
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+/* Task handle for the UART task */
+OS_TASK_HANDLE ftsk_taskHandleUart = NULL_PTR;
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+OS_TASK_HANDLE ftsk_taskHandleEmac;
+#endif
 
 volatile bool ftsk_allQueuesCreated = false;
 
@@ -133,8 +169,14 @@ OS_QUEUE ftsk_rtcSetTimeQueue = NULL_PTR;
 OS_QUEUE ftsk_afeToI2cQueue   = NULL_PTR;
 OS_QUEUE ftsk_afeFromI2cQueue = NULL_PTR;
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 OS_QUEUE ftsk_canToAfeCellTemperaturesQueue = NULL_PTR;
 OS_QUEUE ftsk_canToAfeCellVoltagesQueue     = NULL_PTR;
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+OS_QUEUE ftsk_uartRxQueue = NULL_PTR;
+#endif
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -215,7 +257,7 @@ extern void FTSK_CreateQueues(void) {
         ftsk_afeRequestQueueStorageArea,
         &ftsk_afeRequestQueueStructure);
     FAS_ASSERT(ftsk_afeRequestQueue != NULL);
-    vQueueAddToRegistry(ftsk_afeRequestQueue, "LTC Request Queue");
+    vQueueAddToRegistry(ftsk_afeRequestQueue, "AFE Request Queue");
 
     /* structure and array for static RTC queue */
     static uint8_t ftsk_rtcQueueStorageArea[FTSK_RTC_QUEUE_STORAGE_AREA] = {0};
@@ -227,29 +269,30 @@ extern void FTSK_CreateQueues(void) {
     FAS_ASSERT(ftsk_rtcSetTimeQueue != NULL);
 
     /* structure and array for static I2C over AFE slave queue */
-    static uint8_t ftsk_afeToI2cQueueStorageArea[FTSK_AFEI2C_QUEUE_STORAGE_AREA] = {0};
-    static StaticQueue_t ftsk_afeToI2cQueueStructure                             = {0};
+    static uint8_t ftsk_afeToI2cQueueStorageArea[FTSK_AFE_I2C_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_afeToI2cQueueStructure                              = {0};
 
     ftsk_afeToI2cQueue = xQueueCreateStatic(
-        FTSK_AFEI2C_QUEUE_LENGTH,
-        FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES,
+        FTSK_AFE_I2C_QUEUE_LENGTH,
+        FTSK_AFE_I2C_QUEUE_ITEM_SIZE_IN_BYTES,
         ftsk_afeToI2cQueueStorageArea,
         &ftsk_afeToI2cQueueStructure);
     vQueueAddToRegistry(ftsk_afeToI2cQueue, "I2C over AFE slave");
     FAS_ASSERT(ftsk_afeToI2cQueue != NULL);
 
     /* structure and array for static I2C over AFE slave queue */
-    static uint8_t ftsk_afeFromI2cQueueStorageArea[FTSK_AFEI2C_QUEUE_STORAGE_AREA] = {0};
-    static StaticQueue_t ftsk_afeFromI2cQueueStructure                             = {0};
+    static uint8_t ftsk_afeFromI2cQueueStorageArea[FTSK_AFE_I2C_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_afeFromI2cQueueStructure                              = {0};
 
     ftsk_afeFromI2cQueue = xQueueCreateStatic(
-        FTSK_AFEI2C_QUEUE_LENGTH,
-        FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES,
+        FTSK_AFE_I2C_QUEUE_LENGTH,
+        FTSK_AFE_I2C_QUEUE_ITEM_SIZE_IN_BYTES,
         ftsk_afeFromI2cQueueStorageArea,
         &ftsk_afeFromI2cQueueStructure);
     vQueueAddToRegistry(ftsk_afeFromI2cQueue, "I2C over AFE slave");
     FAS_ASSERT(ftsk_afeFromI2cQueue != NULL);
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
     /* structure and array for static CAN to AFE slave queue (cell temperatures and cell voltages) */
     static uint8_t ftsk_canToAfeCellTemperaturesQueueStorageArea[FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_STORAGE_AREA] = {
         0};
@@ -272,6 +315,21 @@ extern void FTSK_CreateQueues(void) {
         &ftsk_canToAfeCellVoltagesQueueStructure);
     vQueueAddToRegistry(ftsk_canToAfeCellVoltagesQueue, "CAN to AFE slave (cell voltages)");
     FAS_ASSERT(ftsk_canToAfeCellVoltagesQueue != NULL);
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+    /* structure and array for static UART RX queue */
+    static uint8_t ftsk_uartRxQueueStorageArea[FTSK_UART_RX_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_uartRxQueueStructure                              = {0};
+
+    ftsk_uartRxQueue = xQueueCreateStatic(
+        FTSK_UART_RX_QUEUE_LENGTH,
+        FTSK_UART_RX_QUEUE_ITEM_SIZE_IN_BYTES,
+        ftsk_uartRxQueueStorageArea,
+        &ftsk_uartRxQueueStructure);
+    vQueueAddToRegistry(ftsk_uartRxQueue, "UART Receive Queue");
+    FAS_ASSERT(ftsk_uartRxQueue != NULL);
+#endif
 
     OS_EnterTaskCritical();
     ftsk_allQueuesCreated = true;
@@ -357,7 +415,7 @@ extern void FTSK_CreateTasks(void) {
 
     /* Continuously running Task for I2C */
     static StaticTask_t ftsk_taskI2c                                        = {0};
-    static StackType_t ftsk_stackSizeI2c[FTSK_TASK_AFE_STACK_SIZE_IN_WORDS] = {0};
+    static StackType_t ftsk_stackSizeI2c[FTSK_TASK_I2C_STACK_SIZE_IN_WORDS] = {0};
 
     ftsk_taskHandleI2c = xTaskCreateStatic(
         (TaskFunction_t)FTSK_CreateTaskI2c,
@@ -369,6 +427,7 @@ extern void FTSK_CreateTasks(void) {
         &ftsk_taskI2c);
     FAS_ASSERT(ftsk_taskHandleI2c != NULL); /* Trap if initialization failed */
 
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
     /* This task is required in the BMS application and therefore declared by
        the public name as defined in 'os.h'. The details how this task is
        declared is however only important for the implementation and therefore
@@ -386,6 +445,47 @@ extern void FTSK_CreateTasks(void) {
         ftsk_stackSizeAfe,
         &ftsk_taskAfe);
     FAS_ASSERT(ftsk_taskHandleAfe != NULL); /* Trap if initialization failed */
+#endif
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+    static StaticTask_t ftsk_taskUart                                         = {0};
+    static StackType_t ftsk_stackSizeUart[FTSK_TASK_UART_STACK_SIZE_IN_WORDS] = {0};
+
+    ftsk_taskHandleUart = xTaskCreateStatic(
+        (TaskFunction_t)FTSK_CreateTaskUart,
+        (const portCHAR *)"TaskUart",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionUart.stackSize_B),
+        (void *)ftsk_taskDefinitionUart.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionUart.priority,
+        ftsk_stackSizeUart,
+        &ftsk_taskUart);
+    FAS_ASSERT(ftsk_taskHandleUart != NULL); /* Trap if initialization failed */
+#endif
+
+#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+    /* Task for receiving emac packages */
+    static StaticTask_t ftsk_taskEmac                                         = {0};
+    static StackType_t ftsk_stackSizeEmac[FTSK_TASK_EMAC_STACK_SIZE_IN_WORDS] = {0};
+
+    ftsk_taskHandleEmac = xTaskCreateStatic(
+        &FTSK_CreateTaskEmac,
+        (const portCHAR *)"TaskEmac",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionEmac.stackSize_B),
+        NULL,
+        (UBaseType_t)ftsk_taskDefinitionEmac.priority,
+        &ftsk_stackSizeEmac[0u],
+        &ftsk_taskEmac);
+
+    FAS_ASSERT(ftsk_taskHandleEmac != NULL); /* Trap if initialization failed */
+#endif
+}
+
+/* AXIVION Next Codeline Style MisraC2012-1.2: Keep FreeRTOS naming */
+/* AXIVION Next Codeline CodingStyle-Naming.Function: Keep FreeRTOS naming */
+void vApplicationMallocFailedHook(void) {
+    /* Trap if malloc failed.
+    This is especially relevant for the tcp stack to check the malloc functions there. */
+    FAS_ASSERT(false);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

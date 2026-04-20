@@ -33,14 +33,21 @@ Electrical Ratings
 ==================================================  =======     =======     =======     ====
 Description                                         Minimum     Typical     Maximum     Unit
 ==================================================  =======     =======     =======     ====
-Supply Voltage Clamp 30 (VSUP_30)                   9           12          55          V DC
-Supply Voltage Clamp 30C (VSUP_30C)                 9           12          55          V DC
+Supply Voltage Clamp 30 (VSUP_30)                   9           12          36          V DC
+Supply Voltage Clamp 30C (VSUP_30C)                 9           12          36          V DC
 Contactor Continuous Current                        --          --          1.8         A
 Contactor Feedback Supply Voltage                   --          VSUP_30     --          V
 Interlock Circuit Sink Current                      --          10          --          mA
 Idle Supply Current at 12V DC for VSUP_30           --          215         --          mA
 Idle Supply Current at 24V DC for VSUP_30           --          160         --          mA
 ==================================================  =======     =======     =======     ====
+
+.. note::
+   The maximum supply voltage is limited by the SBC.
+   It is validated for limited duration for higher voltages.
+   For further information see the `SBC documentation`_.
+
+.. _SBC documentation: https://www.nxp.com/part/MC33FS8530A0ES
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Mechanical Dimensions (BMS-Master PCB only)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,21 +37,36 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""This file implements the bootloader class to communicate with the bootloader
-inside hardware (foxbms board) to assist the booting process of foxbms (send
-binary files and commands)."""
+# cspell:ignore termui
 
-import logging
+"""Communicate with the embedded bootloader to program and control the device.
+
+This module implements the host-side bootloader interface and logic used to
+transfer application binaries, vector tables, and related metadata to the
+bootloader running on the foxBMS hardware.
+It coordinates the communication with the embedded bootloader, manages
+sectorized data transfer and CRC verification, and provides high-level
+operations such as resetting the bootloader and starting the application.
+"""
+
 import math
 import sys
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from typing import TypeVar
 
 import click
+from click._termui_impl import ProgressBar  # pylint:disable=unused-import
 
-from ..helpers.misc import FOXBMS_APP_CRC_FILE, FOXBMS_APP_INFO_FILE, FOXBMS_BIN_FILE
+from ..helpers.logger import logger
+from ..helpers.misc import (
+    FOXBMS_APP_CRC_FILE,
+    FOXBMS_APP_INFO_FILE,
+    FOXBMS_BIN_FILE,
+)
 from .app_constants import (
     APP_MEMORY_MAP,
     NUM_OF_BYTES_PER_DATA_LOOPS,
@@ -65,6 +80,8 @@ from .bootloader_can_messages import (
     CanFsmState,
     StatusCode,
 )
+
+V = TypeVar("V")
 
 
 @dataclass()
@@ -215,12 +232,17 @@ class BootloaderInterface(ABC):
 
 
 class Bootloader:
-    """
-    Implementation of the communication between host-implementation of the
+    """Implementation of the communication between host-implementation of the
     bootloader and the embedded bootloader.
     """
 
-    def __init__(self, interface: BootloaderInterface) -> None:
+    def __init__(
+        self,
+        interface: BootloaderInterface,
+        app: Path = FOXBMS_BIN_FILE,
+        crc_table: Path = FOXBMS_APP_CRC_FILE,
+        program_info: Path = FOXBMS_APP_INFO_FILE,
+    ) -> None:
         """Initialization function.
 
         Args:
@@ -229,12 +251,11 @@ class Bootloader:
             path_crc_64_table: the path of the temporary file that stores the
                 CRC table
         """
-
         # Initialize the binary file object for bootloader
         self.binary_file = BootloaderBinaryFile(
-            app=FOXBMS_BIN_FILE,
-            crc_table=FOXBMS_APP_CRC_FILE,
-            program_info=FOXBMS_APP_INFO_FILE,
+            app=app,
+            crc_table=crc_table,
+            program_info=program_info,
         )
         # Get the communication interface
         self.interface = interface
@@ -267,7 +288,7 @@ class Bootloader:
             # Check if the foxBMS application is running
             bms_state = self.interface.get_foxbms_state()
             if bms_state:
-                logging.info(
+                logger.info(
                     "foxBMS application is running. foxBMS status: %s ", bms_state
                 )
                 return 2, BootloaderStatus(
@@ -282,7 +303,7 @@ class Bootloader:
                 and (minor_version_number is None)
                 and (patch_version_number is None)
             ):
-                logging.error("Cannot retrieve any bootloader information.")
+                logger.error("Can not retrieve any bootloader information.")
                 return 3, BootloaderStatus(
                     can_fsm_state=can_fsm_state,
                     boot_fsm_state=boot_fsm_state,
@@ -300,8 +321,8 @@ class Bootloader:
             or (patch_version_number is None)
         )
         if info_is_missing or version_number_is_missing:
-            logging.error("Cannot retrieve all information from bootloader.")
-            logging.info(
+            logger.error("Can not retrieve all information from bootloader.")
+            logger.info(
                 "Retrieved information: (v%s.%s.%s): "
                 "can_fsm_state: '%s', boot_fsm_state: '%s', "
                 "current_num_of_loops: '%s'",
@@ -319,7 +340,7 @@ class Bootloader:
                 current_num_of_loops=current_num_of_loops,
             )
 
-        logging.info(
+        logger.info(
             "Successfully communicated with bootloader (v%s.%s.%s): "
             "can_fsm_state: '%s', boot_fsm_state: '%s', "
             "current_num_of_loops: '%s'",
@@ -342,8 +363,7 @@ class Bootloader:
         Returns:
             True if vector table has been successfully sent, False otherwise
         """
-
-        logging.info("Sending vector table...")
+        logger.info("Sending vector table...")
 
         # Send 4 * 8 bytes of vector table to bootloader
         for i_vector in range(4):
@@ -352,21 +372,21 @@ class Bootloader:
             )
         msg = self.interface.wait_can_ack_msg(AcknowledgeMessage.ReceivedVectorTable)
         if not msg:
-            logging.error("Cannot send the vector table.")
+            logger.error("Cannot send the vector table.")
             return False
-        logging.info("Successfully sent vector table.")
+        logger.info("Successfully sent vector table.")
 
         # Send 8 bytes of CRC signature of the vector table to bootloader
         is_crc_received, is_crc_valid = self.interface.send_crc(
             self.binary_file.crc64_vector_table, is_crc_of_vector_table=True
         )
         if not is_crc_received:
-            logging.error("Cannot send the CRC of the vector table.")
+            logger.error("Cannot send the CRC of the vector table.")
             return False
         if not is_crc_valid:
-            logging.error("Vector table is not validated.")
+            logger.error("Vector table is not validated.")
             return False
-        logging.info("The vector table has been successfully validated.")
+        logger.info("The vector table has been successfully validated.")
         return True
 
     def send_data_as_a_sub_sector(
@@ -402,13 +422,13 @@ class Bootloader:
         # Wait ACK message for the last loop in this subsector loops
         msg = self.interface.wait_can_ack_msg(AcknowledgeMessage.ReceivedSubSectorData)
         if not msg:
-            logging.error(
+            logger.error(
                 "loop_%s to loop_%s data could not be send.",
                 i_loop_start,
                 i_loop_end,
             )
             return False
-        logging.info(
+        logger.info(
             "loop_%s to loop_%s data have been successfully sent! It takes in total %s s",
             i_loop_start,
             i_loop_end,
@@ -428,7 +448,8 @@ class Bootloader:
             the start i_loop and the end i_loop of the subsector
         """
         if idx < 1:
-            raise SystemExit(f"The index of the loop number must be > 1, it is {idx}.")
+            err = f"The index of the loop number must be > 1, it is {idx}."
+            raise SystemExit(err)
         size_of_sub_sector_in_loops = 1024
         if max_idx < size_of_sub_sector_in_loops:
             sys.exit(
@@ -449,15 +470,14 @@ class Bootloader:
             )
         return i_loop_sub_sector_start, i_loop_sub_sector_end
 
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
-    def send_data_as_a_sector(
+    def send_data_as_a_sector(  # noqa: PLR0913
         self,
         i_loop: int,
         total_num_of_loops: int,
         size_of_sector_in_loops: int,
         times_of_repeat: int = 3,
-        progressbar=None,
-        progressbar_sector_steps=0,
+        progressbar: "ProgressBar[V] | None" = None,
+        progressbar_sector_steps: int = 0,
     ) -> bool:
         """Send data of one sector to the embedded bootloader.
 
@@ -478,7 +498,7 @@ class Bootloader:
             i_loop_end = total_num_of_loops
         else:
             i_loop_end = i_loop + size_of_sector_in_loops - 1
-        logging.info("This sector is from i_loop %d to %d", i_loop_start, i_loop_end)
+        logger.info("This sector is from i_loop %d to %d", i_loop_start, i_loop_end)
         is_first_sub_sector = True
         time_start = time.time()
         while i_loop <= i_loop_end:
@@ -489,7 +509,7 @@ class Bootloader:
             # Send one sector of data (16384 loops)
             ret_val = False
 
-            progressbar_subsector_steps = (
+            progressbar_subsector_steps = int(
                 progressbar_sector_steps
                 * (i_loop_sub_sector_end - i_loop_sub_sector_start + 1)
                 / size_of_sector_in_loops
@@ -505,13 +525,13 @@ class Bootloader:
                         progressbar.update(progressbar_subsector_steps)
                     break
             if not ret_val:
-                logging.error("Error when sending data as subsector.")
+                logger.error("Error when sending data as subsector.")
                 return False
             is_first_sub_sector = False
             i_loop += size_of_sub_sector_in_loops
 
         # Send crc data
-        logging.info(
+        logger.info(
             "Finished sending '%s' to '%s' data for this sector. Starting validation...",
             i_loop_start,
             i_loop_end,
@@ -519,15 +539,15 @@ class Bootloader:
         crc_8_bytes, _ = self.binary_file.get_crc_and_data_by_index(i_loop_end - 1)
         is_crc_received, is_crc_valid = self.interface.send_crc(crc_8_bytes=crc_8_bytes)
         if not is_crc_received:
-            logging.error("The CRC cannot be received by the embedded bootloader.")
+            logger.error("The CRC cannot be received by the embedded bootloader.")
             return False
         if not is_crc_valid:
-            logging.error(
+            logger.error(
                 "The validation process for this sector in the bootloader failed."
             )
             return False
 
-        logging.info(
+        logger.info(
             "Successfully sent sector (loop_%s to loop_%s) (took %s s).",
             i_loop_start,
             i_loop_end,
@@ -551,7 +571,9 @@ class Bootloader:
             start_num_of_data_loops += size_of_sector_in_loops
         return None
 
-    def send_app_data(self, i_loop: int, progressbar=None) -> bool:
+    def send_app_data(
+        self, i_loop: int, progressbar: "ProgressBar[V] | None" = None
+    ) -> bool:
         """Send the application binary file as data in 8 bytes (and calculated
         crc in 8 bytes) to the embedded bootloader.
 
@@ -569,7 +591,7 @@ class Bootloader:
                 i_loop
             )
             if not size_of_sector_in_loops:
-                logging.error(
+                logger.error(
                     "Cannot find the size of the sector using the loop number '%s'.",
                     i_loop,
                 )
@@ -586,11 +608,11 @@ class Bootloader:
                     * 99
                 ),
             ):
-                logging.error("Cannot transfer this sector of data.")
+                logger.error("Cannot transfer this sector of data.")
                 return False
             i_loop += size_of_sector_in_loops
 
-        logging.info(
+        logger.info(
             "Successfully finish sending loop data (took %s s).",
             time.time() - start_time,
         )
@@ -603,11 +625,11 @@ class Bootloader:
             True if the bootloader has been successfully reset, False
             otherwise.
         """
-        logging.info("Resetting bootloader ...")
+        logger.info("Resetting bootloader ...")
         if self.interface.reset_bootloader() is not True:
-            logging.error("Cannot reset bootloader.")
+            logger.error("Cannot reset bootloader.")
             return False
-        logging.info("Successfully reset bootloader.")
+        logger.info("Successfully reset bootloader.")
         return True
 
     def run_app(self) -> bool:
@@ -618,7 +640,7 @@ class Bootloader:
             application, False otherwise.
         """
         if self.interface.run_app_on_bootloader() is not True:
-            logging.error("Cannot inform embedded bootloader to run app.")
+            logger.error("Cannot inform embedded bootloader to run app.")
             return False
         return True
 
@@ -631,13 +653,13 @@ class Bootloader:
             the bootloader, False otherwise.
         """
         # Send command to start the transmission of program
-        logging.info("Prepare bootloader to start receiving program info...")
+        logger.info("Prepare bootloader to start receiving program info...")
         if not self.interface.start_transfer():
-            logging.error("Cannot start to send the application program.")
+            logger.error("Cannot start to send the application program.")
             return False
 
         # Send program relevant information
-        logging.info(
+        logger.info(
             "Sending program info: len_of_program_in_bytes %s, "
             "num_of_transfer_loops %s...",
             self.binary_file.len_of_program_in_bytes,
@@ -647,9 +669,9 @@ class Bootloader:
             len_of_program_in_bytes=self.binary_file.len_of_program_in_bytes,
             num_of_transfer_loops=self.binary_file.len_of_program_in_8_bytes,
         ):
-            logging.error("Cannot send pre-info to the bootloader.")
+            logger.error("Cannot send pre-info to the bootloader.")
             return False
-        logging.info("Successfully send pre-info to the bootloader.")
+        logger.info("Successfully send pre-info to the bootloader.")
         return True
 
     @staticmethod
@@ -666,7 +688,6 @@ class Bootloader:
         Returns:
             True if bootloader at the start states, False otherwise.
         """
-
         # Check boot_fsm_state
         if boot_fsm_state != BootFsmState.BootFsmStateWait.name:
             return False
@@ -676,10 +697,7 @@ class Bootloader:
             return False
 
         # Check the current number of loops
-        if current_num_of_loops != 0:
-            return False
-
-        return True
+        return current_num_of_loops == 0
 
     def send_app_binary(
         self,
@@ -690,16 +708,19 @@ class Bootloader:
         """Transfer the app binary to the embedded bootloader
 
         Args:
-            bl_info: Instance of a database type BootloaderStatus, which attributes are
-                    can_fsm_state, boot_fsm_state and current_num_of_loops.
-            show_progressbar: True, show the progress progressbar while uploading the binary.
-            times_of_repeat: Times to repeat sending the application binary if it fails. E.g.,
-                            if the value is 2, there will be 3 attempts in total to send the
-                            application.
+            bl_info: Instance of a database type BootloaderStatus, which
+                    attributes are can_fsm_state, boot_fsm_state and
+                    current_num_of_loops.
+            show_progressbar: True, show the progress progressbar while
+                uploading the binary.
+            times_of_repeat: Times to repeat sending the application binary if
+                it fails, e.g., if the value is 2, there will be 3 attempts in
+                total to send the
+                application.
+
         Returns:
             True if the app binary has been successfully sent.
         """
-
         # Extract the information from the bool
         can_fsm_state = bl_info.can_fsm_state
         boot_fsm_state = bl_info.boot_fsm_state
@@ -744,20 +765,18 @@ class Bootloader:
                 ) as progressbar:
                     if only_send_vector_table:
                         ret_val = self.send_and_validate_vector_table()
-                    else:
-                        if self.send_app_data(i_loop, progressbar=progressbar):
-                            ret_val = self.send_and_validate_vector_table()
-                            only_send_vector_table = True
+                    elif self.send_app_data(i_loop, progressbar=progressbar):
+                        ret_val = self.send_and_validate_vector_table()
+                        only_send_vector_table = True
                     if ret_val:
                         progressbar.update(100 - int(progressbar.pos))
                         break
             else:
                 if only_send_vector_table:
                     ret_val = self.send_and_validate_vector_table()
-                else:
-                    if self.send_app_data(i_loop, progressbar=None):
-                        ret_val = self.send_and_validate_vector_table()
-                        only_send_vector_table = True
+                elif self.send_app_data(i_loop, progressbar=None):
+                    ret_val = self.send_and_validate_vector_table()
+                    only_send_vector_table = True
                 if ret_val:
                     break
 
@@ -765,10 +784,10 @@ class Bootloader:
 
         # Check if the app data and vector table has been successfully sent
         if not ret_val:
-            logging.error("Error while sending app data.")
+            logger.error("Error while sending app data.")
             return False
 
-        logging.info(
+        logger.info(
             "Successfully finished sending application data and vector table "
             "to the bootloader."
         )

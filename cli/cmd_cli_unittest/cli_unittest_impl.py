@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,13 +39,13 @@
 
 """Implements the functionalities behind the 'cli-unittest' command"""
 
-import logging
 import os
 import sys
 from pathlib import Path
 from time import time
 
 from ..helpers.click_helpers import recho, secho
+from ..helpers.logger import logger
 from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT, terminal_link_print
 from ..helpers.spr import SubprocessResult, run_process
 from .cli_unittest_constants import UNIT_TEST_BUILD_DIR_CLI
@@ -56,7 +56,7 @@ COVERAGE_MODULE_BASE_COMMAND: list[Path | str] = [sys.executable, "-m", "coverag
 
 def run_unittest_module(args: list[str]) -> SubprocessResult:
     """Run the unittest module with the provided arguments."""
-    logging.debug(" ".join(args))
+    logger.debug(" ".join(args))
     cmd = UNIT_TEST_MODULE_BASE_COMMAND + args
     return run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
 
@@ -82,8 +82,10 @@ def run_script_tests(
         cov_file = PROJECT_ROOT / ".coverage"
         if cov_file.is_file():
             cov_file.unlink()
-        _ = [i.unlink() for i in out_dir.rglob("*") if i.is_file()]  # type: ignore
+        # pylint: disable-next=line-too-long
+        _ = [i.unlink() for i in out_dir.rglob("*") if i.is_file()]  # type: ignore[func-returns-value]
         out_dir.mkdir(exist_ok=True, parents=True)
+        ret = SubprocessResult(0)
         cmd = COVERAGE_MODULE_BASE_COMMAND + [
             "run",
             "--parallel-mode",
@@ -96,20 +98,23 @@ def run_script_tests(
         ]
         cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
         ret = run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
-        cmd = COVERAGE_MODULE_BASE_COMMAND + [
-            "run",
-            "--parallel-mode",
-            PROJECT_ROOT / "tests/cli/fallback/test_fallback.py",
-        ]
-        cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
-        ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
-        cmd = COVERAGE_MODULE_BASE_COMMAND + [
-            "run",
-            "--parallel-mode",
+
+        # other files
+        files = [
+            PROJECT_ROOT / "tests/waf-tools/test_c_template.py",
             PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
+            PROJECT_ROOT / "tests/waf-tools/test_create_app_build_cfg.py",
+            PROJECT_ROOT / "tests/waf-tools/test_create_version.py",
+            PROJECT_ROOT / "tests/waf-tools/test_misc_helpers.py",
+            PROJECT_ROOT / "tests/waf-tools/test_vcs_git.py",
+            PROJECT_ROOT / "tests/waf-tools/test_vcs.py",
+            PROJECT_ROOT / "tests/pkg/test_hatch_build.py",
         ]
-        cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
-        ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+        for i in files:
+            cmd = COVERAGE_MODULE_BASE_COMMAND + ["run", "--parallel-mode", i]
+            cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
+            ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+
         cmd = COVERAGE_MODULE_BASE_COMMAND + ["combine"]
         ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
         cmd = COVERAGE_MODULE_BASE_COMMAND + ["report"]

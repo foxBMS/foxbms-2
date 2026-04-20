@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,6 @@
 
 """Run uncrustify on the FreeRTOS sources in the foxBMS source tree"""
 
-import logging
 import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
@@ -47,6 +46,7 @@ from shutil import which
 
 from ..helpers.click_helpers import recho
 from ..helpers.host_platform import get_platform
+from ..helpers.logger import logger
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
@@ -68,7 +68,8 @@ def run_uncrustify_process(
     uncrustify: str, args: list[str], _file: str
 ) -> SubprocessResult:
     """Runs uncrustify with the provided arguments on the specified file as a
-    subprocess"""
+    subprocess
+    """
     cmd = [uncrustify] + args + [_file]
     cwd = ROOT
     return run_process(cmd, cwd=cwd, stderr=None, stdout=None)
@@ -76,7 +77,6 @@ def run_uncrustify_process(
 
 def lint_freertos(check: bool = True) -> int:
     """Run uncrustify on the foxBMS FreeRTOS source tree"""
-
     uncrustify_install_path = os.environ.get("PATH", "")
     if get_platform() == "win32":
         uncrustify_install_path = (
@@ -105,7 +105,7 @@ def lint_freertos(check: bool = True) -> int:
     with ProcessPoolExecutor() as pool:
         futures = []
         for i in FREERTOS_FILES:
-            logging.debug("Start worker for file '%s'", i)
+            logger.debug("Start worker for file '%s'", i)
             futures.append(
                 pool.submit(run_uncrustify_process, uncrustify, uncrustify_args, i)
             )
@@ -113,13 +113,13 @@ def lint_freertos(check: bool = True) -> int:
         for f in futures:
             exit_code = f.result().returncode
             if exit_code:
-                logging.error("exitcode: %s", exit_code)
-                logging.error("stdout: %s", f.result().out)
-                logging.error("stderr: %s", f.result().err)
+                logger.error("exitcode: %s", exit_code)
+                logger.error("stdout: %s", f.result().out)
+                logger.error("stderr: %s", f.result().err)
             else:
-                logging.debug("exitcode: %s", exit_code)
-                logging.debug("stdout: %s", f.result().out)
-                logging.debug("stderr: %s", f.result().err)
+                logger.debug("exitcode: %s", exit_code)
+                logger.debug("stdout: %s", f.result().out)
+                logger.debug("stderr: %s", f.result().err)
 
             err += exit_code
 

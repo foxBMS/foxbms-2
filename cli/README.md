@@ -6,7 +6,6 @@
 | ---------------- | --------------------------- | ------------------------------------------------------------------------ |
 | `cmd_*`          | Command_*                   | Actual implementation of the specific CLI command                        |
 | `commands`       | Commands                    | Definition of all CLI commands                                           |
-| `fallback`       | Fallback                    | Fallback for the fox CLI wrappers when the environment is missing        |
 | `helpers`        | Helpers                     | Helper functions that are used by several parts of the CLI tool          |
 | `pre-commit`     | pre-commit                  | Scripts that are run as part of the `pre-commit` framework               |
 

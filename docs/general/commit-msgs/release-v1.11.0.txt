@@ -1,0 +1,43 @@
+Minor release of foxBMS 2 (v1.11.0)
+
+This release introduces basic TCP/IP support.
+This enables an alpha version of the Ethernet interface, which can be tested
+via ping and the integrated Echo Server.
+The Python development environment is updated to '2025-11-pale-fox'.
+Additional dependencies were updated.
+See INSTALL.md for information on updating the toolchain.
+
+* Add functionality that enables usage of the TCP port.
+  * Add EMAC driver.
+  * Add network interface to connect EMAC driver and FreeRTOS-Plus-TCP stack.
+  * Add application code that implements an Echo Server.
+* Add UART-based debug output support.
+* Add support for the EPCOS B57332V5103F360 temperature sensor.
+* Add support for CAN-based LEM CAB-500 current sensor.
+* Add AFE hardware identification support and related CAN reporting.
+* Add additional CAN information, including system state and AFE alarm IDs.
+* Add GUI improvements.
+* Improve ETL tooling (additional converters and table options).
+* Improve build scripts and build configuration handling.
+* Improve unit test coverage.
+* Improve documentation.
+* Fix RTC startup procedure.
+* Fix several tooling and integration issues.
+* Updated dependencies:
+  * Internal:
+    * Waf: 2.1.6
+    * FreeRTOS-Plus-TCP: 4.3.3
+  * External:
+    * drawio-desktop: 28.1.2
+    * Graphviz: 14.0.0
+    * pre-commit Hooks:
+      * cspell: v9.2.0
+      * cffconvert: b6045d78aac9e02b039703b030588d54d53262ac
+      * mirrors-clang-format: v21.1.1
+      * pre-commit-hooks: v6.0.0
+      * ruff-pre-commit: v0.13.2
+      * shellcheck-py: v0.11.0.1
+    * Python environment: 2025-11-pale-fox
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.11.0/general/changelog.html.

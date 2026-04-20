@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -75,20 +75,19 @@ class TestIdeImpl(unittest.TestCase):
         """Test multiple file verification"""
         hash_mock.return_value = "one-hash"
         buf = io.StringIO()
-        with self.assertLogs(level="INFO") as cm:
-            with redirect_stderr(buf):
-                result = verify_checksums.verify(
-                    [Path("dummy_file"), Path(__file__), __file__], "another-hash"
-                )
+        with self.assertLogs(level="INFO") as cm, redirect_stderr(buf):
+            result = verify_checksums.verify(
+                [Path("dummy_file"), Path(__file__), __file__], "another-hash"
+            )
         self.assertEqual(result, 1)
         self.assertEqual(
             cm.output,
             [
-                "INFO:root:Known hash is:      another-hash",
-                "INFO:root:Calculated hash is: one-hash",
-                "ERROR:root:Known hash is:      another-hash",
-                "ERROR:root:Calculated hash is: one-hash",
-                "ERROR:root:Hashes do not match.",
+                "INFO:fox.py:Known hash is:      another-hash",
+                "INFO:fox.py:Calculated hash is: one-hash",
+                "ERROR:fox.py:Known hash is:      another-hash",
+                "ERROR:fox.py:Calculated hash is: one-hash",
+                "ERROR:fox.py:Hashes do not match.",
             ],
         )
 

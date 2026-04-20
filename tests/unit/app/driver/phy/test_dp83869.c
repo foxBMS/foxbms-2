@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_dp83869.c
  * @author  foxBMS Team
  * @date    2025-07-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -78,6 +78,10 @@ TEST_INCLUDE_PATH("../../src/app/driver/phy")
 #define TEST_PHY_ADDAR         (0x0Eu)
 #define TEST_PHY_GEN_CTRL      (0x1Fu)
 #define TEST_PHY_BMCR          (0x0u)
+
+#define PHY_POWER_DOWN_REG_DOUT (gioPORTB->DOUT)
+#define PHY_POWER_DOWN_REG_DIR  (gioPORTB->DIR)
+#define PHY_POWER_DOWN_PIN      (6u)
 
 static DATA_BLOCK_PHY_s tablePhy = {.header.uniqueId = DATA_BLOCK_ID_PHY};
 
@@ -126,9 +130,9 @@ void helper_SwReset(uint16_t *resetComplete, uint16_t *n_resetComplete) {
 }
 
 void helper_HardwareReset(void) {
-    IO_PinReset_Expect(&((gioPORT_t *)0xFFF7BC34U)->DOUT, 1u);
+    IO_PinReset_Expect(&((gioPORT_t *)0xFFF7BC34u)->DOUT, 1u);
     OS_DelayTask_Expect(1u);
-    IO_PinSet_Expect(&((gioPORT_t *)0xFFF7BC34U)->DOUT, 1u);
+    IO_PinSet_Expect(&((gioPORT_t *)0xFFF7BC34u)->DOUT, 1u);
     OS_DelayTask_Expect(2u);
 }
 
@@ -144,8 +148,8 @@ void helper_HardwareReset(void) {
  *            - RT1/1: Function calls expected subroutine
  */
 void testPHY_WriteExtendedAddressSpaceRegister(void) {
-    uint32_t testRegisterNumber = 0x00FE;
-    uint16_t testRegisterValue  = 0xE720;
+    uint32_t testRegisterNumber = 0x00FEu;
+    uint16_t testRegisterValue  = 0xE720u;
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(TEST_PHY_WriteExtendedAddressSpaceRegister(TEST_MDIO_BASE_ADDRESS, 33u, 0x0u, 0x1u));
@@ -291,11 +295,15 @@ void testPHY_Initialize(void) {
     uint16_t id1             = 0x2000;
     uint16_t id2             = 0xA0F1;
     STD_RETURN_TYPE_e result = STD_OK;
+
     /* ======= Assertion tests ============================================= */
 
     /* ======= Routine tests =============================================== */
-
     /* ======= RT1/6: Test implementation */
+    IO_SetPinDirectionToOutput_Expect(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet_Expect(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
+
+    DATA_Read1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     helper_HardwareReset();
 
     /* Call of PHY_GetId() */
@@ -321,6 +329,9 @@ void testPHY_Initialize(void) {
     uint16_t restartComplete   = 0x0000u;
     helper_SwRestart(&restartComplete, &n_restartComplete);
     helper_ExtendedAddressSpaceRegRead(0x1DFu, &miiModeNotSet, &miiModeSet);
+
+    OS_DelayTask_Expect(500u);
+
     /* Call of PHY_GetLinkStatus() */
     uint16_t testLinkStatus  = 0u;
     uint16_t testLinkSuccess = 0x4u;
@@ -336,17 +347,20 @@ void testPHY_Initialize(void) {
     TEST_ASSERT_EQUAL(result, STD_OK);
 
     /* ======= RT2/6: Test implementation */
-    uint32_t phyIdReadCount = 0xFu;
-    helper_HardwareReset();
+    IO_SetPinDirectionToOutput_Expect(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet_Expect(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
 
-    while (phyIdReadCount > 0u) {
+    DATA_Read1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
+    uint32_t phyIdReadCount = 0x0u;
+
+    while (phyIdReadCount < 0xFu) {
         /* Call of PHY_GetId() */
         MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x2u, &testDataBuffer, true);
         MDIOPhyRegRead_ReturnThruPtr_dataPtr(&testDataBuffer);
         MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x3u, &testDataBuffer, true);
         MDIOPhyRegRead_ReturnThruPtr_dataPtr(&testDataBuffer);
         OS_DelayTask_Expect(10u);
-        phyIdReadCount--;
+        phyIdReadCount++;
     }
 
     DATA_Write1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
@@ -359,8 +373,10 @@ void testPHY_Initialize(void) {
     resetTest();
 
     /* ======= RT3/6: Test implementation */
-    helper_HardwareReset();
+    IO_SetPinDirectionToOutput_Expect(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet_Expect(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
 
+    DATA_Read1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     /* Call of PHY_GetId() */
     MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x2u, &testDataBuffer, true);
     MDIOPhyRegRead_ReturnThruPtr_dataPtr(&id1);
@@ -376,8 +392,10 @@ void testPHY_Initialize(void) {
     TEST_ASSERT_EQUAL(result, STD_NOT_OK);
 
     /* ======= RT4/6: Test implementation */
-    helper_HardwareReset();
+    IO_SetPinDirectionToOutput_Expect(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet_Expect(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
 
+    DATA_Read1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     /* Call of PHY_GetId() */
     MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x2u, &testDataBuffer, true);
     MDIOPhyRegRead_ReturnThruPtr_dataPtr(&id1);
@@ -396,9 +414,11 @@ void testPHY_Initialize(void) {
     TEST_ASSERT_EQUAL(result, STD_NOT_OK);
     resetTest();
 
-    /* ======= RT5/6: Test implementation */
-    helper_HardwareReset();
+    /* ======= RT5/6: Test implementation */;
+    IO_SetPinDirectionToOutput_Expect(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet_Expect(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
 
+    DATA_Read1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     /* Call of PHY_GetId() */
     MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x2u, &testDataBuffer, true);
     MDIOPhyRegRead_ReturnThruPtr_dataPtr(&id1);
@@ -432,8 +452,10 @@ void testPHY_Initialize(void) {
     resetTest();
 
     /* ======= RT6/6: Test implementation */
-    helper_HardwareReset();
+    IO_SetPinDirectionToOutput_Expect(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet_Expect(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
 
+    DATA_Read1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     /* Call of PHY_GetId() */
     MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x2u, &testDataBuffer, true);
     MDIOPhyRegRead_ReturnThruPtr_dataPtr(&id1);
@@ -457,15 +479,17 @@ void testPHY_Initialize(void) {
     restartComplete   = 0x0000u;
     helper_SwRestart(&restartComplete, &n_restartComplete);
     helper_ExtendedAddressSpaceRegRead(0x1DFu, &miiModeNotSet, &miiModeSet);
+
+    OS_DelayTask_Expect(500u);
     /* Call of PHY_GetLinkStatus() */
     testLinkStatus = 0u;
 
-    uint32_t retries = 0xFu;
-    while (retries > 0u) {
+    uint32_t retries = 0x0u;
+    while (retries < 0xFu) {
         MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x1u, &testLinkStatus, true);
         MDIOPhyRegRead_ReturnThruPtr_dataPtr(&testLinkStatus);
-        OS_DelayTask_Expect(100u);
-        retries--;
+        OS_DelayTask_Expect(10u);
+        retries++;
     }
     DATA_Write1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
 
@@ -484,12 +508,12 @@ void testPHY_Initialize(void) {
  *            - AT1/1: Invalid phy address &rarr; assert
  *          - Routine validation:
  *            - RT1/2: Function calls expected subroutine
- *            - RT2/2: Function calls expected subroutine
+ *            - RT2/2: Function calls expected subroutine and fails to read
  */
 void testPHY_LinkStatusGet(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(PHY_GetLinkStatus(TEST_MDIO_BASE_ADDRESS, 33u, 0x1u));
+    TEST_ASSERT_FAIL_ASSERT(PHY_GetLinkStatus(TEST_MDIO_BASE_ADDRESS, 33u));
 
     /* ======= Routine tests =============================================== */
     uint16_t testLinkStatus  = 0u;
@@ -501,20 +525,20 @@ void testPHY_LinkStatusGet(void) {
     MDIOPhyRegRead_ReturnThruPtr_dataPtr(&testLinkSuccess);
     DATA_Write1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     /* ======= RT1/2: Call function under test */
-    result = PHY_GetLinkStatus(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x1u);
+    result = PHY_GetLinkStatus(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS);
     /* ======= RT1/2: Test output verification */
     TEST_ASSERT_EQUAL(STD_OK, result);
 
     /* ======= RT2/2: Test implementation */
-    uint32_t retries = 0x1u;
-    while (retries > 0u) {
+    uint32_t retries = 0x0u;
+    while (retries < 0xFu) {
         MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x1u, &testLinkStatus, false);
-        OS_DelayTask_Expect(100u);
-        retries--;
+        OS_DelayTask_Expect(10u);
+        retries++;
     }
     DATA_Write1DataBlock_ExpectAndReturn(&tablePhy, STD_OK);
     /* ======= RT2/2: Call function under test */
-    result = PHY_GetLinkStatus(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x1u);
+    result = PHY_GetLinkStatus(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS);
     /* ======= RT2/2: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, result);
 }
@@ -659,7 +683,7 @@ void testPHY_AutoNegotiate(void) {
     MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x1u, &registerData, true);
     MDIOPhyRegRead_ReturnThruPtr_dataPtr(&autoNegIncomplete);
 
-    uint16_t phyNegTries = 100u;
+    uint16_t phyNegTries = 10u;
     while (phyNegTries > 0u) {
         MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x1u, &autoNegIncomplete, true);
         MDIOPhyRegRead_ReturnThruPtr_dataPtr(&autoNegIncomplete);
@@ -677,24 +701,24 @@ void testPHY_AutoNegotiate(void) {
  * @details The following cases need to be tested:
  *          - Argument validation:
  *            - AT1/2: Invalid phy address &rarr; assert
- *            - AT2/2: Invalid ptnerAbltyBuffer &rarr; assert
+ *            - AT2/2: Invalid partnerAbilityBuffer &rarr; assert
  *          - Routine validation:
  *            - RT1/1: Function calls expected subroutine
  */
 void testPHY_PartnerAbilityGet(void) {
     /* ======= Assertion tests ============================================= */
-    uint16_t ptnerAbltyBuffer = 0u;
+    uint16_t partnerAbilityBuffer = 0u;
     /* ======= AT1/2 ======= */
-    TEST_ASSERT_FAIL_ASSERT(PHY_GetPartnerAbility(TEST_MDIO_BASE_ADDRESS, 33u, &ptnerAbltyBuffer));
+    TEST_ASSERT_FAIL_ASSERT(PHY_GetPartnerAbility(TEST_MDIO_BASE_ADDRESS, 33u, &partnerAbilityBuffer));
     /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(PHY_GetPartnerAbility(TEST_MDIO_BASE_ADDRESS, 0x1u, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x5u, &ptnerAbltyBuffer, true);
+    MDIOPhyRegRead_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, 0x5u, &partnerAbilityBuffer, true);
 
     /* ======= RT1/1: Call function under test */
-    PHY_GetPartnerAbility(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, &ptnerAbltyBuffer);
+    PHY_GetPartnerAbility(TEST_MDIO_BASE_ADDRESS, TEST_PHY_ADDRESS, &partnerAbilityBuffer);
 }
 
 /**
@@ -705,7 +729,7 @@ void testPHY_PartnerAbilityGet(void) {
  *          - Routine validation:
  *            - RT1/1: Function calls expected subroutine
  */
-void testPHY_MIImmodeSet(void) {
+void testPHY_MIImodeSet(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(PHY_SetMiiMode(TEST_MDIO_BASE_ADDRESS, 33u));
@@ -721,7 +745,7 @@ void testPHY_MIImmodeSet(void) {
     uint16_t miiModeSet    = 0x60u;
     helper_ExtendedAddressSpaceRegRead(0x1DFu, &miiModeNotSet, &miiModeNotSet);
 
-    /* Setting MII MOODE. */
+    /* Setting MII MODE. */
     helper_ExtendedAddressSpaceRegWrite(0x1DFu, miiModeSet);
 
     /* Call PHY_RestartSoftware() */
@@ -862,9 +886,9 @@ void testPHY_HardwareReset(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    IO_PinReset_Expect(&((gioPORT_t *)0xFFF7BC34U)->DOUT, 1u);
+    IO_PinReset_Expect(&((gioPORT_t *)0xFFF7BC34u)->DOUT, 1u);
     OS_DelayTask_Expect(1u);
-    IO_PinSet_Expect(&((gioPORT_t *)0xFFF7BC34U)->DOUT, 1u);
+    IO_PinSet_Expect(&((gioPORT_t *)0xFFF7BC34u)->DOUT, 1u);
     OS_DelayTask_Expect(2u);
     /* ======= RT1/1: Call function under test */
     PHY_ResetHardware();

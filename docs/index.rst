@@ -41,7 +41,7 @@ The documentation is divided in the following parts:
 #. :ref:`HARDWARE_DOCUMENTATION_OVERVIEW`
 #. :ref:`SYSTEM_DOCUMENTATION_OVERVIEW`
 #. :ref:`TOOLS_DOCUMENTATION_OVERVIEW`
-#. :ref:`DEVELOPER_MANUAL`
+#. :ref:`DEVELOPMENT_OVERVIEW`
 
 In the first part of the documentation, general information about |foxbms|
 can be found (:ref:`GENERAL_INFORMATION_OVERVIEW`):
@@ -83,25 +83,10 @@ Numerous tools have been developed or adapted to support developing with the
 These tools and their usage are described in
 :ref:`TOOLS_DOCUMENTATION_OVERVIEW`.
 
-Finally, the :ref:`DEVELOPER_MANUAL` explains which rules need to be applied
-when developing for the |foxbms| platform.
+Finally, the :ref:`DEVELOPMENT_OVERVIEW` explains which rules need to be
+applied when developing for the |foxbms| platform.
 
 All sections are listed here:
-
-.. _GENERAL_INFORMATION_OVERVIEW:
-
-.. toctree::
-    :titlesonly:
-    :numbered:
-    :maxdepth: 1
-    :caption: General Information
-
-    ./general/releases.rst
-    ./general/changelog.rst
-    ./general/motivation.rst
-    ./general/safety/safety.rst
-    ./general/license.rst
-    ./general/team.rst
 
 .. _DESIGN_CONSIDERATIONS:
 
@@ -111,7 +96,7 @@ All sections are listed here:
     :maxdepth: 1
     :caption: Introduction
 
-    ./introduction/abbreviations-definitions.rst
+    ./general/motivation.rst
     ./introduction/naming-conventions.rst
     ./introduction/bms-overview.rst
     ./introduction/use-case.rst
@@ -124,10 +109,9 @@ All sections are listed here:
     :maxdepth: 1
     :caption: Getting Started
 
-    ./getting-started/getting-started.rst
     ./getting-started/repository-structure.rst
     ./getting-started/software-installation.rst
-    ./getting-started/fox_cli.rst
+    ./getting-started/fox-cli-basics.rst
     ./getting-started/workspace.rst
     ./getting-started/first-steps-on-hardware.rst
 
@@ -141,15 +125,13 @@ All sections are listed here:
 
     ./software/configuration/configuration.rst
     ./software/build/build.rst
-    ./software/overview/sw-overview.rst
+    ./software/structure/software-structure.rst
     ./software/modules/modules.rst
     ./software/unit-tests/unit-tests.rst
     ./software/build-process/build-process.rst
     ./software/build-environment/build-environment.rst
     ./software/how-to/how-to.rst
     ./software/linker-script/linker-script.rst
-    ./software/architecture/architecture.rst
-    ./software/operating-system/operating-system.rst
     ./software/bootloader/bootloader.rst
 
 .. _HARDWARE_DOCUMENTATION_OVERVIEW:
@@ -189,14 +171,12 @@ All sections are listed here:
     :maxdepth: 1
     :caption: Tools Documentation
 
-    ./tools/fox_py.rst
-    ./tools/fox_py_api.rst
+    ./tools/fox-cli-usage.rst
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst
-    ./tools/static-analysis/axivion.rst
 
-.. _DEVELOPER_MANUAL:
+.. _DEVELOPMENT_OVERVIEW:
 
 .. toctree::
     :titlesonly:
@@ -208,19 +188,30 @@ All sections are listed here:
     ./developer-manual/style-guide/style-guide.rst
     ./developer-manual/software-developer-manual.rst
     ./developer-manual/hardware-developer-manual.rst
-    ./developer-manual/fox-cli-wrapper/fox-cli-wrapper.rst
-    ./developer-manual/add-cli-cmds/add-cli-cmds.rst
+    ./developer-manual/fox-cli/fox-cli.rst
     ./developer-manual/dependency-management.rst
     ./developer-manual/release-management.rst
 
-.. _MISCELLANEOUS_INFORMATION:
+.. _GENERAL_INFORMATION_OVERVIEW:
 
 .. toctree::
     :titlesonly:
     :numbered:
     :maxdepth: 1
-    :caption: Miscellaneous Information
+    :caption: General Information
 
+    ./general/license.rst
+    ./general/changelog.rst
+    ./general/releases.rst
+    ./general/safety/safety.rst
+    ./introduction/abbreviations-definitions.rst
     ./misc/acknowledgements.rst
-    ./misc/indices-and-tables.rst
     ./misc/bibliography.rst
+    ./general/team.rst
+
+Indices and Tables
+==================
+
+- :ref:`genindex`
+- :ref:`modindex`
+- :ref:`search`

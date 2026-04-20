@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fassert.h
  * @author  foxBMS Team
  * @date    2020-03-20 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  FAS
  *
@@ -200,7 +200,7 @@ static inline void FAS_InfiniteLoop(void) {
 #error "Invalid value for FAS_ASSERT_LEVEL"
 #endif
 
-#ifdef UNITY_UNIT_TEST
+#if defined(UNITY_UNIT_TEST) || defined(DOCUMENTATION)
 /**
  * @def     __curpc(x)
  * @brief   replaces in unit test the (platform-specific) function for the retrieval of the program counter
@@ -219,12 +219,15 @@ static inline uint32_t __curpc(void) {
  *          at he assert location in the code
  */
 /* AXIVION Next Construct Style MisraC2012-11.5: The program counter needs to be casted to platform register width */
+#if defined(DOCUMENTATION)
+#define FAS_ASSERT_RECORD()
+#else
 #define FAS_ASSERT_RECORD()                    \
     do {                                       \
         uint32_t *pc = (uint32_t *)__curpc();  \
         FAS_StoreAssertLocation(pc, __LINE__); \
     } while (false)
-
+#endif
 /**
  * @def     FAS_ASSERT(x)
  * @brief   Assertion macro that asserts that x is true

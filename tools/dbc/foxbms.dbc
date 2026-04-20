@@ -812,7 +812,7 @@ SG_ CellVoltage_213 m53 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ CellVoltage_214 m53 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ CellVoltage_215 m53 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 
-BO_ 964 BAS_AerosolSensor: 8 Vector__XXX
+BO_ 964 AS_HoneywellBas6cX00: 8 Vector__XXX
 SG_ ParticulateMatterConcentration : 7|16@0+ (1,0) [0|65535] "" Vector__XXX
 SG_ LowPowerModeWakeUpThreshold : 23|16@0+ (1,0) [0|65535] "" Vector__XXX
 SG_ SensorStatus : 34|3@0+ (1,0) [0|7] "" Vector__XXX
@@ -852,9 +852,9 @@ SG_ InsulationResistance : 63|8@0+ (200,0) [0|51000] "kOhm" Vector__XXX
 SG_ BmsSubstate : 37|6@0+ (1,0) [0|63] "" Vector__XXX
 SG_ Clamp30cError : 30|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ BalancingAlgorithmState : 31|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ BmsChargingFlag : 29|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ PhyAlive : 39|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ PhyLinked : 38|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ BmsChargingFlag : 29|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 545 f_BmsStateDetails: 8 Vector__XXX
 SG_ TimingViolationEngineTask : 0|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1712,6 +1712,7 @@ SG_ InitializeFram m3 : 27|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ RequestRtcTime m4 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ RequestBootTimestamp m4 : 9|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ RequestUptime m5 : 16|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ RequestIdentifyHardware m7 : 15|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 771 f_DebugBuildConfiguration: 8 Vector__XXX
 SG_ f_DebugBuildConfiguration_Mux M : 0|8@1+ (1,0) [0|0] "" Vector__XXX
@@ -1754,9 +1755,6 @@ SG_ NrOfCellBlocksPerString m55 : 15|14@0+ (1,0) [0|1] "" Vector__XXX
 SG_ NrOfCellBlocks m55 : 17|14@0+ (1,0) [0|1] "" Vector__XXX
 SG_ NrOfTempSensorsPerString m55 : 35|14@0+ (1,0) [0|1] "" Vector__XXX
 SG_ NrOfTempSensors m55 : 53|14@0+ (1,0) [0|1] "" Vector__XXX
-SG_ CurrentSensorPresent m51 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ CurrentSensorCyclic m51 : 14|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ NrOfVoltagesFromCurrentSensor m51 : 13|2@0+ (1,0) [0|1] "" Vector__XXX
 SG_ CurrentMeasurementTimeout m51 : 11|12@0+ (1,0) [0|1] "ms" Vector__XXX
 SG_ CoulombCountingMeasurementTimeou m51 : 31|12@0+ (1,0) [0|1] "ms" Vector__XXX
 SG_ EnergyCountingMeasurementTimeout m51 : 35|12@0+ (1,0) [0|1] "ms" Vector__XXX
@@ -1794,6 +1792,11 @@ SG_ Rtos m16 : 39|4@0+ (1,0) [0|1] "" Vector__XXX
 SG_ AFE m0 : 15|16@0+ (1,0) [0|65535] "" Vector__XXX
 SG_ TemperatureSensor m0 : 31|8@0+ (1,0) [0|255] "" Vector__XXX
 SG_ TemperatureSensorMethod m0 : 39|8@0+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 772 f_DebugIdentifyHardware: 8 Vector__XXX
+SG_ f_DebugIdentifyHardware_Mux M : 7|1@0+ (1,0) [0|0] "" Vector__XXX
+SG_ SerialId m1 : 23|48@0+ (1,0) [0|281474976710655] "" Vector__XXX
+SG_ AfeNumber m1 : 6|15@0+ (1,0) [0|32767] "" Vector__XXX
 
 BO_ 769 f_DebugResponse: 8 Vector__XXX
 SG_ f_DebugResponse_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
@@ -1849,13 +1852,25 @@ SG_ MaximumDischargePower : 31|12@0+ (0.1,0) [0|409.5] "kW" Vector__XXX
 SG_ MaximumBatteryVoltage : 55|8@0+ (4,0) [0|1020] "V" Vector__XXX
 SG_ MinimumBatteryVoltage : 63|8@0+ (4,0) [0|1020] "V" Vector__XXX
 
-BO_ 561 f_PackMinimumMaximumValues: 8 Vector__XXX
-SG_ MinimumCellVoltage : 9|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
-SG_ MaximumCellVoltage : 7|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
-SG_ MaximumCellTemperature : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ MinimumCellTemperature : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ CoolingInletTemperature : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ CoolingOutletTemperature : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+BO_ 560 f_PackMinMaxCellTemperature: 8 Vector__XXX
+SG_ MaximumCellTemperature : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ MinimumCellTemperature : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ SensorMaximumCellTemperature : 11|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ SensorMinimumCellTemperature : 15|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ModuleMaximumCellTemperature : 19|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ModuleMinimumCellTemperature : 23|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ StringMinimumCellTemperature : 31|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ StringMaximumCellTemperature : 27|4@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 561 f_PackMinMaxCellVoltage: 8 Vector__XXX
+SG_ MinimumCellVoltage : 53|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
+SG_ MaximumCellVoltage : 37|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
+SG_ MaximumCellVoltageCellIndex : 11|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MinimumCellVoltageCellIndex : 15|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MaximumCellVoltageModuleIndex : 19|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MinimumCellVoltageModuleIndex : 23|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MinimumCellVoltageStringIndex : 31|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MaximumCellVoltageStringIndex : 27|4@0+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 565 f_PackStateEstimation: 8 Vector__XXX
 SG_ MinimumSoc : 7|10@0+ (0.1,0) [0|102.3] "%" Vector__XXX
@@ -1874,12 +1889,23 @@ SG_ Power : 25|17@0- (0.01,0) [-655.36|655.35] "kW" Vector__XXX
 BO_ 564 f_PackValuesP1: 8 Vector__XXX
 SG_ InsulationResistance : 7|13@0+ (7,0) [0|57337] "kOhm" Vector__XXX
 
-BO_ 577 f_StringMinimumMaximumValues: 8 Vector__XXX
-SG_ f_StringMinimumMaximumValues_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
-SG_ MinimumCellVoltage m0 : 17|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
-SG_ MaximumCellVoltage m0 : 15|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
-SG_ MaximumCellTemperature m0 : 35|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
-SG_ MinimumCellTemperature m0 : 42|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
+BO_ 577 f_StringMinMaxCellTemperature: 8 Vector__XXX
+SG_ f_StringMinMaxCellTemperature_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
+SG_ MaximumCellTemperature m0 : 31|8@0- (0.5,0) [-64|63.5] "degC" Vector__XXX
+SG_ MinimumCellTemperature m0 : 39|8@0- (0.5,0) [-64|63.5] "degC" Vector__XXX
+SG_ SensorMaximumCellTemperature m0 : 11|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ SensorMinimumCellTemperature m0 : 15|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ModuleMaximumCellTemperature m0 : 19|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ModuleMinimumCellTemperature m0 : 23|4@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 578 f_StringMinMaxCellVoltage: 8 Vector__XXX
+SG_ f_StringMinMaxCellVoltage_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
+SG_ MinimumCellVoltage m0 : 33|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
+SG_ MaximumCellVoltage m0 : 31|14@0- (1,0) [-8192|8191] "mV" Vector__XXX
+SG_ SensorMaximumCellVoltage m0 : 11|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ SensorMinimumCellVoltage m0 : 15|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ModuleMaximumCellVoltage m0 : 19|4@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ModuleMinimumCellVoltage m0 : 23|4@0+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 576 f_StringState: 8 Vector__XXX
 SG_ f_StringState_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
@@ -1951,7 +1977,11 @@ BO_ 580 f_StringValuesP1: 8 Vector__XXX
 SG_ f_StringValuesP1_Mux M : 7|4@0+ (1,0) [0|0] "" Vector__XXX
 SG_ EnergyCounter m0 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
 
-BO_ 55 IMD_Info: 6 Vector__XXX
+BO_ 537 f_SystemState: 8 Vector__XXX
+SG_ State : 0|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ Substate : 7|7@0+ (1,0) [0|127] "" Vector__XXX
+
+BO_ 55 IMD_BenderIso165c_Info: 6 Vector__XXX
 SG_ II_VIFC_STATUS_04_VIFC_CmdError : 36|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ II_VIFC_STATUS_13_ST_ParamConfig : 45|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ II_VIFC_STATUS_12_ST_Overall : 44|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -1967,8 +1997,8 @@ SG_ II_IMC_STATUS_02_System : 18|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ II_IMC_STATUS_01_Ground : 17|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ II_IMC_STATUS_00_IsoFailure : 16|1@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 34 IMD_Request: 5 Vector__XXX
-SG_ IMD_Request_Mux M : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+BO_ 34 IMD_BenderIso165c_Request: 5 Vector__XXX
+SG_ IMD_BenderIso165c_Request_Mux M : 0|8@1+ (1,0) [0|0] "" Vector__XXX
 SG_ MG_IMC_MANUFACT_INDEX m61 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ MG_VIFC_POWER_MODE m223 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ MC_VIFC_POWER_MODE m201 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
@@ -1990,8 +2020,8 @@ SG_ MC_IMC_CALIB_STEP m34 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ MC_IMC_SELFTEST_SCR m33 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ MS_IMC_R_ISO_ERR_THR m40 : 8|16@1+ (1,0) [30|1000] "kOhm" Vector__XXX
 
-BO_ 35 IMD_Response: 5 Vector__XXX
-SG_ IMD_Response_Mux M : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+BO_ 35 IMD_BenderIso165c_Response: 5 Vector__XXX
+SG_ IMD_BenderIso165c_Response_Mux M : 0|8@1+ (1,0) [0|0] "" Vector__XXX
 SG_ IG_VIFC_STATUS_04_VIFC_CmdError m220 : 12|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ IG_VIFC_STATUS_13_ST_ParamConfig m220 : 21|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ IG_VIFC_STATUS_12_ST_Overall m220 : 20|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -2063,7 +2093,7 @@ SG_ IG_IMC_TEST_CNT m90 : 8|16@1+ (1,0) [0|65535] "Calls" Vector__XXX
 SG_ IMD_Response_DataWord2 m0 : 24|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ IMD_Response_DataWord1 m0 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
 
-BO_ 1313 IVT_String0_Current: 6 Vector__XXX
+BO_ 1313 CS_IsabellenhuetteIvtString0Curr: 6 Vector__XXX
 SG_ IVT_Result_I_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_I_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_I_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2072,7 +2102,7 @@ SG_ IVT_ID_Result_I : 7|8@0+ (1,0) [0|255] "" Vector__XXX
 SG_ IVT_MsgCount_Result_I : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT_Result_I : 23|32@0- (1,0) [-2147483648|2147483647] "mA" Vector__XXX
 
-BO_ 1319 IVT_String0_CurrentCounter: 6 Vector__XXX
+BO_ 1319 CS_IsabellenhuetteIvtString0Cc: 6 Vector__XXX
 SG_ IVT_Result_As_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_As_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_As_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2081,7 +2111,7 @@ SG_ IVT_Result_As : 23|32@0- (1,0) [-2147483648|2147483647] "As" Vector__XXX
 SG_ IVT_MsgCount_Result_As : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT_ID_Result_As : 7|8@0+ (1,0) [6|6] "" Vector__XXX
 
-BO_ 1320 IVT_String0_EnergyCounter: 6 Vector__XXX
+BO_ 1320 CS_IsabellenhuetteIvtString0Ec: 6 Vector__XXX
 SG_ IVT_Result_Wh_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_Wh_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_Wh_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2090,7 +2120,7 @@ SG_ IVT_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
 SG_ IVT_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
 
-BO_ 1318 IVT_String0_Power: 6 Vector__XXX
+BO_ 1318 CS_IsabellenhuetteIvtString0Pwr: 6 Vector__XXX
 SG_ IVT_Result_W_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_W_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_W_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2099,7 +2129,7 @@ SG_ IVT_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W" Vector__XXX
 SG_ IVT_MsgCount_Result_W : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT_ID_Result_W : 7|8@0+ (1,0) [5|5] "" Vector__XXX
 
-BO_ 1317 IVT_String0_Temperature: 6 Vector__XXX
+BO_ 1317 CS_IsabellenhuetteIvtString0Temp: 6 Vector__XXX
 SG_ IVT_Result_T_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_T_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_T_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2108,7 +2138,7 @@ SG_ IVT_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
 SG_ IVT_Result_T : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "degC" Vector__XXX
 SG_ IVT_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 
-BO_ 1314 IVT_String0_Voltage1: 6 Vector__XXX
+BO_ 1314 CS_IsabellenhuetteIvtString0V1: 6 Vector__XXX
 SG_ IVT_Result_U1_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_U1_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_U1_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2117,7 +2147,7 @@ SG_ IVT_ID_Result_U1 : 7|8@0+ (1,0) [1|1] "" Vector__XXX
 SG_ IVT_Result_U1 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 SG_ IVT_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 
-BO_ 1315 IVT_String0_Voltage2: 6 Vector__XXX
+BO_ 1315 CS_IsabellenhuetteIvtString0V2: 6 Vector__XXX
 SG_ IVT_Result_U2_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_U2_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_U2_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2126,7 +2156,7 @@ SG_ IVT_ID_Result_U2 : 7|8@0+ (1,0) [2|2] "" Vector__XXX
 SG_ IVT_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT_Result_U2 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
-BO_ 1316 IVT_String0_Voltage3: 6 Vector__XXX
+BO_ 1316 CS_IsabellenhuetteIvtString0V3: 6 Vector__XXX
 SG_ IVT_Result_U3_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_Result_U3_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -2135,7 +2165,13 @@ SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
 SG_ IVT_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 
-CM_ BO_ 640 "Cell temperature measurement data (in:can_cbs_rx_cell-temperatures.c:CANRX_CellTemperatures, fv:rx, type:Cell Information)";
+BO_ 962 CS_LemCab500String0: 8 Vector__XXX
+SG_ PRODUCT_NAME : 47|24@0+ (1,0) [0|1] "" Vector__XXX
+SG_ CSM_FAIL : 39|7@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ERROR_INDICATION : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ CSM_BAT_CURRENT_mA : 7|32@0+ (1,0) [0|4294967295] "" Vector__XXX
+
+CM_ BO_ 640 "Cell temperature measurement data (in:can_cbs_rx_afe_cell-temperatures.c:CANRX_CellTemperatures, fv:rx, type:Cell Information)";
 CM_ SG_ 640 CellTemperature_000 "Temperature of cell 0";
 CM_ SG_ 640 CellTemperature_001 "Temperature of cell 1";
 CM_ SG_ 640 CellTemperature_002 "Temperature of cell 2";
@@ -2316,7 +2352,7 @@ CM_ SG_ 640 CellTemperature_176 "Temperature of cell 176";
 CM_ SG_ 640 CellTemperature_177 "Temperature of cell 177";
 CM_ SG_ 640 CellTemperature_178 "Temperature of cell 178";
 CM_ SG_ 640 CellTemperature_179 "Temperature of cell 179";
-CM_ BO_ 624 "Cell voltage measurement data (in:can_cbs_rx_cell-voltages.c:CANRX_CellVoltages, fv:rx, type:Cell Information)";
+CM_ BO_ 624 "Cell voltage measurement data (in:can_cbs_rx_afe_cell-voltages.c:CANRX_CellVoltages, fv:rx, type:Cell Information)";
 CM_ SG_ 624 CellVoltage_000 "Voltage of cell 0";
 CM_ SG_ 624 CellVoltage_001 "Voltage of cell 1";
 CM_ SG_ 624 CellVoltage_002 "Voltage of cell 2";
@@ -2533,9 +2569,9 @@ CM_ SG_ 624 CellVoltage_212 "Voltage of cell 212";
 CM_ SG_ 624 CellVoltage_213 "Voltage of cell 213";
 CM_ SG_ 624 CellVoltage_214 "Voltage of cell 214";
 CM_ SG_ 624 CellVoltage_215 "Voltage of cell 215";
-CM_ BO_ 964 "(in:can_cbs_rx_aerosol-sensor.c:CANRX_AerosolSensor, fv:rx, type:Aerosol Sensor)";
-CM_ BO_ 546 "Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)";
-CM_ BO_ 544 "Message contains general BMS state information (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)";
+CM_ BO_ 964 "(in:can_cbs_rx_as_honeywell-bas6c-x00.c:CANRX_AsHoneywellBas6cX00, fv:rx, type:Aerosol Sensor)";
+CM_ BO_ 546 "Message contains the fatal error code (in:can_cbs_tx_f_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)";
+CM_ BO_ 544 "Message contains general BMS state information (in:can_cbs_tx_f_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)";
 CM_ SG_ 544 BmsState "Shows the internal state of the BMS state machine";
 CM_ SG_ 544 NumberOfConnectedStrings "Shows the number of connected strings, i.e., the strings in which the contactors are closed";
 CM_ SG_ 544 GeneralError "Indicates whether any error is present on the BMS or not";
@@ -2562,10 +2598,10 @@ CM_ SG_ 544 AlertFlag "Indicates whether any alter flag is set or not";
 CM_ SG_ 544 NvramCrcError "Indicates whether a CRC error has been detected in the NVRAM or not";
 CM_ SG_ 544 Clamp30cError "Indicates a possible error with Clamp 30C supply";
 CM_ SG_ 544 BalancingAlgorithmState "Indicates if the selected balancing algorithm allows balancing. This indicates not if a cell is actually balanced or not. This is indicated in IsBalancingActive flag in f_StringState message";
+CM_ SG_ 544 BmsChargingFlag "Indicates that the bms is charging";
 CM_ SG_ 544 PhyAlive "Indicates that the phy hardware is reachable";
 CM_ SG_ 544 PhyLinked "Indicates that the phy has a network connection";
-CM_ SG_ 544 BmsChargingFlag "Indicates that the bms is charging";
-CM_ BO_ 545 "Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_bms-state-details.c:CANTX_BmsStateDetails, fv:tx, type:BMS Status)";
+CM_ BO_ 545 "Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_f_bms-state-details.c:CANTX_BmsStateDetails, fv:tx, type:BMS Status)";
 CM_ SG_ 545 TimingViolationEngineTask "Indicates whether the timing of the engine task has been violated.";
 CM_ SG_ 545 TimingViolation1msTask "Indicates whether the timing of the 1ms task has been violated.";
 CM_ SG_ 545 TimingViolation10msTask "Indicates whether the timing of the 10ms task has been violated.";
@@ -2576,7 +2612,7 @@ CM_ SG_ 545 TimingViolation100msTaskRecorded "Indicates whether a violation of t
 CM_ SG_ 545 TimingViolation100msAlgoTaskReco "Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.";
 CM_ SG_ 545 TimingViolationEngineTaskRecorde "Indicates whether a violation of the timing of the engine task has been recorded.";
 CM_ SG_ 545 TimingViolation1msTaskRecorded "Indicates whether a violation of the timing of the 1ms task has been recorded.";
-CM_ BO_ 528 "Requests specific BMS behavior and gives the BMS required information from the higher-level control unit (in:can_cbs_rx_bms-state-request.c:CANRX_BmsStateRequest, fv:rx, type:BMS Status)";
+CM_ BO_ 528 "Requests specific BMS behavior and gives the BMS required information from the higher-level control unit (in:can_cbs_rx_f_bms-state-request.c:CANRX_BmsStateRequest, fv:rx, type:BMS Status)";
 CM_ SG_ 528 RequestBmsMode "Instructs the BMS the to try to switch to the requested mode";
 CM_ SG_ 528 ActivateBalancing "Instructs the BMS to activate/deactivate balancing";
 CM_ SG_ 528 SetBalancingThreshold "Sets the required voltage difference to minimum cell voltage to activate balancing";
@@ -2585,7 +2621,7 @@ CM_ SG_ 528 ResetPersistentFlags "Instructs the BMS the to reset persistent flag
 CM_ SG_ 528 ChargerConnected "Tells the BMS whether a charger is connected or not";
 CM_ SG_ 528 DisableInsulationMonitoring "Instructs the BMS to check/not check the battery system insulation";
 CM_ BO_ 1040 "src/bootloader/driver/can/can_bootloader-version-info.c";
-CM_ BO_ 608 "Cell temperature measurement data (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx, type:Cell Information)";
+CM_ BO_ 608 "Cell temperature measurement data (in:can_cbs_tx_f_cell-temperatures.c:CANTX_CellTemperatures, fv:tx, type:Cell Information)";
 CM_ SG_ 608 CellTemperature_000 "Temperature of cell 0";
 CM_ SG_ 608 CellTemperature_001 "Temperature of cell 1";
 CM_ SG_ 608 CellTemperature_002 "Temperature of cell 2";
@@ -2766,7 +2802,7 @@ CM_ SG_ 608 CellTemperature_176 "Temperature of cell 176";
 CM_ SG_ 608 CellTemperature_177 "Temperature of cell 177";
 CM_ SG_ 608 CellTemperature_178 "Temperature of cell 178";
 CM_ SG_ 608 CellTemperature_179 "Temperature of cell 179";
-CM_ BO_ 592 "Cell voltage measurement data (in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx, type:Cell Information)";
+CM_ BO_ 592 "Cell voltage measurement data (in:can_cbs_tx_f_cell-voltages.c:CANTX_CellVoltages, fv:tx, type:Cell Information)";
 CM_ SG_ 592 CellVoltage_000 "Voltage of cell 0";
 CM_ SG_ 592 CellVoltage_001 "Voltage of cell 1";
 CM_ SG_ 592 CellVoltage_002 "Voltage of cell 2";
@@ -2983,8 +3019,8 @@ CM_ SG_ 592 CellVoltage_212 "Voltage of cell 212";
 CM_ SG_ 592 CellVoltage_213 "Voltage of cell 213";
 CM_ SG_ 592 CellVoltage_214 "Voltage of cell 214";
 CM_ SG_ 592 CellVoltage_215 "Voltage of cell 215";
-CM_ BO_ 255 "Fatal error information (in:can_cbs_tx_crash-dump.c:CANTX_CrashDump, fv:tx, type:Crash Dump)";
-CM_ BO_ 768 "Reserved - for debug/development purpose only (in:can_cbs_rx_debug.c:CANRX_Debug, fv:rx, type:Debug)";
+CM_ BO_ 255 "Fatal error information (in:can_cbs_tx_f_crash-dump.c:CANTX_CrashDump, fv:tx, type:Crash Dump)";
+CM_ BO_ 768 "Reserved - for debug/development purpose only (in:can_cbs_rx_f_debug.c:CANRX_Debug, fv:rx, type:Debug)";
 CM_ SG_ 768 f_Debug_Mux "Contains signals to set the BMS's RTC driver to certain values";
 CM_ SG_ 768 SetHundredthOfSeconds "Instructs the BMS to set the hundredth of seconds in the RTC driver";
 CM_ SG_ 768 SetSeconds "Instructs the BMS to set the seconds in the RTC driver";
@@ -3004,47 +3040,68 @@ CM_ SG_ 768 InitializeFram "Instructs the BMS to initialize the FRAM";
 CM_ SG_ 768 RequestRtcTime "Instructs the BMS to communicate its current time";
 CM_ SG_ 768 RequestBootTimestamp "Instructs the BMS to communicate its current boot timestamp";
 CM_ SG_ 768 RequestUptime "Instructs the BMS to communicate its current uptime";
-CM_ BO_ 771 "Contains the build configuration (in:can_cbs_tx_debug-build-configuration.c:CANTX_DebugBuildConfiguration, fv:tx, type:Debug)";
-CM_ BO_ 769 "Responses to the 'Debug' message (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx, type:Debug)";
+CM_ BO_ 771 "Contains the build configuration (in:can_cbs_tx_f_debug-build-configuration.c:CANTX_DebugBuildConfiguration, fv:tx, type:Debug)";
+CM_ BO_ 772 "Contains the hardware identifications (in:can_cbs_tx_f_debug-identify-hardware.c:CANTX_DebugIdentifyHardware, fv:tx, type:Debug)";
+CM_ BO_ 769 "Responses to the 'Debug' message (in:can_cbs_tx_f_debug-response.c:CANTX_DebugResponse, fv:tx, type:Debug)";
 CM_ SG_ 769 Number "wafer number of the MCU (read from DIEDL register)";
 CM_ SG_ 769 CoordinateX "x coordinate of the MCU die on the wafer (read from DIEIDL register)";
 CM_ SG_ 769 CoordinateY "y coordinate of the MCU die on the wafer (read from DIEIDL register)";
 CM_ SG_ 769 LotNumber "lot number of the MCU (read from DIEIDH register)";
 CM_ SG_ 769 UniqueId "Content of Device Identification Register (DEVID)";
-CM_ BO_ 770 "(in:can_cbs_tx_debug-unsupported-multiplexer-values.c:CANTX_DebugUnsupportedMultiplexerVal, fv:tx, type:Debug)";
-CM_ BO_ 562 "Electrical limit information (in:can_cbs_tx_pack-limits.c:CANTX_PackLimits, fv:tx, type:Pack Information)";
+CM_ BO_ 770 "(in:can_cbs_tx_f_debug-unsupported-multiplexer-values.c:CANTX_DebugUnsupportedMultiplexerVal, fv:tx, type:Debug)";
+CM_ BO_ 562 "Electrical limit information (in:can_cbs_tx_f_pack-limits.c:CANTX_PackLimits, fv:tx, type:Pack Information)";
 CM_ SG_ 562 MaximumChargeCurrent "Maximum battery pack charge current";
 CM_ SG_ 562 MaximumDischargeCurrent "Maximum battery pack discharge current";
 CM_ SG_ 562 MaximumChargePower "Maximum battery pack charge power";
 CM_ SG_ 562 MaximumDischargePower "Maximum battery pack discharge power";
 CM_ SG_ 562 MaximumBatteryVoltage "Maximum allowed battery pack voltage (defined by either cell limits or restricted by the charging algorithm)";
 CM_ SG_ 562 MinimumBatteryVoltage "Minimum allowed battery pack voltage (defined by the cell limits or application specification)";
-CM_ BO_ 561 "(in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_PackMinimumMaximumValues, fv:tx, type:Pack Information)";
-CM_ SG_ 561 MinimumCellVoltage "Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
-CM_ SG_ 561 MaximumCellVoltage "Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
-CM_ SG_ 561 MaximumCellTemperature "Maximum cell temperature of all connected strings, if no string connected maximum value of whole system is transmitted";
-CM_ SG_ 561 MinimumCellTemperature "Minium cell temperature of all connected string, if no string connected maximum value of whole system is transmitted";
-CM_ SG_ 561 CoolingInletTemperature "Temperature of the coolant before it enters the cooling system";
-CM_ SG_ 561 CoolingOutletTemperature "Temperature of the coolant after it passes the cooling system";
-CM_ BO_ 565 "(in:can_cbs_tx_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx, type:Pack Information)";
+CM_ BO_ 560 "(in:can_cbs_tx_f_pack-minimum-maximum-values.c:CANTX_PackMinimumMaximumTemp, fv:tx, type:Pack Information)";
+CM_ SG_ 560 MaximumCellTemperature "Maximum cell temperature of an individual cell in all connected strings, if no string connected, the maximum value of whole system is transmitted";
+CM_ SG_ 560 MinimumCellTemperature "Minimum cell temperature of an individual cell in all connected strings, if no string connected, the minimum value of whole system is transmitted";
+CM_ SG_ 560 SensorMaximumCellTemperature "Sensor index of the sensor with the highest temperature";
+CM_ SG_ 560 SensorMinimumCellTemperature "Sensor index of the sensor with the lowest temperature";
+CM_ SG_ 560 ModuleMaximumCellTemperature "Module index of the sensor with the highest temperature";
+CM_ SG_ 560 ModuleMinimumCellTemperature "Module index of the sensor with the lowest temperature";
+CM_ SG_ 560 StringMinimumCellTemperature "String index of the sensor with the highest temperature";
+CM_ SG_ 560 StringMaximumCellTemperature "String index of the sensor with the lowest temperature";
+CM_ BO_ 561 "(in:can_cbs_tx_f_pack-minimum-maximum-values.c:CANTX_PackMinimumMaximumVoltage, fv:tx, type:Pack Information)";
+CM_ SG_ 561 MinimumCellVoltage "Minimum cell voltage of an idividual cell in all connected strings, if no string connected maximum value of whole system is transmitted";
+CM_ SG_ 561 MaximumCellVoltage "Maximum cell voltage of an idividual cell in all connected strings, if no string connected maximum value of whole system is transmitted";
+CM_ SG_ 561 MaximumCellVoltageCellIndex "Cell index of cell with the highest Voltage in the battery";
+CM_ SG_ 561 MinimumCellVoltageCellIndex "Cell index of cell with the lowest Voltage in the battery";
+CM_ SG_ 561 MaximumCellVoltageModuleIndex "Module index of the cell with the highest Voltage";
+CM_ SG_ 561 MinimumCellVoltageModuleIndex "Module index of the cell with the lowest Voltage";
+CM_ SG_ 561 MinimumCellVoltageStringIndex "String index of the cellwith the highest Voltage";
+CM_ SG_ 561 MaximumCellVoltageStringIndex "String index of the cell with the lowest Voltage";
+CM_ BO_ 565 "(in:can_cbs_tx_f_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx, type:Pack Information)";
 CM_ SG_ 565 MinimumSoc "Minimum SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 565 MinimumSoe "Minimum SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 565 Energy "Energy left in Wh that is currently connected to HV bus";
 CM_ SG_ 565 MaximumSoc "Maximum SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 565 MaximumSoe "Maximum SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)";
-CM_ BO_ 563 "(in:can_cbs_tx_pack-values-p0.c:CANTX_PackValuesP0, fv:tx, type:Pack Information)";
+CM_ BO_ 563 "(in:can_cbs_tx_f_pack-values-p0.c:CANTX_PackValuesP0, fv:tx, type:Pack Information)";
 CM_ SG_ 563 Current "Battery pack current";
 CM_ SG_ 563 BatteryVoltage "Battery voltage between negative and positive pole of the battery";
 CM_ SG_ 563 BusVoltage "Battery voltage between negative pole and after main positive contactor TODO";
 CM_ SG_ 563 Power "Battery power";
-CM_ BO_ 564 "(in:can_cbs_tx_pack-values-p1.c:CANTX_PackValuesP1, fv:tx, type:Pack Information)";
+CM_ BO_ 564 "(in:can_cbs_tx_f_pack-values-p1.c:CANTX_PackValuesP1, fv:tx, type:Pack Information)";
 CM_ SG_ 564 InsulationResistance "Shows the latest measured insulation resistance value";
-CM_ BO_ 577 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_string-minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx, type:String Information)";
-CM_ SG_ 577 MinimumCellVoltage "Minimum cell voltage in string 0";
-CM_ SG_ 577 MaximumCellVoltage "Maximum cell voltage in string 0";
+CM_ BO_ 577 "Message contains minimum and maximum cell temperature values and their indices of respective string (in:can_cbs_tx_f_string-minimum-maximum-values.c:CANTX_StringMinimumMaximumTemp, fv:tx, type:String Information)";
 CM_ SG_ 577 MaximumCellTemperature "Maximum cell temperature in string 0";
 CM_ SG_ 577 MinimumCellTemperature "Minium cell temperature in string 0";
-CM_ BO_ 576 "Message contains string related error and warning flags (in:can_cbs_tx_string-state.c:CANTX_StringState, fv:tx, type:String Information)";
+CM_ SG_ 577 SensorMaximumCellTemperature "Sensor index of the sensor with the highest temperature";
+CM_ SG_ 577 SensorMinimumCellTemperature "Sensor index of the sensor with the lowest temperature";
+CM_ SG_ 577 ModuleMaximumCellTemperature "Module index of the sensor with the highest temperature";
+CM_ SG_ 577 ModuleMinimumCellTemperature "Module index of the sensor with the lowest temperature";
+CM_ BO_ 578 "Message contains minimum and maximum cell voltage values and their indices of respective string (in:can_cbs_tx_f_string-minimum-maximum-values.c:CANTX_StringMinimumMaximumVoltage, fv:tx, type:String Information)";
+CM_ SG_ 578 MinimumCellVoltage "Minimum cell voltage in string 0";
+CM_ SG_ 578 MaximumCellVoltage "Maximum cell voltage in string 0";
+CM_ SG_ 578 SensorMaximumCellVoltage "Sensor index of the sensor with the highest Voltage";
+CM_ SG_ 578 SensorMinimumCellVoltage "Sensor index of the sensor with the lowest Voltage";
+CM_ SG_ 578 ModuleMaximumCellVoltage "Module index of the sensor with the highest Voltage";
+CM_ SG_ 578 ModuleMinimumCellVoltage "Module index of the sensor with the lowest Voltage";
+CM_ BO_ 576 "Message contains string related error and warning flags (in:can_cbs_tx_f_string-state.c:CANTX_StringState, fv:tx, type:String Information)";
 CM_ SG_ 576 IsStringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 576 IsBalancingActive "0x00: No cell in this string is current balanced, 0x01: At least one cell in this string is currently balanced";
 CM_ SG_ 576 OvertemperatureChargeMslError "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
@@ -3054,7 +3111,7 @@ CM_ SG_ 576 UndertemperatureDischargeMslErro "Flag indicates if the minimum cell
 CM_ SG_ 576 CellOvercurrentChargeMslError "Flag will be set if string charge current is above .";
 CM_ SG_ 576 CellOvercurrentDischargeMslError "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
 CM_ SG_ 576 OvervoltageMslError "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
-CM_ SG_ 576 UndervoltageMslError "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.";
+CM_ SG_ 576 UndervoltageMslError "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.";
 CM_ SG_ 576 DeepDischargeError "A deep dicharge in at least one cell in the string has been detected";
 CM_ SG_ 576 StringCurrentMeasurementError "Current measurement not working";
 CM_ SG_ 576 PositiveContactorError "0x00: No error, 0x01: Error";
@@ -3077,27 +3134,33 @@ CM_ SG_ 576 StringVoltageMeasurementError "Dedicated string voltage measurement 
 CM_ SG_ 576 FusedStringVoltageMeasurementErr "Dedicated fused string voltage measurement not working";
 CM_ SG_ 576 PackVoltageMeasurementError "Dedicated pack voltage measurement not working";
 CM_ SG_ 576 StringOvercurrentError "Flag will be set if current capability of the string is violated (BS_MAXIMUM_STRING_CURRENT_mA)";
-CM_ BO_ 581 "Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx, type:String Information)";
+CM_ BO_ 581 "Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_f_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx, type:String Information)";
 CM_ SG_ 581 MinimumSoe "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
 CM_ SG_ 581 Energy "Remaining energy left in this string";
 CM_ SG_ 581 MaximumSoe "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
-CM_ BO_ 579 "Message contains string voltage, current and power (in:can_cbs_tx_string-values-p0.c:CANTX_StringValuesP0, fv:tx, type:String Information)";
+CM_ BO_ 579 "Message contains string voltage, current and power (in:can_cbs_tx_f_string-values-p0.c:CANTX_StringValuesP0, fv:tx, type:String Information)";
 CM_ SG_ 579 Current "Current of string 0";
 CM_ SG_ 579 Voltage "Voltage of string 0";
 CM_ SG_ 579 Power "Power of string 0";
-CM_ BO_ 580 "Message contains energy counting value (in:can_cbs_tx_string-values-p1.c:CANTX_StringValuesP1, fv:tx, type:String Information)";
+CM_ BO_ 580 "Message contains energy counting value (in:can_cbs_tx_f_string-values-p1.c:CANTX_StringValuesP1, fv:tx, type:String Information)";
 CM_ SG_ 580 EnergyCounter "Energy counting value for string 0";
-CM_ BO_ 55 "(in:can_cbs_rx_imd-info.c:CANRX_ImdInfo, fv:rx, type:Insulation Measurement Device)";
-CM_ BO_ 34 "(in:can_cbs_tx_imd-request.c:CANTX_ImdRequest, fv:tx, type:Insulation Measurement Device)";
-CM_ BO_ 35 "(in:can_cbs_rx_imd-response.c:CANRX_ImdResponse, fv:rx, type:Insulation Measurement Device)";
-CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
+CM_ BO_ 537 "Message contains the state of our System state machine(in:can_cbs_tx_f_sys-state.c:CANTX_SysState, fv:tx, type:State Machine Information)";
+CM_ BO_ 55 "(in:can_cbs_rx_imd_bender-iso165c-info.c:CANRX_ImdBenderIso165cInfo, fv:rx, type:Insulation Measurement Device)";
+CM_ BO_ 34 "(in:can_cbs_tx_imd_bender-iso165c-request.c:CANTX_ImdRequest, fv:tx, type:Insulation Measurement Device)";
+CM_ BO_ 35 "(in:can_cbs_rx_imd_bender-iso165c-response.c:CANRX_ImdBenderIso165cResponse, fv:rx, type:Insulation Measurement Device)";
+CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 962 "LEM Current Sensor (in:can_cbs_rx_cs_lem-cab500.c:CANRX_CsLemCab500, fv:rx, type:Current Sensor)";
+CM_ SG_ 962 PRODUCT_NAME "CAB5 Product name";
+CM_ SG_ 962 CSM_FAIL "Error information";
+CM_ SG_ 962 ERROR_INDICATION "Error flag to validate sent current";
+CM_ SG_ 962 CSM_BAT_CURRENT_mA "Battery current field uses 0x80000000 as zero value, 0x7FFFFFFF as -1 mA and 0x80000001 as 1mA";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -3119,15 +3182,18 @@ BA_ "GenMsgCycleTime" BO_ 545 1000;
 BA_ "GenMsgCycleTime" BO_ 608 4500;
 BA_ "GenMsgCycleTime" BO_ 592 5400;
 BA_ "GenMsgCycleTime" BO_ 562 100;
+BA_ "GenMsgCycleTime" BO_ 560 100;
 BA_ "GenMsgCycleTime" BO_ 561 100;
 BA_ "GenMsgCycleTime" BO_ 565 1000;
 BA_ "GenMsgCycleTime" BO_ 563 100;
 BA_ "GenMsgCycleTime" BO_ 564 100;
 BA_ "GenMsgCycleTime" BO_ 577 100;
+BA_ "GenMsgCycleTime" BO_ 578 100;
 BA_ "GenMsgCycleTime" BO_ 576 100;
 BA_ "GenMsgCycleTime" BO_ 581 1000;
 BA_ "GenMsgCycleTime" BO_ 579 100;
 BA_ "GenMsgCycleTime" BO_ 580 100;
+BA_ "GenMsgCycleTime" BO_ 537 100;
 BA_ "GenMsgCycleTime" BO_ 55 1000;
 
 BA_ "GenSigStartValue" SG_ 34 MS_IMC_MEAN_FACTOR 10;
@@ -3155,16 +3221,18 @@ VAL_ 608 f_CellTemperatures_Mux 0 "CellTemperatures_000_005" 1 "CellTemperatures
 VAL_ 592 f_CellVoltages_Mux 0 "CellVoltages_000_003" 1 "CellVoltages_004_007" 2 "CellVoltages_008_011" 3 "CellVoltages_012_015" 4 "CellVoltages_016_019" 5 "CellVoltages_020_023" 6 "CellVoltages_024_027" 7 "CellVoltages_028_031" 8 "CellVoltages_032_035" 9 "CellVoltages_036_039" 10 "CellVoltages_040_043" 11 "CellVoltages_044_047" 12 "CellVoltages_048_051" 13 "CellVoltages_052_055" 14 "CellVoltages_056_059" 15 "CellVoltages_060_063" 16 "CellVoltages_064_067" 17 "CellVoltages_068_071" 18 "CellVoltages_072_075" 19 "CellVoltages_076_079" 20 "CellVoltages_080_083" 21 "CellVoltages_084_087" 22 "CellVoltages_088_091" 23 "CellVoltages_092_095" 24 "CellVoltages_096_099" 25 "CellVoltages_100_103" 26 "CellVoltages_104_107" 27 "CellVoltages_108_111" 28 "CellVoltages_112_115" 29 "CellVoltages_116_119" 30 "CellVoltages_120_123" 31 "CellVoltages_124_127" 32 "CellVoltages_128_131" 33 "CellVoltages_132_135" 34 "CellVoltages_136_139" 35 "CellVoltages_140_143" 36 "CellVoltages_144_147" 37 "CellVoltages_148_151" 38 "CellVoltages_152_155" 39 "CellVoltages_156_159"
 40 "CellVoltages_160_163" 41 "CellVoltages_164_167" 42 "CellVoltages_168_171" 43 "CellVoltages_172_175" 44 "CellVoltages_176_179" 45 "CellVoltages_180_183" 46 "CellVoltages_184_187" 47 "CellVoltages_188_191" 48 "CellVoltages_192_195" 49 "CellVoltages_196_199" 50 "CellVoltages_200_203" 51 "CellVoltages_204_207" 52 "CellVoltages_208_211" 53 "CellVoltages_212_215";
 VAL_ 255 f_CrashDump_Mux 0 "StackOverflow";
-VAL_ 768 f_Debug_Mux 1 "Rtc" 0 "VersionInfo" 2 "SoftwareReset" 3 "FramInitialization" 4 "TimeInfo" 5 "UptimeInfo";
+VAL_ 768 f_Debug_Mux 1 "Rtc" 0 "VersionInfo" 2 "SoftwareReset" 3 "FramInitialization" 4 "TimeInfo" 5 "UptimeInfo" 7 "IdentifyHardware";
 VAL_ 771 f_DebugBuildConfiguration_Mux 36 "BatteryCell_MaxDischargeTemp" 39 "BatteryCell_MinDischargeTemp" 34 "BatteryCell_MaxChargeTemp" 38 "BatteryCell_MinChargeTemp" 37 "BatteryCell_MaxVolt" 40 "BatteryCell_MinVolt" 32 "BatteryCell" 33 "BatteryCell_MaxChargeCur" 35 "BatteryCell_MaxDischargeCur" 48 "BatterySystem_General1" 55 "BatterySystem_TotalNumbers" 51 "BatterySystem_CurrentSensor" 50 "BatterySystem_Contactors" 54 "BatterySystem_OpenWireCheck" 52 "BatterySystem_Fuse" 49 "BatterySystem_General2" 53 "BatterySystem_MaxCurrent" 16 "Application" 0 "Slave";
+VAL_ 772 f_DebugIdentifyHardware_Mux 0 "BMS-Master" 1 "BMS-Slaves";
 VAL_ 769 f_DebugResponse_Mux 3 "McuWaferInformation" 2 "McuLotNumber" 1 "McuUniqueDieId" 0 "BmsSoftwareVersionInfo" 15 "BootInformation" 4 "RtcTime" 6 "CommitHashLow7" 5 "CommitHashHigh7" 7 "Uptime" 14 "BootTimestamp";
-VAL_ 577 f_StringMinimumMaximumValues_Mux 0 "String0";
+VAL_ 577 f_StringMinMaxCellTemperature_Mux 0 "String0";
+VAL_ 578 f_StringMinMaxCellVoltage_Mux 0 "String0";
 VAL_ 576 f_StringState_Mux 0 "String0";
 VAL_ 581 f_StringStateEstimation_Mux 0 "String0";
 VAL_ 579 f_StringValuesP0_Mux 0 "String0";
 VAL_ 580 f_StringValuesP1_Mux 0 "String0";
-VAL_ 34 IMD_Request_Mux 61 "S_IMC_GET_MANUFACTURER" 223 "S_VIFC_GET_POWER_MODE" 201 "S_VIFC_CTL_POWER_MODE" 222 "S_VIFC_GET_VERSION" 51 "S_IMC_GET_VERSION" 59 "S_IMC_GET_EEPROM" 203 "S_VIFC_CTL_MEASUREMENT" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 202 "S_VIFC_CTL_LOCK" 0 "S_VIFC_CTL_DUMMY" 210 "S_VIFC_SET_HV_RELAIS" 41 "S_IMC_SET_R_ISO_WRN_THR" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 40 "S_IMC_SET_R_ISO_ERR_THR" 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 60 "S_IMC_GET_MEAN_FACTOR" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 50 "S_IMC_GET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE";
-VAL_ 35 IMD_Response_Mux 220 "S_VIFC_GET_STATUS" 55 "S_IMC_GET_STATUS" 222 "S_VIFC_GET_VERSION" 51 "S_IMC_GET_VERSION" 61 "S_IMC_GET_MANUFACTURER" 53 "S_IMC_GET_R_ISO" 225 "S_VIFC_GET_TEMP" 226 "S_VIFC_GET_IMC_ALIVE" 223 "S_VIFC_GET_POWER_MODE" 201 "S_VIFC_CTL_POWER_MODE" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 34 "S_IMC_CTL_CALIB" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 202 "S_VIFC_CTL_LOCK" 203 "S_VIFC_CTL_MEASUREMENT" 210 "S_VIFC_SET_HV_RELAIS" 59 "S_IMC_GET_EEPROM" 60 "S_IMC_GET_MEAN_FACTOR" 224 "S_VIFC_GET_LOCK" 221 "S_VIFC_GET_HV_RELAIS" 255 "S_IMD_ERROR_FRAME" 58 "S_IMC_GET_HV_2" 54 "S_IMC_GET_HV_1" 57 "S_IMC_GET_R_ISO_WRN_THR" 50 "S_IMC_GET_R_ISO_ERR_THR" 33 "S_IMC_CTL_SELFTEST" 90 "S_IMC_GET_TEST_CNT" 0 "S_VIFC_CTL_DUMMY" 200 "S_VIFC_CTL_IMC_RESET" 35 "S_IMC_CTL_SYS_UPDATE";
+VAL_ 34 IMD_BenderIso165c_Request_Mux 61 "S_IMC_GET_MANUFACTURER" 223 "S_VIFC_GET_POWER_MODE" 201 "S_VIFC_CTL_POWER_MODE" 222 "S_VIFC_GET_VERSION" 51 "S_IMC_GET_VERSION" 59 "S_IMC_GET_EEPROM" 203 "S_VIFC_CTL_MEASUREMENT" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 202 "S_VIFC_CTL_LOCK" 0 "S_VIFC_CTL_DUMMY" 210 "S_VIFC_SET_HV_RELAIS" 41 "S_IMC_SET_R_ISO_WRN_THR" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 40 "S_IMC_SET_R_ISO_ERR_THR" 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 60 "S_IMC_GET_MEAN_FACTOR" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 50 "S_IMC_GET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE";
+VAL_ 35 IMD_BenderIso165c_Response_Mux 220 "S_VIFC_GET_STATUS" 55 "S_IMC_GET_STATUS" 222 "S_VIFC_GET_VERSION" 51 "S_IMC_GET_VERSION" 61 "S_IMC_GET_MANUFACTURER" 53 "S_IMC_GET_R_ISO" 225 "S_VIFC_GET_TEMP" 226 "S_VIFC_GET_IMC_ALIVE" 223 "S_VIFC_GET_POWER_MODE" 201 "S_VIFC_CTL_POWER_MODE" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 34 "S_IMC_CTL_CALIB" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 202 "S_VIFC_CTL_LOCK" 203 "S_VIFC_CTL_MEASUREMENT" 210 "S_VIFC_SET_HV_RELAIS" 59 "S_IMC_GET_EEPROM" 60 "S_IMC_GET_MEAN_FACTOR" 224 "S_VIFC_GET_LOCK" 221 "S_VIFC_GET_HV_RELAIS" 255 "S_IMD_ERROR_FRAME" 58 "S_IMC_GET_HV_2" 54 "S_IMC_GET_HV_1" 57 "S_IMC_GET_R_ISO_WRN_THR" 50 "S_IMC_GET_R_ISO_ERR_THR" 33 "S_IMC_CTL_SELFTEST" 90 "S_IMC_GET_TEST_CNT" 0 "S_VIFC_CTL_DUMMY" 200 "S_VIFC_CTL_IMC_RESET" 35 "S_IMC_CTL_SYS_UPDATE";
 VAL_ 640 CellTemperature_000_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 640 CellTemperature_001_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 640 CellTemperature_002_invalidFlag 0 "Invalid" 1 "Valid";
@@ -3561,8 +3629,8 @@ VAL_ 624 CellVoltage_212_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_213_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_214_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_215_invalidFlag 0 "Invalid" 1 "Valid";
-VAL_ 546 FatalErrorCode 0 "DIAG_ID_FLASHCHECKSUM" 1 "DIAG_ID_SYSTEM_MONITORING" 2 "DIAG_ID_AFE_SPI" 3 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 4 "DIAG_ID_AFE_MUX" 5 "DIAG_ID_AFE_CONFIG" 6 "DIAG_ID_CAN_TIMING" 9 "DIAG_ID_CURRENT_SENSOR_CC_RESPONDING" 10 "DIAG_ID_CURRENT_SENSOR_EC_RESPONDING" 11 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 18 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 19 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL" 21 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 24 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 27 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL" 30 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 33 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 36 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 39 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 42 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 45 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 48 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 50 "DIAG_ID_CURRENT_ON_OPEN_STRING" 51 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 54 "DIAG_ID_INTERLOCK_FEEDBACK" 55 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 56 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK"
-57 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 59 "DIAG_ID_SBC_RSTB_ERROR" 66 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 67 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 68 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 69 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 72 "DIAG_ID_POWER_MEASUREMENT_ERROR" 82 "DIAG_ID_ALERT_MODE" 84 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 85 "NO_ERROR";
+VAL_ 546 FatalErrorCode 0 "DIAG_ID_SYSTEM_MONITORING" 1 "DIAG_ID_AFE_SPI" 2 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 3 "DIAG_ID_AFE_MUX" 4 "DIAG_ID_AFE_CONFIG" 5 "DIAG_ID_CAN_TIMING" 8 "DIAG_ID_CURRENT_SENSOR_CC_RESPONDING" 9 "DIAG_ID_CURRENT_SENSOR_EC_RESPONDING" 10 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 17 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 18 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL" 20 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 23 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 26 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL" 29 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 32 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 35 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 38 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 41 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 44 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 47 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 48 "DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL" 49 "DIAG_ID_CURRENT_ON_OPEN_STRING" 50 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 53 "DIAG_ID_INTERLOCK_FEEDBACK" 54 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 55 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK"
+56 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 58 "DIAG_ID_SBC_RSTB_ERROR" 65 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 66 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 67 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 68 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 69 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_POWER_MEASUREMENT_ERROR" 81 "DIAG_ID_ALERT_MODE" 83 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 84 "DIAG_ID_AFE_ALARM" 85 "NO_ERROR" 57 "DIAG_ID_SBC_FIN_ERROR" 52 "DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE";
 VAL_ 544 BmsState 0 "UNINITIALIZED" 1 "INITIALIZATION" 2 "INITIALIZED" 3 "IDLE" 4 "OPEN_CONTACTORS" 5 "STANDBY" 6 "PRECHARGE" 7 "NORMAL" 8 "DISCHARGE" 9 "CHARGE" 10 "ERROR" 11 "UNDEFINED";
 VAL_ 544 GeneralError 0 "No Error" 1 "Error";
 VAL_ 544 GeneralWarning 0 "No Warning" 1 "Warning";
@@ -4006,16 +4074,15 @@ VAL_ 768 SetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday"
 VAL_ 768 SetMonth 1 "January" 2 "February" 3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December";
 VAL_ 768 TriggerSoftwareReset 0 "NO_SOFTWARE_RESET" 1 "SOFTWARE_RESET";
 VAL_ 768 InitializeFram 0 "Uninitialized" 1 "Initialized";
-VAL_ 771 CurrentSensorCyclic 0 "Current sensor cyclic" 1 "Current sensor triggered";
-VAL_ 771 SOC_algorithm 0 "None" 1 "Debug" 2 "Counting";
+VAL_ 771 SOC_algorithm 0 "None" 1 "Debug" 2 "Counting" 3 "Lookup Table";
 VAL_ 771 SOE_algorithm 0 "None" 1 "Debug" 2 "Counting";
 VAL_ 771 SOF_algorithm 0 "Trapezoid";
 VAL_ 771 SOH_algorithm 0 "None" 1 "Debug";
 VAL_ 771 Balancing_strategy 0 "none" 1 "voltage" 2 "history";
 VAL_ 771 IMD 0 "none" 1 "Bender_iso165c" 2 "Bender_ir155";
 VAL_ 771 Rtos 0 "freertos" 1 "safertos";
-VAL_ 771 AFE 0 "Debug default" 256 "LTC 6804-1" 257 "LTC 6806" 258 "LTC 6811-1" 259 "LTC 6812-1" 260 "LTC 6813-1" 512 "NXP MC33775A" 768 "MAXIM MAX17852" 1024 "ADI ADES1830" 1281 "TI Dummy";
-VAL_ 771 TemperatureSensor 0 "Fak00" 1 "Epc00" 2 "Epc01" 3 "Mur00" 4 "Sem00" 5 "Vis00" 6 "Vis01" 7 "Vis02" 8 "Tdk00";
+VAL_ 771 AFE 0 "Debug default" 1 "Debug CAN" 256 "LTC 6804-1" 257 "LTC 6806" 258 "LTC 6811-1" 259 "LTC 6812-1" 260 "LTC 6813-1" 512 "NXP MC33775A" 768 "MAXIM MAX17852" 1024 "ADI ADES1830" 1281 "TI Dummy";
+VAL_ 771 TemperatureSensor 0 "Fak00" 1 "Epc00" 2 "Epc01" 3 "Mur00" 4 "Sem00" 5 "Vis00" 6 "Vis01" 7 "Vis02" 8 "Tdk00" 9 "Tdk01";
 VAL_ 771 TemperatureSensorMethod 0 "polynomial" 1 "lookup-table";
 VAL_ 769 DirtyFlag 0 "No" 1 "Yes";
 VAL_ 769 ReleaseDistanceOverflow 0 "No" 1 "Yes";
@@ -4073,6 +4140,9 @@ VAL_ 576 StringVoltageMeasurementError 0 "No Error" 1 "Error";
 VAL_ 576 FusedStringVoltageMeasurementErr 0 "No Error" 1 "Error";
 VAL_ 576 PackVoltageMeasurementError 0 "No Error" 1 "Error";
 VAL_ 576 StringOvercurrentError 0 "No Error" 1 "Error";
+VAL_ 537 State 0 "SYS_FSM_STATE_DUMMY" 1 "SYS_FSM_STATE_HAS_NEVER_RUN" 2 "SYS_FSM_STATE_UNINITIALIZED" 3 "SYS_FSM_STATE_INITIALIZATION" 4 "SYS_FSM_STATE_PRE_RUNNING" 5 "SYS_FSM_STATE_RUNNING" 6 "SYS_FSM_STATE_ERROR";
+VAL_ 537 Substate 0 "SYS_FSM_SUBSTATE_DUMMY" 1 "SYS_FSM_SUBSTATE_ENTRY" 2 "SYS_FSM_CHECK_DEEP_DISCHARGE" 3 "SYS_FSM_SUBSTATE_START_INITIALIZATION_SBC" 4 "SYS_FSM_SUBSTATE_INITIALIZE_INTERLOCK" 5 "SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_SBC" 6 "SYS_FSM_SUBSTATE_INITIALIZATION_CAN" 7 "SYS_FSM_SUBSTATE_INITIALIZATION_RTC" 8 "SYS_FSM_SUBSTATE_START_UP_BIST" 9 "SYS_FSM_SUBSTATE_SEND_BOOT_MESSAGE" 10 "SYS_FSM_SUBSTATE_START_INITIALIZATION_BAL" 11 "SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BAL" 12 "SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BAL_GLOBAL_ENABLE" 13 "SYS_FSM_SUBSTATE_START_FIRST_MEASUREMENT_CYCLE" 14 "SYS_FSM_SUBSTATE_WAIT_FIRST_MEASUREMENT_CYCLE" 15 "SYS_FSM_SUBSTATE_START_CURRENT_SENSOR_PRESENCE_CHECK" 16 "SYS_FSM_SUBSTATE_WAIT_CURRENT_SENSOR_PRESENCE_CHECK" 17 "SYS_FSM_SUBSTATE_INITIALIZATION_MISC" 18 "SYS_FSM_SUBSTATE_INITIALIZATION_IMD" 19 "SYS_FSM_SUBSTATE_START_INITIALIZATION_BMS" 20 "SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BMS" 21 "SYS_FSM_SUBSTATE_SBC_INITIALIZATION_ERROR" 22 "SYS_FSM_SUBSTATE_BAL_INITIALIZATION_ERROR" 23 "SYS_FSM_SUBSTATE_BAL_GLOBAL_INITIALIZATION_ERROR"
+24 "SYS_FSM_SUBSTATE_FIRST_MEAS_INITIALIZATION_ERROR" 25 "SYS_FSM_SUBSTATE_CURRENT_SENSOR_PRESENCE_ERROR" 26 "SYS_FSM_SUBSTATE_IMD_INITIALIZATION_ERROR" 27 "SYS_FSM_SUBSTATE_BMS_INITIALIZATION_ERROR";
 VAL_ 55 II_VIFC_STATUS_04_VIFC_CmdError 1 "Error" 0 "NoError";
 VAL_ 55 II_VIFC_STATUS_13_ST_ParamConfig 1 "NotExecuted" 0 "Executed";
 VAL_ 55 II_VIFC_STATUS_12_ST_Overall 1 "NotExecuted" 0 "Executed";

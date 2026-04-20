@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_initialization.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -59,6 +59,7 @@
 #include "adi_ades183x_buffers.h"
 #include "adi_ades183x_commands.h"
 #include "adi_ades183x_defs.h"
+#include "adi_ades183x_diagnostic.h"
 #include "adi_ades183x_helpers.h"
 
 #include <stdbool.h>
@@ -518,6 +519,7 @@ extern void ADI_InitializeMeasurement(ADI_STATE_s *adiState) {
     ADI_ResetErrorTable(adiState);
 
     while (adiState->currentString < adiState->spiNumberInterfaces) {
+        adiState->diagnosticType[adiState->currentString]            = ADI_SM_START;
         adiState->redundantAuxiliaryChannel[adiState->currentString] = ADI_START_AUX_CHANNEL;
 
         /* Wake up daisy-chain */
@@ -539,6 +541,8 @@ extern void ADI_InitializeMeasurement(ADI_STATE_s *adiState) {
         ADI_StoredConfigurationWriteToAfeGlobal(adiState);
 
         ADI_Wait(ADI_TREFUP_ms);
+
+        ADI_InitializeDiagnosis(adiState);
 
         ADI_DisableBalancingOnStartup(adiState);
 

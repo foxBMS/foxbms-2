@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_initialization.h
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -84,6 +84,7 @@ extern void TEST_ADI_ResetErrorTable(ADI_STATE_s *adiState);
 extern void TEST_ADI_StartContinuousCellVoltageMeasurements(ADI_STATE_s *adiState);
 extern void TEST_ADI_WakeUpDaisyChain(ADI_STATE_s *adiState);
 extern void TEST_ADI_ResetIirFilterOnStartup(ADI_STATE_s *adiState);
+extern void TEST_ADI_RunSmAuxregsDiag(ADI_STATE_s *adiState);
 #endif
 
 #endif /* FOXBMS__ADI_ADES183X_INITIALIZATION_H_ */

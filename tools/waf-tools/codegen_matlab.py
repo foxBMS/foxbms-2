@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,7 +46,7 @@ from waflib.Configure import ConfigurationContext
 
 
 def configure(ctx: ConfigurationContext):
-    """configuration step of the MATLAB® code generators.
+    """Configuration step of the MATLAB® code generators.
 
     #. searches for the HALCoGen program
     #. further support is still TODO
@@ -65,4 +65,4 @@ def configure(ctx: ConfigurationContext):
 
     matlab_root = Path(ctx.env.get_flat("MATLAB")).parents[1]
     matlab_includes = os.path.join(matlab_root, "extern", "include")
-    ctx.env.append_unique("INCLUDES", os.path.join(matlab_includes, "include"))
+    ctx.env.append_unique("INCLUDES", matlab_includes)

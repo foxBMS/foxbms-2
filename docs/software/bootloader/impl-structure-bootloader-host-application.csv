@@ -1,0 +1,6 @@
+Module                                             ; Description
+``cli/cmd_bootloader/bootloader.py``               ; The main entry point for sending application data or requests to the the |embedded-bootloader|.
+``cli/cmd_bootloader/bootloader_can.py``           ; Implement the high-level communication interface via CAN.
+``cli/cmd_bootloader/bootloader_can_basics.py``    ; Implement the basic CAN communication functions, including sending and receiving specified messages.
+``cli/cmd_bootloader/bootloader_binary_file.py``   ; Responsible for managing the application binary file and providing functions to perform operations on it, e.g., calculating CRC, extracting data.
+``cli/cmd_bootloader/bootloader_can_messages.py``  ; Contains all CAN messages as Enums and functions to get specified CAN messages.

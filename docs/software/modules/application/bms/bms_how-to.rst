@@ -13,9 +13,9 @@ contactors.
 Following conditions MUST be met, that the BMS switches into *STANDBY* state:
 
 #. No error from a diagnosis entry with a severity of ``DIAG_FATAL_ERROR``
-   defined in ``src\app\engine\config\diag_cfg.c`` MUST be detected.
+   defined in ``src/app/engine/config/diag_cfg.c`` MUST be detected.
 #. Depending on the configuration of *BS_CHECK_CAN_TIMING* in file
-   ``src\app\application\config\battery_system_cfg.c`` the state request
+   ``src/app/application/config/battery_system_cfg.c`` the state request
    message **foxBMS_BmsStateRequest** MUST be received periodically via CAN.
 #. **STANDBY** state MUST be requested via signal **foxBMS_modeRequest** in
    message **foxBMS_BmsStateRequest**.
@@ -33,5 +33,15 @@ This means that with the default configuration, the battery system will enter
 the rest phase if for 10 minutes no current above 200 |mA| is drawn from or
 supplied to the battery system.
 Both defines are configured in file
-``src\app\application\config\battery_system_cfg.c`` the system will begin the
+``src/app/application/config/battery_system_cfg.c`` the system will begin the
 relaxation phase (**BMS_RELAXATION**).
+
+
+.. _HOW_TO_REINITIALIZE_NVRAM:
+
+How to reinitialize NVRAM
+=============================
+
+The NVRAM (e.g., FRAM) can be reinitialized with the ``f_Debug`` CAN message
+by setting the value for ``InitializeFram`` to one.
+(See :ref:`COMMUNICATION` under the ``Debug`` section)

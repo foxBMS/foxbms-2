@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -36,5 +36,5 @@
 # - "This product is derived from foxBMS®"
 
 start_date: "2025-01-01T00:00:00"
-join_on: "0x0241_MaximumCellVoltage_mV"
+join_on: "0x0241_MaximumCellTemperature_degC"
 tolerance: -10000000

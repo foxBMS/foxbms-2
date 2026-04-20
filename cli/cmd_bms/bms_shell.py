@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,15 +39,22 @@
 
 """Implementation of a custom shell for the 'bms' command"""
 
+# cspell:ignore getrtc, mcuwaferinfo, fcanmcuid, mculotnumber, boottimestamp,
+# cspell:ignore buildconfig, softwarereset, softwareversion, mcuid
+
+# we need this as long as we are on Python3.12 due to the annotation parsing
+# of Queue[Message]
+from __future__ import annotations
+
 import cmd
 from multiprocessing import Event, Manager, Process, Queue, managers
-from typing import cast
+from pathlib import Path
 
 from can import Message
 from cantools import database
 from cantools.database.can.database import Database
 
-from cli.cmd_bms.bms_impl import (
+from ..cmd_bms.bms_impl import (
     get_boot_timestamp,
     get_build_configuration,
     get_commit_hash,
@@ -63,12 +70,8 @@ from cli.cmd_bms.bms_impl import (
     set_rtc_time,
     shutdown,
 )
-from cli.helpers.misc import APP_DBC_FILE
-
 from ..helpers.click_helpers import recho, secho
 from ..helpers.fcan import CanBusConfig
-
-APP_DBC: Database = cast(Database, database.load_file(APP_DBC_FILE))
 
 
 class BMSShell(cmd.Cmd):
@@ -85,9 +88,31 @@ class BMSShell(cmd.Cmd):
     p_read: Process
     network_ok = Event()
     msg_arr: managers.ListProxy
-    send_q: "Queue[Message]" = Queue()
-    rec_q: "Queue[Message]" = Queue()
+    send_q: Queue[Message] = Queue()  # pylint: disable=unsubscriptable-object
+    rec_q: Queue[Message] = Queue()  # pylint: disable=unsubscriptable-object
     initialized: bool = False
+
+    app_dbc: Database
+    message: database.can.message.Message
+
+    def add_msg(self, msg_id: str | int, amount: int = 1, output: int = 1) -> None:
+        """Adds a new message to the array"""
+        id_array = self.msg_arr[0]
+        amount_array = self.msg_arr[1]
+        output_array = self.msg_arr[2]
+        match msg_id:
+            case str():
+                id_array.append(self.app_dbc.get_message_by_name(msg_id).frame_id)
+            case int():
+                id_array.append(msg_id)
+            case _:
+                recho("Invalid message ID")
+                return
+        amount_array.append(amount)
+        output_array.append(output)
+        self.msg_arr[0] = id_array
+        self.msg_arr[1] = amount_array
+        self.msg_arr[2] = output_array
 
     def do_init(self, _: str) -> bool:
         """Starts the receive and send process, the read process and initializes the CAN bus."""
@@ -95,6 +120,7 @@ class BMSShell(cmd.Cmd):
             secho("The CAN bus has already been initialized.")
             return False
         res = initialization(
+            self.app_dbc,
             self.prompt,
             self.rec_q,
             self.send_q,
@@ -110,7 +136,7 @@ class BMSShell(cmd.Cmd):
     def do_fram(self, _: str) -> None:
         """Reinitializes the FRAM"""
         if self.initialized:
-            reinitialize_fram(self.send_q)
+            reinitialize_fram(self.send_q, self.message)
             secho("FRAM has been reinitialized.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -118,8 +144,8 @@ class BMSShell(cmd.Cmd):
     def do_rtc(self, _: str) -> None:
         """Sets the rtc time to the current time"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            set_rtc_time(self.send_q)
+            self.add_msg("f_DebugResponse")
+            set_rtc_time(self.send_q, self.message)
             secho("RTC time has been set:")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -127,7 +153,7 @@ class BMSShell(cmd.Cmd):
     def do_softwarereset(self, _: str) -> None:
         """Triggers a software reset"""
         if self.initialized:
-            reset_software(self.send_q)
+            reset_software(self.send_q, self.message)
             secho("Software reset has been triggered.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -135,8 +161,8 @@ class BMSShell(cmd.Cmd):
     def do_boottimestamp(self, _: str) -> None:
         """Requests the Boot Timestamp"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_boot_timestamp(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_boot_timestamp(self.send_q, self.message)
             secho("Boot Timestamp has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -144,8 +170,8 @@ class BMSShell(cmd.Cmd):
     def do_getrtc(self, _: str) -> None:
         """Gets the rtc time"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_rtc_time(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_rtc_time(self.send_q, self.message)
             secho("RTC time has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -153,8 +179,8 @@ class BMSShell(cmd.Cmd):
     def do_uptime(self, _: str) -> None:
         """Get the Uptime information"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_uptime(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_uptime(self.send_q, self.message)
             secho("Uptime has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -162,8 +188,8 @@ class BMSShell(cmd.Cmd):
     def do_buildconfig(self, _: str) -> None:
         """Gets the Build Configuration"""
         if self.initialized:
-            add_msg("f_DebugBuildConfiguration", self.msg_arr, 19)
-            get_build_configuration(self.send_q)
+            self.add_msg("f_DebugBuildConfiguration", 19)
+            get_build_configuration(self.send_q, self.message)
             secho("Build Configuration has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -171,8 +197,8 @@ class BMSShell(cmd.Cmd):
     def do_commithash(self, _: str) -> None:
         """Gets the Commit Hash the software version was built with"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr, 2)
-            get_commit_hash(self.send_q)
+            self.add_msg("f_DebugResponse", 2)
+            get_commit_hash(self.send_q, self.message)
             secho("Commit Hash has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -180,8 +206,8 @@ class BMSShell(cmd.Cmd):
     def do_mcuwaferinfo(self, _: str) -> None:
         """Gets the wafer information of the MCU"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_mcu_wafer_info(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_mcu_wafer_info(self.send_q, self.message)
             secho("MCU Wafer information has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -189,8 +215,8 @@ class BMSShell(cmd.Cmd):
     def do_mculotnumber(self, _: str) -> None:
         """Gets the lot number of the MCU"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_mcu_lot_number(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_mcu_lot_number(self.send_q, self.message)
             secho("MCU lot number has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -198,8 +224,8 @@ class BMSShell(cmd.Cmd):
     def do_mcuid(self, _: str) -> None:
         """Gets the unique ID of the MCU"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_mcu_id(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_mcu_id(self.send_q, self.message)
             secho("MCU ID has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -207,15 +233,16 @@ class BMSShell(cmd.Cmd):
     def do_softwareversion(self, _: str) -> None:
         """Gets the software version of the BMS"""
         if self.initialized:
-            add_msg("f_DebugResponse", self.msg_arr)
-            get_software_version(self.send_q)
+            self.add_msg("f_DebugResponse")
+            get_software_version(self.send_q, self.message)
             secho("Software version has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
 
     def do_log(self, arg: int | str) -> bool:
         """Logs message with the given ID as often as specified and to the
-        given output: LOG [ID] [#, DEFAULT: 1] [OUTPUT, FILE / stdout]"""
+        given output: LOG [ID] [#, DEFAULT: 1] [OUTPUT, FILE / stdout]
+        """
         if self.initialized:
             if arg == "stop":
                 secho(
@@ -225,18 +252,15 @@ class BMSShell(cmd.Cmd):
             try:
                 match arg:
                     case int():
-                        add_msg(int(arg), self.msg_arr)
+                        self.add_msg(int(arg))
                     case str():
                         args = arg.split()
-                        msg_id: int
                         num = 1
                         output = 1
                         if args[0][-1] == "h":
                             msg_id = int(args[0][:-1], 16)
-                        elif args[0][:2] == "0x":
-                            msg_id = int(args[0][2:], 16)
                         else:
-                            msg_id = int(args[0])
+                            msg_id = int(args[0], 0)
                         if len(args) > 1:
                             for i in range(1, len(args)):
                                 try:
@@ -248,7 +272,7 @@ class BMSShell(cmd.Cmd):
                                         recho(
                                             "For logging to a file enter the argument 'FILE'."
                                         )
-                        add_msg(msg_id, self.msg_arr, num, output)
+                        self.add_msg(msg_id, num, output)
                     case _:
                         raise TypeError
                 secho(
@@ -267,7 +291,7 @@ class BMSShell(cmd.Cmd):
         return False
 
     def do_exit(self, _: str) -> bool:
-        "Terminates the child process, stops the shell and exits."
+        """Terminates the child process, stops the shell and exits."""
         if not self.initialized:
             secho("Exiting...", fg="green")
             return True
@@ -284,40 +308,25 @@ class BMSShell(cmd.Cmd):
         return str(line.lower())
 
     def preloop(self) -> None:
+        """Manage the initialization before the loop started."""
         manager = Manager()
         self.msg_arr = manager.list([[], [], []])
 
 
-def add_msg(
-    msg_id: str | int, msg_arr: managers.ListProxy, amount: int = 1, output: int = 1
-) -> None:
-    """Adds a new message to the array"""
-    array_0 = msg_arr[0]
-    array_1 = msg_arr[1]
-    array_2 = msg_arr[2]
-    match msg_id:
-        case str():
-            array_0.append(APP_DBC.get_message_by_name(msg_id).frame_id)
-        case int():
-            array_0.append(msg_id)
-        case _:
-            recho("Invalid message ID")
-            return
-    array_1.append(amount)
-    array_2.append(output)
-    msg_arr[0] = array_0
-    msg_arr[1] = array_1
-    msg_arr[2] = array_2
-
-
-def run_shell(bus_cfg: CanBusConfig) -> int:
+def run_shell(bus_cfg: CanBusConfig, app_dbc: Path) -> int:
     """Runs the bms shell"""
     shell = BMSShell()
     shell.bus_cfg = bus_cfg
+    tmp = database.load_file(app_dbc)
+    if not isinstance(tmp, Database):
+        recho("DBC file is not of type 'Database'.")
+        return 1
+    shell.app_dbc = tmp
+    shell.message = tmp.get_message_by_name("f_Debug")
 
     try:
         shell.cmdloop()
-    except (KeyboardInterrupt, Exception) as exp:  # pylint: disable=broad-exception-caught
+    except (KeyboardInterrupt, Exception) as exp:  # noqa: BLE001
         recho("Error detected. Please wait for the Process to terminate.")
         shell.do_exit("")
         secho(f"The shell has been stopped. {exp}")

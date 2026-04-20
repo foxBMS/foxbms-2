@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +40,11 @@
 """Testing file 'cli/cmd_gui/frame_cli_unittest/cli_unittest_gui.py'."""
 
 import os
+import shutil
 import sys
 import tkinter as tk
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -55,6 +57,7 @@ except ModuleNotFoundError:
     from cli.helpers.misc import PROJECT_BUILD_ROOT
 
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "cli_unittest_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
@@ -62,6 +65,8 @@ class TestCliUnittestFrame(unittest.TestCase):
     """Test of the CliUnittestFrame class"""
 
     def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+        cli_unittest_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
@@ -70,9 +75,8 @@ class TestCliUnittestFrame(unittest.TestCase):
     def tearDown(self):
         self.root.update()
         self.root.destroy()
-        file_output = Path(PROJECT_BUILD_ROOT / "output_gui_unittest.txt")
-        if file_output.exists():
-            file_output.unlink()
+        cli_unittest_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
+        remove_data(self.start_time)
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
@@ -109,18 +113,17 @@ class TestCliUnittestFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the CliUnittestFrame class"""
 
     def setUp(self):
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        for file_path in PROJECT_BUILD_ROOT.glob("output_unittest_*"):
-            if file_path.suffix == ".txt" and file_path.exists():
-                file_path.unlink()
+        remove_data(self.start_time)
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
         mock_cli_unittest_frame = MagicMock()
         mock_cli_unittest_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_unittest_write_text_empty.txt"
+            PATH_GUI / "output_unittest_write_text_empty.txt"
         )
         mock_cli_unittest_frame.touch()
         mock_cli_unittest_frame.text = MagicMock()
@@ -131,12 +134,36 @@ class TestCliUnittestFrameNoUiTestableMethods(unittest.TestCase):
         """Test 'write_text' function when the file is not empty"""
         mock_cli_unittest_frame = MagicMock()
         mock_cli_unittest_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_unittest_write_text.txt"
+            PATH_GUI / "output_unittest_write_text.txt"
         )
         mock_cli_unittest_frame.file_path.write_text("New content.", encoding="utf-8")
         mock_cli_unittest_frame.text = MagicMock()
         mock_cli_unittest_frame.text_index = MagicMock()
         cli_unittest_gui.CliUnittestFrame.write_text(mock_cli_unittest_frame)
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = list(PATH_GUI.iterdir())
+            for child in children:
+                if get_birthtime(child) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

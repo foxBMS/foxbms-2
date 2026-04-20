@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,8 +42,9 @@
 import io
 import sys
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 try:
     from cli.pre_commit_scripts import check_file_names
@@ -80,6 +81,18 @@ class TestFileNames(unittest.TestCase):
             "File name 'README.md' exists multiple times.",
             buf.getvalue(),
         )
+
+    @patch("cli.pre_commit_scripts.check_file_names.which", return_value=None)
+    def test_main_no_git(self, _):
+        """Git is not available, i.e., error"""
+        test = self.tests_dir / "abcdef.txt"
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = check_file_names.main([str(test)])
+        err, out = _err.getvalue(), _out.getvalue()
+        self.assertEqual(ret, 1)
+        self.assertEqual(err, "Could not find 'git' in PATH.\n")
+        self.assertEqual(out, "")
 
 
 if __name__ == "__main__":

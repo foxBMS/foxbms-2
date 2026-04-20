@@ -1,0 +1,38 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Seite-1" id="MzLM2i3U6SJ5fOQvKCUv">
+    <mxGraphModel dx="576" dy="333" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="f3vCleMFVRLHJ9Cnt5Ro-4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry width="388" height="101" as="geometry" />
+        </mxCell>
+        <mxCell id="2Tm_zKAN9mp-J1Imp2J0-1" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="179" y="13" width="30" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="-36_3TNct8q3Y3olp-JX-153" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fontSize=16;strokeWidth=2;" parent="2Tm_zKAN9mp-J1Imp2J0-1" vertex="1">
+          <mxGeometry y="15" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="-36_3TNct8q3Y3olp-JX-154" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;strokeWidth=2;" parent="-36_3TNct8q3Y3olp-JX-153" vertex="1">
+          <mxGeometry width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-36_3TNct8q3Y3olp-JX-155" value="1" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=16;strokeWidth=2;" parent="-36_3TNct8q3Y3olp-JX-154" vertex="1">
+          <mxGeometry width="30" height="30" as="geometry">
+            <mxRectangle width="30" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-36_3TNct8q3Y3olp-JX-158" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=16;strokeWidth=2;" parent="-36_3TNct8q3Y3olp-JX-153" vertex="1">
+          <mxGeometry y="30" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-36_3TNct8q3Y3olp-JX-159" value="2" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=16;strokeWidth=2;" parent="-36_3TNct8q3Y3olp-JX-158" vertex="1">
+          <mxGeometry width="30" height="30" as="geometry">
+            <mxRectangle width="30" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-36_3TNct8q3Y3olp-JX-178" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;" parent="2Tm_zKAN9mp-J1Imp2J0-1" vertex="1">
+          <mxGeometry width="30" height="15" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

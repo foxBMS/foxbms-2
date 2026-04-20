@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,10 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements a waf tool to bootstrap a library project.
+"""Implement a waf tool to bootstrap a library project.
 
-This tool adds the command ``bootstrap_library_project`` to the wscript in
-which you are loading it.
+This module **must** be loaded in the 'options' method.
 """
 
 import os
@@ -54,7 +53,7 @@ from waflib.Build import BuildContext
 
 
 def bootstrap_library_project(ctx):
-    """Creates a zip that includes a library project"""
+    """creates a library project"""  # noqa: D403
     misc = [
         ctx.path.find_node(".gitignore"),
         ctx.path.find_node("BSD-3-Clause.txt"),
@@ -67,11 +66,17 @@ def bootstrap_library_project(ctx):
             ctx.path.find_node("fox.py"),
             ctx.path.find_node("fox.sh"),
             ctx.path.find_node("tools/waf"),
+            ctx.path.find_node("tools/waf-tools/c_template.py"),
             ctx.path.find_node("tools/waf-tools/crc_bootloader.py"),
+            ctx.path.find_node("tools/waf-tools/create_app_build_cfg.py"),
+            ctx.path.find_node("tools/waf-tools/create_version.py"),
             ctx.path.find_node("tools/waf-tools/crc64_ti_impl.py"),
             ctx.path.find_node("tools/waf-tools/f_hcg.py"),
+            ctx.path.find_node("tools/waf-tools/misc_helpers.py"),
+            ctx.path.find_node("tools/waf-tools/vcs.py"),
+            ctx.path.find_node("tools/waf-tools/vcs_git.py"),
         ]
-        + ctx.path.ant_glob("conf/env/** conf/cc/remarks.txt tools/utils/**")
+        + ctx.path.ant_glob("conf/env/** conf/cc/remarks.txt")
         + ctx.path.ant_glob("cli/**/*.py")
         + ctx.path.ant_glob("tools/waf-tools/f_ti_*.py")
     )
@@ -120,7 +125,7 @@ def bootstrap_library_project(ctx):
             pass
 
 
-class bootstrap_context(BuildContext):  # pylint: disable=invalid-name
+class bootstrap_context(BuildContext):
     """Helper class to bind the bootstrap context to an waf argument"""
 
     cmd = "bootstrap_library_project"

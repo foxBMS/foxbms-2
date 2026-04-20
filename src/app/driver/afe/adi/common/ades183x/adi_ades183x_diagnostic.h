@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_diagnostic.h
  * @author  foxBMS Team
  * @date    2022-12-06 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -101,8 +101,16 @@ extern bool ADI_EvaluateDiagnosticGpioVoltages(ADI_STATE_s *adiState, uint16_t m
  */
 extern bool ADI_EvaluateDiagnosticStringAndModuleVoltages(ADI_STATE_s *adiState, uint16_t moduleNumber);
 
+/**
+ * @brief   generic diagnositics initialization function
+ * @param   adiState        state of the adi driver
+ */
+extern void ADI_InitializeDiagnosis(ADI_STATE_s *adiState);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern bool TEST_ADI_IsFirstDiagnosticCycleFinished(ADI_STATE_s *adiState);
+extern void TEST_ADI_SetFirstDiagnosticCycleFinished(ADI_STATE_s *adiState);
 #endif
 
 #endif /* FOXBMS__ADI_ADES183X_DIAGNOSTIC_H_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -53,13 +53,28 @@
  *
  */
 
+/* cspell:ignore CHCTRL ELDOFFSET ELSOFFSET FRSOFFSET */
+
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "dma.h"
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#include "uart_cfg.h"
+
+#include "HL_reg_sci.h"
+
+#include "fsystem.h"
+#endif
 
 #include "afe_dma.h"
 #include "ftask.h"
 #include "i2c.h"
 #include "spi.h"
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#include "uart.h"
+#endif
 
 #include <stdint.h>
 
@@ -107,12 +122,12 @@ void DMA_Initialize(void) {
         .FRDOFFSET = 0u,                               /* frame destination offset   */
         .FRSOFFSET = 0u,                               /* frame destination offset   */
         .PORTASGN  = (uint32_t)PORTB_READ_PORTA_WRITE, /* port assignment            */
-        .RDSIZE    = ACCESS_16_BIT,                    /* read size                  */
-        .WRSIZE    = ACCESS_16_BIT,                    /* write size                 */
-        .TTYPE     = FRAME_TRANSFER,                   /* transfer type              */
-        .ADDMODERD = ADDR_FIXED,                       /* address mode read          */
-        .ADDMODEWR = ADDR_INC1,                        /* address mode write         */
-        .AUTOINIT  = AUTOINIT_OFF                      /* autoinit                   */
+        .RDSIZE    = (uint32_t)ACCESS_16_BIT,          /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_16_BIT,          /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_FIXED,             /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_INC1,              /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
     };
 
     /* DMA control packets configuration for I2C1  */
@@ -154,6 +169,28 @@ void DMA_Initialize(void) {
         .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
     };
 
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+    /** DMA control packets configuration for SCI4 (UART) */
+    g_dmaCTRL dma_controlPacketSci4Tx = {
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTA_READ_PORTB_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_8_BIT,           /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_8_BIT,           /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_INC1,              /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_FIXED,             /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
+    };
+#endif
+
     dmaEnable();
 
     /* Configuration for SPI */
@@ -167,16 +204,24 @@ void DMA_Initialize(void) {
         /* Enable Interrupt after reception of data
            Group A - Interrupts (FTC, LFS, HBC, and BTC) are routed to the ARM CPU
            User software should configure only Group A interrupts */
+
+#if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
         /**
          * Use Tx interrupt to transfer last word with CSHOLD = 0
          * DO NOT ACTIVATE FOR SLAVE SPI NODES (here SPI4 used as slave)
          * */
+
         if (i != SPI_GetSpiIndex(spiREG4)) {
             dmaEnableInterrupt(
                 (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].txChannel,
                 (dmaInterrupt_t)BTC,
                 (dmaIntGroup_t)DMA_INTA);
         }
+#else
+        dmaEnableInterrupt(
+            (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].txChannel, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+#endif
+
         /* Use Rx to determine when SPI over DMA transaction is finished */
         dmaEnableInterrupt(
             (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
@@ -248,6 +293,28 @@ void DMA_Initialize(void) {
     /* Set the dma channels to trigger on h/w request */
     dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaTriggerType_t)DMA_HW);
     dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaTriggerType_t)DMA_HW);
+
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+    /* Configuration for SCI4 */
+
+    /* assign DMA request to Tx channel */
+    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_SCI4_TX, (dmaRequest_t)DMA_REQ_LINE_SCI4_TX);
+
+    /* Enable Interrupt after reception of data
+       Group A - Interrupts (FTC, LFS, HBC, and BTC) are routed to the ARM CPU
+       User software should configure only Group A interrupts */
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_SCI4_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+
+    dma_controlPacketSci4Tx.DADD   = (uint32_t)(&(UART_REG->TD)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+    dma_controlPacketSci4Tx.RDSIZE = (uint32_t)ACCESS_8_BIT;
+    dma_controlPacketSci4Tx.WRSIZE = (uint32_t)ACCESS_8_BIT;
+
+    /* Set DMA control packet for Tx */
+    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_SCI4_TX, dma_controlPacketSci4Tx);
+
+    /* Set the DMA channels to trigger on h/w request */
+    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_SCI4_TX, (dmaTriggerType_t)DMA_HW);
+#endif
 }
 
 #if !defined(UNITY_UNIT_TEST) || defined(COMPILE_FOR_UNIT_TEST)
@@ -301,9 +368,12 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
                     }
                 }
                 /* RX SPI DMA interrupt: last word received, means SPI transmission is finished */
+                /* SPI configured as master */
+                /* RX DMA interrupt, transmission finished, disable DMA */
+                dma_spiInterfaces[spiIndex]->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
+
+#if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
                 if (spiIndex == SPI_GetSpiIndex(spiREG4)) { /** SPI configured as slave */
-                    /* RX DMA interrupt, transmission finished, disable DMA */
-                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
                     /* Disable SPI to prevent unwanted reception */
                     dma_spiInterfaces[spiIndex]->GCR1 &= ~DMA_SPI_ENABLE_BIT;
                     /* Set slave SPI Chip Select pins as GIO to deactivate slave SPI Chip Select pins */
@@ -312,15 +382,23 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
                     /* Specific call for AFEs */
                     AFE_DmaCallback(spiIndex);
                 } else { /* SPI configured as master */
-                    /* RX DMA interrupt, transmission finished, disable DMA */
-                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
-
                     /* Specific call for AFEs */
                     if (spiIndex == SPI_GetSpiIndex(spiREG1)) {
                         AFE_DmaCallback(spiIndex);
                     }
                     spi_busyFlags[spiIndex] = SPI_IDLE;
                 }
+#endif
+
+#if (defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)) || \
+    (defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1))
+                /* Specific call for measurement ICs */
+                if ((spiIndex == SPI_GetSpiIndex(spiREG1)) || (spiIndex == SPI_GetSpiIndex(spiREG4))) {
+                    AFE_DmaCallback(spiIndex);
+                }
+#endif
+                spi_busyFlags[spiIndex] = SPI_IDLE;
+
                 break;
 
             /* DMA for I2C Tx */
@@ -358,7 +436,7 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
                     (void)xTaskNotifyIndexedFromISR(
                         I2C_TASK_HANDLE,
                         I2C_NOTIFICATION_RX_INDEX,
-                        I2C_RX_NOTCOME_VALUE,
+                        I2C_RX_NOT_COME_VALUE,
                         eSetValueWithOverwrite,
                         &xHigherPriorityTaskWoken);
                     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -385,7 +463,7 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
                     (void)xTaskNotifyIndexedFromISR(
                         I2C_TASK_HANDLE,
                         I2C_NOTIFICATION_RX_INDEX,
-                        I2C_RX_NOTCOME_VALUE,
+                        I2C_RX_NOT_COME_VALUE,
                         eSetValueWithOverwrite,
                         &xHigherPriorityTaskWoken);
                     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -400,6 +478,13 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
                     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
                 }
                 break;
+#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+            case DMA_CHANNEL_SCI4_TX:
+                sciDisableNotification(UART_REG, (uint32)((uint32_t)1u << UART_SCI_DMA_INTERRUPT));
+                OS_SemaphoreGiveFromIsr(uart_txSemaphore, &xHigherPriorityTaskWoken);
+                FSYS_PORT_YIELD_FROM_ISR(xHigherPriorityTaskWoken);
+                break;
+#endif
             default:
                 break;
         }

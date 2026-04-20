@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_soc_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -83,6 +83,8 @@ void testSE_InitializeStateOfCharge(void) {
 
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(NULL_PTR, true, 0u));
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(&se_tableSocEstimation, true, BS_NR_OF_STRINGS));
+
+    SE_InitializeStateOfCharge(&se_tableSocEstimation, true, 0u);
 }
 
 void testSE_CalculateStateOfCharge(void) {

@@ -58,7 +58,7 @@ Flags that are passed to the compiler when linking (Note: The compiler is
 used as linker when run with the argument
 ``--run_linker``). Flags here do typically not needed to be changed except
 for ``--heap_size=0x800``,
-``--stack_size=0x800`` or the optimization flag ``-oN`` where ``N`` is the
+``--stack_size=0x1800`` or the optimization flag ``-oN`` where ``N`` is the
 level of optimization.
 
 ``HEXGENFLAGS``

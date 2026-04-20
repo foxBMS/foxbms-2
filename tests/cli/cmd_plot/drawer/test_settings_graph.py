@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,6 +43,7 @@ import io
 import sys
 import unittest
 from contextlib import redirect_stderr
+from datetime import UTC
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -62,7 +63,7 @@ class TestMappingPostInit(unittest.TestCase):
         mapping = Mapping(**config)
         # The attributes need to be checked one by one because
         # the labels in LinesSettings are an iterator, which
-        # can't be easily compared
+        # cannot be easily compared
         self.assertEqual(mapping.x, "test")
         self.assertEqual(mapping.y1, None)
         self.assertEqual(mapping.y3, None)
@@ -82,13 +83,14 @@ class TestMappingPostInit(unittest.TestCase):
     @patch("cli.cmd_plot.drawer.settings_graph.datetime")
     def test_post_init_strftime_return_values(self, mock_datetime: Mock) -> None:
         """Tests the post_init with invalid dateformat and problematic strftime
-        return value (Linux related unittest)"""
+        return value (Linux related unittest)
+        """
         config = {"x": "test", "y2": {"input": "test"}, "date_format": "%23"}
-        mock_datetime.now().strftime.return_value = "%2 3"
+        mock_datetime.now(tz=UTC).strftime.return_value = "%2 3"
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
             Mapping(**config)
-        mock_datetime.now().strftime.assert_called_once_with("%23")
+        mock_datetime.now(tz=UTC).strftime.assert_called_once_with("%23")
         self.assertEqual(cm.exception.code, 1)
         self.assertTrue("Date format is invalid" in buf.getvalue())
 

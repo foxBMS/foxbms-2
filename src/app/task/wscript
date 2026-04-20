@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,107 +37,23 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""waf script for building "application" library.
-location of this wscript:
-    /src/app/task/wscript
-
-"""
-
-import os
-
 
 def build(bld):
-    """builds the task library"""
-    os_name = bld.env.RTOS_NAME[0]
-    source = [
-        os.path.join("config", "ftask_cfg.c"),
-        os.path.join("ftask", "ftask.c"),
-        os.path.join("ftask", os_name, f"ftask_{os_name}.c"),
-        os.path.join("os", "os.c"),
-        os.path.join("os", os_name, f"os_{os_name}.c"),
-        os.path.join("timer", "timer.c"),
-    ]
-    includes = [
-        "config",
-        "ftask",
-        "os",
-        "timer",
-        os.path.join("..", "application", "algorithm"),
-        os.path.join("..", "application", "algorithm", "config"),
-        os.path.join("..", "application", "algorithm", "state_estimation"),
-        os.path.join(
-            "..", "application", "algorithm", "state_estimation", "sof", "trapezoid"
-        ),
-        os.path.join("..", "application", "bal"),
-        os.path.join("..", "application", "bal", bld.env.balancing_strategy),
-        os.path.join("..", "application", "bms"),
-        os.path.join("..", "application", "config"),
-        os.path.join("..", "application", "soa"),
-        os.path.join("..", "application", "redundancy"),
-        os.path.join("..", "driver", "adc"),
-        os.path.join("..", "driver", "can"),
-        os.path.join("..", "driver", "can", "cbs", "tx-async"),
-        os.path.join("..", "driver", "can", "cbs", "tx-cyclic"),
-        os.path.join("..", "driver", "config"),
-        os.path.join("..", "driver", "contactor"),
-        os.path.join("..", "driver", "crc"),
-        os.path.join("..", "driver", "dma"),
-        os.path.join("..", "driver", "fram"),
-        os.path.join("..", "driver", "htsensor"),
-        os.path.join("..", "driver", "i2c"),
-        os.path.join("..", "driver", "imd"),
-        os.path.join("..", "driver", "imd", "bender", "iso165c"),
-        os.path.join("..", "driver", "imd", "bender", "iso165c", "config"),
-        os.path.join("..", "driver", "interlock"),
-        os.path.join("..", "driver", "io"),
-        os.path.join("..", "driver", "led"),
-        os.path.join("..", "driver", "meas"),
-        os.path.join("..", "driver", "pex"),
-        os.path.join("..", "driver", "phy"),
-        os.path.join("..", "driver", "pwm"),
-        os.path.join("..", "driver", "rtc"),
-        os.path.join("..", "driver", "sbc"),
-        os.path.join("..", "driver", "sbc", "fs8x_driver"),
-        os.path.join("..", "driver", "spi"),
-        os.path.join("..", "driver", "sps"),
-        os.path.join("..", "driver", "mcu"),
-        os.path.join("..", "engine"),
-        os.path.join("..", "engine", "config"),
-        os.path.join("..", "engine", "database"),
-        os.path.join("..", "engine", "diag"),
-        os.path.join("..", "engine", "hw_info"),
-        os.path.join("..", "engine", "sys_mon"),
-        os.path.join("..", "engine", "sys"),
-        os.path.join("..", "main", "include"),
-    ]
-    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-task"
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
 
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
-        target=target,
+    bld.recurse(["config", "ftask", "os", "timer"])
+
+    use = [
+        f"{op}ftask",
+        f"{op}ftask_cfg",
+        f"{op}ftask_{bld.env.FOXBMS_RTOS_NAME}",
+        f"{op}os",
+        f"{op}os_{bld.env.FOXBMS_RTOS_NAME}",
+        f"{op}timer",
+    ]
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}task",
     )
-
-    if os_name.lower() == "freertos":
-        c_fragment = '#include "os.h"\n#include "os_freertos_config-validation.h"\n'
-        config_source = bld.path.find_or_declare(f"{os_name.lower()}-config-test.c")
-        config_source.parent.mkdir()
-        config_source.write(c_fragment, encoding="utf-8")
-        config_includes = bld.env.INCLUDES_RTOS + [
-            "os",
-            os.path.join("..", "driver", "mcu"),
-            os.path.join("..", "main", "include"),
-            os.path.join("config"),
-            os.path.join("os", "freertos"),
-        ]
-        # this file is only built once, therefore we force id=1 on this build
-        bld.objects(
-            source=[config_source],
-            includes=config_includes,
-            cflags=cflags,
-            target=f"{os_name.lower()}-config-test",
-            idx=1,
-        )

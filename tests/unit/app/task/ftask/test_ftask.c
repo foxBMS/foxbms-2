@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,11 +68,12 @@
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockdiag_cfg.h"
-#include "Mockdp83869.h"
 #include "Mockfram.h"
+#include "Mockftask_cfg.h"
 #include "Mockhtsensor.h"
 #include "Mocki2c.h"
 #include "Mockimd.h"
+#include "Mockinfinite-loop-helper.h"
 #include "Mockinterlock.h"
 #include "Mockled.h"
 #include "Mockmaster_info.h"
@@ -89,11 +90,11 @@
 #include "Mocksys.h"
 #include "Mocksys_mon.h"
 
-#include "ftask_cfg.h"
 #include "sys_mon_cfg.h"
 
 #include "fassert.h"
 #include "ftask.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/application/algorithm")
@@ -109,6 +110,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/can")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/contactor")
 TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/emac")
 TEST_INCLUDE_PATH("../../src/app/driver/fram")
 TEST_INCLUDE_PATH("../../src/app/driver/htsensor")
 TEST_INCLUDE_PATH("../../src/app/driver/i2c")
@@ -149,13 +151,167 @@ SBC_STATE_s sbc_stateMcuSupervisor;
 
 SYS_STATE_s sys_state = {0};
 
+OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms = {
+    FTSK_TASK_CYCLIC_1MS_PRIORITY,
+    FTSK_TASK_CYCLIC_1MS_PHASE,
+    FTSK_TASK_CYCLIC_1MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_CYCLIC_1MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms = {
+    FTSK_TASK_CYCLIC_10MS_PRIORITY,
+    FTSK_TASK_CYCLIC_10MS_PHASE,
+    FTSK_TASK_CYCLIC_10MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_CYCLIC_10MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms = {
+    FTSK_TASK_CYCLIC_100MS_PRIORITY,
+    FTSK_TASK_CYCLIC_100MS_PHASE,
+    FTSK_TASK_CYCLIC_100MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_CYCLIC_100MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_PRIORITY,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    os_boot               = OS_OFF;
+    os_schedulerStartTime = 1u;
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
+void testFTSK_CreateTaskEngine(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint32_t dummy = 1u;
+    TEST_ASSERT_FAIL_ASSERT(FTSK_CreateTaskEngine(&dummy));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    OS_MarkTaskAsRequiringFpuContext_Expect();
+    FTSK_InitializeUserCodeEngine_Expect();
+    FOREVER_ExpectAndReturn(1);
+    uint32_t tickCount = 1u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_ENGINE, SYSM_NOTIFY_ENTER, tickCount);
+    FTSK_RunUserCodeEngine_Expect();
+    tickCount = 2u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_ENGINE, SYSM_NOTIFY_EXIT, tickCount);
+    FOREVER_ExpectAndReturn(0);
+
+    /* ======= RT1/1: call function under test */
+    FTSK_CreateTaskEngine(NULL_PTR);
+
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(os_boot, OS_ENGINE_RUNNING);
+}
+
+void testFTSK_CreateTaskCyclic1ms(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint32_t dummy = 1u;
+    TEST_ASSERT_FAIL_ASSERT(FTSK_CreateTaskCyclic1ms(&dummy));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* tasks requires engine task to be running, otherwise, we wait forever */
+    os_boot = OS_ENGINE_RUNNING;
+    OS_MarkTaskAsRequiringFpuContext_Expect();
+    FTSK_InitializeUserCodePreCyclicTasks_Expect();
+    uint32_t currentTimeCreateTaskCyclic1ms = 1u;
+    OS_GetTickCount_ExpectAndReturn(currentTimeCreateTaskCyclic1ms);
+
+    FOREVER_ExpectAndReturn(1);
+    uint32_t tickCount = 2u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_CYCLIC_1ms, SYSM_NOTIFY_ENTER, tickCount);
+    FTSK_RunUserCodeCyclic1ms_Expect();
+    tickCount = 3u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_CYCLIC_1ms, SYSM_NOTIFY_EXIT, tickCount);
+    OS_DelayTaskUntil_Expect(&currentTimeCreateTaskCyclic1ms, ftsk_taskDefinitionCyclic1ms.cycleTime);
+
+    FOREVER_ExpectAndReturn(0);
+
+    /* ======= RT1/1: call function under test */
+    FTSK_CreateTaskCyclic1ms(NULL_PTR);
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(os_boot, OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED);
+}
+
+void testFTSK_CreateTaskCyclic10ms(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint32_t dummy = 1u;
+    TEST_ASSERT_FAIL_ASSERT(FTSK_CreateTaskCyclic10ms(&dummy));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* tasks requires engine task to be running, otherwise, we wait forever */
+    os_boot               = OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED;
+    os_schedulerStartTime = 1u;
+    OS_MarkTaskAsRequiringFpuContext_Expect();
+
+    OS_DelayTaskUntil_Expect(&os_schedulerStartTime, ftsk_taskDefinitionCyclic10ms.phase);
+    uint32_t currentTimeCreateTaskCyclic10ms = 1u;
+    OS_GetTickCount_ExpectAndReturn(currentTimeCreateTaskCyclic10ms);
+
+    FOREVER_ExpectAndReturn(1);
+    uint32_t tickCount = 2u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_CYCLIC_10ms, SYSM_NOTIFY_ENTER, tickCount);
+    FTSK_RunUserCodeCyclic10ms_Expect();
+    tickCount = 3u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_CYCLIC_10ms, SYSM_NOTIFY_EXIT, tickCount);
+    OS_DelayTaskUntil_Expect(&currentTimeCreateTaskCyclic10ms, ftsk_taskDefinitionCyclic10ms.cycleTime);
+
+    FOREVER_ExpectAndReturn(0);
+
+    /* ======= RT1/1: call function under test */
+    FTSK_CreateTaskCyclic10ms(NULL_PTR);
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(os_boot, OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED);
+}
+
+void testFTSK_CreateTaskCyclic100ms(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint32_t dummy = 1u;
+    TEST_ASSERT_FAIL_ASSERT(FTSK_CreateTaskCyclic100ms(&dummy));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* tasks requires engine task to be running, otherwise, we wait forever */
+    os_boot               = OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED;
+    os_schedulerStartTime = 1u;
+    OS_MarkTaskAsRequiringFpuContext_Expect();
+
+    OS_DelayTaskUntil_Expect(&os_schedulerStartTime, ftsk_taskDefinitionCyclic100ms.phase);
+    uint32_t currentTimeCreateTaskCyclic100ms = 1u;
+    OS_GetTickCount_ExpectAndReturn(currentTimeCreateTaskCyclic100ms);
+
+    FOREVER_ExpectAndReturn(1);
+    uint32_t tickCount = 2u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_CYCLIC_100ms, SYSM_NOTIFY_ENTER, tickCount);
+    FTSK_RunUserCodeCyclic100ms_Expect();
+    tickCount = 3u;
+    OS_GetTickCount_ExpectAndReturn(tickCount);
+    SYSM_Notify_Expect(SYSM_TASK_ID_CYCLIC_100ms, SYSM_NOTIFY_EXIT, tickCount);
+    OS_DelayTaskUntil_Expect(&currentTimeCreateTaskCyclic100ms, ftsk_taskDefinitionCyclic100ms.cycleTime);
+
+    FOREVER_ExpectAndReturn(0);
+
+    /* ======= RT1/1: call function under test */
+    FTSK_CreateTaskCyclic100ms(NULL_PTR);
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(os_boot, OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED);
 }

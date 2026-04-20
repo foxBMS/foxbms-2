@@ -29,7 +29,7 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR`.
 
 --------------
 Specifications
@@ -102,8 +102,9 @@ The cell voltage sense lines are input on the connector X1503.
 The pinout is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.0.3_cell_sense_connector>`.
 
-.. figure:: ./../../img/molex_connector-24pin.png
-   :width: 50 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: Cell voltage sense connector
    :name: 6811-1_slave_12cell_v2.0.3_cell_sense_connector
@@ -172,8 +173,9 @@ and X1507 (secondary).
 The pinout is identical for the primary and secondary and is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.0.3_temp_sense_connector>`.
 
-.. figure:: ./../../img/molex_connector-16pin.png
-   :width: 30 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: Temperature sensor connector
    :name: 6811-1_slave_12cell_v2.0.3_temp_sense_connector
@@ -291,8 +293,9 @@ The pinout of the isoSPI connectors is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.0.3_daisy_input_connectors>` and
 :numref:`Table %s <6811-1_slave_12cell_v2.0.3_daisy_output_connectors>`.
 
-.. figure:: ./../../img/molex_connector-2pin.png
-   :width: 5 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: isoSPI Daisy Chain Input Connectors
    :name: 6811-1_slave_12cell_v2.0.3_daisy_input_connectors
@@ -334,7 +337,7 @@ This values result in a bias current of approximately 1mA and a differential
 signal amplitude of 1.18V.
 Theses values are suitable for high noise environments with cable lengths of
 over 50m.
-More information can be found in the |ltc-ltc6811-1| data sheet.
+More information can be found in the |ltc-ltc6811-1| datasheet.
 
 Status LED
 """"""""""
@@ -392,8 +395,9 @@ connectors are in parallel for daisy chaining the supply).
 The pinout of the connectors X1513 and X1514 is shown in
 :numref:`Table %s <6811-1_slave_12cell_v2.0.3_external_dc_supply_connector>`.
 
-.. figure:: ./../../img/molex_connector-2pin.png
-   :width: 5 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: External DC supply connector
    :name: 6811-1_slave_12cell_v2.0.3_external_dc_supply_connector

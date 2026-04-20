@@ -1,0 +1,9 @@
+{"date": "0", "code": "read_coils", "address": 9, "length": 1, "values": [0]}
+{"date": "1", "code": "read_coils", "address": 9, "length": 2, "values": [0, 0]}
+{"date": "2", "code": "read_coils", "address": 9, "length": 3, "values": [0, 0, 0]}
+{"date": "3", "code": "read_coils", "address": 9, "length": 4, "values": [0, 0, 0, 0]}
+{"date": "4", "code": "write_coils", "address": 9, "length": 2, "values": []}
+{"date": "5", "code": "read_coils", "address": 9, "length": 4, "values": [1, 1, 0, 0]}
+{"date": "6", "code": "read_holding_register", "address": 9, "length": 1, "values": [225]}
+{"date": "7", "code": "write_holding_register", "address": 9, "length": 1, "values": []}
+{"date": "8", "code": "read_holding_register", "address": 9, "length": 1, "values": [69]}

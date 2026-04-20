@@ -1,0 +1,70 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram id="k14KDhsP8UbcUssUw9OW" name="enable">
+    <mxGraphModel dx="2074" dy="1197" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-1" value="&lt;b&gt;&lt;font style=&#39;font-size: 14.0px;&#39; face=&#39;Times,serif&#39; color=&#39;#000000&#39;&gt;Enable Start&lt;/font&gt;&lt;/b&gt;" style="ellipse;shape=doubleEllipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-2" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Request&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;relay state&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14" y="150" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-3" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Check negative&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;HV relay state&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14" y="300" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-4" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Check positive&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;HV relay state&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14" y="450" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-5" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Start insulation&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;measurement&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14" y="600" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-6" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Wait for&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;acknowledge&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="14" y="750" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-7" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="5OlnqURbBjtUPOKtaxo2-1" target="5OlnqURbBjtUPOKtaxo2-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="182.53" y="172.64999999999986" as="sourcePoint" />
+            <mxPoint x="182.53" y="214.17999999999984" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-8" value="&lt;b&gt;&lt;font style=&#39;font-size: 14.0px;&#39; face=&#39;Times,serif&#39; color=&#39;#000000&#39;&gt;Close HV relays&lt;/font&gt;&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=bottom;resizable=0;points=[];" parent="5OlnqURbBjtUPOKtaxo2-7" vertex="1" connectable="0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-9" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="5OlnqURbBjtUPOKtaxo2-2" target="5OlnqURbBjtUPOKtaxo2-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="182.53" y="462.73" as="sourcePoint" />
+            <mxPoint x="182.53" y="487.97" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-10" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="5OlnqURbBjtUPOKtaxo2-3" target="5OlnqURbBjtUPOKtaxo2-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="182.53" y="854.8999999999999" as="sourcePoint" />
+            <mxPoint x="182.53" y="879.8999999999999" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-11" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="5OlnqURbBjtUPOKtaxo2-4" target="5OlnqURbBjtUPOKtaxo2-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="182.53" y="1238.61" as="sourcePoint" />
+            <mxPoint x="182.53" y="1263.4" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-12" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="5OlnqURbBjtUPOKtaxo2-5" target="5OlnqURbBjtUPOKtaxo2-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="182.53" y="1632.4699999999998" as="sourcePoint" />
+            <mxPoint x="182.53" y="1657.25" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5OlnqURbBjtUPOKtaxo2-13" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;curved=1;exitX=1.0000;exitY=0.4140;entryX=1.0000;entryY=0.5662;" parent="1" source="5OlnqURbBjtUPOKtaxo2-6" target="5OlnqURbBjtUPOKtaxo2-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310.11" y="1776.06" as="sourcePoint" />
+            <mxPoint x="319.92" y="1815.33" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="220" y="803" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

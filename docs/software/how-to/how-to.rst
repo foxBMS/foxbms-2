@@ -19,10 +19,11 @@ BMS Software Modules
     ./../modules/engine/database/database_how-to.rst
     ./../modules/task/ftask/ftask_how-to.rst
     ./../modules/main/fassert_how-to.rst
-    ./../modules/driver/afe/adding-a-new-ic_how-to
-    ./../modules/driver/ts/adding-a-new-ts_how-to
-    ./../modules/application/bms/bms_how-to
-    ./../bootloader/bootloader_how-to
+    ./../modules/driver/afe/adding-a-new-afe_how-to.rst
+    ./../modules/driver/ts/adding-a-new-ts_how-to.rst
+    ./../modules/application/bms/bms_how-to.rst
+    ./../bootloader/bootloader_how-to.rst
+    ./../modules/driver/contactor/contactor_how-to.rst
 
 Other
 -----
@@ -30,8 +31,9 @@ Other
 .. toctree::
     :maxdepth: 1
 
-    ./../../developer-manual/style-guide/state-machines_how-to
-    ./../configuration/without-halcogen_how-to
-    ./../unit-tests/unit-tests_how-to
+    ./../../developer-manual/style-guide/state-machines_how-to.rst
+    ./../configuration/without-halcogen_how-to.rst
+    ./../unit-tests/unit-tests_how-to.rst
     ./../build-process/library-project_how-to.rst
-    ./../operating-system/ping_foxbms-how_to.rst
+    ./../modules/application/ethernet/test_tcp_ip-how_to.rst
+    ./../modules/application/ethernet/ethernet_port-how_to.rst

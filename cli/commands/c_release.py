@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,12 +42,44 @@
 import click
 
 from ..cmd_release import release_impl
-from ..helpers.click_helpers import HELP_NAMES
+from ..helpers.click_helpers import HELP_NAMES, echo, verbosity_option
 
 
-@click.command("release", context_settings=HELP_NAMES, hidden=True)
+@click.group(
+    "release", context_settings=HELP_NAMES, hidden=True, invoke_without_command=True
+)
 @click.pass_context
 def release(ctx: click.Context) -> None:
-    """Create a foxBMS release"""
-    ret = release_impl.dummy()
-    ctx.exit(ret.returncode)
+    """Run the release command entry point."""
+    if not ctx.invoked_subcommand:
+        echo(release.get_help(ctx))
+
+
+@release.command("update-version")
+@click.option(
+    "--from",
+    "from_version",
+    default="x.y.z",
+    show_default=True,
+    help="Current version value to replace.",
+)
+@click.option(
+    "--to",
+    "to_version",
+    required=True,
+    help="New version value.",
+)
+@verbosity_option
+@click.pass_context
+def cmd_update_version(
+    ctx: click.Context,
+    from_version: str,
+    to_version: str,
+    verbose: int = 0,
+) -> None:
+    """Update version information in release-managed project files"""
+    try:
+        ret = release_impl.update_version(from_version, to_version)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    ctx.exit(ret)

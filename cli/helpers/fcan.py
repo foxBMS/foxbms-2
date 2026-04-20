@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,11 +37,14 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""TODO"""
+"""CAN bus configuration helpers and Click option decorators."""
 
+import re
 from dataclasses import dataclass
+from pathlib import Path
 
 import click
+from click.decorators import FC
 
 from .click_helpers import recho
 
@@ -76,17 +79,31 @@ SUPPORTED_INTERFACES = list(DEFAULT_CHANNELS.keys())
 
 VALID_BIT_RATES = ["500000"]
 DEFAULT_BIT_RATE = "500000"
+SOCKETCAN_CHANNEL_RE = re.compile(r"^(v?can)\d+$")
 
 
 @dataclass
 class CanBusConfig:
-    """Type of CAN connection (must be supported by python-can)."""
+    """Represent and validate a CAN bus connection configuration.
+
+    Attributes:
+        interface: CAN backend identifier (for example ``pcan`` or ``socketcan``).
+        channel: Interface-specific channel identifier.
+        bitrate: Bus bitrate in bit/s.
+        dbc: Optional path to a DBC file.
+    """
 
     interface: str
     channel: str | int | None = None
     bitrate: int = 500000
+    dbc: Path | None = None
 
     def __post_init__(self) -> None:
+        """Validate interface-specific channel constraints.
+
+        Raises:
+            SystemExit: If interface/channel combination is invalid.
+        """
         err_msg = "Invalid channel choice for interface '{interface}'."
         if self.interface == "pcan":
             if not self.channel:
@@ -94,7 +111,7 @@ class CanBusConfig:
             if not isinstance(self.channel, str):
                 recho(err_msg.format(interface="pcan"))
                 raise SystemExit(1)
-            if not self.channel.startswith("PCAN"):
+            if self.channel not in SUPPORTED_CHANNELS["pcan"]:
                 recho(err_msg.format(interface="pcan"))
                 raise SystemExit(1)
         elif self.interface == "kvaser":
@@ -105,15 +122,34 @@ class CanBusConfig:
             except (ValueError, TypeError) as exc:
                 recho(err_msg.format(interface="kvaser"))
                 raise SystemExit(1) from exc
+        elif self.interface == "socketcan":
+            if not self.channel:
+                self.channel = "can0"
+            if not isinstance(self.channel, str):
+                recho(err_msg.format(interface="socketcan"))
+                raise SystemExit(1)
+            # socketcan channels are canX or vcanX with X as a number.
+            if not SOCKETCAN_CHANNEL_RE.match(self.channel):
+                recho(err_msg.format(interface="socketcan"))
+                raise SystemExit(1)
         elif self.interface == "virtual":
             pass
         else:
             recho(f"Unsupported interface '{self.interface}'.")
             raise SystemExit(2)
+        if self.dbc:
+            self.dbc = Path(self.dbc)
 
 
-def common_can_options(fun):
-    """Common CAN options to define the connected hardware interface"""
+def common_can_options(fun: FC) -> FC:
+    """Add common CAN-related Click options to a command function.
+
+    Args:
+        fun: Click command function to decorate.
+
+    Returns:
+        Decorated command function.
+    """
     fun = click.option(
         "-i",
         "--interface",
@@ -131,12 +167,10 @@ def common_can_options(fun):
         help="CAN channel (must be appropiate for the selected interface; "
         f"defaults are {DEFAULT_CHANNELS}).\n\n{tmp}",
     )(fun)
-    fun = click.option(
+    return click.option(
         "-b",
         "--bitrate",
         default=DEFAULT_BIT_RATE,
         type=click.Choice(VALID_BIT_RATES),
         help="CAN Baudrate.",
     )(fun)
-
-    return fun

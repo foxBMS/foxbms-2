@@ -31,10 +31,22 @@ This is explained in :ref:`BMS_APPLICATION`.
 It generates sources in form of ``.h`` and ``.c`` and ``.asm`` files.
 These HAL sources are generated based on the |ti-halcogen| configuration files
 (``*.hcg`` and ``*.dil``).
+The respective configuration files are found
+
+- for the application at:
+
+  - ``conf/hcg/app.hcg``
+  - ``conf/hcg/app.dil``
+- for the bootloader at:
+
+  - ``conf/hcg/bootloader.hcg``
+  - ``conf/hcg/bootloader.dil``
+
+
 |foxbms| uses the Waf tool :ref:`WAF_TOOL_HALCOGEN` to automatically run
 |ti-halcogen| and create the required sources.
 Additional information on the tool can be found in
-:ref:`HALCOGEN_TOOL_DOCUMENTATION`.
+:ref:`TI_HALCOGEN_TOOL`.
 
 .. note::
 
@@ -44,56 +56,8 @@ Additional information on the tool can be found in
 
 |ti-halcogen| ships with its own version of |freertos| and generates the
 corresponding sources when running the code generator.
-As |foxbms| uses its different own copy of |freertos|, the generated |freertos|
+As |foxbms| uses its own copy of |freertos|, the generated |freertos|
 files from |ti-halcogen| are removed after the code generator has run.
-
-|ti-halcogen| creates the source file ``HL_sys_startup.c`` which implements
-(a weak implementation of) the function ``_c_int00`` (the system's startup
-routine). |foxbms| provides its own **non**-weak implementation of ``_c_int00``
-in ``fstartup.c``.
-The |foxbms| implementation of ``_c_int00`` must be coupled to the the current
-|ti-halcogen| configuration.
-Most changes in the |ti-halcogen| project do not alter the startup behavior and
-no further action needs to be taken into account.
-However there are settings that alter the startup behavior.
-Such settings need to be ported to ``fstartup.c`` as this non-weak
-implementation of ``_c_int00`` outweighs the generated, new version of
-``_c_int00`` in ``HL_sys_startup.c``.
-Otherwise the startup function used by |foxbms| would not reflect the
-|ti-halcogen| configuration.
-The :ref:`WAF_TOOL_HALCOGEN` provides a mechanism to detected such changes.
-The hash of the current ``HL_sys_startup.c`` implementation is stored in
-``src/app/hal/app-startup.hash`` and compared to the actual hash of the
-generated ``HL_sys_startup.c`` file.
-If these are not the same, the build aborts with the following message:
-
-.. literalinclude:: fstartup.c-check.txt
-   :language: console
-   :caption: Example error message on hash mismatch of ``HL_sys_startup.c``
-   :name: halcogen-configuration-error
-
-The build aborts as the expected hash is
-``b'e2e61496edd65f44d7cc811b504ad1f2'`` while the actual hash is
-``b'1something-other234'``.
-Next, the function ``_c_int00`` in the two files (``fstartup.c``) and
-``HL_sys_startup.c`` needs to be compared by the developer and the developer
-needs to update the ``_c_int00`` implementation in the file ``fstartup.c`` to
-reflect the |ti-halcogen| startup routine.
-The concluding step is to update the hash value in
-``src/app/hal/app-startup.hash`` with ``1something-other``.
-Now the build toolchain knows, that the changes applied in the |ti-halcogen|
-are reflected in the dependencies and the build will not abort after the HAL
-sources are generated.
-
-The process is illustrated in :numref:`halcogen-configuration`.
-
-   .. figure:: img/halcogen_configuration.png
-      :alt: HALCoGen configuration
-      :name: halcogen-configuration
-      :width: 100 %
-      :align: center
-
-      HALCoGen configuration change detection process
 
 Enabling Cache
 ^^^^^^^^^^^^^^
@@ -132,7 +96,8 @@ BMS Application
 
 The project provides two very basic configuration options:
 
-#. general options in ``conf/bms/bms.json``
+#. general options in |bms-config-file|.
+   This file is case-sensitive and all settings need to be in lower-case.
 #. compiler options in ``conf/cc/cc-options.yaml`` (path is an option, see
    :py:meth:`f_ti_arm_cgt.options`) and compiler
    remarks and remark severity level in ``conf/cc/remarks.txt``
@@ -143,7 +108,7 @@ battery system that is built up need to be defined:
 - for the used battery cell:
 
   - ``src/app/application/config/battery_cell_cfg.c``
-  -  ``src/app/application/config/battery_cell_cfg.h``
+  - ``src/app/application/config/battery_cell_cfg.h``
 
 - for the top level view on the battery system:
 
@@ -168,42 +133,186 @@ That applies to the operating system and the Analog Front-End.
 
    Only very basic configurations can be changed via these options described
    here.
-   Again, everything not mentioned here must still be *configured* by
-   programming the application behavior in the source code.
+   Again, everything not mentioned here must still be **configured** by
+   **programming** the application behavior in the source code.
 
-Operating System
-""""""""""""""""
+The main keys
 
-The operating system is configured in ``conf/bms/bms.json``.
-The value for ``os`` must be the name of the source directory in ``src/os/``
-that includes the operating system sources.
-Currently only |freertos| is supported (option: ``"os": "freertos"``).
+- ``application``,
+- ``bms-slave``,
+- ``debug`` (optional), and
+- ``rtos``.
 
-Analog Front-End
-""""""""""""""""
+are described in the following subsections.
 
-The AFE is configured in ``conf/bms/bms.json``.
-The joint path from the values of ``manufacturer`` and ``ic`` must be the
-name of the source directory in ``src/app/driver/afe/<manufacturer>/<ic>``
-that includes the driver implementation.
-A list of supported ICs is found in :numref:`SUPPORTED_ANALOG_FRONT_ENDS`.
+.. _CONFIGURE_APPLICATION:
 
-The build process behind this configuration is documented at
-:ref:`afe_library_build`.
+``application``
+"""""""""""""""
 
-Balancing Strategy
-""""""""""""""""""
+``application:↳algorithm``
+''''''''''''''''''''''''''
 
-|foxbms| supports three different balancing strategies:
+The ``algorithms`` key requires one key: ``state-estimation``.
 
-- Voltage-based balancing: Cell balancing based on voltage differences
-  (key-value: ``voltage``).
+Supported settings:
+
+- ``application:↳algorithm:↳state-estimation:↳soc``: ``"counting"``,
+  ``"debug"``, or ``null`` to disable the SOC algorithm
+- ``application:↳algorithm:↳state-estimation:↳soe``: ``"counting"``,
+  ``"debug"``, or ``null`` to disable the SOE algorithm
+- ``application:↳algorithm:↳state-estimation:↳sof``: ``"trapezoid"``
+- ``application:↳algorithm:↳state-estimation:↳soh``: ``"debug"``, or ``null``
+  to disable the SOH algorithm
+
+``application:↳balancing-strategy``
+'''''''''''''''''''''''''''''''''''
+
+Supported settings:
+
+- ``"voltage"``: Voltage-based balancing: Cell balancing based on voltage
+  differences.
   Details are found in :ref:`BALANCING_MODULE_VOLTAGE_BASED_BALANCING`
-- History-based balancing: Cell balancing based on voltage history
-  (key-value: ``history``).
+- ``"history"``: History-based balancing: Cell balancing based on voltage
+  history.
   Details are found in :ref:`BALANCING_MODULE_HISTORY_BASED_BALANCING`
-- No balancing: No balancing of any cell (key-value: ``none``).
+- ``null``: No balancing of any cell.
   Details are found in :ref:`BALANCING_MODULE_NO_BALANCING`
+
+``application:↳current-sensor``
+'''''''''''''''''''''''''''''''
+
+Currently only CAN-based current sensors are supported.
+
+The manufacturer, model and the type of connection of the Insulation Monitoring
+Device must be provided:
+- ``application:↳current-sensor:↳type``: must be ``"can"``
+- ``application:↳insulation-monitoring-device:↳manufacturer``
+- ``application:↳insulation-monitoring-device:↳model``
+
+Supported devices:
+
+- ``isabellenhuette``: ``ivt-s``
+- ``lem``: ``cab500``
+
+``application:↳insulation-monitoring-device``
+'''''''''''''''''''''''''''''''''''''''''''''
+
+In case no Insulation Monitoring Device is used, the entire key
+``application:↳insulation-monitoring-device``
+needs to be removed.
+
+The manufacturer, model and the type of connection of the Insulation Monitoring
+Device must be provided:
+
+- ``application:↳insulation-monitoring-device:↳type`` (either ``can`` or
+  ``pwm``)
+- ``application:↳insulation-monitoring-device:↳manufacturer``
+- ``application:↳insulation-monitoring-device:↳model``
+
+Supported devices:
+
+- ``bender``: ``ir155``, ``iso165c``
+
+Developer notes:
+
+- The joint path from the values of ``manufacturer`` and ``model`` must be the
+  name of the source directory in ``src/app/driver/imd/<manufacturer>/<model>``
+  that includes the driver implementation.
+- Every Insulation Monitoring Device needs to define the provided include
+  directories in
+  ``src/app/driver/imd/<manufacturer>/<model>/<manufacturer>_<model>.json``
+
+.. _CONFIGURE_BMS_SLAVE:
+
+``bms-slave``
+"""""""""""""
+
+The ``bms-slave`` requires to define the ``analog-front-end`` and the
+``temperature-sensor``.
+
+  - ``analog-front-end``: The manufacturer and the IC of the must be provided.
+    Valid settings are:
+
+    - ``adi``
+
+      - ``ades1830``
+
+    - ``debug``
+
+      - ``can``
+      - ``default``
+
+    - ``ltc``
+
+      - ``6804-1``
+      - ``6806``
+      - ``6811-1``
+      - ``6812-1``
+      - ``6813-1``
+
+    - ``maxim:``
+
+      - ``max17852``
+
+    - ``nxp``
+
+      - ``mc33775a``
+
+    - ``ti``
+
+      - ``dummy``
+
+
+- ``temperature-sensor``: The manufacturer, model and the evaluation method of
+  the temperature sensor must be provided.
+
+
+
+The list of supported ICs is also found in
+:numref:`SUPPORTED_ANALOG_FRONT_ENDS`.
+
+Developer notes:
+
+- The joint path from the values of ``manufacturer`` and ``ic`` must be the
+  name of the source directory in ``src/app/driver/afe/<manufacturer>/<ic>``
+  that includes the driver implementation.
+- Every AFE needs to define the provided include directories in
+  ``src/app/driver/afe/<manufacturer>/<ic>/<manufacturer>_<ic>.json``
+- The build process behind this configuration is documented at
+  :ref:`afe_library_build`.
+
+.. _CONFIGURE_DEBUG:
+
+``debug``
+"""""""""
+
+Some features are only useful when debugging, and should not be enabled in the
+final application build.
+|uart| can be added as a debug interface as follows
+(``debug:↳interfaces:↳["uart"]``).
+
+.. _CONFIGURE_OS:
+
+``rtos``
+""""""""
+
+The RTOS name must be defined in ``rtos:↳name:"<name>"``, where ``<name>`` is
+the name of desired operating system.
+Currently only |freertos| is supported (``rtos:↳name:"freertos"``).
+
+|freertos| supports supports TCP/IP when the following addon TCO/IP addon is
+enabled by adding ``freertos-plus-tcp`` to the addon list
+(``rtos:↳addons:↳["freertos-plus-tcp"]``).
+
+Developer notes:
+
+- The name must correspond to the directory in source tree where the RTOS
+  sources are (e.g., for ``freertos`` it needs to be at ``src/os/freertos``)
+- The value for ``os`` must be the name of the source directory in ``src/os/``
+  that includes the operating system sources.
+- Every RTOS needs to define the provided include directories in
+  ``src/os/freertos/<name>/<name>_cfg.json``
 
 Compiler and Linker Options and Remarks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

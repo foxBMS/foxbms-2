@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Check for correct section markers in provided C source and header files.
+"""Validate section markers in C source and header files.
 
 This script verifies that all required section markers are present, in the correct
 order, and formatted properly in C and header files. It also ensures each marker is
@@ -93,8 +93,8 @@ def run_check(filename: Path, file_type: FileTypes) -> int:
         filename: Path to the file to check.
         file_type: Expected file type string for section markers.
 
-    Return:
-        Number of section marker or formatting issues found.
+    Returns:
+        Number of section-marker and formatting issues found.
 
     """
     try:
@@ -126,12 +126,12 @@ def run_check(filename: Path, file_type: FileTypes) -> int:
         msg = f"{filename.as_posix()}: markers are not in the correct order."
         print(msg, file=sys.stderr)
 
-    if file_type in ["src.c", "src.h"]:
+    if file_type in {"src.c", "src.h"}:
         # check the file, then this exception is obvious
         if filename == Path("src/app/application/config/battery_system_cfg.h"):
             return err
         try:
-            # laster marker is for unit tests
+            # last marker is for unit tests
             unit_test_define = txt_lines.index(TYPES[file_type][-1]) + 1
         except ValueError:
             err += 1
@@ -161,7 +161,7 @@ def check_src(files: Sequence[Path]) -> int:
     Args:
         files: Iterable of file paths to check.
 
-    Return:
+    Returns:
         Total number of issues found across all files.
 
     """
@@ -184,7 +184,7 @@ def check_test(files: Sequence[Path]) -> int:
     Args:
         files: Iterable of file paths to check.
 
-    Return:
+    Returns:
         Total number of issues found across all files.
 
     """
@@ -207,7 +207,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     Args:
         argv: Optional sequence of command-line arguments.
 
-    Return:
+    Returns:
         Exit code (0 if all files are correct, >0 otherwise).
 
     """
@@ -221,7 +221,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)
     files = [Path(i) for i in args.files]
-    return globals()[f"check_{args.file_type}"](files=files)
+    checks = {"src": check_src, "test": check_test}
+    return checks[args.file_type](files=files)
 
 
 if __name__ == "__main__":

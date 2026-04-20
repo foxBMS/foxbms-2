@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,22 +40,45 @@
 """Implementation of the DataHandlerFactory class to create a CSVHandler object and return it."""
 
 import sys
+from pathlib import Path
+
+from yaml import YAMLError
 
 from ...helpers.click_helpers import recho
+from ...helpers.config import read_config
 from .csv_handler import CSVHandler
 from .data_handler_factory_interface import DataHandlerFactoryInterface
 from .data_source_types import DataSourceTypes
+from .parquet_handler import PARQUETHandler
 
 
 class DataHandlerFactory(DataHandlerFactoryInterface):  # pylint: disable=too-few-public-methods
-    """Class that implements the interface DataHandlerFactory"""
+    """A factory creating the needed data handler objects."""
 
-    def get_object(self, handler: DataSourceTypes, config: dict) -> CSVHandler:
-        """Creates a DataHandler object if handler_type is 'CSV'"""
+    def get_object(
+        self, handler: DataSourceTypes, config: Path | None
+    ) -> CSVHandler | PARQUETHandler:
+        """Creates a DataHandler object if handler_type is 'CSV' or 'PARQUET'"""
         match handler:
             case DataSourceTypes.CSV:
-                CSVHandler.validate_config(config)
-                return CSVHandler(config["columns"], **config["general"])
+                try:
+                    if config is None:
+                        err_msg = "No data configuration provided."
+                        raise FileNotFoundError(err_msg)
+                    csv_config = read_config(config)
+                except (
+                    UnicodeDecodeError,
+                    YAMLError,
+                    FileNotFoundError,
+                    TypeError,
+                    OSError,
+                ) as err:
+                    recho(f"Problematic configuration file {config}: {err}")
+                    sys.exit(1)
+                CSVHandler.validate_config(csv_config)
+                return CSVHandler(csv_config["columns"], **csv_config["general"])
+            case DataSourceTypes.PARQUET:
+                return PARQUETHandler()
             case _:
                 recho("Data source type not known")
                 sys.exit(1)

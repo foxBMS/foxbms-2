@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,6 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore selectmode
+
 """Implements the 'build' frame"""
 
 import tkinter as tk
@@ -47,8 +49,15 @@ from threading import Thread
 from tkinter import ttk
 from typing import TextIO
 
-from ...cmd_build.build_impl import run_top_level_waf
-from ...helpers.misc import PROJECT_BUILD_ROOT, file_name_from_current_time
+from ...helpers.misc import (
+    PROJECT_BUILD_ROOT,
+    ROOT_IS_PROJECT,
+    file_name_from_current_time,
+)
+from ...helpers.package_helpers import check_project
+
+if ROOT_IS_PROJECT:
+    from ...cmd_build.build_impl import run_top_level_waf
 
 
 @dataclass
@@ -63,26 +72,28 @@ class Command:
 class BuildFrame(ttk.Frame):
     """'Build' Frame"""
 
-    def __init__(self, parent, text_widget: tk.Text) -> None:
+    def __init__(self, parent: ttk.Notebook, text_widget: tk.Text) -> None:
         super().__init__(parent)
-        self.parent: ttk.Notebook = parent
+
+        self.parent = parent
         self.text = text_widget
         self.text_index: int = 0
+        self.file_path = PROJECT_BUILD_ROOT / "gui" / "output_gui_build.txt"
+        (PROJECT_BUILD_ROOT / "gui").mkdir(parents=True, exist_ok=True)
+        self.file_path.touch()
+
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
         self.build_process: Thread
         self.queue: Queue = Queue()
         self.current_command: str = ""
         self.commands: list[Command] = []
         self.reduced_commands: list[Command] = []
-        self.file_path = PROJECT_BUILD_ROOT / "output_gui_build.txt"
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
-        self.file_path.touch()
         self.file_stream: TextIO
 
         style = ttk.Style()
         style.configure("Multiline.TButton", justify="center")
-
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
 
         # Create a listbox with commands
         self.listbox = tk.Listbox(self, height=10, width=80, selectmode="single")
@@ -140,10 +151,11 @@ class BuildFrame(ttk.Frame):
         self.status_text = ttk.Label(self, text="No command has been run.")
         self.status_text.pack(in_=state_frame, side=tk.LEFT)
 
-    def generate_command_list_command_cb(self):
+    @check_project
+    def generate_command_list_command_cb(self) -> None:
         """Run 'waf --help' and use the output as the command list"""
         # pylint: disable-next=consider-using-with
-        self.file_stream = open(self.file_path, mode="w", encoding="utf-8")
+        self.file_stream = open(self.file_path, mode="w", encoding="utf-8")  # noqa: SIM115
         self.current_command = "Generate Command List"
         self.command_list_button.state(["disabled"])
         self.run_button.state(["disabled"])
@@ -157,7 +169,8 @@ class BuildFrame(ttk.Frame):
 
         self.build_process = Thread(
             target=lambda args, stdout, stderr: self.queue.put(
-                run_top_level_waf(args=args, stdout=stdout, stderr=stderr)
+                # Decorator prevents function from being executed if it is not available
+                run_top_level_waf(args=args, stdout=stdout, stderr=stderr)  # pylint: disable=possibly-used-before-assignment
             ),
             kwargs={
                 "args": ["--help", "--color=no"],
@@ -169,6 +182,7 @@ class BuildFrame(ttk.Frame):
         self.build_process.start()
         self.check_thread()
 
+    @check_project
     def run_command_cb(self) -> None:
         """Run the provided build command"""
         self.text_index = 0
@@ -177,13 +191,14 @@ class BuildFrame(ttk.Frame):
         self.text.config(state="disabled")
         self.run_button.state(["disabled"])
         # pylint: disable-next=consider-using-with
-        self.file_stream = open(self.file_path, mode="w", encoding="utf-8")
+        self.file_stream = open(self.file_path, mode="w", encoding="utf-8")  # noqa: SIM115
         command = self.listbox.curselection()[0]
         self.current_command = self.reduced_commands[command].name
         self.canvas.itemconfig(self.oval, fill="darkgrey")
         self.status_text.config(text=f"Running command: {self.current_command}")
         self.build_process = Thread(
             target=lambda args, stdout, stderr: self.queue.put(
+                # Decorator prevents function from being executed if it is not available
                 run_top_level_waf(args=args, stdout=stdout, stderr=stderr)
             ),
             kwargs={
@@ -239,20 +254,6 @@ class BuildFrame(ttk.Frame):
             '{gui_dir / f"{self.current_command}_{timestamp}.txt"}'."""
         )
 
-    def write_text(self) -> None:
-        """Writes the file content in the text box"""
-        if self != self.parent.nametowidget(self.parent.select()):
-            return
-        self.text.config(state="normal")
-        with open(self.file_path, encoding="utf-8", errors="ignore") as f:
-            file_content = f.read()
-            text_length = len(file_content)
-            self.text.insert(tk.END, file_content[self.text_index :])
-            if text_length > 0:
-                self.text_index = text_length
-            self.text.see(tk.END)
-        self.text.config(state="disabled")
-
     def generate_command_list(self) -> None:
         """Generates the command list from the output of 'waf --help'"""
         with open(self.file_path, encoding="utf-8") as f:
@@ -275,6 +276,20 @@ class BuildFrame(ttk.Frame):
         self.reduced_commands.clear()
 
         for command in self.commands:
-            if searched_command.lower() in command.name.lower():  # pylint: disable=no-member
+            if searched_command.lower() in command.name.lower():
                 self.listbox.insert(tk.END, f"{command.name}  ({command.help})")
                 self.reduced_commands.append(command)
+
+    def write_text(self) -> None:
+        """Writes the file content in the text box"""
+        if self != self.parent.nametowidget(self.parent.select()):
+            return
+        self.text.config(state="normal")
+        with open(self.file_path, encoding="utf-8", errors="ignore") as f:
+            file_content = f.read()
+            text_length = len(file_content)
+            self.text.insert(tk.END, file_content[self.text_index :])
+            if text_length > 0:
+                self.text_index = text_length
+            self.text.see(tk.END)
+        self.text.config(state="disabled")

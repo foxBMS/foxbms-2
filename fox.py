@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,7 +42,8 @@
 root.
 The wrapper ensures that the fox.py wrapper is run as expected, i.e.,
 - correct Python version
-- from the expected cwd"""
+- from the expected cwd
+"""
 
 import sys
 
@@ -66,7 +67,7 @@ if Path.cwd() != expected_cwd:
 from cli.cli import main  # noqa: E402 pylint: disable=wrong-import-position
 
 
-def wrapper():
+def wrapper() -> None:
     """Wrapper script to call the cli application"""
     main.main()
 

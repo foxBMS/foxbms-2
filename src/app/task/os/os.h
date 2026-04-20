@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__OS_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 
 #include "fstd_types.h"
 
@@ -63,11 +64,13 @@
 #include <stdbool.h>
 /* clang-format on */
 
-#if defined(FOXBMS_USES_FREERTOS)
+#if defined(FOXBMS_RTOS_FREERTOS)
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "semphr.h"
 #define OS_TASK_HANDLE          TaskHandle_t
 #define OS_QUEUE                QueueHandle_t
+#define OS_SEMAPHORE_HANDLE     SemaphoreHandle_t
 #define OS_IDLE_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE) /**< stack size of the idle task */
 #define OS_TICK_RATE_MS         (portTICK_RATE_MS)         /**< FreeRTOS name of the tick rate */
 #ifndef OS_ENABLE_CACHE
@@ -106,6 +109,8 @@ typedef enum {
 /**
  * @brief   typedef for thread priority. The higher the value, the higher the
  *          priority.
+ * @attention This enum is duplicated in FreeRTOSConfig.h to use the same definitions in FreeRTOS.
+ *            This has to be kept synchronized with this version.
  */
 typedef enum {
     OS_PRIORITY_IDLE,           /**< priority: idle (lowest)      */
@@ -497,17 +502,71 @@ extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void);
 extern OS_TIMER_s OS_GetOsTimer(void);
 
 /**
+ * @brief Sends a direct to task notification to a particular target task.
+ *
+ * @param taskToNotify The handle of the task being notified.
+ *
+ * @return xTaskNotifyGive() is a macro that calls xTaskNotify() with the
+ * eAction parameter set to eIncrement - so pdPASS is always returned.
+ */
+extern uint32_t OS_NotifyGive(TaskHandle_t taskToNotify);
+
+/**
  * @brief Counting version of #OS_NotifyFromIsr
  *
- * @param xTaskToNotify The handle of the RTOS task being notified, and having its notification value incremented.
- * @param *pxHigherPriorityTaskWoken must be initialised to 0.
- *        vTaskNotifyGiveFromISR() will set *pxHigherPriorityTaskWoken to pdTRUE if sending the notification caused a
+ * @param taskToNotify The handle of the RTOS task being notified, and having its notification value incremented.
+ * @param *pHigherPriorityTaskWoken must be initialised to 0.
+ *        vTaskNotifyGiveFromISR() will set *pHigherPriorityTaskWoken to pdTRUE if sending the notification caused a
  *        task to unblock, and the unblocked task has a priority higher than the currently running task.
  *        If vTaskNotifyGiveFromISR() sets this value to pdTRUE then a context switch should be requested before the
  *        interrupt is exited.
- *        pxHigherPriorityTaskWoken is an optional parameter and can be set to NULL.
+ *        pHigherPriorityTaskWoken is an optional parameter and can be set to NULL.
  */
-extern void OS_TaskNotifyGiveFromISR(TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPriorityTaskWoken);
+extern void OS_NotifyGiveFromIsr(TaskHandle_t taskToNotify, BaseType_t *pHigherPriorityTaskWoken);
+
+/**
+ * @brief Waits for a direct to task notification on a particular index in the calling
+ *        task's notification array in a manner similar to taking a counting semaphore.
+ *
+ * @param clearCountOnExit  can either clear the task?s notification value to zero on exit,
+ *        in which case the notification value acts like a binary semaphore,
+ *        or decrement the task?s notification value on exit,
+ *        in which case the notification value acts more like a counting semaphore.
+ * @param ticksToWait The maximum time to wait in the Blocked state for a notification to be received if a
+ *        notification is not already pending when #OS_NotifyTake() is called.
+ *
+ * @return The task's notification count before it is either cleared to zero or
+ *         decremented (see the xClearCountOnExit parameter).
+ */
+extern uint32_t OS_NotifyTake(BaseType_t clearCountOnExit, TickType_t ticksToWait);
+
+/**
+ * @brief Release a previously acquired semaphore
+ *
+ * @param xSemaphore A handle to the semaphore being released.
+ */
+extern void OS_SemaphoreGive(OS_SEMAPHORE_HANDLE xSemaphore);
+
+/**
+ * @brief Release a previously acquired semaphore during an ISR
+ *
+ * @param xSemaphore A handle to the semaphore being released.
+ * @param pxHigherPriorityTaskWoken Indicates whether a context switch is
+ *        required or not.
+ */
+extern void OS_SemaphoreGiveFromIsr(OS_SEMAPHORE_HANDLE xSemaphore, BaseType_t *const pxHigherPriorityTaskWoken);
+
+/**
+ * @brief Acquired a semaphore
+ *
+ * @param xSemaphore A handle to the semaphore being acquired.
+ * @param ticksToWait The maximum time in ticks to wait in the Blocked state
+ *        for the semaphore to become available.
+ *
+ * @return OS_SUCCESS if the semaphore was acquired. OS_FAIL if ticksToWait
+ *         expired without the semaphore becoming available.
+ */
+extern OS_STD_RETURN_e OS_SemaphoreTake(OS_SEMAPHORE_HANDLE xSemaphore, TickType_t ticksToWait);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

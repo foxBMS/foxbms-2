@@ -1,0 +1,16 @@
+   C:\Users\vulpes\Documents\foxbms>waf build_app_embedded
+   Waf: Entering directory C:\Users\vulpes\Documents\foxbms\build\app_embedded'
+   [  2/824] Compiling hcg_compiler: ...
+   Waf: Leaving directory C:\Users\vulpes\Documents\foxbms\build\app_embedded'
+   Build failed
+   Traceback (most recent call last):
+     File "C:\Users\vulpes\Documents\foxbms\tools\waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033\waflib\Task.py", line 180, in process
+       ret=self.run()
+     File "C:\Users\vulpes\Documents\foxbms\tools\waf-tools\f_hcg.py", line 260, in run
+       "The auto-generated file 'HL_sys_startup.c' has changed due to "
+     File "C:\Users\vulpes\Documents\foxbms\tools\waf3-2.1.6-6a38d8c49406d2fef32d6f6600c8f033\waflib\Context.py", line 261, in fatal
+       raise self.errors.ConfigurationError(msg,ex=ex)
+   waflib.Errors.ConfigurationError: The auto-generated file 'HL_sys_startup.c' has changed due to a configuration change in the HALCoGen project.
+   The expected hash is b'e2e61496edd65f44d7cc811b504ad1f2' but the generated hash is b'1something-other'.
+   Compare 'C:\Users\vulpes\Documents\foxbms\build\app_embedded\src\hal\source\HL_sys_startup.c' with 'fstartup.c' and see if changes need to be applied to to 'fstartup.c'. If everything is changed as needed, updated the hash in 'C:\Users\vulpes\Documents\foxbms\src\hal\app-startup.hash' and build again.
+   For more information see the documentation.

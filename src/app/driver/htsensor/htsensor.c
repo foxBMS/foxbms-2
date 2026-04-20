@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  HTSEN
  *
@@ -107,7 +107,7 @@
 
 /**
  * Definition of single measurement command
- * data sheet February 2019 - Version 6, table 9, page 10
+ * datasheet February 2019 - Version 6, table 9, page 10
  *
  * Clock stretching can be used to let sensor tell that the measurement
  * is not finished by pulling the clock low

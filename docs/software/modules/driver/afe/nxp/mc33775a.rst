@@ -6,6 +6,9 @@
 NXP MC33775A
 ============
 
+..
+   cspell:ignore BALEN
+
 Description
 -----------
 

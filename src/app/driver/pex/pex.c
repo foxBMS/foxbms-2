@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pex.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  PEX
  *
@@ -179,7 +179,7 @@ static STD_RETURN_TYPE_e PEX_ReadInputs(void) {
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         /*
          * Input Port 0 as address, next read register will be Input Port 1
-         * data sheet: Rev. 9 - 8 November 2017
+         * datasheet: Rev. 9 - 8 November 2017
          * "After the first byte is read, additional bytes may be read but
          * the data will now reflect the information in the other register in the pair.
          * For example, if you read Input port 1, then the next byte read would be Input port 0."
@@ -204,7 +204,7 @@ static STD_RETURN_TYPE_e PEX_WriteOutputs(void) {
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         /**
          * Out-port Port 0 as address, next read register will be Output Port 1
-         * data sheet: Rev. 9 - 8 November 2017
+         * datasheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
         pex_i2cDataWrite[0u]             = PEX_OUTPUT_PORT0_REGISTER_ADDRESS;
@@ -223,7 +223,7 @@ static STD_RETURN_TYPE_e PEX_WriteConfigPolarity(void) {
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         /**
          * Inversion Polarity Port 0 as address, next read register will be Inversion Polarity Port 1
-         * data sheet: Rev. 9 - 8 November 2017
+         * datasheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
         pex_i2cDataWrite[0u]             = PEX_POL_INVERSION_PORT0_REGISTER_ADDRESS;
@@ -242,7 +242,7 @@ static STD_RETURN_TYPE_e PEX_WriteConfigDirection(void) {
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         /**
          * Direction Port 0 as address, next read register will be Direction
-         * Port 1 data sheet: Rev. 9 - 8 November 2017
+         * Port 1 datasheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
         pex_i2cDataWrite[0u]             = PEX_DIRECTION_PORT0_REGISTER_ADDRESS;
@@ -281,7 +281,7 @@ static void PEX_GetFromLocalVariable(void) {
 /*========== Extern Function Implementations ================================*/
 
 /**
- * In the data sheet, pins are grouped in two sets, numbered from 00 to 07 and from 10 to 17.
+ * In the datasheet, pins are grouped in two sets, numbered from 00 to 07 and from 10 to 17.
  * Each set is handled by a separate register, so pin 00 is numbered 0, pin 01 is numbered 01, ..,
  * pin 07 is numbered 07. But also pin 10 is numbered 0, pin 11 is numbered 01, .., pin 17 is numbered 07.
  * Using defines from 0 to 15, it is possible to get with pin number which register has to be addressed:
@@ -290,19 +290,19 @@ static void PEX_GetFromLocalVariable(void) {
  */
 extern void PEX_Initialize(void) {
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
-        /** Default state of output registers data sheet: Rev. 9 - 8 November 2017, Table 7 and 8 */
+        /** Default state of output registers datasheet: Rev. 9 - 8 November 2017, Table 7 and 8 */
         pex_outputPort0[i]      = PEX_DEFAULT_VALUE_ALL_1;
         pex_outputPort1[i]      = PEX_DEFAULT_VALUE_ALL_1;
         pex_outputPort0Local[i] = PEX_DEFAULT_VALUE_ALL_1;
         pex_outputPort1Local[i] = PEX_DEFAULT_VALUE_ALL_1;
         /**
-         * Default state of polarity inversion registers data sheet: Rev. 9 - 8 November 2017, Table 9 and 10
+         * Default state of polarity inversion registers datasheet: Rev. 9 - 8 November 2017, Table 9 and 10
          */
         pex_configPolarityPort0[i]      = PEX_DEFAULT_VALUE_ALL_0;
         pex_configPolarityPort1[i]      = PEX_DEFAULT_VALUE_ALL_0;
         pex_configPolarityPort0Local[i] = PEX_DEFAULT_VALUE_ALL_0;
         pex_configPolarityPort1Local[i] = PEX_DEFAULT_VALUE_ALL_0;
-        /** Default state of direction registers data sheet: Rev. 9 - 8 November 2017, Table 11 and 12 */
+        /** Default state of direction registers datasheet: Rev. 9 - 8 November 2017, Table 11 and 12 */
         pex_configDirectionPort0[i]      = PEX_DEFAULT_VALUE_ALL_1;
         pex_configDirectionPort1[i]      = PEX_DEFAULT_VALUE_ALL_1;
         pex_configDirectionPort0Local[i] = PEX_DEFAULT_VALUE_ALL_1;

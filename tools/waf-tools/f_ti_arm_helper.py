@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,7 +38,8 @@
 # - "This product is derived from foxBMS®"
 
 """A tool to write the ARM CGT compiler builtin defines (based on the given
-flags) into a separate file"""
+flags) into a separate file
+"""
 
 import os
 import traceback
@@ -69,7 +70,7 @@ def run_build_for_defines(self, *_, **kw):
     _dir = (
         self.bldnode.abspath()
         + os.sep
-        + (not Utils.is_win32 and "." or "")
+        + ((not Utils.is_win32 and ".") or "")
         + kw["out_name"]
     )
 
@@ -81,7 +82,7 @@ def run_build_for_defines(self, *_, **kw):
     try:
         os.stat(_dir)
     except OSError:
-        self.fatal(f"cannot use the configuration test folder {_dir}")
+        self.fatal(f"cannot use the configuration test directory {_dir}")
 
     bdir = os.path.join(_dir, "build")
 
@@ -164,10 +165,9 @@ def get_defines(self, *k, **kw):
         (ret, out_dir) = self.run_build_for_defines(*k, **kw)
     except self.errors.ConfigurationError:
         self.end_msg(kw["errmsg"], "YELLOW", **kw)
-        if Logs.verbose > 1:  # pylint: disable=no-else-raise
+        if Logs.verbose > 1:
             raise
-        else:
-            self.fatal("The configuration failed")
+        self.fatal("The configuration failed")
     else:
         defines_file = os.path.join(
             out_dir, kw["compile_filename"] + "." + str(kw["idx"]) + ".ppm"

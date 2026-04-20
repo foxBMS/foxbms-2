@@ -9,4 +9,4 @@
   ``docs/general/license-tables/license-info_ti-code-composer-studio.csv``.
 - |snippet_changelog_entry|
 - |snippet_commit|
-  ``Dependency update: <XXXX>/Q<Y>: Texas Instruments Code Composer Studio <version number>``.
+  ``Update dependency: <XXXX>/Q<Y>: Texas Instruments Code Composer Studio <version number>``.

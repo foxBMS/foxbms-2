@@ -28,7 +28,7 @@ for the bootloader.
 
 There is a new Python environment ``2025-01-pale-fox``.
 This environment contains updates for all packages and adds some new packages,
-that are needed for :ref:`FOX_PY`.
+that are needed for ``fox CLI``.
 
 .. note::
 

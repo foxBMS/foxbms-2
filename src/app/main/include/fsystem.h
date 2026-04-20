@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  FSYS
  *
@@ -133,6 +133,16 @@ static inline void FSYS_SwitchToUserMode(void) {
 
 #else
 #define FSYS_SwitchToUserMode()
+#endif
+
+/**
+ * @brief   Yield from an ISR.
+ * @details This macro is used to yield from an ISR when x is != pdFALSE.
+ */
+#ifdef UNITY_UNIT_TEST
+#define FSYS_PORT_YIELD_FROM_ISR(x)
+#else
+#define FSYS_PORT_YIELD_FROM_ISR(x) portYIELD_FROM_ISR(x)
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/

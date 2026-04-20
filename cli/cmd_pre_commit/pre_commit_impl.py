@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,9 @@ from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 
-def run_pre_commit(args: list[str], stderr=None, stdout=None) -> SubprocessResult:
+def run_pre_commit(
+    args: list[str], stderr: int | None = None, stdout: int | None = None
+) -> SubprocessResult:
     """Run the waf binary with the provided arguments."""
     cmd = ["pre-commit"] + args
-    err = run_process(cmd, cwd=PROJECT_ROOT, stdout=stdout, stderr=stderr)
-    return err
+    return run_process(cmd, cwd=PROJECT_ROOT, stdout=stdout, stderr=stderr)

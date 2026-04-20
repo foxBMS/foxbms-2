@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,7 +40,9 @@
 """Implements the 'bootloader' frame"""
 
 import tkinter as tk
+from pathlib import Path
 from threading import Thread
+from tkinter import filedialog as fd
 from tkinter import ttk
 from typing import TextIO
 
@@ -49,43 +51,153 @@ from click import exceptions
 
 from ...commands.c_bootloader import cmd_load_app
 from ...helpers import fcan, io
-from ...helpers.misc import PROJECT_BUILD_ROOT
+from ...helpers.misc import (
+    APP_DBC_FILE,
+    BOOTLOADER_DBC_FILE,
+    FOXBMS_APP_CRC_FILE,
+    FOXBMS_APP_INFO_FILE,
+    FOXBMS_BIN_FILE,
+    PROJECT_BUILD_ROOT,
+)
 
 
 # pylint: disable-next=too-many-instance-attributes, too-many-ancestors
 class BootloaderFrame(ttk.Frame):
     """'Bootloader' Frame"""
 
-    def __init__(self, parent, text_widget: tk.Text) -> None:
+    def __init__(self, parent: ttk.Notebook, text_widget: tk.Text) -> None:
         super().__init__(parent)
-        self.parent: ttk.Notebook = parent
+        self.parent = parent
         self.text = text_widget
         self.text_index: int = 0
         self.bootloader_process: Thread
-        self.file_path = PROJECT_BUILD_ROOT / "output_gui_bootloader.txt"
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        self.file_path = PROJECT_BUILD_ROOT / "gui" / "output_gui_bootloader.txt"
+        (PROJECT_BUILD_ROOT / "gui").mkdir(parents=True, exist_ok=True)
         self.file_path.touch()
         self.file_stream: TextIO
 
         self.columnconfigure(0, weight=1)
+        self.rowconfigure(2, weight=1)
 
-        # Create Frame for input information
-        bus_frame = ttk.Labelframe(
-            self, text="Can Bus Configuration", padding=(10, 7, 10, 7)
+        # Create Frame for File Path input information
+        file_frame = ttk.Labelframe(
+            self, text="File Path Configuration", padding=(10, 5)
         )
-        bus_frame.grid(column=0, row=0, pady=(15, 5))
+        file_frame.grid(
+            column=0, columnspan=2, row=0, pady=(10, 5), padx=10, sticky="news"
+        )
+        file_frame.columnconfigure(1, weight=1)
+
+        bootloader_dbc_label = ttk.Label(self, text="Bootloader DBC file", width=25)
+        bootloader_dbc_label.grid(
+            in_=file_frame, column=0, row=0, pady=(0, 5), sticky="news"
+        )
+
+        self.bootloader_dbc_entry = ttk.Entry(self, width=30)
+        self.bootloader_dbc_entry.grid(
+            in_=file_frame, column=1, row=0, pady=(0, 5), sticky="news"
+        )
+        if BOOTLOADER_DBC_FILE.is_file():
+            self.bootloader_dbc_entry.insert(tk.END, str(BOOTLOADER_DBC_FILE))
+
+        bootloader_dbc_button = ttk.Button(
+            self,
+            text="Choose file",
+            command=lambda: self.open_file_cb("dbc", self.bootloader_dbc_entry),
+        )
+        bootloader_dbc_button.grid(
+            in_=file_frame, column=2, row=0, pady=(0, 5), sticky="news"
+        )
+
+        app_dbc_label = ttk.Label(self, text="App DBC file", width=25)
+        app_dbc_label.grid(in_=file_frame, column=0, row=1, pady=5, sticky="news")
+
+        self.app_dbc_entry = ttk.Entry(self, width=30)
+        self.app_dbc_entry.grid(in_=file_frame, column=1, row=1, pady=5, sticky="news")
+        if APP_DBC_FILE.is_file():
+            self.app_dbc_entry.insert(tk.END, str(APP_DBC_FILE))
+
+        app_dbc_button = ttk.Button(
+            self,
+            text="Choose file",
+            command=lambda: self.open_file_cb("dbc", self.app_dbc_entry),
+        )
+        app_dbc_button.grid(in_=file_frame, column=2, row=1, pady=5, sticky="news")
+
+        foxbms_bin_label = ttk.Label(self, text="foxBMS binary file", width=25)
+        foxbms_bin_label.grid(in_=file_frame, column=0, row=2, pady=5, sticky="news")
+
+        self.foxbms_bin_entry = ttk.Entry(self, width=30)
+        self.foxbms_bin_entry.grid(
+            in_=file_frame, column=1, row=2, pady=5, sticky="news"
+        )
+        if FOXBMS_BIN_FILE.is_file():
+            self.foxbms_bin_entry.insert(tk.END, str(FOXBMS_BIN_FILE))
+
+        foxbms_bin_button = ttk.Button(
+            self,
+            text="Choose file",
+            command=lambda: self.open_file_cb("bin", self.foxbms_bin_entry),
+        )
+        foxbms_bin_button.grid(in_=file_frame, column=2, row=2, pady=5, sticky="news")
+
+        foxbms_crc_csv_label = ttk.Label(self, text="foxBMS CRC CSV file", width=25)
+        foxbms_crc_csv_label.grid(
+            in_=file_frame, column=0, row=3, pady=5, sticky="news"
+        )
+
+        self.foxbms_crc_csv_entry = ttk.Entry(self, width=30)
+        self.foxbms_crc_csv_entry.grid(
+            in_=file_frame, column=1, row=3, pady=5, sticky="news"
+        )
+        if FOXBMS_APP_CRC_FILE.is_file():
+            self.foxbms_crc_csv_entry.insert(tk.END, str(FOXBMS_APP_CRC_FILE))
+
+        foxbms_crc_csv_button = ttk.Button(
+            self,
+            text="Choose file",
+            command=lambda: self.open_file_cb("csv", self.foxbms_crc_csv_entry),
+        )
+        foxbms_crc_csv_button.grid(
+            in_=file_frame, column=2, row=3, pady=5, sticky="news"
+        )
+
+        foxbms_crc_json_label = ttk.Label(self, text="foxBMS CRC JSON file", width=25)
+        foxbms_crc_json_label.grid(
+            in_=file_frame, column=0, row=4, pady=5, sticky="news"
+        )
+
+        self.foxbms_crc_json_entry = ttk.Entry(self, width=30)
+        self.foxbms_crc_json_entry.grid(
+            in_=file_frame, column=1, row=4, pady=5, sticky="news"
+        )
+        if FOXBMS_APP_INFO_FILE.is_file():
+            self.foxbms_crc_json_entry.insert(tk.END, str(FOXBMS_APP_INFO_FILE))
+
+        foxbms_crc_json_button = ttk.Button(
+            self,
+            text="Choose file",
+            command=lambda: self.open_file_cb("json", self.foxbms_crc_json_entry),
+        )
+        foxbms_crc_json_button.grid(
+            in_=file_frame, column=2, row=4, pady=5, sticky="news"
+        )
+
+        # Create Frame for Can Bus Configuration input information
+        bus_frame = ttk.Labelframe(self, text="Can Bus Configuration", padding=(10, 5))
+        bus_frame.grid(column=0, row=1, pady=(10, 5), padx=10)
         bus_frame.columnconfigure(1, weight=1)
 
         bus_interface_label = ttk.Label(self, text="Interface", width=15)
         bus_interface_label.grid(
-            in_=bus_frame, column=0, row=0, pady=(5, 5), sticky="news"
+            in_=bus_frame, column=0, row=0, pady=(0, 5), sticky="news"
         )
 
         self.bus_interface_combobox = ttk.Combobox(
-            self, width=30, values=fcan.SUPPORTED_INTERFACES
+            self, width=40, values=fcan.SUPPORTED_INTERFACES
         )
         self.bus_interface_combobox.grid(
-            in_=bus_frame, column=1, row=0, pady=(5, 5), sticky="news"
+            in_=bus_frame, column=1, row=0, pady=(0, 5), sticky="news"
         )
         self.bus_interface_combobox.bind(
             "<<ComboboxSelected>>", self.change_interface_cb
@@ -93,37 +205,33 @@ class BootloaderFrame(ttk.Frame):
         self.bus_interface_combobox.current(0)
 
         bus_channel_label = ttk.Label(self, text="Channel", width=15)
-        bus_channel_label.grid(
-            in_=bus_frame, column=0, row=1, pady=(5, 5), sticky="news"
-        )
+        bus_channel_label.grid(in_=bus_frame, column=0, row=1, pady=5, sticky="news")
         self.bus_channel_combobox = ttk.Combobox(
             self,
-            width=30,
+            width=40,
             values=[
                 str(i)
                 for i in fcan.SUPPORTED_CHANNELS[self.bus_interface_combobox.get()]
             ],
         )
         self.bus_channel_combobox.grid(
-            in_=bus_frame, column=1, row=1, pady=(5, 5), sticky="news"
+            in_=bus_frame, column=1, row=1, pady=5, sticky="news"
         )
         self.bus_channel_combobox.current(0)
 
         bus_bitrate_label = ttk.Label(self, text="Bitrate", width=15)
-        bus_bitrate_label.grid(
-            in_=bus_frame, column=0, row=2, pady=(5, 5), sticky="news"
-        )
+        bus_bitrate_label.grid(in_=bus_frame, column=0, row=2, pady=5, sticky="news")
         self.bus_bitrate_combobox = ttk.Combobox(
-            self, width=30, values=fcan.VALID_BIT_RATES
+            self, width=40, values=fcan.VALID_BIT_RATES
         )
         self.bus_bitrate_combobox.grid(
-            in_=bus_frame, column=1, row=2, pady=(5, 5), sticky="news"
+            in_=bus_frame, column=1, row=2, pady=5, sticky="news"
         )
         self.bus_bitrate_combobox.current(0)
 
         # Create Frame for Buttons
         button_frame = ttk.Frame(self)
-        button_frame.grid(column=0, row=1, pady=(10, 0))
+        button_frame.grid(column=0, row=2, pady=(5, 10), sticky="ns")
         button_frame.columnconfigure(0, weight=1)
         button_frame.rowconfigure(0, weight=1)
         # Create Button to run load-app
@@ -132,7 +240,15 @@ class BootloaderFrame(ttk.Frame):
         )
         self.load_app_button.grid(in_=button_frame, column=0, row=0)
 
-    def change_interface_cb(self, event) -> None:
+    def open_file_cb(self, file_type: str, entry_object: ttk.Entry) -> None:
+        """Open filedialog and print it in TextBox"""
+        file_path = fd.askopenfilename(
+            filetypes=[(f"{file_type.upper()} Files", f"*.{file_type}")]
+        )
+        entry_object.delete(0, tk.END)
+        entry_object.insert(tk.END, file_path)
+
+    def change_interface_cb(self, event: tk.Event) -> None:
         """Select the corresponding channel to the interface if possible"""
         bus_interface = self.bus_interface_combobox.get()
         if bus_interface in fcan.DEFAULT_CHANNELS:
@@ -154,9 +270,15 @@ class BootloaderFrame(ttk.Frame):
         bus_interface = self.bus_interface_combobox.get().strip()
         bus_bitrate = self.bus_bitrate_combobox.get().strip()
         bus_timeout = None
+        bootloader_dbc_file = self.bootloader_dbc_entry.get().strip()
+        app_dbc_file = self.app_dbc_entry.get().strip()
+        foxbms_bin_file = self.foxbms_bin_entry.get().strip()
+        foxbms_crc_csv_file = self.foxbms_crc_csv_entry.get().strip()
+        foxbms_crc_json_file = self.foxbms_crc_json_entry.get().strip()
         self.file_path.write_text("Started the load process\n")
+        # handle is closed in 'check_thread'
         # pylint: disable-next=consider-using-with
-        self.file_stream = open(self.file_path, mode="a", encoding="utf-8")
+        self.file_stream = open(self.file_path, mode="a", encoding="utf-8")  # noqa: SIM115
         io.STDERR = self.file_stream
         io.STDOUT = self.file_stream
         self.bootloader_process = Thread(
@@ -166,24 +288,48 @@ class BootloaderFrame(ttk.Frame):
                 "channel": bus_channel,
                 "timeout": bus_timeout,
                 "bitrate": bus_bitrate,
+                "bootloader_dbc": bootloader_dbc_file,
+                "app_dbc": app_dbc_file,
+                "foxbms_bin": foxbms_bin_file,
+                "foxbms_app_crc": foxbms_crc_csv_file,
+                "foxbms_app_info": foxbms_crc_json_file,
             },
             daemon=True,
         )
         self.bootloader_process.start()
         self.check_thread()
 
-    # pylint: disable-next=useless-return
-    def run_load_app(self, timeout, interface, channel, bitrate) -> None:
+    def run_load_app(  # noqa: PLR0913
+        self,
+        timeout: float,
+        interface: str,
+        channel: str,
+        bitrate: int,
+        bootloader_dbc: Path,
+        app_dbc: Path,
+        foxbms_bin: Path,
+        foxbms_app_crc: Path,
+        foxbms_app_info: Path,
+    ) -> None:
         """Run load_app"""
         try:
-            kwargs = {"interface": interface, "channel": channel, "bitrate": bitrate}
+            kwargs = {
+                "interface": interface,
+                "channel": channel,
+                "bitrate": bitrate,
+                "bootloader_dbc": bootloader_dbc,
+                "app_dbc": app_dbc,
+                "foxbms_bin": foxbms_bin,
+                "foxbms_app_crc": foxbms_app_crc,
+                "foxbms_app_info": foxbms_app_info,
+            }
             if timeout is not None:
                 kwargs["timeout"] = timeout
             context = click.Context(cmd_load_app)
             context.invoke(cmd_load_app, **kwargs)
         except exceptions.Exit as e:
             if e.exit_code == 0:
-                return
+                pass
 
     def check_thread(self) -> None:
         """If the provided thread is not alive the button is activated"""

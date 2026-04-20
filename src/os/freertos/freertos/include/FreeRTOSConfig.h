@@ -37,6 +37,30 @@
 #define configCPU_CLOCK_HZ    ( ( unsigned portLONG ) HALCOGEN_CPU_CLOCK_HZ )                      /* Timer clock. */
 
 /******************************************************************************/
+/* Priority definition **********************************/
+/******************************************************************************/
+
+/**
+ * @brief   typedef for thread priority. The higher the value, the higher the
+ *          priority.
+ * @attention This enum is duplicated in os.h to use the same definitions in FreeRTOS.
+ *            This has to be kept synchronized with this version.
+ */
+typedef enum
+{
+    PRIORITY_IDLE,           /**< priority: idle (lowest)      */
+    PRIORITY_LOW,            /**< priority: low                */
+    PRIORITY_BELOW_NORMAL,   /**< priority: below normal       */
+    PRIORITY_NORMAL,         /**< priority: normal (default)   */
+    PRIORITY_ABOVE_NORMAL,   /**< priority: above normal       */
+    PRIORITY_HIGH,           /**< priority: high               */
+    PRIORITY_ABOVE_HIGH,     /**< priority: above high         */
+    PRIORITY_VERY_HIGH,      /**< priority: very high          */
+    PRIORITY_BELOW_REALTIME, /**< priority: below realtime     */
+    PRIORITY_REAL_TIME,      /**< priority: realtime (highest) */
+} PRIORITY_e;
+
+/******************************************************************************/
 /* Scheduling behaviour related definitions. **********************************/
 /******************************************************************************/
 
@@ -45,7 +69,7 @@
 #define configUSE_TIME_SLICING                     ( 0 )
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    ( 1 )
 #define configUSE_TICKLESS_IDLE                    ( 1 )
-#define configMAX_PRIORITIES                       ( 15 )
+#define configMAX_PRIORITIES                       ( PRIORITY_REAL_TIME + 1 )
 #define configMINIMAL_STACK_SIZE                   ( ( unsigned portSHORT ) 200 )
 #define configMAX_TASK_NAME_LEN                    ( 40 )
 #define configTICK_TYPE_WIDTH_IN_BITS              TICK_TYPE_WIDTH_32_BITS
@@ -76,7 +100,7 @@
 
 #define configSUPPORT_STATIC_ALLOCATION     ( 1 )
 #define configSUPPORT_DYNAMIC_ALLOCATION    ( 1 )
-#define configTOTAL_HEAP_SIZE               ( ( size_t ) 2 * 1024 )
+#define configTOTAL_HEAP_SIZE               ( ( size_t ) 40 * 1024 )
 #define configAPPLICATION_ALLOCATED_HEAP    ( 0 )
 
 /******************************************************************************/
@@ -89,7 +113,7 @@
 
 #define configUSE_IDLE_HOOK               ( 1 )
 #define configUSE_TICK_HOOK               ( 0 )
-#define configUSE_MALLOC_FAILED_HOOK      ( 0 )
+#define configUSE_MALLOC_FAILED_HOOK      ( 1 )
 #define configCHECK_FOR_STACK_OVERFLOW    ( 2 )
 
 /******************************************************************************/

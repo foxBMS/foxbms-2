@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,17 +45,17 @@ from tkinter import ttk
 from ...helpers.misc import PROJECT_BUILD_ROOT
 
 
-# pylint: disable-next=too-many-ancestors,too-many-instance-attributes
+# pylint: disable-next=too-many-ancestors
 class EmbeddedUtFrame(ttk.Frame):
     """'Embedded Unit Tests' frame"""
 
-    def __init__(self, parent, text_widget: tk.Text) -> None:
+    def __init__(self, parent: ttk.Notebook, text_widget: tk.Text) -> None:
         super().__init__(parent)
-        self.parent: ttk.Notebook = parent
+        self.parent = parent
         self.text = text_widget
         self.text_index: int = 0
-        self.file_path = PROJECT_BUILD_ROOT / "output_gui_ut.txt"
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        self.file_path = PROJECT_BUILD_ROOT / "gui" / "output_gui_ut.txt"
+        (PROJECT_BUILD_ROOT / "gui").mkdir(parents=True, exist_ok=True)
         self.file_path.touch()
 
     def write_text(self) -> None:

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -102,7 +102,7 @@ static void MXM_5XClearCommandBuffer(MXM_5X_INSTANCE_s *pInstance);
 /**
  * @brief   Check if a register address is user accessible
  * @details Checks if a register address is inside the user accessible memory
- *          range. This range is specified in the data sheet of the monitoring
+ *          range. This range is specified in the datasheet of the monitoring
  *          IC as following:
  *              - user memory is contained in the range 0x00 to 0x98
  *              - reserved addresses in the user address space are:
@@ -119,7 +119,7 @@ static STD_RETURN_TYPE_e MXM_5XIsUserAccessibleRegister(uint8_t regAddress, MXM_
  * @brief   Check if a register address is user accessible in MAX17852
  * @details Checks if a register address is inside the user accessible memory
  *          range.
- *          This range is specified in the data sheet of the monitoring IC.
+ *          This range is specified in the datasheet of the monitoring IC.
  * @param[in]   regAddress register address to be checked
  * @return      #STD_OK if the register address is good, otherwise #STD_NOT_OK
  */
@@ -129,7 +129,7 @@ static STD_RETURN_TYPE_e MXM_52IsUserAccessibleRegister(uint8_t regAddress);
  * @brief   Check if a register address is user accessible in MAX17853
  * @details Checks if a register address is inside the user accessible memory
  *          range.
- *          This range is specified in the data sheet of the monitoring IC as
+ *          This range is specified in the datasheet of the monitoring IC as
  *          the following:
  *              - user memory is contained in the range 0x00 to 0x98
  *              - reserved addresses in the user address space are:

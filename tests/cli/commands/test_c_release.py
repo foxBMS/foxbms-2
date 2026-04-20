@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,23 +48,38 @@ from click.testing import CliRunner
 
 try:
     from cli.cli import main
-    from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cli import main
-    from cli.helpers.spr import SubprocessResult
 
 
 class TestFoxCliMainCommandRelease(unittest.TestCase):
     """Test of the 'release' commands and options."""
 
-    @patch("cli.commands.c_release.release_impl")
-    def test_release(self, mock_release_impl: MagicMock):
+    def test_release(self):
         """Test 'fox.py release' command."""
-        mock_release_impl.dummy.return_value = SubprocessResult(0, "", "")
         runner = CliRunner()
         result = runner.invoke(main, ["release"])
         self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_release.release_impl")
+    def test_release_update_version(self, mock_release_impl: MagicMock):
+        """Test 'fox.py release update-version' command."""
+        mock_release_impl.update_version.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(
+            main, ["release", "update-version", "--from", "x.y.z", "--to", "1.2.3"]
+        )
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_release.release_impl")
+    def test_release_update_version_fails(self, mock_release_impl: MagicMock):
+        """Test release update-version argument validation failure passthrough."""
+        mock_release_impl.update_version.side_effect = ValueError("some error")
+        runner = CliRunner()
+        result = runner.invoke(main, ["release", "update-version", "--to", "1.2.3"])
+        self.assertEqual(1, result.exit_code)
+        self.assertIn("Error: some error", result.output)
 
 
 if __name__ == "__main__":

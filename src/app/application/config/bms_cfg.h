@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bms_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  BMS
  *
@@ -62,6 +62,13 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+
+/** Monitoring options for the precharging process */
+typedef enum {
+    BS_PRECHARGE_MONITOR_CURRENT,             /*!< Battery current */
+    BS_PRECHARGE_MONITOR_VOLTAGE,             /*!< Difference between DC link and battery voltage */
+    BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE, /*!< Battery current and difference between DC link and battery voltage */
+} BS_PRECHARGE_MONITORING_e;
 
 /** ID to send a message without request */
 #define BMS_REQ_ID_NOREQ (0u)
@@ -100,19 +107,19 @@
  * @brief   BMS state machine short time definition in #BMS_Trigger() calls
  *          until next state/substate is processed
  */
-#define BMS_STATEMACH_SHORTTIME (1u)
+#define BMS_FSM_SHORTTIME (1u)
 
 /**
  * @brief   BMS state machine medium time definition in #BMS_Trigger() calls
  *          until next state/substate is processed
  */
-#define BMS_STATEMACH_MEDIUM_TIME (5u)
+#define BMS_FSM_MEDIUM_TIME (5u)
 
 /**
  * @brief   BMS state machine long time definition in #BMS_Trigger() calls until
  *          next state/substate is processed
  */
-#define BMS_STATEMACH_LONGTIME (10u)
+#define BMS_FSM_LONGTIME (10u)
 
 /** Time in #BMS_Trigger() calls to wait after closing any string minus or string plus contactor */
 #define BMS_WAIT_TIME_AFTER_CLOSING_STRING_CONTACTOR (20u)
@@ -144,9 +151,6 @@
 /** Max average string current to allow closing next string */
 #define BMS_AVERAGE_STRING_CURRENT_LIMIT_MA (20000)
 
-/** Delay after closing precharge in #BMS_Trigger() calls */
-#define BMS_TIME_WAIT_AFTER_CLOSING_PRECHARGE (200u)
-
 /** Delay after opening precharge in #BMS_Trigger() calls */
 #define BMS_TIME_WAIT_AFTER_OPENING_PRECHARGE (50u)
 
@@ -163,6 +167,15 @@
  */
 #define BMS_OSCILLATION_TIMEOUT (1000u)
 
+/** Selector which parameters are used to monitor the precharge process.
+ *  Possible options are:
+ *  - Monitor battery current (current below #BMS_PRECHARGE_CURRENT_THRESHOLD_mA)
+ *  - Monitor DC link voltage (difference between battery voltage and DC link
+ *    voltage below #BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV)
+ *  - Monitor battery current and DC link voltage
+ */
+#define BMS_PRECHARGE_MONITORING_PARAMETERS (BS_PRECHARGE_MONITOR_CURRENT_AND_VOLTAGE)
+
 /** Number of allowed tries to close contactors */
 #define BMS_PRECHARGE_TRIES (3u)
 
@@ -172,11 +185,15 @@
 /** Precharge threshold limit on current (in mA) */
 #define BMS_PRECHARGE_CURRENT_THRESHOLD_mA (50) /* mA */
 
+/** Precharge timeout: Maximum duration for the precharging process after
+ *  request to close precharge contactor has been made. */
+#define BMS_MAXIMUM_PRECHARGE_DURATION_ms (2000u)
+
 /**
  * @details Time to wait after contactors opened because precharge failed in
  *          #BMS_Trigger() calls
  */
-#define BMS_STATEMACH_TIME_UNTIL_PRECHARGE_FAIL (100u)
+#define BMS_FSM_TIME_UNTIL_PRECHARGE_FAIL (100u)
 
 /**
  * @details Timeout in #BMS_Trigger() calls when closing precharge after which

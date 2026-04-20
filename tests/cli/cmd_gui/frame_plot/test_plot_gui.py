@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +40,11 @@
 """Testing file 'cli/cmd_gui/frame_plot/plot_gui.py'."""
 
 import os
+import shutil
 import sys
 import tkinter as tk
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from queue import Queue
 from unittest.mock import MagicMock, patch
@@ -58,6 +60,7 @@ except ModuleNotFoundError:
     from cli.helpers.spr import SubprocessResult
 
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "plot_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
@@ -65,6 +68,9 @@ class TestPlotFrame(unittest.TestCase):
     """Test of the PlotFrame class"""
 
     def setUp(self):
+        plot_gui.ROOT_IS_PROJECT = True
+        self.start_time = datetime.now(tz=UTC)
+        plot_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
@@ -75,9 +81,8 @@ class TestPlotFrame(unittest.TestCase):
         self.root.destroy()
         if hasattr(self.frame, "file_stream"):
             self.frame.file_stream.close()
-        file_output = Path(PROJECT_BUILD_ROOT / "output_gui_plot.txt")
-        if file_output.exists():
-            file_output.unlink()
+        plot_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
+        remove_data(self.start_time)
 
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.after")
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
@@ -95,7 +100,8 @@ class TestPlotFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
     def test_check_thread_success(self, mock_write_text: MagicMock):
         """Test 'check_thread' function
-        when the Thread is not alive and plotting was successful"""
+        when the Thread is not alive and plotting was successful
+        """
         self.frame.plot_process = MagicMock()
         self.frame.plot_process.is_alive.return_value = False
         self.frame.queue.put(SubprocessResult(returncode=0))
@@ -113,7 +119,8 @@ class TestPlotFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
     def test_check_thread_failure(self, mock_write_text: MagicMock):
         """Test 'check_thread' function
-        when the Thread is not alive and plotting not successful"""
+        when the Thread is not alive and plotting not successful
+        """
         self.frame.plot_process = MagicMock()
         self.frame.plot_process.is_alive.return_value = False
         self.frame.queue.put(SubprocessResult(returncode=1))
@@ -131,7 +138,8 @@ class TestPlotFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
     def test_check_thread_empty(self, mock_write_text: MagicMock):
         """Test 'check_thread' function
-        when the Thread is not alive but the queue is empty"""
+        when the Thread is not alive but the queue is empty
+        """
         self.frame.plot_process = MagicMock()
         self.frame.plot_process.is_alive.return_value = False
         self.frame.file_stream = open(  # pylint: disable=consider-using-with
@@ -159,7 +167,8 @@ class TestPlotFrame(unittest.TestCase):
         mock_write_text: MagicMock,
     ):
         """Test 'run_command_cb' function
-        when all input is correct"""
+        when all input is correct
+        """
         mock_is_file.return_value = True
         mock_is_dir.return_value = True
         self.frame.plot_command_cb()
@@ -170,14 +179,39 @@ class TestPlotFrame(unittest.TestCase):
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.check_thread")
     @patch("cli.cmd_gui.frame_plot.plot_gui.Thread")
-    def test_plot_command_cb_no_file(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+    @patch("pathlib.Path.is_file")
+    @patch("pathlib.Path.is_dir")
+    def test_plot_command_cb_no_project(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+        self,
+        mock_is_dir: MagicMock,
+        mock_is_file: MagicMock,
+        mock_thread: MagicMock,
+        mock_check_thread: MagicMock,
+        mock_write_text: MagicMock,
+    ):
+        """Test 'run_command_cb' function when ROOT_IS_PROJECT is False and
+        when all input is correct
+        """
+        plot_gui.ROOT_IS_PROJECT = False
+        mock_is_file.return_value = True
+        mock_is_dir.return_value = True
+        self.frame.plot_command_cb()
+        mock_thread.return_value.start.assert_called_once()
+        mock_check_thread.assert_called_once()
+        mock_write_text.assert_called_once_with("Plotting the given graphs\n")
+
+    @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
+    @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.check_thread")
+    @patch("cli.cmd_gui.frame_plot.plot_gui.Thread")
+    def test_plot_command_cb_no_file(
         self,
         mock_thread: MagicMock,
         mock_check_thread: MagicMock,
         mock_write_text: MagicMock,
     ):
         """Test 'run_command_cb' function
-        when an input is not a file"""
+        when an input is not a file
+        """
         self.frame.tab_plot.data_config_entry.delete(0, tk.END)
         self.frame.tab_plot.plot_config_entry.delete(0, tk.END)
         self.frame.tab_plot.data_source_entry.delete(0, tk.END)
@@ -193,13 +227,12 @@ class TestPlotFrame(unittest.TestCase):
 
     @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
     @patch("cli.cmd_gui.frame_plot.plot_gui.Path.mkdir")
-    def test_plot_command_cb_no_dir(  # pylint: disable=too-many-arguments, too-many-positional-arguments
-        self,
-        mock_mkdir: MagicMock,
-        mock_write_text: MagicMock,
+    def test_plot_command_cb_no_dir(
+        self, mock_mkdir: MagicMock, mock_write_text: MagicMock
     ):
         """Test 'run_command_cb' function
-        when an input is not a file"""
+        when an input is not a file
+        """
         self.frame.tab_plot.data_config_entry.delete(0, tk.END)
         self.frame.tab_plot.plot_config_entry.delete(0, tk.END)
         self.frame.tab_plot.data_source_entry.delete(0, tk.END)
@@ -212,12 +245,37 @@ class TestPlotFrame(unittest.TestCase):
         mock_mkdir.assert_called_once()
         self.assertEqual(str(self.frame.plot_button["state"]), "normal")
         self.assertEqual(
-            f"{PROJECT_BUILD_ROOT / 'plot'}",
+            f"{PATH_GUI / 'plot'}",
             self.frame.tab_plot.output_entry.get().strip(),
         )
         mock_write_text.assert_called_once_with(
-            f"Output directory has been set to '{PROJECT_BUILD_ROOT / 'plot'}'\n"
+            f"Output directory has been set to '{PATH_GUI / 'plot'}'\n"
         )
+
+    @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.write_text")
+    @patch("cli.cmd_gui.frame_plot.plot_gui.PlotFrame.check_thread")
+    @patch("cli.cmd_gui.frame_plot.plot_gui.Thread")
+    @patch("pathlib.Path.is_file")
+    @patch("pathlib.Path.is_dir")
+    def test_plot_command_cb_parquet(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+        self,
+        mock_is_dir: MagicMock,
+        mock_is_file: MagicMock,
+        mock_thread: MagicMock,
+        mock_check_thread: MagicMock,
+        mock_write_text: MagicMock,
+    ):
+        """Test 'run_command_cb' function
+        when data type is set to PARQUET and no data config is given
+        """
+        mock_is_file.return_value = True
+        mock_is_dir.return_value = True
+        self.frame.tab_plot.data_type_entry.set("PARQUET")
+        self.frame.tab_plot.data_config_entry.delete(0, tk.END)
+        self.frame.plot_command_cb()
+        mock_thread.return_value.start.assert_called_once()
+        mock_check_thread.assert_called_once()
+        mock_write_text.assert_called_once_with("Plotting the given graphs\n")
 
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
@@ -246,7 +304,7 @@ class TestPlotFrame(unittest.TestCase):
         self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
         self.assertEqual(0, self.frame.text_index)
 
-    def test_write_text_input(self):
+    def test_write_text_string(self):
         """Test 'write_text' function when a string is passed"""
         self.frame.parent = MagicMock()
         self.frame.parent.nametowidget.return_value = self.frame
@@ -260,12 +318,12 @@ class TestPlotFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the PlotFrame class"""
 
     def setUp(self):
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        plot_gui.ROOT_IS_PROJECT = True
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        for file_path in PROJECT_BUILD_ROOT.glob("output_plot_*"):
-            if file_path.suffix == ".txt" and file_path.exists():
-                file_path.unlink()
+        remove_data(self.start_time)
 
     def test_check_thread_alive(self):
         """Test 'check_thread' function when the Thread is still alive"""
@@ -279,7 +337,8 @@ class TestPlotFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_success(self):
         """Test 'check_thread' function
-        when the Thread is not alive and plotting was successful"""
+        when the Thread is not alive and plotting was successful
+        """
         mock_plot_frame = MagicMock()
         mock_plot_frame.plot_process.is_alive = MagicMock()
         mock_plot_frame.plot_process.is_alive.return_value = False
@@ -294,7 +353,8 @@ class TestPlotFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_failure(self):
         """Test 'check_thread' function
-        when the Thread is not alive and plotting not successful"""
+        when the Thread is not alive and plotting not successful
+        """
         mock_plot_frame = MagicMock()
         mock_plot_frame.plot_process.is_alive = MagicMock()
         mock_plot_frame.plot_process.is_alive.return_value = False
@@ -311,7 +371,8 @@ class TestPlotFrameNoUiTestableMethods(unittest.TestCase):
 
     def test_check_thread_empty(self):
         """Test 'check_thread' function
-        when the Thread is not alive but the queue is empty"""
+        when the Thread is not alive but the queue is empty
+        """
         mock_plot_frame = MagicMock()
         mock_plot_frame.plot_process.is_alive = MagicMock()
         mock_plot_frame.plot_process.is_alive.return_value = False
@@ -333,7 +394,27 @@ class TestPlotFrameNoUiTestableMethods(unittest.TestCase):
         mock_is_file.return_value = True
         mock_is_dir.return_value = True
         mock_plot_frame = MagicMock()
-        mock_plot_frame.file_path = Path(PROJECT_BUILD_ROOT / "output_plot_command.txt")
+        mock_plot_frame.file_path = Path(PATH_GUI / "output_plot_command.txt")
+        mock_plot_frame.file_path.touch()
+        plot_gui.PlotFrame.plot_command_cb(mock_plot_frame)
+        mock_plot_frame.file_stream.close()
+        mock_plot_frame.plot_button.state.assert_called_once_with(["disabled"])
+        mock_plot_frame.check_thread.assert_called_once()
+        mock_thread.return_value.start.assert_called_once()
+        mock_plot_frame.check_thread.assert_called_once()
+
+    @patch("cli.cmd_gui.frame_plot.plot_gui.Thread")
+    @patch("pathlib.Path.is_file")
+    @patch("pathlib.Path.is_dir")
+    def test_plot_command_cb_no_project(
+        self, mock_is_dir: MagicMock, mock_is_file: MagicMock, mock_thread: MagicMock
+    ):
+        """Test 'run_command_cb' function when not in the foxBMS repository"""
+        plot_gui.ROOT_IS_PROJECT = False
+        mock_is_file.return_value = True
+        mock_is_dir.return_value = True
+        mock_plot_frame = MagicMock()
+        mock_plot_frame.file_path = Path(PATH_GUI / "output_plot_command.txt")
         mock_plot_frame.file_path.touch()
         plot_gui.PlotFrame.plot_command_cb(mock_plot_frame)
         mock_plot_frame.file_stream.close()
@@ -345,41 +426,56 @@ class TestPlotFrameNoUiTestableMethods(unittest.TestCase):
     def test_write_text_empty(self):
         """Test 'write_text' function when the file is empty"""
         mock_plot_frame = MagicMock()
-        mock_plot_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_plot_write_text_empty.txt"
-        )
+        mock_plot_frame.parent.nametowidget.return_value = mock_plot_frame  # pylint: disable=no-member,useless-suppression
+        mock_plot_frame.file_path = Path(PATH_GUI / "output_plot_write_text_empty.txt")
         mock_plot_frame.file_path.touch()
-        mock_plot_frame.text = MagicMock()
         mock_plot_frame.text_index = 0
-        mock_plot_frame.parent.nametowidget.return_value = mock_plot_frame
         plot_gui.PlotFrame.write_text(mock_plot_frame)
         self.assertEqual(mock_plot_frame.text_index, 0)
 
     def test_write_text(self):
         """Test 'write_text' function when the file is not empty"""
         mock_plot_frame = MagicMock()
-        mock_plot_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_plot_write_text.txt"
-        )
+        mock_plot_frame.parent.nametowidget.return_value = mock_plot_frame  # pylint: disable=no-member,useless-suppression
+        mock_plot_frame.file_path = Path(PATH_GUI / "output_plot_write_text.txt")
         mock_plot_frame.file_path.write_text("New content.", encoding="utf-8")
-        mock_plot_frame.text = MagicMock()
         mock_plot_frame.text_index = 0
-        mock_plot_frame.parent.nametowidget.return_value = mock_plot_frame
         plot_gui.PlotFrame.write_text(mock_plot_frame)
         self.assertEqual(mock_plot_frame.text_index, 12)
 
     def test_write_text_string(self):
         """Test 'write_text' function when a string is passed"""
         mock_plot_frame = MagicMock()
-        mock_plot_frame.file_path = Path(
-            PROJECT_BUILD_ROOT / "output_plot_write_text_string.txt"
-        )
+        mock_plot_frame.parent.nametowidget.return_value = mock_plot_frame  # pylint: disable=no-member,useless-suppression
+        mock_plot_frame.file_path = Path(PATH_GUI / "output_plot_write_text_string.txt")
         mock_plot_frame.file_path.touch()
-        mock_plot_frame.text = MagicMock()
         mock_plot_frame.text_index = 0
-        mock_plot_frame.parent.nametowidget.return_value = mock_plot_frame
         plot_gui.PlotFrame.write_text(mock_plot_frame, "New content.")
         self.assertEqual(mock_plot_frame.text_index, 12)
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = list(PATH_GUI.iterdir())
+            for child in children:
+                if get_birthtime(child) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

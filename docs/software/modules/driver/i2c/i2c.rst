@@ -18,7 +18,7 @@ Driver
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/can/test_i2c.c``
+- ``tests/unit/app/driver/i2c/test_i2c.c``
 
 Detailed Description
 --------------------
@@ -106,12 +106,12 @@ Task running the functions with DMA
 As the DMA functions are non blocking, the synchronization must be taken care
 of.
 A specific task has been implemented for the communication with |I2C| devices.
-It runs continuously like the AFE task.
+It runs continuously like the |afe-task|.
 At the end of the DMA function, the task will be blocked, waiting for
 a notification.
 The notification is made in the DMA complete interrupt: the task then wakes up.
 If the notification does not come within ``I2C_NOTIFICATION_TIMEOUT_ms``
 milliseconds, the task is unblocked and the I2C communication is declared to
 have failed.
-To leave CPU time for the other tasks, the |I2C| task should be blocked for at
-least 1 millisecond after each |I2C| transaction.
+To leave CPU time for the other tasks, the |i2c-task| should be blocked for at
+least 1 |ms| after each |I2C| transaction.

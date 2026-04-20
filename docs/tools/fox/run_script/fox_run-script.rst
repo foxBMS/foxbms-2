@@ -7,3 +7,5 @@ run-script
 
 Usage
 -----
+
+.. include:: ./../../../../build/docs/fox_run-script_help.txt

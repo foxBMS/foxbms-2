@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,17 +37,23 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""This file implement the can module (CanInterface) to communicate with
-bootloader in a higher level."""
+"""Implement CAN-based bootloader communication.
 
-import logging
+This module defines the CAN-based implementation of the bootloader interface
+used to communicate with the bootloader on a higher abstraction level.
+It builds on the low-level CAN basics to send commands, transfer program
+metadata and data, and receive acknowledgements from the bootloader.
+"""
+
 import time
 from enum import Enum
+from pathlib import Path
 from typing import cast
 
 from can import BusABC
 
-from ..helpers.misc import APP_DBC_FILE
+from ..helpers.logger import logger
+from ..helpers.misc import APP_DBC_FILE, BOOTLOADER_DBC_FILE
 from .bootloader import BootloaderInterface
 from .bootloader_can_basics import BootloaderCanBasics
 from .bootloader_can_messages import (
@@ -62,31 +68,49 @@ from .bootloader_can_messages import (
 
 
 class BootloaderInterfaceCan(BootloaderInterface):
-    """
-    This class implements all CAN relevant functions and can be used to wait "
-    or receive specified messages on CAN bus.
+    """Implement CAN-specific bootloader interface for higher-level operations.
+
+    This class provides all CAN-related functions required to interact with
+    the bootloader. It wraps low-level CAN messaging to send commands,
+    wait for and receive specific messages on the CAN bus, and control the
+    transfer and validation of application data.
     """
 
-    def __init__(self, can_bus: BusABC) -> None:
+    def __init__(
+        self,
+        can_bus: BusABC,
+        app_dbc: Path = APP_DBC_FILE,
+        bootloader_dbc: Path = BOOTLOADER_DBC_FILE,
+    ) -> None:
         """Init function.
 
         Args:
             can_bus: CAN bus object
         """
-        self.can = BootloaderCanBasics(can_bus=can_bus)
+        self.app_dbc = app_dbc
+        self.can = BootloaderCanBasics(can_bus=can_bus, dbc_file=bootloader_dbc)
 
     def send_crc(
         self, crc_8_bytes: int, is_crc_of_vector_table: bool = False
     ) -> tuple[bool, bool]:
-        """Send crc signature to bootloader and get the feedback from bootloader.
+        """Send CRC signature to the bootloader and evaluate its acknowledgement.
+
+        This method transmits an 8-byte CRC value to the bootloader and waits
+        for the corresponding acknowledgement message. It can handle CRCs for
+        both regular data sectors and the vector table, depending on the
+        `is_crc_of_vector_table` flag.
 
         Args:
-            crc_8_bytes: maximal 0xffffffffffffffff.
-            is_crc_of_vector_table: True if it is the crc of vector table.
+            crc_8_bytes: CRC value as a 64-bit integer.
+            is_crc_of_vector_table: True if the CRC belongs to the vector
+                table, False if it belongs to a regular data sector.
 
         Returns:
-            True, if a ACK message has been received.
-            True, if the YesNoFlag is "Yes".
+            A tuple (is_ack_received, is_crc_valid) where:
+                - is_ack_received is True if an ACK message has been received,
+                  False otherwise.
+                - is_crc_valid is True if the ACK indicates a valid CRC
+                  (YesNoFlag == "Yes"), False otherwise.
         """
         self.can.send_crc_to_bootloader(crc_8_bytes)
         if is_crc_of_vector_table:
@@ -100,13 +124,13 @@ class BootloaderInterfaceCan(BootloaderInterface):
                 AcknowledgeMessage.Received8BytesCrc, timeout_total=120, timeout_ack=30
             )
         if not ack_crc_msg:
-            logging.error("Cannot receive ACK message.")
+            logger.error("Cannot receive ACK message.")
             return False, False
         is_crc_valid = ack_crc_msg["Response"] == "Yes"
         if is_crc_valid:
-            logging.debug("Successfully send 8 bytes crc to bootloader.")
+            logger.debug("Successfully send 8 bytes crc to bootloader.")
         else:
-            logging.debug("The validation for this sector failed.")
+            logger.debug("The validation for this sector failed.")
         return True, is_crc_valid
 
     def send_program_info(
@@ -123,7 +147,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
         Returns:
             True if bootloader has received info, False otherwise.
         """
-        logging.debug("Start sending program info to bootloader ...")
+        logger.debug("Start sending program info to bootloader ...")
         self.can.send_transfer_program_info_to_bootloader(
             len_of_program_in_bytes=len_of_program_in_bytes,
             num_of_transfer_loops=num_of_transfer_loops,
@@ -131,13 +155,13 @@ class BootloaderInterfaceCan(BootloaderInterface):
 
         msg = self.can.wait_can_ack_msg(AcknowledgeMessage.ReceivedProgramInfo)
         if not msg:
-            logging.error(
+            logger.error(
                 "Cannot receive the ACK message containing 'ReceivedAndProcessed'."
             )
             return False
 
         if msg["Response"] != YesNoFlag.Yes.name:
-            logging.error(
+            logger.error(
                 "The program info is not valid, check if the program length "
                 "is larger than the maximum and/or if the "
                 "num_of_transfer_loops is correct."
@@ -146,11 +170,11 @@ class BootloaderInterfaceCan(BootloaderInterface):
 
         can_fsm_state, _ = self.get_bootloader_state()
         if can_fsm_state != CanFsmState.CanFsmStateWaitForDataLoops.name:
-            logging.error(
+            logger.error(
                 "Cannot change the state of CAN module to wait for data loops."
             )
             return False
-        logging.debug("Successfully start the transfer process on bootloader.")
+        logger.debug("Successfully start the transfer process on bootloader.")
         return True
 
     def send_loop_number_to_bootloader(self, num_of_loop: int) -> None:
@@ -191,7 +215,6 @@ class BootloaderInterfaceCan(BootloaderInterface):
         Returns:
             acknowledged message from bootloader
         """
-
         return self.can.wait_can_ack_msg(
             acknowledge_msg=acknowledge_msg,
             timeout_total=timeout_total,
@@ -206,25 +229,25 @@ class BootloaderInterfaceCan(BootloaderInterface):
            True if the bootloader has successfully started the process, False
            otherwise.
         """
-        logging.debug(
+        logger.debug(
             "Send request to start CAN communication to transfer the program..."
         )
         self.can.send_request_to_bootloader(BootloaderAction.CmdToTransferProgram)
         if not self.can.wait_can_ack_msg(
             AcknowledgeMessage.ReceivedCmdToTransferProgram
         ):
-            logging.error(
+            logger.error(
                 "Cannot receive the ACK message to start transferring the program."
             )
             return False
         can_fsm_state, _ = self.get_bootloader_state()
         if can_fsm_state != CanFsmState.CanFsmStateWaitForInfo.name:
-            logging.error(
+            logger.error(
                 "Cannot set the CAN FSM state of the bootloader to %s.",
                 CanFsmState.CanFsmStateWaitForInfo.name,
             )
             return False
-        logging.debug("Successfully started the transfer process on the bootloader.")
+        logger.debug("Successfully started the transfer process on the bootloader.")
         return True
 
     def reset_bootloader(
@@ -239,7 +262,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             True if the bootloader has been successfully reset, False
             otherwise.
         """
-        logging.debug("Sending request to bootloader to reset boot process ...")
+        logger.debug("Sending request to bootloader to reset boot process ...")
         self.can.send_request_to_bootloader(BootloaderAction.CmdToResetBootProcess)
         if not self.can.wait_can_ack_msg(
             AcknowledgeMessage.ReceivedCmdToResetBootProcess,
@@ -247,7 +270,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             timeout_total=10,
             timeout_ack=1,
         ):
-            logging.error("Cannot receive ACK message to reset boot process.")
+            logger.error("Cannot receive ACK message to reset boot process.")
             return False
         time.sleep(time_to_wait)
 
@@ -257,7 +280,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
                 break
             time.sleep(1)
 
-        logging.debug(
+        logger.debug(
             "can_fsm_state: %s, boot_fsm_state: %s", can_fsm_state, boot_fsm_state
         )
         current_num_of_loops = self.get_current_num_of_loops()
@@ -266,9 +289,9 @@ class BootloaderInterfaceCan(BootloaderInterface):
             or (boot_fsm_state != BootFsmState.BootFsmStateWait.name)
             or (current_num_of_loops != 0)
         ):
-            logging.error("Bootloader cannot be successfully reset.")
+            logger.error("Bootloader cannot be successfully reset.")
             return False
-        logging.debug("Successfully resetted bootloader.")
+        logger.debug("Successfully resetted bootloader.")
         return True
 
     def run_app_on_bootloader(self) -> bool:
@@ -279,13 +302,13 @@ class BootloaderInterfaceCan(BootloaderInterface):
             True if the application has been started successfully,
             False otherwise.
         """
-        logging.info("Sending request to run application...")
+        logger.info("Sending request to run application...")
         self.can.send_request_to_bootloader(BootloaderAction.CmdToRunProgram)
         if not self.can.wait_can_ack_msg(
             AcknowledgeMessage.ReceivedCmdToRunProgram,
             processed_level=StatusCode.ReceivedAndInProcessing,
         ):
-            logging.error("Did not receive ACK message to run application.")
+            logger.error("Did not receive ACK message to run application.")
             return False
         # Check if there is validated program available
         msg_ack = self.can.wait_can_ack_msg(
@@ -295,30 +318,30 @@ class BootloaderInterfaceCan(BootloaderInterface):
             processed_level=StatusCode.ReceivedAndProcessed,
         )
         if not msg_ack:
-            logging.error(
+            logger.error(
                 "Did not receive ACK message with program availability message.\n"
                 "There might be no application program available on the BMS-Master."
             )
             return False
 
         if msg_ack["Response"] != YesNoFlag.Yes.name:
-            logging.error("There is no valid program available on the BMS.")
+            logger.error("There is no valid program available on the BMS.")
             return False
 
-        logging.info(
+        logger.info(
             "There is a validated program available on the BMS-Master.\n"
             "Jumping into application..."
         )
         time.sleep(2)
-        logging.info(
+        logger.info(
             "Successfully informed bootloader to run the BMS application.\n"
             "Checking if the application is running..."
         )
         bms_state = self.get_foxbms_state()
         if not bms_state:
-            logging.error("Could not jump into the application.")
+            logger.error("Could not jump into the application.")
             return False
-        logging.info(
+        logger.info(
             "Successfully jumped into the application. foxBMS status: %s ",
             bms_state,
         )
@@ -334,7 +357,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
         bms_state = None
         msg = self.can.wait_can_message(
             arbitration_id=0x220,
-            dbc_file=APP_DBC_FILE,
+            dbc_file=self.app_dbc,
             timeout_total=0.05,
             timeout_bus_recv=0.001,
         )
@@ -348,17 +371,17 @@ class BootloaderInterfaceCan(BootloaderInterface):
         Returns:
             CanFsmState, BootFsmState.
         """
-        logging.debug("Sending request to bootloader to get bootloader states...")
+        logger.debug("Sending request to bootloader to get bootloader states...")
         self.can.send_request_to_bootloader(BootloaderAction.CmdToGetBootloaderInfo)
         msg_bootloader_fsm_states = self.can.wait_bootloader_state_msg()
         if msg_bootloader_fsm_states:
             can_fsm_state = msg_bootloader_fsm_states["CanFsmState"]
             boot_fsm_state = msg_bootloader_fsm_states["BootFsmState"]
-            logging.debug(
+            logger.debug(
                 "can_fsm_state: %s, boot_fsm_state: %s", can_fsm_state, boot_fsm_state
             )
             return can_fsm_state, boot_fsm_state
-        logging.error("Can not get the state of bootloader.")
+        logger.error("Can not get the state of bootloader.")
         return None, None
 
     def get_current_num_of_loops(self) -> int | None:
@@ -367,14 +390,14 @@ class BootloaderInterfaceCan(BootloaderInterface):
         Returns:
             The current number of data transfer loops on bootloader.
         """
-        logging.debug("Sending request to bootloader to ask for number of loops...")
+        logger.debug("Sending request to bootloader to ask for number of loops...")
         self.can.send_request_to_bootloader(BootloaderAction.CmdToGetDataTransferInfo)
         msg_data_transfer_info = self.can.wait_data_transfer_info_msg()
         if msg_data_transfer_info:
             current_num_of_loops = msg_data_transfer_info["CurrentLoopNumber"]
-            logging.debug("current_num_of_loops: %d", current_num_of_loops)
+            logger.debug("current_num_of_loops: %d", current_num_of_loops)
             return current_num_of_loops
-        logging.error(
+        logger.error(
             "Can not get the current number of data transfer loops of bootloader."
         )
 
@@ -387,7 +410,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             Current version number (MajorVersionNumber, MinorVersionNumber,
             PatchVersionNumber) of the bootloader.
         """
-        logging.debug("Sending request to bootloader to ask for the version number...")
+        logger.debug("Sending request to bootloader to ask for the version number...")
         self.can.send_request_to_bootloader(BootloaderAction.CmdToGetVersionInfo)
 
         msg_bootloader_version_info = self.can.wait_bootloader_version_info_msg()
@@ -397,7 +420,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             minor_version_number = msg_bootloader_version_info["MinorVersionNumber"]
             patch_version_number = msg_bootloader_version_info["PatchVersionNumber"]
 
-            logging.debug(
+            logger.debug(
                 "The version number of bootloader: %d.%d.%d",
                 major_version_number,
                 minor_version_number,
@@ -405,7 +428,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             )
             return major_version_number, minor_version_number, patch_version_number
 
-        logging.error(
+        logger.error(
             "Can not get the current number of data transfer loops of bootloader."
         )
         return None, None, None

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x_mux.c
  * @author  foxBMS Team
  * @date    2025-02-21 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -114,7 +114,7 @@ extern STD_RETURN_TYPE_e N77x_SetMuxChannel(N77X_STATE_s *pState) {
      * Set data to send, contains channel bit (8 channels)
      * 1 means channel active, 0 means channel inactive
      */
-    if (pState->pMuxSequence[pState->currentString]->muxChannel == 0xFF) {
+    if (pState->pMuxSequence[pState->currentString]->muxChannel == N77X_MUX_DISABLE_VALUE) {
         /* 0xFF in mux sequence means disable all channels */
         dataI2c = 0u;
     } else {

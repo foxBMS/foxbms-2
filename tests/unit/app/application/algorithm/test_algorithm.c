@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_algorithm.c
  * @author  foxBMS Team
  * @date    2020-06-30 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -92,7 +92,7 @@ void setUp(void) {
         algo_algorithms[i].state = ALGO_UNINITIALIZED;
     }
 
-    /* relock initialization */
+    /* re-lock initialization */
     TEST_ALGO_ResetInitializationRequest();
 }
 

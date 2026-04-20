@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,53 +37,114 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the ADES1830-based 'AFE'-driver."""
-
-import os
-
 
 def build(bld):
-    """Build the ADES1830-based 'AFE'-driver."""
-    bld.recurse(os.path.join("..", "common", "ades183x"))
-    source = [
-        "adi_ades1830_balancing.c",
-        "adi_ades1830_gpio_voltages.c",
-        os.path.join("config", "adi_ades1830_cfg.c"),
-    ]
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
 
-    # only build the diagnostics objects when these are available
-    if bld.path.find_node("../common/ades183x/diag/adi_ades183x_diagnostic.c"):
+    bld.recurse("config")
+
+    have_diagnostic_sources = bld.path.ant_glob("diag/adi_ades1830_*.c")
+    if have_diagnostic_sources:
         bld.recurse("diag")
-    includes = [
-        os.path.join("..", "..", "..", "config"),
-        os.path.join("..", "..", "..", "mcu"),
-        os.path.join("..", "..", "..", "pex"),
-        os.path.join("..", "..", "..", "rtc"),
-        os.path.join("..", "..", "..", "spi"),
-        os.path.join("..", "..", "..", "ts"),
-        os.path.join("..", "..", "..", "ts", "api"),
-        os.path.join("..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "task", "ftask"),
-        os.path.join("..", "..", "..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver"
-    bld.stlib(
-        source=source,
+
+    includes = (
+        [
+            "../../../config",
+            "../../../mcu",
+            "../../../pex",
+            "../../../rtc",
+            "../../../spi",
+            "../../../ts",
+            "../../../ts/api",
+            "../../../../application/config",
+            "../../../../engine/config",
+            "../../../../engine/database",
+            "../../../../engine/diag",
+            "../../../../main/include",
+            "../../../../task/config",
+            "../../../../task/ftask",
+            "../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+
+    source = "adi_ades1830_balancing"
+    bld.objects(
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        use=[
-            f"{bld.env.APPNAME.lower()}-afe-driver-adi-ades183x-common",
-            # not existing names in 'use' are ignored
-            f"{bld.env.APPNAME.lower()}-afe-driver-adi-ades1830-diag-objects",
-            f"{bld.env.APPNAME.lower()}-afe-driver-adi-ades183x-diag-objects",
-        ],
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    source = "adi_ades1830_gpio_voltages"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    use = [
+        f"{op}adi_ades1830_balancing",
+        f"{op}adi_ades1830_cfg",
+        f"{op}adi_ades1830_gpio_voltages",
+        f"{op}adi_ades183x_afe",
+        f"{op}adi_ades183x_afe_dma",
+        f"{op}adi_ades183x_pec",
+        f"{op}adi_ades183x_cfg",
+        f"{op}adi_ades183x",
+        f"{op}adi_ades183x_buffers",
+        f"{op}adi_ades183x_commands_voltages",
+        f"{op}adi_ades183x_commands",
+        f"{op}adi_ades183x_helpers",
+        f"{op}adi_ades183x_initialization",
+        f"{op}adi_ades183x_temperatures",
+        f"{op}adi_ades183x_voltages",
+    ]
+    if have_diagnostic_sources:
+        use.extend(
+            [
+                f"{op}adi_ades1830_sm_vgpio_red",
+                f"{op}adi_ades183x_diagnostic",
+                f"{op}adi_ades183x_sm_auxregs_diag",
+                f"{op}adi_ades183x_sm_cell_owd_diag",
+                f"{op}adi_ades183x_sm_cell_owd",
+                f"{op}adi_ades183x_sm_clock_mon_diag",
+                f"{op}adi_ades183x_sm_clock_mon",
+                f"{op}adi_ades183x_sm_dietemp_oor",
+                f"{op}adi_ades183x_sm_freeze_seq",
+                f"{op}adi_ades183x_sm_iir_red",
+                f"{op}adi_ades183x_sm_nvm_ecc_diag",
+                f"{op}adi_ades183x_sm_nvm_ecc",
+                f"{op}adi_ades183x_sm_power_mon_diag",
+                f"{op}adi_ades183x_sm_power_mon",
+                f"{op}adi_ades183x_sm_power_oor",
+                f"{op}adi_ades183x_sm_sleep_ind",
+                f"{op}adi_ades183x_sm_spi_pec_diag",
+                f"{op}adi_ades183x_sm_spi_red_diag",
+                f"{op}adi_ades183x_sm_spi_red",
+                f"{op}adi_ades183x_sm_thsd_ind_diag",
+                f"{op}adi_ades183x_sm_tmod_ind_diag",
+                f"{op}adi_ades183x_sm_tmod_ind",
+                f"{op}adi_ades183x_sm_vcell_cmp_diag",
+                f"{op}adi_ades183x_sm_vcell_oor",
+                f"{op}adi_ades183x_sm_vcell_red",
+                f"{op}adi_ades183x_sm_vgpio_oor",
+                f"{op}adi_ades183x_sm_vref2_oor",
+            ]
+        )
+    else:
+        use.append(f"{op}adi_ades183x_diagnostic_w")
+
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}afe",
     )

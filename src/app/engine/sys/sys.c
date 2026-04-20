@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -84,12 +84,6 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
-
-/** Symbolic names to check for multiple calls of #SYS_Trigger() */
-typedef enum {
-    SYS_MULTIPLE_CALLS_NO,  /*!< no multiple calls, OK */
-    SYS_MULTIPLE_CALLS_YES, /*!< multiple calls, not OK */
-} SYS_CHECK_MULTIPLE_CALLS_e;
 
 /** contains the current state of the SYS machine */
 SYS_STATE_s sys_state = {
@@ -354,9 +348,9 @@ static SYS_FSM_STATES_e SYS_ProcessInitializationState(SYS_STATE_s *pSystemState
             nextState = SYS_FSM_STATE_PRE_RUNNING;
             break;
 
-        default:                  /* LCOV_EXCL_LINE */
-            FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
-            break;                /* LCOV_EXCL_LINE */
+        default:
+            FAS_ASSERT(FAS_TRAP);
+            break; /* LCOV_EXCL_LINE */
     }
     return nextState;
 }
@@ -439,14 +433,10 @@ static SYS_FSM_STATES_e SYS_ProcessPreRunningState(SYS_STATE_s *pSystemState) {
                 /* allow initialization of algorithm module */
                 ALGO_UnlockInitialization();
                 /* MEAS_RequestOpenWireCheck(); */ /*TODO: check with strings */
-#if (BS_CURRENT_SENSOR_PRESENT == true)
                 SYS_SetSubstate(pSystemState, SYS_FSM_SUBSTATE_START_CURRENT_SENSOR_PRESENCE_CHECK, SYS_FSM_SHORT_TIME);
-#else  /* BS_CURRENT_SENSOR_PRESENT is true */
-                SYS_SetSubstate(pSystemState, SYS_FSM_SUBSTATE_INITIALIZATION_MISC, SYS_FSM_SHORT_TIME);
-#endif /* BS_CURRENT_SENSOR_PRESENT is true */
             } else {
                 if (pSystemState->initializationTimeout >
-                    (SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
+                    (SYS_STATE_MACHINE_INITIALIZATION_FIRST_MEASUREMENT_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
                     pSystemState->nextSubstate = SYS_FSM_SUBSTATE_FIRST_MEAS_INITIALIZATION_ERROR;
                     nextState                  = SYS_FSM_STATE_ERROR;
                 } else {
@@ -508,15 +498,6 @@ static SYS_FSM_STATES_e SYS_ProcessPreRunningState(SYS_STATE_s *pSystemState) {
 
         /****************************INITIALIZED_MISC*************************************/
         case SYS_FSM_SUBSTATE_INITIALIZATION_MISC:
-#if (BS_CURRENT_SENSOR_PRESENT == false)
-            CAN_EnablePeriodic(true);
-            for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-                SE_InitializeSoc(false, s);
-                SE_InitializeSoe(false, s);
-                SE_InitializeSoh(s);
-            }
-#endif /* BS_CURRENT_SENSOR_PRESENT is false */
-
             pSystemState->initializationTimeout = 0u;
             SYS_SetSubstate(pSystemState, SYS_FSM_SUBSTATE_INITIALIZATION_IMD, SYS_FSM_SHORT_TIME);
             break;
@@ -543,7 +524,7 @@ static SYS_FSM_STATES_e SYS_ProcessPreRunningState(SYS_STATE_s *pSystemState) {
 
         /****************************INITIALIZE BMS*************************************/
         case SYS_FSM_SUBSTATE_START_INITIALIZATION_BMS:
-            (void)BMS_SetStateRequest(BMS_STATE_INIT_REQUEST);
+            (void)BMS_SetStateRequest(BMS_STATE_INITIALIZATION_REQUEST);
             pSystemState->initializationTimeout = 0;
             SYS_SetSubstate(pSystemState, SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BMS, SYS_FSM_SHORT_TIME);
             break;
@@ -749,8 +730,12 @@ extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState) {
     return returnValue;
 }
 
-extern SYS_FSM_STATES_e SYS_GetSystemState(SYS_STATE_s *pSystemState) {
-    return pSystemState->currentState;
+extern SYS_FSM_STATES_e SYS_GetSystemState(void) {
+    return sys_state.currentState;
+}
+
+extern SYS_FSM_SUBSTATES_e SYS_GetSystemSubstate(void) {
+    return sys_state.currentSubstate;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
@@ -761,6 +746,12 @@ STD_RETURN_TYPE_e TEST_SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
 STD_RETURN_TYPE_e TEST_SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest) {
     return SYS_CheckStateRequest(stateRequest);
 }
+SYS_CHECK_MULTIPLE_CALLS_e TEST_SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState) {
+    return SYS_CheckMultipleCalls(pSystemState);
+}
+void TEST_SYS_SetSubstate(SYS_STATE_s *pSystemState, SYS_FSM_SUBSTATES_e nextSubstate, uint16_t idleTime) {
+    SYS_SetSubstate(pSystemState, nextSubstate, idleTime);
+}
 void TEST_SYS_SetState(
     SYS_STATE_s *pSystemState,
     SYS_FSM_STATES_e nextState,
@@ -770,5 +761,8 @@ void TEST_SYS_SetState(
 }
 void TEST_SYS_GeneralMacroBist(void) {
     SYS_GeneralMacroBist();
+}
+SYS_FSM_STATES_e TEST_SYS_ProcessInitializationState(SYS_STATE_s *pSystemState) {
+    return SYS_ProcessInitializationState(pSystemState);
 }
 #endif

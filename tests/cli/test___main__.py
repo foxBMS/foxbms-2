@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,14 +39,22 @@
 
 """Testing file 'cli/__main__.py'."""
 
+import sys
 import unittest
+from pathlib import Path
+
+try:
+    from cli import __main__
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[2]))
+    from cli import __main__  # noqa: F401
 
 
 class TestMain(unittest.TestCase):
     """Test of '__main__.py'"""
 
     def test_dummy(self):
-        """dummy test"""
+        """Dummy test"""
         # this test is necessary because otherwise the exit code is non-zero
 
 

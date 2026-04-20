@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_measurement.c
  * @author  foxBMS Team
  * @date    2025-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -52,6 +52,8 @@
  * @details TODO
  *
  */
+
+/* cspell:ignore ALLM BALPAUSELEN CAPVC MEASEN PAUSEBAL PRMM SECM VCVB */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
@@ -87,6 +89,46 @@ static DATA_BLOCK_CELL_VOLTAGE_s n77x_cellVoltage         = {.header.uniqueId = 
 static DATA_BLOCK_CELL_TEMPERATURE_s n77x_cellTemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
 static DATA_BLOCK_ALL_GPIO_VOLTAGES_s n77x_allGpioVoltage = {.header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
 
+/**
+ * Default multiplexer measurement sequence
+ * Must be adapted to the application
+ */
+N77X_MUX_CH_CFG_s n77x_muxSequence[N77X_MUX_SEQUENCE_LENGTH] = {
+    /*  multiplexer 0 measurement */
+    {
+        .muxId      = 0,
+        .muxChannel = 0,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 1,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 2,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 3,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 4,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 5,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 6,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 7,
+    },
+};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -106,6 +148,7 @@ void testN77x_CaptureMeasurement(void) {
         .n77xData.cellTemperature = &n77x_cellTemperature,
         .n77xData.cellVoltage     = &n77x_cellVoltage,
         .n77xData.allGpioVoltage  = &n77x_allGpioVoltage,
+        .pMuxSequence             = n77x_muxSequence,
     };
     uint16_t deviceAddress         = 0u;
     uint16_t primaryRawValues[20]  = {0u};
@@ -193,7 +236,7 @@ void testN77x_StartMeasurement(void) {
     N77x_CommunicationWrite_Expect(
         N77X_BROADCAST_ADDRESS,
         MC3377X_ALLM_CFG_OFFSET,
-        (N77X_BALPAUSELEN_10US << MC3377X_ALLM_CFG_BALPAUSELEN_POS) | (1 << MC3377X_ALLM_CFG_MEASEN_POS),
+        (N77X_BAL_PAUSE_ENABLE_10us << MC3377X_ALLM_CFG_BALPAUSELEN_POS) | (1 << MC3377X_ALLM_CFG_MEASEN_POS),
         n77xTestState.pSpiTxSequence);
     N77x_Wait_Expect(N77X_T_WAIT_CYC_SOC_MS);
 
@@ -270,27 +313,64 @@ void testN77x_RetrieveVoltages(void) {
 }
 
 void testN77x_RetrieveTemperatures(void) {
-    /* ======= Routine tests =============================================== */
     N77X_STATE_s n77xTestState = {
         .currentString            = 0u,
         .n77xData.cellTemperature = &n77x_cellTemperature,
         .n77xData.cellVoltage     = &n77x_cellVoltage,
         .n77xData.allGpioVoltage  = &n77x_allGpioVoltage,
+        .pMuxSequence             = n77x_muxSequence,
     };
+
     bool gpio03Error = false;
     bool gpio47Error = false;
 
-    /* ======= RT1/2 ======= */
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxId      = 2u;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxChannel = 0u;
+    TEST_ASSERT_FAIL_ASSERT(TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/5 ======= */
     /* everything ok */
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxId      = 0u;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxChannel = 0u;
     N77x_ConvertVoltagesToTemperatures_ExpectAndReturn(0, 1);
-    TEST_ASSERT_PASS_ASSERT(TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error));
+    TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error);
     TEST_ASSERT_EQUAL(1, n77xTestState.n77xData.cellTemperature->cellTemperature_ddegC[0][0][0]);
     TEST_ASSERT_FALSE(n77xTestState.n77xData.cellTemperature->invalidCellTemperature[0][0][0]);
 
-    /* ======= RT2/2 ======= */
+    /* ======= RT2/5 ======= */
+    /* everything ok; Mux1 */
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxId      = 1u;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxChannel = 0u;
+    N77x_ConvertVoltagesToTemperatures_ExpectAndReturn(0, 1);
+    TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error);
+    TEST_ASSERT_EQUAL(1, n77xTestState.n77xData.cellTemperature->cellTemperature_ddegC[0][0][8]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.cellTemperature->invalidCellTemperature[0][0][8]);
+
+    /* ======= RT3/5 ======= */
+    /* everything ok; inactive pin */
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxId      = 2u;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxChannel = 4u;
+    TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error);
+    TEST_ASSERT_EQUAL(1, n77xTestState.n77xData.cellTemperature->cellTemperature_ddegC[0][0][8]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.cellTemperature->invalidCellTemperature[0][0][8]);
+
+    /* ======= RT4/5 ======= */
+    /* everything ok; Mux in disabled state */
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxId      = 0u;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxChannel = 0xFF;
+    TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error);
+    TEST_ASSERT_EQUAL(1, n77xTestState.n77xData.cellTemperature->cellTemperature_ddegC[0][0][8]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.cellTemperature->invalidCellTemperature[0][0][8]);
+
+    /* ======= RT5/5 ======= */
     /* gpio03Error */
-    gpio03Error = true;
-    TEST_ASSERT_PASS_ASSERT(TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error));
+    gpio03Error                                                         = true;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxId      = 0u;
+    n77xTestState.pMuxSequence[n77xTestState.currentString]->muxChannel = 0u;
+    TEST_N77x_RetrieveTemperatures(&n77xTestState, 0, &gpio03Error, &gpio47Error);
     TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.cellTemperature->cellTemperature_ddegC[0][0][0]);
     TEST_ASSERT_TRUE(n77xTestState.n77xData.cellTemperature->invalidCellTemperature[0][0][0]);
 }
@@ -302,6 +382,7 @@ void testN77x_RetrieveMeasurement(void) {
         .n77xData.cellTemperature = &n77x_cellTemperature,
         .n77xData.cellVoltage     = &n77x_cellVoltage,
         .n77xData.allGpioVoltage  = &n77x_allGpioVoltage,
+        .pMuxSequence             = n77x_muxSequence,
     };
     uint16_t deviceAddress                  = 0u;
     uint16_t primaryRawValues[20]           = {0u};

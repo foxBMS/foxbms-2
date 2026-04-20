@@ -1,0 +1,49 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Page-1" id="DnqHGQyKK2gKyoa3OzE9">
+    <mxGraphModel dx="1195" dy="797" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-16" value="&lt;h1 style=&quot;text-align: center; margin-top: 0px;&quot;&gt;Virtual BMS&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;User input:&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Measurement data, e.g., cell voltages&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Simulated behavior:&lt;/div&gt;&lt;/div&gt;&lt;div&gt;Based on&lt;/div&gt;&lt;div&gt;&lt;ol&gt;&lt;li&gt;users measurement data,&lt;/li&gt;&lt;li&gt;dervied internal state variables from user measurement data, and&lt;/li&gt;&lt;li&gt;BMS control messages&lt;/li&gt;&lt;/ol&gt;&lt;div&gt;the BMS behaves on CAN as it would on the real BMS hardware&lt;/div&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=default;" parent="1" vertex="1">
+          <mxGeometry width="320" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-18" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;High-level Control Unit&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;The HLCU can either be&lt;/span&gt;&lt;br&gt;&lt;/p&gt;&lt;div&gt;&lt;div&gt;&lt;ol&gt;&lt;li&gt;a real device or&amp;nbsp;&lt;/li&gt;&lt;li&gt;be simulated via the tool itself&lt;/li&gt;&lt;/ol&gt;&lt;/div&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=default;" parent="1" vertex="1">
+          <mxGeometry x="550" y="40" width="320" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-28" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="350" y="100" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-29" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;spacing=2;exitX=1;exitY=0.317;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.317;entryDx=0;entryDy=0;entryPerimeter=0;" parent="wT1WUrRFTk6d7P7CCPzp-28" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="185" y="29.84" as="sourcePoint" />
+            <mxPoint x="-15" y="29.810000000000027" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-30" value="&lt;span style=&quot;forced-color-adjust: none; color: rgb(0, 0, 0); font-family: Helvetica; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; background-color: rgb(251, 251, 251); font-size: 12px;&quot;&gt;BMS control messages&lt;sup&gt;2&lt;/sup&gt;&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;align=center;" parent="wT1WUrRFTk6d7P7CCPzp-28" vertex="1">
+          <mxGeometry x="5" y="-0.16" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-32" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="340" y="40" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-24" value="" style="group" parent="wT1WUrRFTk6d7P7CCPzp-32" vertex="1" connectable="0">
+          <mxGeometry x="10" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-23" value="&lt;span style=&quot;forced-color-adjust: none; color: rgb(0, 0, 0); font-family: Helvetica; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; background-color: rgb(251, 251, 251); font-size: 12px;&quot;&gt;All BMS messages&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;align=center;" parent="wT1WUrRFTk6d7P7CCPzp-24" vertex="1">
+          <mxGeometry x="10" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-31" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;spacing=2;exitX=1;exitY=0.317;exitDx=0;exitDy=0;exitPerimeter=0;" parent="wT1WUrRFTk6d7P7CCPzp-32" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint y="30" as="sourcePoint" />
+            <mxPoint x="190" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wT1WUrRFTk6d7P7CCPzp-34" value="&lt;sup&gt;1&lt;/sup&gt;&amp;nbsp;e.g., f_CellVoltages (measurement data), f_BmsState (derived)&lt;div&gt;&lt;sup&gt;2&lt;/sup&gt;&amp;nbsp;e.g., f_BmsStateRequest&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="340" y="210" width="360" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="A0XIpMGjieuKQ16g_ddz-1" value="CAN" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=17;" vertex="1" parent="1">
+          <mxGeometry x="405" y="80" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

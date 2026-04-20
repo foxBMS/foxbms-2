@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -53,6 +53,8 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 #include "spi_cfg.h"
 
 #include "spi_cfg-helper.h"
@@ -94,6 +96,30 @@ static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#if BS_NR_OF_STRINGS > 1
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#endif /* BS_NR_OF_STRINGS > 1 */
+#if BS_NR_OF_STRINGS > 2
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#endif /* BS_NR_OF_STRINGS > 2 */
+#if BS_NR_OF_STRINGS > 3
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#endif /* BS_NR_OF_STRINGS > 3 */
 };
 #endif
 
@@ -110,6 +136,30 @@ static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#if BS_NR_OF_STRINGS > 1
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#endif /* BS_NR_OF_STRINGS > 1 */
+#if BS_NR_OF_STRINGS > 2
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#endif /* BS_NR_OF_STRINGS > 2 */
+#if BS_NR_OF_STRINGS > 3
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+#endif /* BS_NR_OF_STRINGS > 3 */
 };
 #endif
 
@@ -212,9 +262,36 @@ SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kAdiDataConfig[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_ADI_CHIP_SELECT_PIN,
+        .csPin    = SPI_ADI_CHIP_SELECT_PIN_STRING_0,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
+#if BS_NR_OF_STRINGS > 1
+    {
+        .pConfig  = &spi_kAdiDataConfig[1u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = SPI_ADI_CHIP_SELECT_PIN_STRING_1,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+#endif /* BS_NR_OF_STRINGS > 1 */
+#if BS_NR_OF_STRINGS > 2
+    {
+        .pConfig  = &spi_kAdiDataConfig[2u],
+        .pNode    = spiREG4,
+        .pGioPort = &(spiREG4->PC3),
+        .csPin    = SPI_ADI_CHIP_SELECT_PIN_STRING_2,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+#endif /* BS_NR_OF_STRINGS > 2 */
+#if BS_NR_OF_STRINGS > 3
+    {
+        .pConfig  = &spi_kAdiDataConfig[3u],
+        .pNode    = spiREG4,
+        .pGioPort = &(spiREG4->PC3),
+        .csPin    = SPI_ADI_CHIP_SELECT_PIN_STRING_3,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+#endif /* BS_NR_OF_STRINGS > 3 */
 };
 #endif
 
@@ -232,9 +309,36 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kLtcDataConfig[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_LTC_CHIP_SELECT_PIN,
+        .csPin    = SPI_LTC_CHIP_SELECT_PIN_STRING_0,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
+#if BS_NR_OF_STRINGS > 1
+    {
+        .pConfig  = &spi_kLtcDataConfig[1u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = SPI_LTC_CHIP_SELECT_PIN_STRING_1,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+#endif /* BS_NR_OF_STRINGS > 1 */
+#if BS_NR_OF_STRINGS > 2
+    {
+        .pConfig  = &spi_kLtcDataConfig[2u],
+        .pNode    = spiREG4,
+        .pGioPort = &(spiREG4->PC3),
+        .csPin    = SPI_LTC_CHIP_SELECT_PIN_STRING_2,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+#endif /* BS_NR_OF_STRINGS > 2 */
+#if BS_NR_OF_STRINGS > 3
+    {
+        .pConfig  = &spi_kLtcDataConfig[3u],
+        .pNode    = spiREG4,
+        .pGioPort = &(spiREG4->PC3),
+        .csPin    = SPI_LTC_CHIP_SELECT_PIN_STRING_3,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+#endif /* BS_NR_OF_STRINGS > 3 */
 };
 #endif
 
@@ -244,7 +348,7 @@ SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .pConfig  = &spi_kMxmDataConfig,
     .pNode    = spiREG4,
     .pGioPort = &(spiREG4->PC3),
-    .csPin    = SPI_MAXIM_CHIP_SELECT_PIN,
+    .csPin    = SPI_MAXIM_CHIP_SELECT_PIN_STRING_0,
     .csType   = SPI_CHIP_SELECT_HARDWARE,
 };
 #endif
@@ -256,7 +360,7 @@ SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kNxp77xDataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN,
+        .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN_STRING_0,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
@@ -267,7 +371,7 @@ SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kNxp77xDataConfigRx[0u],
         .pNode    = spiREG4,
         .pGioPort = &(spiREG4->PC3),
-        .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN,
+        .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN_STRING_0,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
@@ -283,7 +387,7 @@ SPI_INTERFACE_CONFIG_s spi_stInterface[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kStDataConfig[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_ST_CHIP_SELECT_PIN,
+        .csPin    = SPI_ST_CHIP_SELECT_PIN_STRING_0,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };

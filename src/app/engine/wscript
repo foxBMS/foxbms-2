@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,94 +37,48 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the 'Engine'-library."""
-
-import os
-
 
 def build(bld):
-    """Build the 'Engine'-library."""
-    source = [
-        os.path.join("config", "database_cfg.c"),
-        os.path.join("config", "diag_cfg.c"),
-        os.path.join("config", "sys_cfg.c"),
-        os.path.join("config", "sys_mon_cfg.c"),
-        os.path.join("database", "database.c"),
-        os.path.join("database", "database_helper.c"),
-        os.path.join("diag", "cbs", "diag_cbs_aerosol-sensor.c"),
-        os.path.join("diag", "cbs", "diag_cbs_bms.c"),
-        os.path.join("diag", "cbs", "diag_cbs_can.c"),
-        os.path.join("diag", "cbs", "diag_cbs_clamp30c.c"),
-        os.path.join("diag", "cbs", "diag_cbs_contactor.c"),
-        os.path.join("diag", "cbs", "diag_cbs_current.c"),
-        os.path.join("diag", "cbs", "diag_cbs_current-sensor.c"),
-        os.path.join("diag", "cbs", "diag_cbs_deep-discharge.c"),
-        os.path.join("diag", "cbs", "diag_cbs_dummy.c"),
-        os.path.join("diag", "cbs", "diag_cbs_fram.c"),
-        os.path.join("diag", "cbs", "diag_cbs_i2c.c"),
-        os.path.join("diag", "cbs", "diag_cbs_insulation.c"),
-        os.path.join("diag", "cbs", "diag_cbs_interlock.c"),
-        os.path.join("diag", "cbs", "diag_cbs_afe.c"),
-        os.path.join("diag", "cbs", "diag_cbs_plausibility.c"),
-        os.path.join("diag", "cbs", "diag_cbs_power-measurement.c"),
-        os.path.join("diag", "cbs", "diag_cbs_rtc.c"),
-        os.path.join("diag", "cbs", "diag_cbs_sbc.c"),
-        os.path.join("diag", "cbs", "diag_cbs_sys-mon.c"),
-        os.path.join("diag", "cbs", "diag_cbs_temperature.c"),
-        os.path.join("diag", "cbs", "diag_cbs_voltage.c"),
-        os.path.join("diag", "diag.c"),
-        os.path.join("hw_info", "master_info.c"),
-        os.path.join("sys", "reset.c"),
-        os.path.join("sys", "sys.c"),
-        os.path.join("sys_mon", "sys_mon.c"),
-    ]
-    includes = [
-        "config",
-        "database",
-        "diag",
-        "sys",
-        "sys_mon",
-        os.path.join("diag", "cbs"),
-        os.path.join("..", "application", "algorithm"),
-        os.path.join("..", "application", "algorithm", "config"),
-        os.path.join("..", "application", "algorithm", "state_estimation"),
-        os.path.join(
-            "..", "application", "algorithm", "state_estimation", "sof", "trapezoid"
-        ),
-        os.path.join("..", "application", "bal"),
-        os.path.join("..", "application", "bal", bld.env.balancing_strategy),
-        os.path.join("..", "application", "bms"),
-        os.path.join("..", "application", "config"),
-        os.path.join("..", "application", "soa"),
-        os.path.join("..", "driver", "can"),
-        os.path.join("..", "driver", "can", "cbs", "tx-async"),
-        os.path.join("..", "driver", "can", "cbs", "tx-cyclic"),
-        os.path.join("..", "driver", "config"),
-        os.path.join("..", "driver", "contactor"),
-        os.path.join("..", "driver", "dma"),
-        os.path.join("..", "driver", "fram"),
-        os.path.join("..", "driver", "imd"),
-        os.path.join("..", "driver", "interlock"),
-        os.path.join("..", "driver", "meas"),
-        os.path.join("..", "driver", "rtc"),
-        os.path.join("..", "driver", "sbc"),
-        os.path.join("..", "driver", "sbc", "fs8x_driver"),
-        os.path.join("..", "driver", "spi"),
-        os.path.join("..", "driver", "sps"),
-        os.path.join("..", "driver", "mcu"),
-        os.path.join("..", "main", "include"),
-        os.path.join("..", "task", "os"),
-        os.path.join("..", "task", "config"),
-        os.path.join("..", "task", "ftask"),
-        os.path.join("..", "task", "timer"),
-    ]
-    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
-    target = f"{bld.env.APPNAME.lower()}-engine"
-    cflags = bld.env.CFLAGS_FOXBMS
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
 
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
-        target=target,
+    bld.recurse(["config", "database", "diag", "hw_info", "sys", "sys_mon"])
+    use = [
+        f"{op}database",
+        f"{op}database_cfg",
+        f"{op}database_helper",
+        f"{op}diag",
+        f"{op}diag_cfg",
+        f"{op}diag_cbs_aerosol-sensor",
+        f"{op}diag_cbs_afe",
+        f"{op}diag_cbs_bms",
+        f"{op}diag_cbs_can",
+        f"{op}diag_cbs_clamp30c",
+        f"{op}diag_cbs_contactor",
+        f"{op}diag_cbs_current-sensor",
+        f"{op}diag_cbs_current",
+        f"{op}diag_cbs_deep-discharge",
+        f"{op}diag_cbs_dummy",
+        f"{op}diag_cbs_fram",
+        f"{op}diag_cbs_i2c",
+        f"{op}diag_cbs_insulation",
+        f"{op}diag_cbs_interlock",
+        f"{op}diag_cbs_plausibility",
+        f"{op}diag_cbs_power-measurement",
+        f"{op}diag_cbs_rtc",
+        f"{op}diag_cbs_sbc",
+        f"{op}diag_cbs_sys-mon",
+        f"{op}diag_cbs_temperature",
+        f"{op}diag_cbs_voltage",
+        f"{op}master_info",
+        f"{op}reset",
+        f"{op}sys",
+        f"{op}sys_cfg",
+        f"{op}sys_mon",
+        f"{op}sys_mon_cfg",
+    ]
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}engine",
     )

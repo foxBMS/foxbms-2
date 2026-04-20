@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_1.c
  * @author  foxBMS Team
  * @date    2023-03-13 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,6 +71,7 @@
 #include "Mockmcu.h"
 #include "Mockos.h"
 #include "Mockpex.h"
+#include "Mockportmacro.h"
 #include "Mockqueue.h"
 #include "Mocktest_can_mpu_prototype_queue_create_stub.h"
 
@@ -172,7 +173,7 @@ const CAN_NODE_s can_node2Isolated = {
 static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
 static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues  = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
-static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor  = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+static DATA_BLOCK_CURRENT_s can_tableCurrent               = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
 static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire            = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest    = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 
@@ -183,7 +184,7 @@ const CAN_SHIM_s can_kShim = {
     .pTableCellVoltage     = &can_tableCellVoltages,
     .pTableCellTemperature = &can_tableTemperatures,
     .pTableMinMax          = &can_tableMinimumMaximumValues,
-    .pTableCurrentSensor   = &can_tableCurrentSensor,
+    .pTableCurrent         = &can_tableCurrent,
     .pTableOpenWire        = &can_tableOpenWire,
     .pTableStateRequest    = &can_tableStateRequest,
 };

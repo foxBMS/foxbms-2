@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_vishay_ntcle413e2103f102l.c
  * @author  foxBMS Team
  * @date    2021-11-02 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -85,8 +85,8 @@ void testTS_Vis02GetTemperatureFromLutFixedValues(void) {
     /* Resistance is low, slightly out of range - expected failure - temp on positive boundary */
     TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis02GetTemperatureFromLut(235u));
     /* Resistance is in range - expected success - check expected temp */
-    TEST_ASSERT_EQUAL_INT16(-38, TS_Vis02GetTemperatureFromLut(2842u));
-    TEST_ASSERT_EQUAL_INT16(103, TS_Vis02GetTemperatureFromLut(248u));
+    TEST_ASSERT_EQUAL_INT16(-387, TS_Vis02GetTemperatureFromLut(2842u));
+    TEST_ASSERT_EQUAL_INT16(1031, TS_Vis02GetTemperatureFromLut(248u));
 }
 
 /** Polynomial is not implemented for this sensor */

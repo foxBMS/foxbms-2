@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -52,6 +52,8 @@
  * @details Implementation of the CAN Interrupts, initialization, buffers,
  *          receive and transmit interfaces.
  */
+
+/* cspell:ignore ABOTR */
 
 /*========== Includes =======================================================*/
 #include "general.h"
@@ -195,7 +197,6 @@ static bool CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messag
  */
 static void CAN_CheckCanTiming(void);
 
-#if BS_CURRENT_SENSOR_PRESENT == true
 /**
  * @brief   Sets flag to indicate current sensor is present.
  * @param   command         true if current sensor present, otherwise false
@@ -220,7 +221,6 @@ static void CAN_SetCurrentSensorCcPresent(bool command, uint8_t stringNumber);
 static void CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber);
 
 static void CAN_CheckCanTimingOfCurrentSensor(void);
-#endif /* BS_CURRENT_SENSOR_PRESENT == true */
 
 /**
  * @brief    Initialize RX mailboxes for usage with extended identifiers
@@ -596,23 +596,33 @@ static void CAN_ValidateConfiguredTxMessagePhase(void) {
 }
 
 static void CAN_CheckDatabaseNullPointer(CAN_SHIM_s canShim) {
+    /* this needs to be aligned with src/app/driver/config/can_cfg.h:CAN_SHIM_s
+     * all members defined in CAN_SHIM_s shall be checked here */
     FAS_ASSERT(canShim.pQueueImd != NULL_PTR);
-    FAS_ASSERT(canShim.pTableCellVoltage != NULL_PTR);     /*!< pointer database table with cell voltages */
-    FAS_ASSERT(canShim.pTableCellTemperature != NULL_PTR); /*!< pointer database table with cell temperatures */
-    FAS_ASSERT(canShim.pTableCurrentSensor != NULL_PTR); /*!< pointer database table with current sensor measurements */
-    FAS_ASSERT(canShim.pTableErrorState != NULL_PTR);    /*!< pointer database table with error state variables */
-    FAS_ASSERT(canShim.pTableInsulation != NULL_PTR);    /*!< pointer database table with insulation monitoring info */
-    FAS_ASSERT(canShim.pTableMinMax != NULL_PTR);        /*!< pointer database table with min/max values */
-    FAS_ASSERT(canShim.pTableMol != NULL_PTR);           /*!< pointer database table with MOL flags */
-    FAS_ASSERT(canShim.pTableMsl != NULL_PTR);           /*!< pointer database table with MSL flags */
-    FAS_ASSERT(canShim.pTableOpenWire != NULL_PTR);      /*!< pointer database table with open wire status */
-    FAS_ASSERT(canShim.pTablePackValues != NULL_PTR);    /*!< pointer database table with pack values */
-    FAS_ASSERT(canShim.pTableRsl != NULL_PTR);           /*!< pointer database table with RSL flags */
-    FAS_ASSERT(canShim.pTableSoc != NULL_PTR);           /*!< pointer database table with SOC values */
-    FAS_ASSERT(canShim.pTableSoe != NULL_PTR);           /*!< pointer database table with SOE values */
-    FAS_ASSERT(canShim.pTableSof != NULL_PTR);           /*!< pointer database table with SOF values */
-    FAS_ASSERT(canShim.pTableSoh != NULL_PTR);           /*!< pointer database table with SOH values */
-    FAS_ASSERT(canShim.pTableStateRequest != NULL_PTR);  /*!< pointer database table with state requests */
+    FAS_ASSERT(canShim.pTableCellVoltage != NULL_PTR);     /*!< pointer to table with cell voltages */
+    FAS_ASSERT(canShim.pTableCellTemperature != NULL_PTR); /*!< pointer to table with cell temperatures */
+    FAS_ASSERT(canShim.pTableCurrent != NULL_PTR);         /*!< pointer to table with current measurement */
+    FAS_ASSERT(
+        canShim.pTableCurrentSensorTemperature != NULL_PTR); /*!< pointer to table with current sensor temperature */
+    FAS_ASSERT(canShim.pTablePower != NULL_PTR);             /*!< pointer to table with power measurement */
+    FAS_ASSERT(canShim.pTableCurrentCounter != NULL_PTR);    /*!< pointer to table with current counter measurement */
+    FAS_ASSERT(canShim.pTableEnergyCounter != NULL_PTR);     /*!< pointer to table with energy counter measurement */
+    FAS_ASSERT(canShim.pTableSystemVoltage1 != NULL_PTR);    /*!< pointer to table with system voltage 1 measurement */
+    FAS_ASSERT(canShim.pTableSystemVoltage2 != NULL_PTR);    /*!< pointer to table with system voltage 2 measurement */
+    FAS_ASSERT(canShim.pTableSystemVoltage3 != NULL_PTR);    /*!< pointer to table with system voltage 3 measurement */
+    FAS_ASSERT(canShim.pTableErrorState != NULL_PTR);        /*!< pointer to table with error state variables */
+    FAS_ASSERT(canShim.pTableInsulation != NULL_PTR);        /*!< pointer to table with insulation monitoring info */
+    FAS_ASSERT(canShim.pTableMinMax != NULL_PTR);            /*!< pointer to table with min/max values */
+    FAS_ASSERT(canShim.pTableMol != NULL_PTR);               /*!< pointer to table with MOL flags */
+    FAS_ASSERT(canShim.pTableMsl != NULL_PTR);               /*!< pointer to table with MSL flags */
+    FAS_ASSERT(canShim.pTableOpenWire != NULL_PTR);          /*!< pointer to table with open wire status */
+    FAS_ASSERT(canShim.pTablePackValues != NULL_PTR);        /*!< pointer to table with pack values */
+    FAS_ASSERT(canShim.pTableRsl != NULL_PTR);               /*!< pointer to table with RSL flags */
+    FAS_ASSERT(canShim.pTableSoc != NULL_PTR);               /*!< pointer to table with SOC values */
+    FAS_ASSERT(canShim.pTableSoe != NULL_PTR);               /*!< pointer to table with SOE values */
+    FAS_ASSERT(canShim.pTableSof != NULL_PTR);               /*!< pointer to table with SOF values */
+    FAS_ASSERT(canShim.pTableSoh != NULL_PTR);               /*!< pointer to table with SOH values */
+    FAS_ASSERT(canShim.pTableStateRequest != NULL_PTR);      /*!< pointer to table with state requests */
 }
 
 static CAN_NODE_s *CAN_GetNodeConfigurationStructFromRegisterAddress(canBASE_t *pNodeRegister) {
@@ -806,23 +816,22 @@ static void CAN_CheckCanTiming(void) {
         DIAG_Handler(DIAG_ID_CAN_TIMING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
     }
 
-#if BS_CURRENT_SENSOR_PRESENT == true
     CAN_CheckCanTimingOfCurrentSensor();
-#endif /* BS_CURRENT_SENSOR_PRESENT == true */
 }
 
-#if BS_CURRENT_SENSOR_PRESENT == true
 static void CAN_CheckCanTimingOfCurrentSensor(void) {
-    uint32_t currentTime                   = OS_GetTickCount();
-    DATA_BLOCK_CURRENT_SENSOR_s currentTab = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+    uint32_t currentTime                             = OS_GetTickCount();
+    DATA_BLOCK_CURRENT_s tableCurrent                = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+    DATA_BLOCK_CURRENT_COUNTER_s tableCurrentCounter = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_COUNTER};
+    DATA_BLOCK_ENERGY_COUNTER_s tableEnergyCounter   = {.header.uniqueId = DATA_BLOCK_ID_ENERGY_COUNTER};
     /* check time stamps of current measurements */
-    DATA_READ_DATA(&currentTab);
+    DATA_READ_DATA(&tableCurrent, &tableCurrentCounter, &tableEnergyCounter);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Current has been measured at least once */
-        if (currentTab.timestampCurrent[s] != 0u) {
+        if (tableCurrent.timestamp[s] != 0u) {
             /* Check time since last received string current data */
-            if ((currentTime - currentTab.timestampCurrent[s]) > BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
+            if ((currentTime - tableCurrent.timestamp[s]) > BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
                 DIAG_Handler(DIAG_ID_CURRENT_SENSOR_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
                 DIAG_Handler(DIAG_ID_CURRENT_SENSOR_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
@@ -834,8 +843,8 @@ static void CAN_CheckCanTimingOfCurrentSensor(void) {
 
         /* check time stamps of CC measurements */
         /* if timestamp_cc != 0, this means current sensor cc message has been received at least once */
-        if (currentTab.timestampCurrentCounting[s] != 0) {
-            if ((currentTime - currentTab.timestampCurrentCounting[s]) >
+        if (tableCurrentCounter.timestamp[s] != 0) {
+            if ((currentTime - tableCurrentCounter.timestamp[s]) >
                 BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
                 DIAG_Handler(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
@@ -848,9 +857,8 @@ static void CAN_CheckCanTimingOfCurrentSensor(void) {
 
         /* check time stamps of EC measurements */
         /* if timestamp_ec != 0, this means current sensor ec message has been received at least once */
-        if (currentTab.timestampEnergyCounting[s] != 0) {
-            if ((currentTime - currentTab.timestampEnergyCounting[s]) >
-                BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
+        if (tableEnergyCounter.timestamp[s] != 0) {
+            if ((currentTime - tableEnergyCounter.timestamp[s]) > BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
                 DIAG_Handler(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
                 DIAG_Handler(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
@@ -897,7 +905,6 @@ static void CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber) {
         OS_ExitTaskCritical();
     }
 }
-#endif /* BS_CURRENT_SENSOR_PRESENT == true */
 
 static void CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
     /* AXIVION Routine Generic-MissingParameterAssert: pNode: unused parameter */
@@ -936,6 +943,7 @@ extern STD_RETURN_TYPE_e CAN_DataSend(CAN_NODE_s *pNode, uint32_t id, CAN_IDENTI
      *  In the HAL, message box numbers start from 1, not 0.
      */
     for (uint8_t messageBox = 1u; messageBox <= CAN_NR_OF_TX_MESSAGE_BOX; messageBox++) {
+        portDISABLE_INTERRUPTS();
         if (canIsTxMessagePending(pNode->canNodeRegister, messageBox) == 0u) {
             /* id shifted by 18 to use standard frame */
             /* standard frame: bits [28:18] */
@@ -958,8 +966,12 @@ extern STD_RETURN_TYPE_e CAN_DataSend(CAN_NODE_s *pNode, uint32_t id, CAN_IDENTI
             }
             canTransmit(pNode->canNodeRegister, messageBox, pData);
             result = STD_OK;
+            /* Re-enable interrupts if empty mailbox found */
+            portENABLE_INTERRUPTS();
             break;
         }
+        /* Re-enable interrupts if all mailboxes are full */
+        portENABLE_INTERRUPTS();
     }
     return result;
 }
@@ -1073,7 +1085,7 @@ extern void TEST_CAN_CheckCanTiming(void) {
 extern bool TEST_CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex) {
     return CAN_IsMessagePeriodElapsed(ticksSinceStart, messageIndex);
 }
-#if BS_CURRENT_SENSOR_PRESENT == true
+
 extern void TEST_CAN_SetCurrentSensorPresent(bool command, uint8_t stringNumber) {
     CAN_SetCurrentSensorPresent(command, stringNumber);
 }
@@ -1086,7 +1098,7 @@ extern void TEST_CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumbe
 extern void TEST_CAN_CheckCanTimingOfCurrentSensor(void) {
     CAN_CheckCanTimingOfCurrentSensor();
 }
-#endif /* BS_CURRENT_SENSOR_PRESENT == true */
+
 extern void TEST_CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     CAN_ConfigureRxMailboxesForExtendedIdentifiers();
 }

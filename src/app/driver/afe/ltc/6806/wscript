@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,45 +37,56 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the LTC6806-based 'AFE'-driver."""
-
-import os
-
 
 def build(bld):
-    """Build the LTC6806-based 'AFE'-driver."""
-    source = [
-        os.path.join("config", "ltc_6806_cfg.c"),
-        os.path.join("ltc_6806.c"),
-        os.path.join("..", "api", "ltc_afe.c"),
-        os.path.join("..", "common", "ltc_afe_dma.c"),
-        os.path.join("..", "common", "ltc_pec.c"),
-        os.path.join("..", "..", "api", "afe_plausibility.c"),
-    ]
-    includes = [
-        os.path.join("..", "..", "..", "config"),
-        os.path.join("..", "..", "..", "dma"),
-        os.path.join("..", "..", "..", "foxmath"),
-        os.path.join("..", "..", "..", "io"),
-        os.path.join("..", "..", "..", "pex"),
-        os.path.join("..", "..", "..", "spi"),
-        os.path.join("..", "..", "..", "ts"),
-        os.path.join("..", "..", "..", "ts", "api"),
-        os.path.join("..", "..", "..", "mcu"),
-        os.path.join("..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver"
-    bld.stlib(
-        source=source,
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    bld.recurse("config")
+
+    includes = (
+        [
+            "../../../config",
+            "../../../dma",
+            "../../../foxmath",
+            "../../../io",
+            "../../../pex",
+            "../../../spi",
+            "../../../ts",
+            "../../../mcu",
+            "../../../ts/api",
+            "../../../../application/config",
+            "../../../../engine/config",
+            "../../../../engine/database",
+            "../../../../engine/diag",
+            "../../../../main/include",
+            "../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+
+    source = "ltc_6806"
+    bld.objects(
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+    )
+
+    use = [
+        f"{op}afe_plausibility",
+        f"{op}ltc_afe",
+        f"{op}ltc_pec",
+        f"{op}ltc_afe_dma",
+        f"{op}ltc_6806",
+        f"{op}ltc_6806_cfg",
+    ]
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}afe",
     )

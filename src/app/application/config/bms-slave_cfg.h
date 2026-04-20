@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bms-slave_cfg.h
  * @author  foxBMS Team
  * @date    2025-01-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  SLV
  *
@@ -68,6 +68,12 @@
  * @brief   Defines the number of GPIOs
  */
 #define SLV_NR_OF_GPIOS_PER_MODULE (10u)
+
+/**
+ * @def SLV_USE_MUX_FOR_TEMP
+ * @brief Use of mux for temperature measurement
+ */
+#define SLV_USE_MUX_FOR_TEMP (true)
 
 /**
  * @def     SLV_NR_OF_GPAS_PER_MODULE

@@ -6,6 +6,9 @@
 Changelog for the |ltc-ltc6813-1|\ -based 18 cell |bms-slave|
 =============================================================
 
+..
+   cspell:ignore ACPL APWR ARTZ QPWPRQ
+
 .. _CHANGELOG_FOR_THE_LTC_LTC6813_1_BASED_18_CELL_BMS_SLAVE_V1_1_6:
 
 v1.1.6

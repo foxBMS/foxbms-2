@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bal.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -70,19 +70,19 @@
  */
 typedef enum {
     /* Init-Sequence */
-    BAL_STATEMACH_UNINITIALIZED,   /*!<    */
-    BAL_STATEMACH_INITIALIZATION,  /*!<    */
-    BAL_STATEMACH_INITIALIZED,     /*!<    */
-    BAL_STATEMACH_CHECK_BALANCING, /*!<    */
-    BAL_STATEMACH_BALANCE,         /*!<    */
-    BAL_STATEMACH_NO_BALANCING,    /*!<    */
-    BAL_STATEMACH_ALLOW_BALANCING, /*!<    */
-    BAL_STATEMACH_GLOBAL_DISABLE,  /*!<    */
-    BAL_STATEMACH_GLOBAL_ENABLE,   /*!<    */
-    BAL_STATEMACH_UNDEFINED,       /*!< undefined state */
-    BAL_STATEMACH_RESERVED1,       /*!< reserved state */
-    BAL_STATEMACH_ERROR,           /*!< Error-State: */
-} BAL_STATEMACH_e;
+    BAL_FSM_UNINITIALIZED,   /*!<    */
+    BAL_FSM_INITIALIZATION,  /*!<    */
+    BAL_FSM_INITIALIZED,     /*!<    */
+    BAL_FSM_CHECK_BALANCING, /*!<    */
+    BAL_FSM_BALANCE,         /*!<    */
+    BAL_FSM_NO_BALANCING,    /*!<    */
+    BAL_FSM_ALLOW_BALANCING, /*!<    */
+    BAL_FSM_GLOBAL_DISABLE,  /*!<    */
+    BAL_FSM_GLOBAL_ENABLE,   /*!<    */
+    BAL_FSM_UNDEFINED,       /*!< undefined state */
+    BAL_FSM_RESERVED1,       /*!< reserved state */
+    BAL_FSM_ERROR,           /*!< Error-State: */
+} BAL_FSM_e;
 
 /**
  * Substates of the BAL state machine
@@ -94,7 +94,7 @@ typedef enum {
     BAL_ACTIVATE_BALANCING,   /*!< Activated balancing resistors */
     BAL_CHECK_LOWEST_VOLTAGE, /*!< Check if lowest voltage is still  above limit */
     BAL_CHECK_CURRENT,        /*!< Check if current is still  under limit */
-} BAL_STATEMACH_SUB_e;
+} BAL_FSM_SUB_e;
 
 /**
  * State requests for the BAL state machine
@@ -131,9 +131,9 @@ typedef enum {
 typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
     BAL_STATE_REQUEST_e stateRequest;         /*!< current state request made to the state machine */
-    BAL_STATEMACH_e state;                    /*!< state of Driver State Machine */
-    BAL_STATEMACH_SUB_e substate;             /*!< current substate of the state machine */
-    BAL_STATEMACH_e lastState;                /*!< previous state of the state machine */
+    BAL_FSM_e state;                          /*!< state of Driver State Machine */
+    BAL_FSM_SUB_e substate;                   /*!< current substate of the state machine */
+    BAL_FSM_e lastState;                      /*!< previous state of the state machine */
     uint8_t lastSubstate;                     /*!< previous substate of the state machine */
     uint8_t triggerEntry;                     /*!< counter for re-entrance protection (function running flag) */
     uint32_t errorRequestCounter;             /*!< counts the number of illegal requests to the BAL state machine */
@@ -238,7 +238,7 @@ extern BAL_STATE_s *TEST_BAL_GetBalancingState(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern BAL_STATEMACH_e BAL_GetState(void);
+extern BAL_FSM_e BAL_GetState(void);
 #endif
 
 #endif /* FOXBMS__BAL_H_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,14 +42,15 @@
 /**
  * @file    ethernet_cfg.h
  * @author  foxBMS Team
- * @date    2025-30-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @date    2025-05-30 (date of creation)
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  ETH
  *
  * @brief   Header for the configuration for the ethernet module
- * @details This includes IP and EMAC-Adress and other general network settings.
+ * @details This includes IP and EMAC-Address and other general network
+ *          settings.
  */
 
 #ifndef FOXBMS__ETHERNET_CFG_H_
@@ -60,13 +61,47 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+/** Hardware Address of the EMAC */
+#define ETH_HARDWARE_ADDRESS_LENGTH (6u)
+
+/** IP Address length of the network interface */
+#define ETH_IP_ADDRESS_LENGTH (4u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/** MAC Address of the EMAC */
+extern const uint8_t eth_emacAddress[ETH_HARDWARE_ADDRESS_LENGTH];
+/** IP Address for the TCP connection */
+extern const uint8_t eth_ipAddress[ETH_IP_ADDRESS_LENGTH];
+extern const uint8_t eth_netMask[4u];
+extern const uint8_t eth_gatewayAddress[4u];
+extern const uint8_t eth_dnsServerAddress[4u];
 
-extern const uint8_t eth_emacAdress[6u];
-extern const uint8_t eth_ipAddress[4u];
+/** @{
+ * Sever configuration
+ */
+/* The Backlog limits number of simultaneously connected clients */
+#define ETH_ECHO_SERVER_BACKLOG (1)
+/* Window sizes. Only relevant when ipconfigUSE_TCP_WIN = 1 */
+#define ETH_ECHO_SERVER_TX_WINDOW_SIZE (2u)
+#define ETH_ECHO_SERVER_RX_WINDOW_SIZE (2u)
+/* The standard echo port number. */
+#define ETH_ECHO_SERVER_PORT_NUMBER (7u)
+/* The maximum time to wait for a message to send. */
+#define ETH_ECHO_SERVER_SEND_TIMEOUT (pdMS_TO_TICKS(500))
+/* The maximum time to wait for a message to send. */
+#define ETH_ECHO_SERVER_RECEIVE_TIMEOUT (portMAX_DELAY)
+/* The maximum time to wait for a closing socket to close.*/
+#define ETH_ECHO_SERVER_SHUTDOWN_DELAY (pdMS_TO_TICKS(5000))
+/** @} */
+
+/** @{
+ * Task configuration
+ */
+#define ETH_ECHO_SERVER_TASK_STACK_SIZE_B (4096u)
+#define ETH_LISTENING_TASK_STACK_SIZE_B   (2048u)
+/** @} */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

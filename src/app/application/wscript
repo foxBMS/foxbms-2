@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,77 +37,47 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the 'application' objects and library
-
-The build process of the algorithms is propagated to a lower level wscript."""
-
-import os
-
 
 def build(bld):
-    """builds the application library"""
-    source = [
-        os.path.join("bal", "bal.c"),
-        os.path.join("bms", "bms.c"),
-        os.path.join("config", "bal_cfg.c"),
-        os.path.join("config", "battery_cell_cfg.c"),
-        os.path.join("config", "battery_system_cfg.c"),
-        os.path.join("config", "ethernet_cfg.c"),
-        os.path.join("config", "soa_cfg.c"),
-        os.path.join("ethernet", "ethernet.c"),
-        os.path.join("plausibility", "plausibility.c"),
-        os.path.join("redundancy", "redundancy.c"),
-        os.path.join("soa", "soa.c"),
-        os.path.join(
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    bld.recurse(
+        [
+            "algorithm",
             "bal",
-            bld.env.balancing_strategy,
-            f"bal_strategy_{bld.env.balancing_strategy}.c",
-        ),
-    ]
-    includes = [
-        "config",
-        os.path.join("..", "application", "algorithm", "state_estimation"),
-        os.path.join(
-            "..", "application", "algorithm", "state_estimation", "sof", "trapezoid"
-        ),
-        os.path.join("..", "application", "bal"),
-        os.path.join("..", "application", "bal", bld.env.balancing_strategy),
-        os.path.join("..", "application", "bms"),
-        os.path.join("..", "application", "plausibility"),
-        os.path.join("..", "application", "soa"),
-        os.path.join("..", "driver", "config"),
-        os.path.join("..", "driver", "interlock"),
-        os.path.join("..", "driver", "contactor"),
-        os.path.join("..", "driver", "dma"),
-        os.path.join("..", "driver", "foxmath"),
-        os.path.join("..", "driver", "can", "cbs", "tx-cyclic"),
-        os.path.join("..", "driver", "fram"),
-        os.path.join("..", "driver", "imd"),
-        os.path.join("..", "driver", "led"),
-        os.path.join("..", "driver", "meas"),
-        os.path.join("..", "driver", "phy"),
-        os.path.join("..", "driver", "sbc"),
-        os.path.join("..", "driver", "sbc", "fs8x_driver"),
-        os.path.join("..", "driver", "spi"),
-        os.path.join("..", "driver", "sps"),
-        os.path.join("..", "driver", "mcu"),
-        os.path.join("..", "engine", "config"),
-        os.path.join("..", "engine", "database"),
-        os.path.join("..", "engine", "diag"),
-        os.path.join("..", "main", "include"),
-        os.path.join("..", "task", "config"),
-        os.path.join("..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-application"
-
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
-        use=f"{bld.env.APPNAME.lower()}-algorithms",
-        target=target,
+            "bms",
+            "config",
+            "plausibility",
+            "redundancy",
+            "soa",
+        ]
     )
-
-    bld.recurse("algorithm")
+    if bld.env.FOXBMS_TCP_SUPPORT:
+        bld.recurse("ethernet")
+    use = [
+        f"{op}bms",
+        f"{op}plausibility",
+        f"{op}redundancy",
+        f"{op}soa",
+        f"{op}soa_cfg",
+        f"{op}bal",
+        f"{op}bal_cfg",
+        f"{op}bal_strategy_{bld.env.FOXBMS_BALANCING_STRATEGY}",
+        f"{op}battery_cell_cfg",
+        f"{op}battery_system_cfg",
+        f"{lp}algorithm",
+    ]
+    if bld.env.FOXBMS_TCP_SUPPORT:
+        use.extend(
+            [
+                f"{op}ethernet",
+                f"{op}ethernet_{bld.env.FOXBMS_RTOS_NAME}",
+                f"{op}ethernet_cfg",
+            ]
+        )
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}application",
+    )

@@ -35,8 +35,8 @@
 /**
  * @file    dp83869.c
  * @date    2025-04-01 (date of creation)
- * @updated 2025-04-01 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  PHY
  *
@@ -112,6 +112,10 @@
 #define PHY_SWRESTART                        (0x4000u)
 #define PHY_DEVAD_EXTENDED                   (0x1Fu)
 #define PHY_DEVAD_EXTENDED_NO_POST_INCREMENT (0x401Fu)
+
+#define PHY_POWER_DOWN_REG_DOUT (gioPORTB->DOUT)
+#define PHY_POWER_DOWN_REG_DIR  (gioPORTB->DIR)
+#define PHY_POWER_DOWN_PIN      (6u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 static DATA_BLOCK_PHY_s phy_tablePhy = {.header.uniqueId = DATA_BLOCK_ID_PHY};
@@ -238,27 +242,39 @@ static void PHY_RestartSoftware(uint32_t mdioBaseAddress, uint32_t phyAddress) {
 /*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e PHY_Initialize(uint32_t mdioBaseAddressess) {
     /* AXIVION Routine Generic-MissingParameterAssert: mdioBaseAddress: parameter accepts whole range */
+    /* Enable PHY*/
+    IO_SetPinDirectionToOutput(&PHY_POWER_DOWN_REG_DIR, PHY_POWER_DOWN_PIN);
+    IO_PinSet(&PHY_POWER_DOWN_REG_DOUT, PHY_POWER_DOWN_PIN);
 
+    DATA_READ_DATA(&phy_tablePhy);
     STD_RETURN_TYPE_e result = STD_OK;
-    uint32_t phyID           = 0u;
-    uint32_t phyIdReadCount  = 0xFu;
-    uint32_t phyLinkRetries  = 0xFu;
+    uint32_t phyId           = 0u;
+    uint8_t phyIdReadCount   = 0u;
 
-    /* Reset all registers before start */
-    PHY_ResetHardware();
+    phy_tablePhy.initialized = false;
+    /* Reset all registers if phy not alive */
+    if (phy_tablePhy.aliveStatus == false) {
+        PHY_ResetHardware();
+    }
 
+    bool retriesRemaining = phyIdReadCount < PHY_MAX_ID_READ_COUNT;
+    bool phyIdNotValid    = phyId == 0u;
+    bool tryGettingPhyId  = retriesRemaining && phyIdNotValid;
     /* Get PHY ID and check MDIO connection */
-    while ((phyID == 0u) && (phyIdReadCount > 0u)) {
-        phyID = PHY_GetId(mdioBaseAddressess, PHY_ADDRESS);
-        phyIdReadCount--;
+    while (tryGettingPhyId) {
+        phyId = PHY_GetId(mdioBaseAddressess, PHY_ADDRESS);
+        phyIdReadCount++;
+        retriesRemaining = phyIdReadCount < PHY_MAX_ID_READ_COUNT;
+        phyIdNotValid    = phyId == 0u;
+        tryGettingPhyId  = retriesRemaining && phyIdNotValid;
         /* Don't block other tasks to much */
         OS_DelayTask(10u);
     }
 
-    phyID = phyID >> 4; /* Don't compare the Revision Number */
-    if (0u == phyID) {
+    phyId = phyId >> 4; /* Don't compare the Revision Number */
+    if (0u == phyId) {
         result = STD_NOT_OK;
-    } else if (PHY_PHY_ID >> 4 != phyID) {
+    } else if (PHY_PHY_ID >> 4 != phyId) {
         result = STD_NOT_OK; /* Wrong PHY */
     }
 
@@ -277,25 +293,27 @@ extern STD_RETURN_TYPE_e PHY_Initialize(uint32_t mdioBaseAddressess) {
     }
 
     /* Check for network link */
-    if ((result == STD_OK) &&
-        (PHY_GetLinkStatus(mdioBaseAddressess, PHY_ADDRESS, (uint32_t)phyLinkRetries) != STD_OK)) {
-        result = STD_NOT_OK;
+    if (result == STD_OK) {
+        OS_DelayTask(PHY_LINK_DELAY_TIME);
+        if (PHY_GetLinkStatus(mdioBaseAddressess, PHY_ADDRESS) != STD_OK) {
+            result = STD_NOT_OK;
+        }
+        phy_tablePhy.initialized = true;
     }
-
     DATA_WRITE_DATA(&phy_tablePhy);
     return result;
 }
 
-extern STD_RETURN_TYPE_e PHY_GetLinkStatus(uint32_t mdioBaseAddress, uint32_t phyAddress, volatile uint32_t retries) {
+extern STD_RETURN_TYPE_e PHY_GetLinkStatus(uint32_t mdioBaseAddress, uint32_t phyAddress) {
     /* AXIVION Routine Generic-MissingParameterAssert: mdioBaseAddress: parameter accepts whole range */
     FAS_ASSERT(phyAddress < 32u);
     /* AXIVION Routine Generic-MissingParameterAssert: retries: parameter accepts whole range */
-
     volatile uint16_t linkStatus = 0u;
     STD_RETURN_TYPE_e retVal     = STD_NOT_OK;
     bool readSuccess             = false;
+    uint32_t readRetries         = 0u;
 
-    while (retries > 0u) {
+    while (readRetries < PHY_LINK_RETRIES) {
         /* First try to read the BMSR of the PHY*/
         readSuccess = MDIOPhyRegRead(mdioBaseAddress, phyAddress, (uint32_t)PHY_BMSR, &linkStatus);
         if (readSuccess == true) {
@@ -305,14 +323,14 @@ extern STD_RETURN_TYPE_e PHY_GetLinkStatus(uint32_t mdioBaseAddress, uint32_t ph
                 phy_tablePhy.linkStatus = true;
                 break;
             } else {
-                retries--;
+                readRetries++;
                 /* Don't block other tasks to much */
-                OS_DelayTask(100u);
+                OS_DelayTask(PHY_LINK_RETRY_DELAY_TIME);
             }
         } else {
-            retries--;
+            readRetries++;
             /* Don't block other tasks to much */
-            OS_DelayTask(100u);
+            OS_DelayTask(PHY_LINK_RETRY_DELAY_TIME);
         }
     }
     if (retVal == STD_NOT_OK) {
@@ -351,10 +369,10 @@ extern STD_RETURN_TYPE_e PHY_AutoNegotiate(uint32_t mdioBaseAddress, uint32_t ph
     FAS_ASSERT(phyAddress < 32u);
     /* AXIVION Routine Generic-MissingParameterAssert: advVal: parameter accepts whole range */
 
-    volatile uint16_t data   = 0u;
-    volatile uint16_t anar   = 0u;
-    STD_RETURN_TYPE_e retVal = STD_OK;
-    uint32_t phyNegTries     = 100u;
+    volatile uint16_t data       = 0u;
+    volatile uint16_t anar       = 0u;
+    STD_RETURN_TYPE_e retVal     = STD_OK;
+    uint32_t phyNegotiationTries = 10u;
 
     if (MDIOPhyRegRead(mdioBaseAddress, phyAddress, (uint32_t)PHY_BMCR, &data) != true) {
         retVal = STD_NOT_OK;
@@ -387,9 +405,9 @@ extern STD_RETURN_TYPE_e PHY_AutoNegotiate(uint32_t mdioBaseAddress, uint32_t ph
     if (retVal == STD_OK) {
         /* Wait till auto negotiation is complete */
         while ((((uint16_t)(PHY_AUTONEG_INCOMPLETE)) == (data & (uint16_t)(PHY_AUTONEG_STATUS))) &&
-               (phyNegTries > 0u)) {
+               (phyNegotiationTries > 0u)) {
             (void)MDIOPhyRegRead(mdioBaseAddress, phyAddress, (uint32_t)PHY_BMSR, &data);
-            phyNegTries--;
+            phyNegotiationTries--;
             OS_DelayTask(PHY_AUTO_NEG_DELAY_TIME);
         }
 
@@ -406,7 +424,7 @@ extern bool PHY_GetPartnerAbility(uint32_t mdioBaseAddress, uint32_t phyAddress,
     /* AXIVION Routine Generic-MissingParameterAssert: mdioBaseAddress: parameter accepts whole range */
     FAS_ASSERT(phyAddress < 32u);
     FAS_ASSERT(pPartnerAbility != NULL_PTR);
-
+    /* Read the corresponding register value. */
     return (MDIOPhyRegRead(mdioBaseAddress, phyAddress, PHY_ALNPAR, pPartnerAbility));
 }
 
@@ -520,9 +538,11 @@ extern void PHY_ResetSoftware(uint32_t mdioBaseAddress, uint32_t phyAddress) {
 }
 
 extern void PHY_ResetHardware(void) {
+    /* Set reset pin low and wait the reset time */
     IO_PinReset(&PHY_IO_HW_RESET_REG_DOUT, PHY_HW_RESET_PIN);
     OS_DelayTask(PHY_HW_RESET_TIME);
     IO_PinSet(&PHY_IO_HW_RESET_REG_DOUT, PHY_HW_RESET_PIN);
+    /* Wait for the PHY to start again. */
     OS_DelayTask(PHY_HW_POST_RESET_STABILIZATION_TIME);
 }
 

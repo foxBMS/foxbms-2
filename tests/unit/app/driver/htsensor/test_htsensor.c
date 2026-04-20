@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,7 +61,9 @@
 #include "Mocki2c.h"
 #include "Mockos.h"
 
+#include "fstd_types.h"
 #include "htsensor.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/driver/htsensor")
@@ -83,6 +85,8 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /** test the CRC8 function with known values */
 void testCalculateCrc8(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_HTSEN_TestCalculateCrc8(NULL_PTR, 0u));
+
     uint8_t data[2] = {0};
     data[1u]        = 0xEF;
     data[0u]        = 0xBE;

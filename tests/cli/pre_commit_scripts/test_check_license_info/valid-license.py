@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,8 +39,6 @@
 
 """Testing file 'cli/pre_commit_scripts/check_license_info/valid-license.py'."""
 
-# pylint: disable=invalid-name
-
 import unittest
 
 
@@ -48,7 +46,7 @@ class TestValidLicense(unittest.TestCase):
     """Test of 'valid-license.py'"""
 
     def test_dummy(self):
-        """dummy test"""
+        """Dummy test"""
         # this test is necessary because otherwise the exit code is non-zero
 
 

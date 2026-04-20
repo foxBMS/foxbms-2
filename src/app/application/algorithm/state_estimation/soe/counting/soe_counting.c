@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -107,7 +107,9 @@ static SOE_STATE_s soe_state = {
 
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_CURRENT_SENSOR_s soe_tableCurrentSensor = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+static DATA_BLOCK_CURRENT_s soe_tableCurrent                 = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+static DATA_BLOCK_ENERGY_COUNTER_s soe_tableEnergyCounter    = {.header.uniqueId = DATA_BLOCK_ID_ENERGY_COUNTER};
+static DATA_BLOCK_SYSTEM_VOLTAGE_1_s soe_tableSystemVoltage1 = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_1};
 /**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -272,19 +274,16 @@ static void SOE_SetValue(
 
     /* Calculate scaling values depending on EC counting value and current SOE */
     if (soe_state.sensorEcUsed[stringNumber] == true) {
-        DATA_READ_DATA(&soe_tableCurrentSensor);
+        DATA_READ_DATA(&soe_tableEnergyCounter);
 
         float_t ecOffset =
-            SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableCurrentSensor.energyCounter_Wh[stringNumber]));
+            SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableEnergyCounter.energyCounter_Wh[stringNumber]));
 
-        if (soe_tableCurrentSensor.energyCounter_Wh[stringNumber] < 0) {
+        if (soe_tableEnergyCounter.energyCounter_Wh[stringNumber] < 0) {
             ecOffset *= (-1.0f);
         }
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-        ecOffset *= (-1.0f); /* negate calculated delta SOE in perc */
-
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+        ecOffset *= BS_CURRENT_DIRECTION_FLOAT; /* negate calculated delta SOE in perc */
 
         soe_state.ecScalingAverage[stringNumber] = fram_soe.averageSoe_perc[stringNumber] + ecOffset;
         soe_state.ecScalingMinimum[stringNumber] = fram_soe.minimumSoe_perc[stringNumber] + ecOffset;
@@ -341,21 +340,18 @@ extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues, bool ec_pre
         SOE_GetStringEnergyFromSoePercentage(pSoeValues->averageSoe_perc[stringNumber]);
 
     if (ec_present == true) {
-        DATA_READ_DATA(&soe_tableCurrentSensor);
+        DATA_READ_DATA(&soe_tableEnergyCounter);
         soe_state.sensorEcUsed[stringNumber] = true;
 
         /* Set scaling values */
         float_t ecOffset =
-            SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableCurrentSensor.energyCounter_Wh[stringNumber]));
+            SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableEnergyCounter.energyCounter_Wh[stringNumber]));
 
-        if (soe_tableCurrentSensor.energyCounter_Wh[stringNumber] < 0) {
+        if (soe_tableEnergyCounter.energyCounter_Wh[stringNumber] < 0) {
             ecOffset *= (-1.0f);
         }
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-        ecOffset *= (-1.0f); /* negate calculated delta SOE in perc */
-
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+        ecOffset *= BS_CURRENT_DIRECTION_FLOAT; /* negate calculated delta SOE in perc */
 
         soe_state.ecScalingMinimum[stringNumber] = fram_soe.minimumSoe_perc[stringNumber] + ecOffset;
         soe_state.ecScalingMaximum[stringNumber] = fram_soe.maximumSoe_perc[stringNumber] + ecOffset;
@@ -374,7 +370,7 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
 
     if (continueFunction == true) {
         /* Use energy counting/integrate */
-        DATA_READ_DATA(&soe_tableCurrentSensor);
+        DATA_READ_DATA(&soe_tableCurrent, &soe_tableSystemVoltage1, &soe_tableEnergyCounter);
 
         if (BMS_GetBatterySystemState() == BMS_AT_REST) {
             /* Recalibrate SOE via LUT */
@@ -383,8 +379,8 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
             for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
                 if (soe_state.sensorEcUsed[s] == false) {
                     /* no energy counting activated -> manually integrate energy */
-                    uint32_t timestamp          = soe_tableCurrentSensor.timestampCurrent[s];
-                    uint32_t previous_timestamp = soe_tableCurrentSensor.previousTimestampCurrent[s];
+                    uint32_t timestamp          = soe_tableCurrent.timestamp[s];
+                    uint32_t previous_timestamp = soe_tableCurrent.previousTimestamp[s];
 
                     /* check if current measurement has been updated */
                     if (soe_state.previousTimestamp[s] != timestamp) {
@@ -392,21 +388,18 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                         if (time_step_s > 0.0f) {
                             /* Current in charge direction negative means SOE increasing --> BAT naming, not ROB */
                             float_t deltaSOE_Wh =
-                                ((((float_t)soe_tableCurrentSensor.current_mA[s] / 1000.0f) *         /* convert to A */
-                                  ((float_t)soe_tableCurrentSensor.highVoltage_mV[s][0] / 1000.0f)) / /* convert to V */
-                                 time_step_s) /                                                       /* unit: s */
+                                ((((float_t)soe_tableCurrent.current_mA[s] / 1000.0f) *             /* convert to A */
+                                  ((float_t)soe_tableSystemVoltage1.highVoltage_mV[s] / 1000.0f)) / /* convert to V */
+                                 time_step_s) /                                                     /* unit: s */
                                 3600.0f; /* convert Ws -> Wh */
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-                            /* negate calculated delta SOE_Wh */
-                            deltaSOE_Wh *= (-1.0f);
-#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
+                            deltaSOE_Wh *= BS_CURRENT_DIRECTION_FLOAT;
 
                             pSoeValues->averageSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
                             pSoeValues->minimumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
                             pSoeValues->maximumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
 
-                            if (BMS_GetCurrentFlowDirection(soe_tableCurrentSensor.current_mA[s]) == BMS_CHARGING) {
+                            if (BMS_GetCurrentFlowDirection(soe_tableCurrent.current_mA[s]) == BMS_CHARGING) {
                                 pSoeValues->chargeEnergyThroughput_Wh[s] = pSoeValues->chargeEnergyThroughput_Wh[s] +
                                                                            fabs(deltaSOE_Wh);
                             } else {
@@ -428,24 +421,22 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                     } /* end check if current measurement has been updated */
                 } else {
                     /* check if ec measurement has been updated */
-                    if (soe_state.previousTimestamp[s] != soe_tableCurrentSensor.timestampEnergyCounting[s]) {
+                    if (soe_state.previousTimestamp[s] != soe_tableEnergyCounter.timestamp[s]) {
                         /* Calculate SOE value with current sensor EC value */
                         float_t deltaSoe_perc =
-                            (((float_t)soe_tableCurrentSensor.energyCounter_Wh[s] / SOE_STRING_ENERGY_Wh) *
+                            (((float_t)soe_tableEnergyCounter.energyCounter_Wh[s] / SOE_STRING_ENERGY_Wh) *
                              UNIT_CONVERSION_FACTOR_100_FLOAT);
 
                         float_t energyDifference_Wh = fabs(
-                            (float_t)soe_tableCurrentSensor.energyCounter_Wh[s] - soe_state.previousEnergyCount_Wh[s]);
+                            (float_t)soe_tableEnergyCounter.energyCounter_Wh[s] - soe_state.previousEnergyCount_Wh[s]);
 
-#if BS_POSITIVE_DISCHARGE_CURRENT == false
-                        /* negate calculated delta SOE_perc */
-                        deltaSoe_perc *= (-1.0f);
-#endif
+                        deltaSoe_perc *= BS_CURRENT_DIRECTION_FLOAT;
+
                         /* Apply EC scaling offset to get actual string energy */
                         pSoeValues->averageSoe_perc[s] = soe_state.ecScalingAverage[s] - deltaSoe_perc;
                         pSoeValues->minimumSoe_perc[s] = soe_state.ecScalingMinimum[s] - deltaSoe_perc;
                         pSoeValues->maximumSoe_perc[s] = soe_state.ecScalingMaximum[s] - deltaSoe_perc;
-                        if (BMS_GetCurrentFlowDirection(soe_tableCurrentSensor.current_mA[s]) == BMS_CHARGING) {
+                        if (BMS_GetCurrentFlowDirection(soe_tableCurrent.current_mA[s]) == BMS_CHARGING) {
                             pSoeValues->chargeEnergyThroughput_Wh[s] = pSoeValues->chargeEnergyThroughput_Wh[s] +
                                                                        energyDifference_Wh;
                         } else {
@@ -465,8 +456,8 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                             SOE_GetStringEnergyFromSoePercentage(pSoeValues->minimumSoe_perc[s]);
 
                         /* Update timestamp for next iteration */
-                        soe_state.previousEnergyCount_Wh[s] = soe_tableCurrentSensor.energyCounter_Wh[s];
-                        soe_state.previousTimestamp[s]      = soe_tableCurrentSensor.timestampEnergyCounting[s];
+                        soe_state.previousEnergyCount_Wh[s] = soe_tableEnergyCounter.energyCounter_Wh[s];
+                        soe_state.previousTimestamp[s]      = soe_tableEnergyCounter.timestamp[s];
                     }
                 }
 

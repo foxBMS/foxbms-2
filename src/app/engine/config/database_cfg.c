@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -83,8 +83,23 @@ static DATA_BLOCK_CELL_TEMPERATURE_s data_blockCellTemperatureRedundancy0 = {
 /** data block: minimum and maximum values */
 static DATA_BLOCK_MIN_MAX_s data_blockMinMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 
-/** data block: current sensor */
-static DATA_BLOCK_CURRENT_SENSOR_s data_blockCurrentSensor = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+/** data block: current */
+static DATA_BLOCK_CURRENT_s data_blockCurrent = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};
+/** data block: current sensor self-information */
+static DATA_BLOCK_CURRENT_SENSOR_TEMPERATURE_s data_blockCurrentSensorTemperature = {
+    .header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR_TEMPERATURE};
+/** data block: system power measurement */
+static DATA_BLOCK_POWER_s data_blockPower = {.header.uniqueId = DATA_BLOCK_ID_POWER};
+/** data block: sensor based Coulomb counting */
+static DATA_BLOCK_CURRENT_COUNTER_s data_blockCurrentCounter = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_COUNTER};
+/** data block: sensor based energy counting */
+static DATA_BLOCK_ENERGY_COUNTER_s data_blockEnergyCounter = {.header.uniqueId = DATA_BLOCK_ID_ENERGY_COUNTER};
+/** data block: system voltage 1 */
+static DATA_BLOCK_SYSTEM_VOLTAGE_1_s data_blockSystemVoltage1 = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_1};
+/** data block: system voltage 2 */
+static DATA_BLOCK_SYSTEM_VOLTAGE_2_s data_blockSystemVoltage2 = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_2};
+/** data block: system voltage 3 */
+static DATA_BLOCK_SYSTEM_VOLTAGE_3_s data_blockSystemVoltage3 = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_VOLTAGE_3};
 
 /** data block: balancing control */
 static DATA_BLOCK_BALANCING_CONTROL_s data_blockControlBalancing = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
@@ -156,8 +171,7 @@ static DATA_BLOCK_STATE_REQUEST_s data_blockStateRequest = {.header.uniqueId = D
 static DATA_BLOCK_MOVING_AVERAGE_s data_blockMovingAverage = {.header.uniqueId = DATA_BLOCK_ID_MOVING_AVERAGE};
 
 /** data block: insulation monitoring */
-static DATA_BLOCK_INSULATION_MONITORING_s data_blockInsulationMonitoring = {
-    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+static DATA_BLOCK_INSULATION_s data_blockInsulation = {.header.uniqueId = DATA_BLOCK_ID_INSULATION};
 
 /** data b  lock: pack values */
 static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
@@ -179,15 +193,22 @@ static DATA_BLOCK_AEROSOL_SENSOR_s data_blockAerosolSensor = {.header.uniqueId =
 static DATA_BLOCK_PHY_s data_blockPhy = {.header.uniqueId = DATA_BLOCK_ID_PHY};
 
 /**
- * @brief   channel configuration of database (data blocks)
- * @details all data block managed by database are listed here (address, size,
- *          consistency type)
+ * @brief   database configuration (i.e., included data blocks)
+ * @details all data block managed by database are listed here (i.e., their
+ *          address and size)
  */
 DATA_BASE_s data_database[] = {
     {(void *)(&data_blockCellVoltage), sizeof(DATA_BLOCK_CELL_VOLTAGE_s)},
     {(void *)(&data_blockCellTemperature), sizeof(DATA_BLOCK_CELL_TEMPERATURE_s)},
     {(void *)(&data_blockMinMax), sizeof(DATA_BLOCK_MIN_MAX_s)},
-    {(void *)(&data_blockCurrentSensor), sizeof(DATA_BLOCK_CURRENT_SENSOR_s)},
+    {(void *)(&data_blockCurrent), sizeof(DATA_BLOCK_CURRENT_s)},
+    {(void *)(&data_blockCurrentSensorTemperature), sizeof(DATA_BLOCK_CURRENT_SENSOR_TEMPERATURE_s)},
+    {(void *)(&data_blockPower), sizeof(DATA_BLOCK_POWER_s)},
+    {(void *)(&data_blockCurrentCounter), sizeof(DATA_BLOCK_CURRENT_COUNTER_s)},
+    {(void *)(&data_blockEnergyCounter), sizeof(DATA_BLOCK_ENERGY_COUNTER_s)},
+    {(void *)(&data_blockSystemVoltage1), sizeof(DATA_BLOCK_SYSTEM_VOLTAGE_1_s)},
+    {(void *)(&data_blockSystemVoltage2), sizeof(DATA_BLOCK_SYSTEM_VOLTAGE_2_s)},
+    {(void *)(&data_blockSystemVoltage3), sizeof(DATA_BLOCK_SYSTEM_VOLTAGE_3_s)},
     {(void *)(&data_blockControlBalancing), sizeof(DATA_BLOCK_BALANCING_CONTROL_s)},
     {(void *)(&data_blockSlaveControl), sizeof(DATA_BLOCK_SLAVE_CONTROL_s)},
     {(void *)(&data_blockFeedbackBalancingBase), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},
@@ -213,7 +234,7 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockFeedbackBalancingRedundancy0), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},
     {(void *)(&data_blockAllGpioVoltagesRedundancy0), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
     {(void *)(&data_blockOpenWireRedundancy0), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
-    {(void *)(&data_blockInsulationMonitoring), sizeof(DATA_BLOCK_INSULATION_MONITORING_s)},
+    {(void *)(&data_blockInsulation), sizeof(DATA_BLOCK_INSULATION_s)},
     {(void *)(&data_blockPackValues), sizeof(DATA_BLOCK_PACK_VALUES_s)},
     {(void *)(&data_blockAdcVoltage), sizeof(DATA_BLOCK_ADC_VOLTAGE_s)},
     {(void *)(&data_blockHumidityTemperatureSensor), sizeof(DATA_BLOCK_HTSEN_s)},

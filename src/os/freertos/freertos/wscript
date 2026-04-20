@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,14 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the FreeRTOS library"""
-
-import os
-
 
 def build(bld):
-    """Build the FreeRTOS library"""
-
     source = [
         "croutine.c",
         "event_groups.c",
@@ -53,14 +47,13 @@ def build(bld):
         "stream_buffer.c",
         "tasks.c",
         "timers.c",
-        os.path.join("portable", "ccs", "arm_cortex-r5", "port.c"),
-        os.path.join("portable", "ccs", "arm_cortex-r5", "portasm.asm"),
-        os.path.join("portable", "common", "mpu_wrappers.c"),
-        os.path.join(
-            "portable", "memmang", "heap_4.c"
-        ),  # Configure heap for tcp; heap_4 and heap_5 are recommended by FreeRTOS
+        "portable/ccs/arm_cortex-r5/port.c",
+        "portable/ccs/arm_cortex-r5/portasm.asm",
+        "portable/common/mpu_wrappers.c",
+        # Configure heap for tcp; heap_4 and heap_5 are recommended by FreeRTOS
+        "portable/memmang/heap_4.c",
     ]
-    includes = ["include", os.path.join("portable", "ccs", "arm_cortex-r5")]
+    includes = ["include", "portable/ccs/arm_cortex-r5"]
     target = f"{bld.env.APPNAME.lower()}-os"
     use = f"{bld.env.APPNAME.lower()}-portable"
     cflags = bld.env.CFLAGS_OS

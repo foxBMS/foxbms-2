@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    debug_can.h
  * @author  foxBMS Team
  * @date    2024-04-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  DECAN
  *
@@ -65,6 +65,7 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+#include "foxbms_config.h"
 
 /** Maximum queue timeout time in milliseconds */
 #define DECAN_CAN2AFE_QUEUE_TIMEOUT_MS ((TickType_t)0u)
@@ -75,11 +76,12 @@
 /** Define the invalid and valid of data */
 #define DECAN_DATA_IS_VALID (1u)
 
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** Handle of the queue to transmit the received can message (cell temperature / cell voltage) to the debug/can afe */
 extern OS_QUEUE ftsk_canToAfeCellTemperaturesQueue;
-
 /** Handle of the queue to transmit the received can message (cell temperature / cell voltage) to the debug/can afe */
 extern OS_QUEUE ftsk_canToAfeCellVoltagesQueue;
+#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

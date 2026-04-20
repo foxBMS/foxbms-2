@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soe_debug_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -62,7 +62,7 @@
 /*========== Macros and Definitions =========================================*/
 /**
  * Cell energy used for SOE calculation, in this case Wh counting
- * Specified once according to data sheet of cell usually.
+ * Specified once according to datasheet of cell usually.
  */
 #define SOE_CELL_ENERGY_Wh ((uint16_t)20000u)
 

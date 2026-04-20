@@ -35,8 +35,8 @@
 /**
  * @file    fstartup.c
  * @date    11-Dec-2018
- * @updated 2025-08-05 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup MAIN
  * @prefix  STU
  *
@@ -60,7 +60,7 @@
  * file-level doxygen comment in 'tests/unit/bootloader/main/test_fstartup.c'
  * for more details */
 #ifdef UNITY_UNIT_TEST
-#include "mock_esm.h"
+#include "m_esm.h"
 #endif
 
 /* keep include order as suggested by TI HALCoGen */
@@ -82,6 +82,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/* cspell:ignore CONQ Efuse FALLTHRU SYSESR SSWF plls */
+
 /*========== Macros and Definitions =========================================*/
 /** number of retries for the PLL to come up */
 #define STU_PLL_RETRIES (5u)
@@ -95,7 +97,7 @@
  * @brief   Handler for a failed PLL lock
  * @details If the PLL can not be locked the, this function shall be called to
  *          ensure that the application no further starts.
- * @return  This function never returns */
+ */
 static void STU_HandlePllLockFail(void);
 
 #ifndef UNITY_UNIT_TEST

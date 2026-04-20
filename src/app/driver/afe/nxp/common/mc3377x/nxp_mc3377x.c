@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,16 @@
  * @file    nxp_mc3377x.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
  * @brief   Driver for the MC3377X analog front-end.
  * @details TODO
  */
+
+/* cspell:ignore BUSFW COMTODISABLE DEEPSLEEP */
 
 /*========== Includes =======================================================*/
 #include "nxp_mc3377x.h"
@@ -63,6 +65,7 @@
 #include "fassert.h"
 #include "fstd_types.h"
 #include "mcu.h"
+#include "nxp_mc3377x_alarm.h"
 #include "nxp_mc3377x_balancing.h"
 #include "nxp_mc3377x_database.h"
 #include "nxp_mc3377x_helpers.h"
@@ -107,6 +110,7 @@ N77X_STATE_s n77x_stateBase = {
     .currentMux                 = {0},
     .pMuxSequenceStart          = {0},
     .pMuxSequence               = {0},
+    .alarm                      = {0},
     .n77xData.cellVoltage       = &n77x_cellVoltage,
     .n77xData.cellTemperature   = &n77x_cellTemperature,
     .n77xData.allGpioVoltage    = &n77x_allGpioVoltage,
@@ -231,10 +235,12 @@ static void N77x_Initialize(N77X_STATE_s *pState) {
 
     /* Initialize daisy-chain */
     if (STD_OK != N77x_Enumerate(pState)) {
-        /* error handling */}
-        N77x_StartMeasurement(pState);
-        N77x_InitializeI2c(pState);
-        N77x_BalanceSetup(pState);
+        /* error handling */
+    }
+    N77x_InitializeAlarm(pState);
+    N77x_StartMeasurement(pState);
+    N77x_InitializeI2c(pState);
+    N77x_BalanceSetup(pState);
 }
 
 static void N77x_SetFirstMeasurementCycleFinished(N77X_STATE_s *pState) {
@@ -294,6 +300,7 @@ extern void N77x_Measure(N77X_STATE_s *pState) {
         N77x_ResetStringSequence(pState);
 
         while (pState->currentString < BS_NR_OF_STRINGS) {
+            N77x_CheckAlarm(pState);
             if (N77X_USE_MUX_FOR_TEMP == true) {
                 /* Set mux channel according to mux sequence */
                 N77x_SetMuxChannel(pState);
@@ -327,6 +334,10 @@ extern void N77x_Measure(N77X_STATE_s *pState) {
             N77x_SetFirstMeasurementCycleFinished(pState);
         }
     }
+}
+
+extern uint64_t *N77x_IdentifyAfes(void) {
+    return &n77x_stateBase.serialId[0][0];
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

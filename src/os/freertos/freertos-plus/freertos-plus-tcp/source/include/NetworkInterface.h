@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.3.2
+ * FreeRTOS+TCP V4.3.3
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -48,7 +48,7 @@
  */
 
 /* The following function is defined only when BufferAllocation_1.c is linked in the project. */
-void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkBuffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ] );
+size_t uxNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkBuffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ] );
 
 BaseType_t xGetPhyLinkStatus( struct xNetworkInterface * pxInterface );
 

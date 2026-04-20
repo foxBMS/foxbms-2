@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    utils.h
  * @author  foxBMS Team
  * @date    2022-11-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  UTIL
  *
@@ -89,11 +89,11 @@
  *          - If the end of the string is reached the function ends,
  *            this is even if the number of requested number of chars
  *            wasn't reached
- * @param pExtractedCharacters 64-bit variable where characters are written
- * @param pString String that chars will be extracted from
- * @param stringLength Length of the string
- * @param startChar First char that will be extracted
- * @param numberOfChars Number of Chars that will be extracted
+ * @param pExtractedCharacters  64-bit variable where characters are written
+ * @param pString               String that chars will be extracted from
+ * @param stringLength          Length of the string
+ * @param startChar             First char that will be extracted
+ * @param numberOfChars         Number of Chars that will be extracted
  */
 extern void UTIL_ExtractCharactersFromString(
     uint64_t *pExtractedCharacters,
@@ -101,9 +101,23 @@ extern void UTIL_ExtractCharactersFromString(
     uint8_t stringLength,
     uint8_t startChar,
     uint8_t numberOfChars);
+/**
+ * @brief   Utility function to seed the pseudo random number generator.
+ * @details Needs to be called before the first call of
+ *          #UTIL_GetPseudoRandomNumber.
+ * @param seed Seed for the random number generator
+ */
+extern void UTIL_SeedRandomNumber(uint32_t seed);
+/**
+ * @brief   Utility function to generate a pseudo random number.
+ * @details first call a seed needs to be set with #UTIL_SeedRandomNumber
+ * @return  Pseudo Random Number
+ */
+extern uint32_t UTIL_GetPseudoRandomNumber(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern uint32_t UTIL_GetSeed();
 #endif
 
 #endif /* FOXBMS__UTILS_H_ */

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,31 +41,37 @@
 
 import importlib
 import os
+import shutil
 import sys
 import tkinter as tk
 import unittest
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 try:
     from cli.cmd_gui import gui_impl
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_gui import gui_impl
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT
 
 RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "gui"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
 class TestFoxGui(unittest.TestCase):
     """Test of the FoxGui class"""
 
-    def setUp(self):
-        self.current_time = datetime.now()
+    @classmethod
+    def setUpClass(cls):
         importlib.reload(gui_impl)
+
+    def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
         self.app = gui_impl.main()
         self.app.withdraw()
         self.app.notebook.unbind("<<NotebookTabChanged>>")
@@ -73,10 +79,7 @@ class TestFoxGui(unittest.TestCase):
     def tearDown(self):
         self.app.update()
         self.app.destroy()
-        for child in PROJECT_BUILD_ROOT.iterdir():
-            if child.exists() and ("output_gui" in child.name):
-                if datetime.fromtimestamp(os.path.getctime(child)) > self.current_time:
-                    child.unlink()
+        remove_data(self.start_time)
 
     @patch("cli.cmd_gui.gui_impl.open_ide_generic")
     def test_fox_gui_open_vs_code_generic(self, mock_ide_generic: MagicMock):
@@ -148,6 +151,10 @@ class TestFoxGui(unittest.TestCase):
 class TestFoxGuiNoUiTestableMethods(unittest.TestCase):
     """Test of the FoxGui class"""
 
+    @classmethod
+    def setUpClass(cls):
+        importlib.reload(gui_impl)
+
     @patch("cli.cmd_gui.gui_impl.open_ide_generic")
     def test_fox_gui_open_vs_code_generic(self, mock_ide_generic: MagicMock):
         """Test 'open_vs_code_generic_cb' function of FoxGui class"""
@@ -200,24 +207,28 @@ class TestFoxGuiNoUiTestableMethods(unittest.TestCase):
         mock_tab.text_index = 10
         mock_notebook = MagicMock()
         mock_notebook.nametowidget.return_value = mock_tab
-        mock_foxgui = MagicMock()
-        mock_foxgui.notebook = mock_notebook
-        gui_impl.FoxGui.tab_changed_cb(mock_foxgui, "<<NotebookTabChanged>>")
+        mock_fox_gui = MagicMock()
+        mock_fox_gui.notebook = mock_notebook
+        gui_impl.FoxGui.tab_changed_cb(mock_fox_gui, "<<NotebookTabChanged>>")
         self.assertEqual(mock_tab.text_index, 0)
         mock_tab.write_text.assert_called_once()
-        mock_foxgui.text.config.assert_has_calls(
+        mock_fox_gui.text.config.assert_has_calls(
             [call(state="normal"), call(state="disabled")]
         )
-        mock_foxgui.text.delete.assert_called_once()
+        mock_fox_gui.text.delete.assert_called_once()
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
 class TestFoxGuiCloseWindow(unittest.TestCase):
     """Test of the 'close_window' function"""
 
-    def setUp(self):
-        self.current_time = datetime.now()
+    @classmethod
+    def setUpClass(cls):
         importlib.reload(gui_impl)
+
+    def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
         self.app = gui_impl.main()
         self.app.withdraw()
         self.app.notebook.unbind("<<NotebookTabChanged>>")
@@ -225,10 +236,7 @@ class TestFoxGuiCloseWindow(unittest.TestCase):
     def tearDown(self):
         self.app.update()
         self.app.destroy()
-        for child in PROJECT_BUILD_ROOT.iterdir():
-            if child.exists() and ("output_gui" in child.name):
-                if datetime.fromtimestamp(os.path.getctime(child)) > self.current_time:
-                    child.unlink()
+        remove_data(self.start_time)
 
     @patch("cli.cmd_gui.gui_impl.FoxGui.destroy")
     def test_close_unlink(self, mock_destroy: MagicMock):
@@ -238,7 +246,7 @@ class TestFoxGuiCloseWindow(unittest.TestCase):
             self.app.notebook.nametowidget(tabs[0]).file_path, encoding="utf-8"
         )
         self.app.close_window()
-        for child in PROJECT_BUILD_ROOT.iterdir():
+        for child in PATH_GUI.iterdir():
             if child.exists():
                 self.assertFalse("output_gui" in child.name)
         self.assertTrue(self.app.notebook.nametowidget(tabs[0]).file_stream.closed)
@@ -273,9 +281,21 @@ class TestFoxGuiCloseWindow(unittest.TestCase):
             tab_obj = self.app.notebook.nametowidget(tab_name)
             if hasattr(tab_obj, "file_stream"):
                 self.assertTrue(tab_obj.file_stream.closed)
-        for child in PROJECT_BUILD_ROOT.iterdir():
+        for child in PATH_GUI.iterdir():
             if child.exists():
                 self.assertFalse("output_gui" in child.name)
+        mock_destroy.assert_called_once()
+
+    @patch("cli.cmd_gui.gui_impl.FoxGui.destroy")
+    @patch("cli.cmd_gui.gui_impl.SimulateBmsFrame.start_stop_sim_cb")
+    def test_sim_active(self, mock_cb: MagicMock, mock_destroy: MagicMock):
+        """Test 'close_window' function when sim_active is True"""
+        for tab_name in self.app.notebook.tabs():
+            tab_obj = self.app.notebook.nametowidget(tab_name)
+            if "simulate" in tab_name:
+                tab_obj.sim_active = True
+        self.app.close_window()
+        mock_cb.assert_called_once()
         mock_destroy.assert_called_once()
 
 
@@ -290,12 +310,12 @@ class TestFoxGuiNoUiCloseWindow(unittest.TestCase):
         mock_tab = MagicMock()
         mock_tab.file_stream = mock_file_stream
         mock_tab.file_path = mock_file_path
-        mock_foxgui = MagicMock()
+        mock_fox_gui = MagicMock()
         mock_notebook = MagicMock()
-        mock_foxgui.notebook = mock_notebook
+        mock_fox_gui.notebook = mock_notebook
         mock_notebook.tabs.return_value = ["tab_1", "tab_2"]
         mock_notebook.nametowidget.return_value = mock_tab
-        gui_impl.FoxGui.close_window(mock_foxgui)
+        gui_impl.FoxGui.close_window(mock_fox_gui)
         mock_file_stream.close.assert_has_calls([call(), call()])
         mock_file_path.exists.assert_has_calls([call(), call()])
         mock_file_path.unlink.assert_has_calls([call(), call()])
@@ -308,12 +328,12 @@ class TestFoxGuiNoUiCloseWindow(unittest.TestCase):
         mock_tab = MagicMock()
         mock_tab.file_stream = mock_file_stream
         mock_tab.file_path = mock_file_path
-        mock_foxgui = MagicMock()
+        mock_fox_gui = MagicMock()
         mock_notebook = MagicMock()
-        mock_foxgui.notebook = mock_notebook
+        mock_fox_gui.notebook = mock_notebook
         mock_notebook.tabs.return_value = ["tab_1", "tab_2"]
         mock_notebook.nametowidget.return_value = mock_tab
-        gui_impl.FoxGui.close_window(mock_foxgui)
+        gui_impl.FoxGui.close_window(mock_fox_gui)
         mock_file_stream.close.assert_has_calls([call(), call()])
         mock_file_path.exists.assert_has_calls([call(), call()])
         mock_file_path.unlink.assert_not_called()
@@ -326,71 +346,134 @@ class TestFoxGuiNoUiCloseWindow(unittest.TestCase):
         mock_tab.file_path = mock_file_path
         if hasattr(mock_tab, "file_stream"):
             delattr(mock_tab, "file_stream")
-        mock_foxgui = MagicMock()
+        mock_fox_gui = MagicMock()
         mock_notebook = MagicMock()
-        mock_foxgui.notebook = mock_notebook
+        mock_fox_gui.notebook = mock_notebook
         mock_notebook.tabs.return_value = ["tab_1", "tab_2"]
         mock_notebook.nametowidget.return_value = mock_tab
-        gui_impl.FoxGui.close_window(mock_foxgui)
+        gui_impl.FoxGui.close_window(mock_fox_gui)
         mock_file_path.exists.assert_has_calls([call(), call()])
         mock_file_path.unlink.assert_has_calls([call(), call()])
 
+    def test_sim_active(self):
+        """Test 'close_window' function when sim_active is True"""
+        mock_file_path = MagicMock()
+        mock_file_path.exists.return_value = False
+        mock_cb = MagicMock()
+        mock_tab = MagicMock()
+        mock_tab.file_path = mock_file_path
+        mock_tab.sim_active = True
+        mock_tab.start_stop_sim_cb = mock_cb
+        mock_fox_gui = MagicMock()
+        mock_notebook = MagicMock()
+        mock_fox_gui.notebook = mock_notebook
+        mock_notebook.tabs.return_value = ["simulate_tab", "tab_2"]
+        mock_notebook.nametowidget.return_value = mock_tab
+        gui_impl.FoxGui.close_window(mock_fox_gui)
+        mock_file_path.exists.assert_has_calls([call(), call()])
+        mock_file_path.unlink.assert_not_called()
+        mock_cb.assert_called_once()
+
 
 @unittest.skipUnless(sys.platform.startswith("win32"), "Windows only test.")
+@patch("sys.platform", new="win32")
 class TestFoxGuiWin32(unittest.TestCase):
     """Test of the FoxGui class on Windows"""
 
-    @patch("sys.platform", new="win32")
     def setUp(self):
-        self.current_time = datetime.now()
-        importlib.reload(gui_impl)
-        self.app = gui_impl.main()
-        self.app.withdraw()
-        self.app.notebook.unbind("<<NotebookTabChanged>>")
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        self.app.destroy()
-        for child in PROJECT_BUILD_ROOT.iterdir():
-            if child.exists() and ("output_gui" in child.name):
-                if datetime.fromtimestamp(os.path.getctime(child)) > self.current_time:
-                    child.unlink()
+        remove_data(self.start_time)
 
-    def test_dummy(self):
-        """empty test"""
+    def test_project(self):
+        """Test when ROOT_IS_PROJECT is True"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True):
+            importlib.reload(gui_impl)
+            app = gui_impl.main()
+            app.withdraw()
+            app.notebook.unbind("<<NotebookTabChanged>>")
+            self.assertEqual(app.license_file, PROJECT_ROOT / "LICENSE.md")
+            app.destroy()
+
+    @patch("tkinter.Wm.iconbitmap")
+    def test_no_project(self, mock_iconbitmap: MagicMock):
+        """Test when ROOT_IS_PROJECT is False"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+            with patch("cli.helpers.misc.get_file_path") as mock_path:
+                dir_path = PROJECT_ROOT / "project_data"
+                mock_path.return_value = dir_path
+                importlib.reload(gui_impl)
+                app = gui_impl.main()
+                app.withdraw()
+                app.notebook.unbind("<<NotebookTabChanged>>")
+                self.assertEqual(app.license_file, dir_path / "LICENSE.md")
+                mock_iconbitmap.assert_called_once_with(
+                    True, str(dir_path / "favicon.ico")
+                )
+                app.destroy()
+
+    def test_no_project_check_ide_patch(self):
+        """Test when ROOT_IS_PROJECT is False"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+            importlib.reload(gui_impl)
+            self.assertEqual(gui_impl.dummy(), 0)
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+@patch("sys.platform", new="linux")
 class TestFoxGuiLinux(unittest.TestCase):
     """Test of the FoxGui class on linux"""
 
-    @patch("sys.platform", new="linux")
     def setUp(self):
-        self.current_time = datetime.now()
-        importlib.reload(gui_impl)
-        self.app = gui_impl.main()
-        self.app.withdraw()
-        self.app.notebook.unbind("<<NotebookTabChanged>>")
+        self.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
     def tearDown(self):
-        self.app.destroy()
-        for child in PROJECT_BUILD_ROOT.iterdir():
-            if child.exists() and ("output_gui" in child.name):
-                if datetime.fromtimestamp(os.path.getctime(child)) > self.current_time:
-                    child.unlink()
+        remove_data(self.start_time)
 
-    def test_dummy(self):
-        """empty test"""
+    def test_project(self):
+        """Test when ROOT_IS_PROJECT is True"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True):
+            importlib.reload(gui_impl)
+            app = gui_impl.main()
+            app.withdraw()
+            app.notebook.unbind("<<NotebookTabChanged>>")
+            self.assertEqual(app.license_file, PROJECT_ROOT / "LICENSE.md")
+            app.destroy()
+
+    @patch("tkinter.Wm.iconbitmap")
+    def test_no_project(self, mock_iconbitmap: MagicMock):
+        """Test when ROOT_IS_PROJECT is False"""
+        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+            with patch("cli.helpers.misc.get_file_path") as mock_path:
+                dir_path = PROJECT_ROOT / "project_data"
+                mock_path.return_value = dir_path
+                importlib.reload(gui_impl)
+                app = gui_impl.main()
+                app.withdraw()
+                app.notebook.unbind("<<NotebookTabChanged>>")
+                self.assertEqual(app.license_file, dir_path / "LICENSE.md")
+                mock_iconbitmap.assert_called_once_with(
+                    True, str(dir_path / "favicon.ico")
+                )
+                app.destroy()
 
 
 class TestGuiImpl(unittest.TestCase):
     """Test of the gui implementation."""
 
+    @classmethod
+    def setUpClass(cls):
+        importlib.reload(gui_impl)
+
     @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
     @patch("cli.cmd_gui.gui_impl.FoxGui")
-    def test_run_gui(self, mock_foxgui: MagicMock):
+    def test_run_gui(self, mock_fox_gui: MagicMock):
         """Test of the 'run_gui' function."""
         gui_impl.run_gui()
-        mock_foxgui.assert_called_once()
+        mock_fox_gui.assert_called_once()
 
     def test_gui_attributes(self):
         """Test class GuiAttributes"""
@@ -398,6 +481,30 @@ class TestGuiImpl(unittest.TestCase):
         self.assertEqual(attributes.sx, 100)
         self.assertEqual(attributes.sy, 200)
         self.assertEqual(attributes.bg, "test")
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = PATH_GUI.iterdir()
+            for child in children:
+                if datetime.fromtimestamp(child.stat().st_mtime, tz=UTC) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

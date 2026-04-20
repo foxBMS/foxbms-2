@@ -1,0 +1,63 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram id="pkUphzy372oFMDE8lKpy" name="running">
+    <mxGraphModel dx="2074" dy="1197" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-1" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Start insulation&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;measurement&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;shape=doubleEllipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="130" y="-1.9539925233402755e-14" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-2" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Request&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;resistance&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;measurement&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;values&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="130" y="130" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-3" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Evaluate&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;measurement&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;result&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="300" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-4" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Evaluate status&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;and device flags&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="ellipse;aspect=fixed;verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="130" y="450" width="106" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-5" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" source="TaE0mQ50plTUoc6H7ihB-1" target="TaE0mQ50plTUoc6H7ihB-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="350.37" y="369.3299999999999" as="sourcePoint" />
+            <mxPoint x="350.37" y="394.1700000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-6" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.3217;exitY=1.0000;entryX=0.6901;entryY=0.0000;" parent="1" source="TaE0mQ50plTUoc6H7ihB-2" target="TaE0mQ50plTUoc6H7ihB-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="266.25" y="862.4499999999999" as="sourcePoint" />
+            <mxPoint x="246.05" y="915.16" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-7" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;curved=1;exitX=1.0000;exitY=0.4243;entryX=1.0000;entryY=0.5582;" parent="1" source="TaE0mQ50plTUoc6H7ihB-3" target="TaE0mQ50plTUoc6H7ihB-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="353.1" y="1063.63" as="sourcePoint" />
+            <mxPoint x="362.64" y="1110.58" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="230" y="353" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-8" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;rounded=0;exitX=0.6371;exitY=1.0000;entryX=0.3545;entryY=0.0000;" parent="1" source="TaE0mQ50plTUoc6H7ihB-3" target="TaE0mQ50plTUoc6H7ihB-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="227.47" y="1259.24" as="sourcePoint" />
+            <mxPoint x="238.67" y="1298.4" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-9" style="html=1;endArrow=block;dashed=0;endFill=1;startArrow=none;startFill=0;fillColor=black;strokeColor=black;strokeWidth=1;curved=1;exitX=0.6990;exitY=0.0000;entryX=0.5817;entryY=1.0000;" parent="1" source="TaE0mQ50plTUoc6H7ihB-4" target="TaE0mQ50plTUoc6H7ihB-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="368.2" y="1317.79" as="sourcePoint" />
+            <mxPoint x="388.89" y="886.1" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="370" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="TaE0mQ50plTUoc6H7ihB-10" value="&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;Restart&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;measurement&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14.0px;&quot; face=&quot;Times,serif&quot; color=&quot;#000000&quot;&gt;cycle&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=bottom;resizable=0;points=[];" parent="TaE0mQ50plTUoc6H7ihB-9" vertex="1" connectable="0">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-72" y="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

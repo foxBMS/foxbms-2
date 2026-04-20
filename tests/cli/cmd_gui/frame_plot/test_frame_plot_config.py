@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,19 +42,25 @@
 # pylint: disable=too-many-lines
 
 import os
+import shutil
 import sys
 import tkinter as tk
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
+from tkinter import font, ttk
 from unittest.mock import MagicMock, call, patch
 
 try:
-    from cli.cmd_gui.frame_plot.frame_plot_config import PlotConfigFrame, font
+    from cli.cmd_gui.frame_plot.frame_plot_config import PlotConfigFrame
+    from cli.helpers.misc import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
-    from cli.cmd_gui.frame_plot.frame_plot_config import PlotConfigFrame, font
+    from cli.cmd_gui.frame_plot.frame_plot_config import PlotConfigFrame
+    from cli.helpers.misc import PROJECT_BUILD_ROOT
 
-RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+RUN_TESTS = os.environ.get("DISPLAY", None) or sys.platform.startswith("win32")
+PATH_GUI = PROJECT_BUILD_ROOT / "plot_config_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
@@ -62,6 +68,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
     """Test of the PlotConfigFrame class"""
 
     def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
         parent = tk.Tk()
         parent.withdraw()
         self.frame = PlotConfigFrame(parent, parent)
@@ -71,6 +78,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         self.frame.root.destroy()
         if hasattr(self.frame, "file_stream"):
             self.frame.file_stream.close()
+        remove_data(self.start_time)
 
     @patch("tkinter.filedialog.asksaveasfilename")
     def test_open_file_cb(self, mock_filename: MagicMock):
@@ -571,10 +579,10 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
             self.frame.get_selected_item()
         mock_write_text.assert_not_called()
         mock_treeview_focus.assert_called_once()
-        self.assertEqual("Item couldn't be found\n", str(e.exception))
+        self.assertEqual("Item could not be found\n", str(e.exception))
 
     def test_generate_plot_config_cb_no_plots(self):
-        """test 'generate_plot_config_cb' function when there are no plots"""
+        """Test 'generate_plot_config_cb' function when there are no plots"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         self.assertEqual(0, len(self.frame.plots))
@@ -584,7 +592,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         )
 
     def test_generate_plot_config_cb_no_lines(self):
-        """test 'generate_plot_config_cb' function when there are no lines"""
+        """Test 'generate_plot_config_cb' function when there are no lines"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         self.frame.plots.append({"mapping": {}})
@@ -594,7 +602,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         )
 
     def test_generate_plot_config_cb_invalid_path(self):
-        """test 'generate_plot_config_cb' function when the file path is not valid"""
+        """Test 'generate_plot_config_cb' function when the file path is not valid"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         self.frame.plots.append({"mapping": {"y1": {}}})
@@ -605,13 +613,13 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         )
 
     def test_generate_plot_config_cb(self):
-        """test 'generate_plot_config_cb' function"""
+        """Test 'generate_plot_config_cb' function"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_tab_plot = MagicMock()
         self.frame.root.tab_plot = mock_tab_plot
         self.frame.plots.append({"mapping": {"y1": {}}})
-        plot_file_path = str(Path(__file__).parent / "test.yaml")
+        plot_file_path = str(PATH_GUI / "test.yaml")
         self.frame.file_path_entry.delete(0, tk.END)
         self.frame.file_path_entry.insert(tk.END, plot_file_path)
         self.frame.generate_plot_config_cb()
@@ -624,11 +632,10 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         )
         with open(plot_file_path, encoding="utf-8") as f:
             self.assertEqual(f.read(), '[{"mapping": {"y1": {}}}]')
-        Path(plot_file_path).unlink()
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_empty(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when get_selected_item returns None"""
+        """Test 'add_line_cb' function when get_selected_item returns None"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = None
@@ -638,17 +645,17 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_error(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when get_selected_item raises an Error"""
+        """Test 'add_line_cb' function when get_selected_item raises an Error"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
-        mock_get_item.side_effect = ValueError("Item couldn't be found\n")
+        mock_get_item.side_effect = ValueError("Item could not be found\n")
         self.frame.add_line_cb()
         mock_get_item.assert_called_once()
-        mock_write_text.assert_called_once_with("Item couldn't be found\n")
+        mock_write_text.assert_called_once_with("Item could not be found\n")
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_line(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when a line is selected"""
+        """Test 'add_line_cb' function when a line is selected"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = ("plot_1", "plot_y1", 0)
@@ -658,7 +665,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_full_plot(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when selected plot has too many lines"""
+        """Test 'add_line_cb' function when selected plot has too many lines"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -671,7 +678,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_no_column(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when no input column is specified"""
+        """Test 'add_line_cb' function when no input column is specified"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -685,7 +692,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_min_error(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when value for min is not a number"""
+        """Test 'add_line_cb' function when value for min is not a number"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -702,7 +709,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
 
     @patch("cli.cmd_gui.frame_plot.frame_plot_config.PlotConfigFrame.get_selected_item")
     def test_add_line_cb_max_error(self, mock_get_item: MagicMock):
-        """test 'add_line_cb' function when value for max is not a number"""
+        """Test 'add_line_cb' function when value for max is not a number"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -722,7 +729,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
     def test_add_line_cb_update_treeview_error(
         self, mock_update_treeview: MagicMock, mock_get_item: MagicMock
     ):
-        """test 'add_line_cb' function when the treeview can't be updated"""
+        """Test 'add_line_cb' function when the treeview cannot be updated"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_update_treeview.side_effect = tk.TclError("Could not update treeview\n")
@@ -746,7 +753,7 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         mock_update_treeview: MagicMock,
         mock_get_item: MagicMock,
     ):
-        """test 'add_line_cb' function"""
+        """Test 'add_line_cb' function"""
         mock_write_text = MagicMock()
         self.frame.root.write_text = mock_write_text
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -779,24 +786,36 @@ class TestPlotConfigFrame(unittest.TestCase):  # pylint: disable=too-many-public
         mock_write_text.assert_not_called()
         mock_insert_text.assert_has_calls(calls)
 
-    def test_change_font_cb(self) -> None:
-        """Test 'change_font_cb' function"""
-        mock_event = MagicMock()
-        mock_event.widget = self.frame.label_y_axes_entry
+    def test_change_font_cb_entry(self) -> None:
+        """Test 'change_font_cb' function with an entry widget"""
+        event = tk.Event()
+        event.widget = self.frame.label_y_axes_entry
         self.assertEqual(
-            font.nametofont(str(mock_event.widget.cget("font"))).actual("slant"),
+            font.nametofont(str(event.widget.cget("font"))).actual("slant"),
             "italic",
         )
-        self.frame.change_font_cb(mock_event)
+        self.frame.change_font_cb(event)
         self.assertEqual(
-            font.nametofont(str(mock_event.widget.cget("font"))).actual("slant"),
+            font.nametofont(str(event.widget.cget("font"))).actual("slant"),
             "roman",
         )
+
+    def test_change_font_cb_no_entry(self) -> None:
+        """Test 'change_font_cb' function with a widget that is not an entry widget"""
+        event = tk.Event()
+        event.widget = self.frame.file_path_button
+        self.frame.change_font_cb(event)
 
 
 # pylint: disable=too-many-public-methods
 class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the PlotConfigFrame class"""
+
+    def setUp(self):
+        self.start_time = datetime.now(tz=UTC)
+
+    def tearDown(self):
+        remove_data(self.start_time)
 
     @patch("tkinter.filedialog.asksaveasfilename")
     def test_open_file_cb(self, mock_filename: MagicMock):
@@ -1360,10 +1379,10 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
             PlotConfigFrame.get_selected_item(mock_plot_config_frame)
         mock_write_text.assert_not_called()
         mock_treeview_focus.assert_called_once()
-        self.assertEqual("Item couldn't be found\n", str(e.exception))
+        self.assertEqual("Item could not be found\n", str(e.exception))
 
     def test_generate_plot_config_cb_no_plots(self):
-        """test 'generate_plot_config_cb' function when there are no plots"""
+        """Test 'generate_plot_config_cb' function when there are no plots"""
         mock_plot_config_frame = MagicMock()
         mock_write_text = MagicMock()
         mock_plot_config_frame.root.write_text = mock_write_text
@@ -1374,7 +1393,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
 
     def test_generate_plot_config_cb_no_lines(self):
-        """test 'generate_plot_config_cb' function when there are no lines"""
+        """Test 'generate_plot_config_cb' function when there are no lines"""
         mock_plot_config_frame = MagicMock()
         mock_write_text = MagicMock()
         mock_plot_config_frame.root.write_text = mock_write_text
@@ -1385,7 +1404,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
 
     def test_generate_plot_config_cb_invalid_path(self):
-        """test 'generate_plot_config_cb' function when the file path is not valid"""
+        """Test 'generate_plot_config_cb' function when the file path is not valid"""
         mock_plot_config_frame = MagicMock()
         mock_write_text = MagicMock()
         mock_file_path_entry = MagicMock()
@@ -1399,11 +1418,11 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
 
     def test_generate_plot_config_cb(self):
-        """test 'generate_plot_config_cb' function"""
+        """Test 'generate_plot_config_cb' function"""
         mock_plot_config_frame = MagicMock()
         mock_write_text = MagicMock()
         mock_file_path_entry = MagicMock()
-        plot_file_path = str(Path(__file__).parent / "test.yaml")
+        plot_file_path = str(PATH_GUI / "test.yaml")
         mock_file_path_entry.get.return_value = plot_file_path
         mock_tab_plot = MagicMock()
         mock_plot_config_frame.root.write_text = mock_write_text
@@ -1420,10 +1439,9 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
         with open(plot_file_path, encoding="utf-8") as f:
             self.assertEqual(f.read(), '[{"mapping": {"y1": {}}}]')
-        Path(plot_file_path).unlink()
 
     def test_add_line_cb_empty(self):
-        """test 'add_line_cb' function when get_selected_item returns None"""
+        """Test 'add_line_cb' function when get_selected_item returns None"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = None
@@ -1435,19 +1453,19 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         mock_write_text.assert_not_called()
 
     def test_add_line_cb_error(self):
-        """test 'add_line_cb' function when get_selected_item raises an Error"""
+        """Test 'add_line_cb' function when get_selected_item raises an Error"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
-        mock_get_item.side_effect = ValueError("Item couldn't be found\n")
+        mock_get_item.side_effect = ValueError("Item could not be found\n")
         mock_write_text = MagicMock()
         mock_plot_config_frame.root.write_text = mock_write_text
         mock_plot_config_frame.get_selected_item = mock_get_item
         PlotConfigFrame.add_line_cb(mock_plot_config_frame)
         mock_get_item.assert_called_once()
-        mock_write_text.assert_called_once_with("Item couldn't be found\n")
+        mock_write_text.assert_called_once_with("Item could not be found\n")
 
     def test_add_line_cb_line(self):
-        """test 'add_line_cb' function when a line is selected"""
+        """Test 'add_line_cb' function when a line is selected"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_y1", 0)
@@ -1459,7 +1477,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         mock_write_text.assert_called_once_with("The selected item has to be a Plot\n")
 
     def test_add_line_cb_full_plot(self):
-        """test 'add_line_cb' function when selected plot has too many lines"""
+        """Test 'add_line_cb' function when selected plot has too many lines"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -1474,7 +1492,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         mock_write_text.assert_called_once_with("A Plot can only contain 3 lines\n")
 
     def test_add_line_cb_no_column(self):
-        """test 'add_line_cb' function when no input column is specified"""
+        """Test 'add_line_cb' function when no input column is specified"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -1494,7 +1512,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
 
     def test_add_line_cb_min_error(self):
-        """test 'add_line_cb' function when value for min is not a number"""
+        """Test 'add_line_cb' function when value for min is not a number"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -1517,7 +1535,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
 
     def test_add_line_cb_max_error(self):
-        """test 'add_line_cb' function when value for max is not a number"""
+        """Test 'add_line_cb' function when value for max is not a number"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -1540,7 +1558,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         )
 
     def test_add_line_cb_update_treeview_error(self):
-        """test 'add_line_cb' function when the treeview can't be updated"""
+        """Test 'add_line_cb' function when the treeview cannot be updated"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -1562,7 +1580,7 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         self.assertEqual(mock_plot_config_frame.plots[0], plot)
 
     def test_add_line_cb(self):
-        """test 'add_line_cb' function"""
+        """Test 'add_line_cb' function"""
         mock_plot_config_frame = MagicMock()
         mock_get_item = MagicMock()
         mock_get_item.return_value = ("plot_1", "plot_1", 0)
@@ -1609,15 +1627,23 @@ class TestPlotConfigFrameNoUiTestableMethods(unittest.TestCase):
         mock_write_text.assert_not_called()
         mock_insert_text.assert_has_calls(calls)
 
-    def test_change_font_cb(self) -> None:
-        """Test 'change_font_cb' function"""
+    def test_change_font_cb_no_entry(self) -> None:
+        """Test 'change_font_cb' function with a widget that is not an entry widget"""
         mock_plot_config_frame = MagicMock()
-        mock_event = MagicMock()
-        mock_event.widget = MagicMock()
-        PlotConfigFrame.change_font_cb(mock_plot_config_frame, mock_event)
-        mock_event.widget.configure.assert_called_once_with(
-            font=mock_plot_config_frame.font_default
-        )
+        event = tk.Event()
+        event.widget = MagicMock()
+        PlotConfigFrame.change_font_cb(mock_plot_config_frame, event)
+        event.widget.configure.assert_not_called()
+
+    def test_change_font_cb_entry(self) -> None:
+        """Test 'change_font_cb' function with an entry widget"""
+        mock_plot_config_frame = MagicMock()
+        event = tk.Event()
+        mock_widget = MagicMock()
+        mock_widget.__class__ = ttk.Entry
+        event.widget = mock_widget
+        PlotConfigFrame.change_font_cb(mock_plot_config_frame, event)
+        mock_widget.configure.assert_called_once()
 
 
 class TestOpenPlot(unittest.TestCase):
@@ -1750,6 +1776,30 @@ class TestInsertText(unittest.TestCase):
         PlotConfigFrame.insert_text(entry_widget, "New Entry")
         entry_widget.delete.assert_called_once_with(0, tk.END)
         entry_widget.insert(tk.END, "New Entry")
+
+
+def remove_data(start_time: datetime) -> None:
+    """Remove all data from the gui directory if it as been created after start_time"""
+    if PATH_GUI.is_dir():
+        if get_birthtime(PATH_GUI) >= start_time:
+            shutil.rmtree(PATH_GUI)
+        else:
+            children = list(PATH_GUI.iterdir())
+            for child in children:
+                if get_birthtime(child) >= start_time:
+                    if child.is_dir():
+                        shutil.rmtree(child)
+                    else:
+                        child.unlink()
+
+
+def get_birthtime(object_name: Path) -> datetime:
+    """Return the birthtime of the given object"""
+    try:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_birthtime, tz=UTC)
+    except AttributeError:
+        birthtime = datetime.fromtimestamp(object_name.stat().st_atime, tz=UTC)
+    return birthtime
 
 
 if __name__ == "__main__":

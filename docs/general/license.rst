@@ -13,28 +13,26 @@ License
 
 The license texts are included verbatim in this documentation.
 
+|foxbms| Hardware and Documentation License
+===========================================
+
+- |foxbms| hardware and documentation is licensed under the
+  Creative Commons Attribution 4.0 International License.
+  The license can be obtained from
+  https://creativecommons.org/licenses/by/4.0/.
+- The SPDX short identifier is
+  `CC-BY-4.0 <https://spdx.org/licenses/CC-BY-4.0.html>`_.
+- The license text is found at
+  :ref:`CREATIVE_COMMONS_ATTRIBUTION_4_0_INTERNATIONAL_LICENSE`.
+
 |foxbms| Software License
 =========================
 
 - |foxbms| software is licensed under the BSD 3-Clause License.
 - The SPDX short identifier is
   `BSD-3-Clause <https://spdx.org/licenses/BSD-3-Clause.html>`_.
-
-The license text is included in this documentation at
-:ref:`BSD_3_CLAUSE_LICENSE__BSD_3_CLAUSE__NEW__OR__REVISED__LICENSE_`.
-
-|foxbms| Hardware and Documentation License
-===========================================
-
-- |foxbms| documentation is licensed under the
-  Creative Commons Attribution 4.0 International License.
-  The license can be obtained from
-  https://creativecommons.org/licenses/by/4.0/.
-- The SPDX short identifier is
-  `CC-BY-4.0 <https://spdx.org/licenses/CC-BY-4.0.html>`_.
-
-The license text is included in this documentation at
-:ref:`CREATIVE_COMMONS_ATTRIBUTION_4_0_INTERNATIONAL_LICENSE`.
+- The license text is found at
+  :ref:`BSD_3_CLAUSE_LICENSE__BSD_3_CLAUSE__NEW__OR__REVISED__LICENSE_`.
 
 .. _OPEN_SOURCE_HARDWARE_CERTIFICATION:
 

@@ -24,7 +24,7 @@ Added
 - Cell voltages and temperatures are each stored in one array containing all
   values. Added database helper functions to get string, module or cell/sensor
   number from index in the global array.
-- Added a block diagram of the |foxbms| master hardware.
+- Added a block diagram of the BMS-Master hardware.
 - Added a SPI API function that allows to switch the functional state (GIO or
   SPI) of a SPI pin of the MCU.
 - Added testing for different versions of TI CCS (versions ``10.2.1``,
@@ -129,5 +129,5 @@ Fixed
 - Fixed comparison error in SOF module that compared mA with A.
 - Some C-language guideline checks did not properly take C language global
   excludes into account.
-- Updated links in :numref:`HALCOGEN_TOOL_DOCUMENTATION`.
+- Updated links in documentation of the TI HALCoGen Tool.
 - Fixed construction of the path variable in batch scripts.

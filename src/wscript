@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,22 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper script to recursively build the embedded sources of the app or the
-bootloader"""
 
-from waflib import Logs
-from waflib.Build import BuildContext
-
-
-def build(bld: BuildContext):
-    """Propagates the build process details to the lower level wscript."""
-    if bld.variant in ("bootloader_spa", "app_spa"):
-        if not bld.env.AXIVION_CC:
-            Logs.warn("Axivion tools not available.")
-            return
-        bld.patch_for_axivion_build(bld)
-
-    if bld.variant in ("app_embedded", "app_spa"):
+def build(bld):
+    if bld.variant in ("app_embedded",):
         bld.recurse(["app", "os", "portable"])
-    if bld.variant in ("bootloader_embedded", "bootloader_spa"):
+    if bld.variant in ("bootloader_embedded",):
         bld.recurse(["bootloader", "portable"])

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_ti_afe.c
  * @author  foxBMS Team
  * @date    2023-09-11 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,10 +56,11 @@
 /*========== Includes =======================================================*/
 
 #include "unity.h"
+#include "Mockbattery_system_cfg.h"
+#include "Mockti_dummy.h" /* use the dummy implementation to test the interface */
 
-#include "ti_dummy.h" /* use the dummy implementation to test the interface */
-
-#include "afe.h"
+#include "fstd_types.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("ti_afe.c")
@@ -80,5 +81,71 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
+
+void testAFE_TriggerIc(void) {
+    TIDUM_Measure_ExpectAndReturn(STD_OK);
+    STD_RETURN_TYPE_e result = AFE_TriggerIc();
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_Initialize(void) {
+    TIDUM_Initialize_ExpectAndReturn(STD_OK);
+    STD_RETURN_TYPE_e result = AFE_Initialize();
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_RequestEepromRead(void) {
+    TEST_ASSERT_FAIL_ASSERT(AFE_RequestEepromRead(BS_NR_OF_STRINGS + 1));
+
+    TIDUM_RequestEepromRead_ExpectAndReturn(0u, STD_OK);
+    STD_RETURN_TYPE_e result = AFE_RequestEepromRead(0u);
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_RequestEepromWrite(void) {
+    TEST_ASSERT_FAIL_ASSERT(AFE_RequestEepromWrite(BS_NR_OF_STRINGS + 1));
+
+    TIDUM_RequestEepromWrite_ExpectAndReturn(0u, STD_OK);
+    STD_RETURN_TYPE_e result = AFE_RequestEepromWrite(0u);
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_RequestTemperatureRead(void) {
+    TEST_ASSERT_FAIL_ASSERT(AFE_RequestTemperatureRead(BS_NR_OF_STRINGS + 1));
+
+    TIDUM_RequestTemperatureRead_ExpectAndReturn(0u, STD_OK);
+    STD_RETURN_TYPE_e result = AFE_RequestTemperatureRead(0u);
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_RequestBalancingFeedbackRead(void) {
+    TEST_ASSERT_FAIL_ASSERT(AFE_RequestBalancingFeedbackRead(BS_NR_OF_STRINGS + 1));
+
+    TIDUM_RequestBalancingFeedbackRead_ExpectAndReturn(0u, STD_OK);
+    STD_RETURN_TYPE_e result = AFE_RequestBalancingFeedbackRead(0u);
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_RequestOpenWireCheck(void) {
+    TEST_ASSERT_FAIL_ASSERT(AFE_RequestOpenWireCheck(BS_NR_OF_STRINGS + 1));
+
+    TIDUM_RequestOpenWireCheck_ExpectAndReturn(0u, STD_OK);
+    STD_RETURN_TYPE_e result = AFE_RequestOpenWireCheck(0u);
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_StartMeasurement(void) {
+    TIDUM_StartMeasurement_ExpectAndReturn(STD_OK);
+    STD_RETURN_TYPE_e result = AFE_StartMeasurement();
+    TEST_ASSERT_EQUAL(result, STD_OK);
+}
+
+void testAFE_IsFirstMeasurementCycleFinished(void) {
+    TIDUM_IsFirstMeasurementCycleFinished_ExpectAndReturn(true);
+    bool result = AFE_IsFirstMeasurementCycleFinished();
+    TEST_ASSERT_TRUE(result);
+}
+
+void testAFE_IdentifyAfes(void) {
+    AFE_IdentifyAfes();
 }

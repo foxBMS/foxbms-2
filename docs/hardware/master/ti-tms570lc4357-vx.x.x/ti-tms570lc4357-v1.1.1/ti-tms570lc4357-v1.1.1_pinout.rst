@@ -11,6 +11,9 @@
 |local_bms_master_identifier_full| Pinout
 =========================================
 
+..
+   cspell:ignore isomon
+
 .. important::
 
    The following description only applies for the |bms-master| hardware version
@@ -19,10 +22,10 @@
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`,
-   :ref:`CONVENTION_FOR_SAMTEC_EDGE_RATE_CONNECTOR_PIN_NUMBERING`,
-   :ref:`CONVENTION_FOR_MICTOR_CONNECTOR_PIN_NUMBERING` or
-   :ref:`CONVENTION_FOR_WUERTH_WR_MJ_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR`,
+   :ref:`SAMTEC_EDGE_RATE_CONNECTOR`,
+   :ref:`MICTOR_CONNECTOR` or
+   :ref:`WUERTH_WR_MJ_CONNECTOR`.
 
 This section describes the pinout of all connectors on the |bms-master|
 |local_bms_master_version|.

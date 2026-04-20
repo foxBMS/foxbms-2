@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -83,7 +83,8 @@ class TestLogImpl(unittest.TestCase):
     @patch("cli.cmd_log.log_impl.Bus")
     def test_receive_can_message_stop_logging_0(self, m_bus: MagicMock, _: MagicMock):
         """Test that the CAN bus is stopped on a stop event and the case that
-        'recv' method of the CAN bus is empty"""
+        'recv' method of the CAN bus is empty
+        """
         data = MagicMock()
         network_ok = MagicMock()
         # no message -> recv is False
@@ -100,7 +101,8 @@ class TestLogImpl(unittest.TestCase):
     @patch("cli.cmd_log.log_impl.Bus")
     def test_receive_can_message_stop_logging_1(self, m_bus: MagicMock, _: MagicMock):
         """Test that the CAN bus is stopped on a stop event and the case that
-        'recv' method of the CAN bus receives a few messages."""
+        'recv' method of the CAN bus receives a few messages.
+        """
 
         def is_set():
             self.max_sets -= 1
@@ -211,9 +213,8 @@ class TestLogImpl(unittest.TestCase):
         mock_instance_event = mock_event.return_value
         mock_instance_event.wait.return_value = False
         buf = io.StringIO()
-        with redirect_stderr(buf):
-            with TemporaryDirectory() as tmpdir:
-                ret = log(MagicMock(), Path(tmpdir))
+        with redirect_stderr(buf), TemporaryDirectory() as tmpdir:
+            ret = log(MagicMock(), Path(tmpdir))
         self.assertEqual(
             "Could not initialize CAN bus. Timeout\nShutdown...\n", buf.getvalue()
         )
@@ -238,9 +239,8 @@ class TestLogImpl(unittest.TestCase):
         mock_instance_event.wait.return_value = True
         mock_srl.side_effect = ValueError
         buf = io.StringIO()
-        with redirect_stderr(buf):
-            with TemporaryDirectory() as tmpdir:
-                ret = log(MagicMock(), Path(tmpdir))
+        with redirect_stderr(buf), TemporaryDirectory() as tmpdir:
+            ret = log(MagicMock(), Path(tmpdir))
         self.assertEqual(
             "Could not create logger object.\nShutdown...\n", buf.getvalue()
         )
@@ -254,9 +254,8 @@ class TestLogImpl(unittest.TestCase):
         mock_instance_event.wait.return_value = True
         mock_srl.side_effect = ValueError
         buf = io.StringIO()
-        with redirect_stderr(buf):
-            with TemporaryDirectory() as tmpdir:
-                ret = log(MagicMock(), Path(tmpdir))
+        with redirect_stderr(buf), TemporaryDirectory() as tmpdir:
+            ret = log(MagicMock(), Path(tmpdir))
         self.assertEqual(
             "Could not create logger object.\n"
             "Could could not cancel the receive process gracefully.\n"
@@ -293,9 +292,8 @@ class TestLogImpl(unittest.TestCase):
         mock_log_can_message.side_effect = KeyboardInterrupt
         mock_sleep.return_value = 0
         buf = io.StringIO()
-        with redirect_stdout(buf):
-            with TemporaryDirectory() as tmpdir:
-                ret = log(MagicMock(), Path(tmpdir))
+        with redirect_stdout(buf), TemporaryDirectory() as tmpdir:
+            ret = log(MagicMock(), Path(tmpdir))
         self.assertEqual("Use Ctrl+C to stop logging.\nShutdown...\n", buf.getvalue())
         self.assertEqual(ret, 0)
 

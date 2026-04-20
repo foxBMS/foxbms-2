@@ -228,7 +228,7 @@ Safety Instructions Before Using |foxbms|
     Electrolyte may cause irritation or intoxication and lead to death or
     threaten your health. Hydrofluoric acid (HF) or phosphane (PH\ :sub:`3`\ )
     might develop. Wear eye protection and gloves while working with
-    electrolyte. Regard material safety data sheet (MSDS) from the battery
+    electrolyte. Regard material safety datasheet (MSDS) from the battery
     cell manufacturer.
 
 .. danger::
@@ -305,7 +305,7 @@ Safety Instructions Before Using |foxbms|
 
     Chemicals from the battery might threaten your health. Do not touch
     chemicals and wear chemical protective gloves and safety goggles. Regard
-    material safety data sheet (MSDS) from the battery cell manufacturer.
+    material safety datasheet (MSDS) from the battery cell manufacturer.
 
 .. warning::
     .. W012, W026

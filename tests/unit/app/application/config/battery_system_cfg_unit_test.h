@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    battery_system_cfg_unit_test.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -101,6 +101,12 @@ typedef enum {
 
 /** Define if discharge current is seen as positive or negative */
 #define BS_POSITIVE_DISCHARGE_CURRENT (true)
+
+#if BS_POSITIVE_DISCHARGE_CURRENT == true
+#define BS_CURRENT_DIRECTION_FLOAT (1.0f)
+#else
+#define BS_CURRENT_DIRECTION_FLOAT (-1.0f)
+#endif
 
 /**
  * @brief   Number of parallel strings in the battery pack
@@ -161,9 +167,13 @@ typedef enum {
  * @brief   number of temperature sensors per battery module
  * @ptype   int
  */
+#if defined(TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE)
+#define BS_NR_OF_TEMP_SENSORS_PER_MODULE (TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE)
+#else
 #define BS_NR_OF_TEMP_SENSORS_PER_MODULE (8u)
+#endif
 
-#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > SLV_NR_OF_GPIOS_PER_MODULE
+#if (SLV_USE_MUX_FOR_TEMP == false) && (BS_NR_OF_TEMP_SENSORS_PER_MODULE > SLV_NR_OF_GPIOS_PER_MODULE)
 #error "Number of temperature inputs cannot be higher than number of GPIOs"
 #endif
 
@@ -174,23 +184,11 @@ typedef enum {
 /** number of temperature sensors in a string */
 #define BS_NR_OF_TEMP_SENSORS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
 /** total number of temperature sensors in the battery system */
+#if defined(TEST_BS_NR_OF_TEMP_SENSORS)
+#define BS_NR_OF_TEMP_SENSORS (TEST_BS_NR_OF_TEMP_SENSORS)
+#else
 #define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
-
-/**
- * @details - If set to false, foxBMS does not check for the presence of a
- *            current sensor.
- *          - If set to true, foxBMS checks for the presence of a current
- *            sensor. If sensor stops responding during runtime, an error is
- *            raised.
- */
-#define BS_CURRENT_SENSOR_PRESENT (false)
-
-#if BS_CURRENT_SENSOR_PRESENT == true
-/**
- * defines if the Isabellenhuette current sensor is used in cyclic or triggered mode
- */
-#define CURRENT_SENSOR_ISABELLENHUETTE_CYCLIC
-/* #define CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED */
+#endif
 
 /** Delay in ms after which it is considered the current measurement is not responding anymore. */
 #define BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms (200u)
@@ -200,8 +198,6 @@ typedef enum {
 
 /** Delay in ms after which it is considered the energy counting is not responding anymore. */
 #define BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms (2000u)
-
-#endif /* BS_CURRENT_SENSOR_PRESENT == true */
 
 /**
  * @brief   Maximum break current of main contactors.
@@ -263,13 +259,6 @@ typedef enum {
  *            activates it accordingly.
  */
 #define BS_BALANCING_DEFAULT_INACTIVE (true)
-
-/**
- * @brief   number of high voltage inputs measured by current sensors (like
- *          IVT-MOD)
- * @ptype   int
- */
-#define BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR (3u)
 
 /** Number of contactors in addition to string contactors (e.g., PRECHARGE).*/
 #define BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS (1u)

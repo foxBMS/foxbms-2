@@ -1,0 +1,266 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+
+from waflib.Build import BuildContext
+
+
+def build(bld: BuildContext) -> None:
+    bld.recurse("config")
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_1785x_tools.c"),
+            bld.path.find_node("test_mxm_1785x_tools.c"),
+        ],
+        target="test-app-mxm_1785x_tools",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config/mxm_cfg.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_1785x.c"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_1785x_tools.c"),
+            bld.srcnode.find_node("src/app/engine/config/database_cfg.c"),
+            bld.path.find_node("test_mxm_1785x.c"),
+        ],
+        target="test-app-mxm_1785x",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/driver/ts/api"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/driver/afe/api/afe_plausibility.h"),
+            bld.srcnode.find_node("src/app/engine/database/database.h"),
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_17841b.h"),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/maxim/common/mxm_41b_register_map.h"
+            ),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/maxim/common/mxm_battery_management.h"
+            ),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config/mxm_cfg.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_crc8.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_registry.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+            bld.srcnode.find_node("src/app/driver/ts/api/tsi.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_17841b.c"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_bit_extract.c"),
+            bld.path.find_node("test_mxm_17841b.c"),
+        ],
+        target="test-app-mxm_17841b",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config/mxm_cfg.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_afe_dma.c"),
+            bld.path.find_node("test_mxm_afe_dma.c"),
+        ],
+        target="test-app-mxm_afe_dma",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/config"),
+        ],
+        mocks=[
+            bld.bldnode.find_or_declare(f"{bld.env.HAL_DIR[0]}/HL_sys_dma.h"),
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node(
+                "src/app/driver/afe/maxim/common/mxm_battery_management.c"
+            ),
+            bld.path.find_node("test_mxm_battery_management.c"),
+        ],
+        target="test-app-mxm_battery_management",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+            bld.srcnode.find_node("src/app/engine/diag"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/engine/diag/diag.h"),
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_17841b.h"),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/maxim/common/mxm_41b_register_map.h"
+            ),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config/mxm_cfg.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_crc8.h"),
+            bld.srcnode.find_node("src/app/task/os/os.h"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_bit_extract.c"),
+            bld.path.find_node("test_mxm_bit_extract.c"),
+        ],
+        target="test-app-mxm_bit_extract",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_crc8.c"),
+            bld.path.find_node("test_mxm_crc8.c"),
+        ],
+        target="test-app-mxm_crc8",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.path.find_node("test_mxm_register_map.c"),
+        ],
+        target="test-app-mxm_register_map",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )
+
+    bld(
+        features="c cprogram test",
+        source=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_registry.c"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_1785x_tools.c"),
+            bld.srcnode.find_node("src/app/driver/foxmath/foxmath.c"),
+            bld.path.find_node("test_mxm_registry.c"),
+        ],
+        target="test-app-mxm_registry",
+        includes=[
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/config"),
+            bld.srcnode.find_node("src/app/driver/config"),
+            bld.srcnode.find_node("src/app/driver/foxmath"),
+            bld.srcnode.find_node("src/app/driver/spi"),
+        ],
+        mocks=[
+            bld.srcnode.find_node("src/app/main/include/fassert.h"),
+            bld.srcnode.find_node("src/app/driver/afe/maxim/common/mxm_1785x.h"),
+            bld.srcnode.find_node(
+                "src/app/driver/afe/maxim/common/mxm_basic_defines.h"
+            ),
+        ],
+        defines=[
+            "FOXBMS_AFE_DRIVER_MAXIM=1u",
+            "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+        ],
+    )

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -89,6 +89,29 @@ class TestFCan(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 1)
         self.assertEqual(err, "Invalid channel choice for interface 'kvaser'.\n")
+
+        # SocketCan checks
+
+        CanBusConfig("socketcan", "can0")  # ok
+
+        config = CanBusConfig("socketcan")  # ok
+        self.assertIs(config.channel, "can0")
+
+        _err = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, redirect_stderr(_err):
+            CanBusConfig("socketcan", "foo")  # invalid channel
+        err = _err.getvalue()
+
+        self.assertEqual(cm.exception.code, 1)
+        self.assertEqual(err, "Invalid channel choice for interface 'socketcan'.\n")
+
+        _err = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, redirect_stderr(_err):
+            CanBusConfig("socketcan", 1)  #  AttributeError
+        err = _err.getvalue()
+
+        self.assertEqual(cm.exception.code, 1)
+        self.assertEqual(err, "Invalid channel choice for interface 'socketcan'.\n")
 
         # Virtual
         CanBusConfig("virtual")  # ok

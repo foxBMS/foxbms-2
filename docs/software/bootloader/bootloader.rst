@@ -11,14 +11,14 @@ Description
 
 A `bootloader <https://de.wikipedia.org/wiki/Bootloader>`__
 is a program to load initialization code.
-In our case, it is the initial segment of the program located at the start of
-the flash of the microcontroller (|ti-tms570lc4357|), and its primary purpose
-is to update the |foxbms| application via interfaces like CAN on the fly
-without the use of a debugger.
+In |foxbms| case, it is the initial segment of the program located at the start
+of the flash of the microcontroller (|ti-tms570lc4357|), and its primary
+purpose is to update the |foxbms| application via interfaces like CAN on the
+fly without the use of a debugger.
 
 With the help of the bootloader, the compiled binary file of the |foxbms|
 application can be easily uploaded to the |bms-master| by using the bootloader
-PC application that is integrated into the :ref:`FOX_CLI` tool.
+PC application, which is integrated into the :ref:`FOX_CLI_BASICS` tool.
 This tool not only provides the function to upload the binary of |foxbms| into
 the hardware but can also be used to check the current status of the bootloader
 and start the uploaded |foxbms| application manually.
@@ -33,7 +33,7 @@ functionalities:
 - resetting the boot process
 - starting the |foxbms| application
 
-To enable an automatic start of the |foxbms| application,  a timeout check has
+To enable an automatic start of the |foxbms| application, a timeout check has
 been implemented in the initial phase of the bootloader, as shown in
 :numref:`description_of_timeout_at_the_beginning`.
 If there is no valid application onboard, the bootloader will return to its
@@ -50,11 +50,11 @@ reset the bootloader should be executed before powering on the |bms-master|.
 
    Initial timeout check for bootloader
 
-Before using this PC application, the bootloader should be compiled and flashed
-into the hardware if there is no bootloader pre-installed in the |bms-master|.
+Before using this PC application, the bootloader must be compiled and flashed
+onto the |bms-master| if there is no bootloader already pre-installed.
 Similar to building the |foxbms| application in
-:ref:`BUILDING_THE_APPLICATION`, the fox CLI tool can be used to build the
-bootloader application by using the following command:
+:ref:`BUILDING_THE_APPLICATION`, the |fox-cli| tool is used to build the
+bootloader application by the following command:
 
    .. tabs::
 
@@ -76,21 +76,18 @@ bootloader application by using the following command:
 
             ./fox.sh waf build_bootloader_embedded
 
-After flashing the binary of the bootloader into the |bms-master|, it is
-possible to use the bootloader PC application to communicate with it.
+After flashing the binary of the bootloader onto the |bms-master| (through a
+debugger), it is possible to use the bootloader PC application to communicate
+with it.
 
 .. _how_to_use_it:
 
 How to Use It?
 --------------
 
-To build the bootloader binary, use the command variant
-``build_bootloader_embedded``.
-After the binary is successfully built, user can flash it into the |bms-master|
-board using a debugger.
-Once the binary is flashed, you can control it using commands available in the
-fox CLI tool.
-This bootloader PC application provides the following commands to interact
+Once the bootloader is flashed, you can control it using commands available in
+the |fox-cli| tool.
+The bootloader PC application provides the following commands to interact
 with the bootloader:
 
 #. Check the status of the bootloader:
@@ -137,11 +134,11 @@ with the bootloader:
 
             ./fox.sh bootloader load-app
 
-   (To use this function, a |foxbms| binary should be built in advance
+   (To use this function, a |foxbms| binary must be built in advance
    following the instructions described in :ref:`BUILDING_THE_APPLICATION`.
    In addition, the command should be executed before powering on the
-   |bms-master|, and the board should be powered on first if the instruction
-   `"Waiting bootloader to be powered on ..."` is displaying in the terminal.)
+   |bms-master|, and the board should be powered when the instruction
+   `"Waiting bootloader to be powered on ..."` appears on the terminal.)
 
 #. Reset the boot process:
 
@@ -165,14 +162,12 @@ with the bootloader:
 
             ./fox.sh bootloader reset
 
-   (Like the command to load a new |foxbms| application, the reset command
+   Like the command to load a new |foxbms| application, the reset command
    should also be executed before powering on the |bms-master|.
    The board should then be powered on after the instruction
-   `"Waiting bootloader to be powered on..."` is displaying in the terminal.)
-
-   (In the case of an error status, a reset command or a power-on restart
-   should resolve the problem. If not, the user could contact foxBMS team for
-   further support.)
+   `"Waiting bootloader to be powered on..."` appears in the terminal.
+   In the case of an error status, a reset command or a power-on restart
+   should resolve the problem.
 
 #. Start the |foxbms| application on |bms-master| manually:
 
@@ -196,7 +191,8 @@ with the bootloader:
 
             ./fox.sh bootloader run-app
 
-#. To get more information, add `-vv` after command, for example:
+#. To get more information, add the verbosity option (``-v``, can be repeated
+   multiple times, e.g., ``-vv``) after the command, for example:
 
    .. tabs::
 
@@ -226,7 +222,7 @@ Description of the |foxbms| Application Update Process Using the Bootloader
 To transfer the application binary to the |bms-master|, the binary file needs
 to be parsed into small sectors first, and a CRC signature is calculated for
 each sector.
-The 'sector' used in this context has been defined based on the data block that
+The *sector* used in this context has been defined based on the data block that
 can be stored in the corresponding flash sector of the physical flash memory.
 To enable data transfer via CAN messages, which have the maximum size of 8
 bytes, each sector is further divided into subsectors that contain 1024 * 8
@@ -239,31 +235,31 @@ bytes of data, as shown in :numref:`from_bin_file_to_8_bytes_data`:
    :width: 60 %
    :align: center
 
-   The division of the |foxbms| application binary file during data transfer
+   The partition of the |foxbms| application binary file during data transfer
 
-The communication between the PC application and the bootloader has been
-implemented via pre-defined CAN messages.
+The communication between the |bootloader-host-application| and the
+embedded bootloader has bee implemented via pre-defined CAN messages.
 As shown in :numref:`communication_between_pc_and_bootloader`, to
-transfer a program, the PC application will send a CAN request
-"command to transfer program" to inform the bootloader that a program is going
+transfer a program, the |bootloader-host-application| will send a CAN request
+*command to transfer program* to inform the bootloader that a program is going
 to be transferred.
-Once the bootloader receives the command, it will reply with an "ACK message"
-to inform the PC application that it has received this command and is prepared
-for the next step.
-The PC application will then start sending the information relevant to the
-current data transfer process.
-After that, the PC application must receive an ACK message from the bootloader
-to ensure it has processed the program information and is ready for the binary
-data.
+Once the embedded bootloader receives the command, it will reply with an
+*ACK message* to inform the |bootloader-host-application| that it has received
+this command and is prepared for the next step.
+The |bootloader-host-application| will then start sending the information
+relevant to the current data transfer process.
+After that, the |bootloader-host-application| must receive an ACK message from
+the bootloader to ensure it has processed the program information and is ready
+to receive the binary data.
 
-Next, the PC application starts transferring the binary data.
+Next, the |bootloader-host-application| starts transferring the binary data.
 It iteratively sends one data sector after another as depicted in
 :numref:`from_bin_file_to_8_bytes_data`.
 As shown, each subsector is transferred by sending the loop number and 8 bytes
 of data in every iteration.
-Once the bootloader has successfully received 1024 * 8 bytes of data, it
-responds with an "ACK message" to signal the PC application to send the next
-subsector.
+Once the embedded bootloader has successfully received 1024 * 8 bytes of data,
+it responds with an *ACK message* to signal to the
+|bootloader-host-application| to send the next subsector.
 
 .. drawio-figure:: img/communication_between_pc_and_bootloader.drawio
    :format: svg
@@ -272,7 +268,8 @@ subsector.
    :width: 50 %
    :align: center
 
-   Communication between the PC-side application and the bootloader
+   Communication between the |bootloader-host-application| and the
+   |embedded-bootloader|
 
 Once a sector transfer is completed, the program sector will be written into
 its relevant flash space, and a CRC signature will be calculated.
@@ -289,67 +286,22 @@ the vector table.
 Project Structure
 -----------------
 
-This bootloader project contains two parts: the bootloader itself and the PC
-application, which communicates with the bootloader.
-The file structures of these two parts is as following:
+This bootloader project contains two parts:
 
-.. table:: C Part (On-board code)
-   :name: c-part-on-board-code
-   :widths: grid
+- the |embedded-bootloader| implemented in ``src/bootloader/*`` and
+- the |bootloader-host-application| implemented in ``cli/cmd_bootloader/*``.
 
-   +-----------------------------+--------------------------------------------+
-   | Module                      | Description                                |
-   +=============================+============================================+
-   | driver                      | Contains low level driver modules to       |
-   |                             | control the on-board resources.            |
-   +-----------------------------+--------------------------------------------+
-   | engine                      | Contains mid-level engine modules to       |
-   |                             | control the overall program flow.          |
-   +-----------------------------+--------------------------------------------+
-   | hal                         | Contains the build script and the hash     |
-   |                             | code for HALCoGen.                         |
-   +-----------------------------+--------------------------------------------+
-   | main                        | Contains the files where the 'main'        |
-   |                             | function and '_c_int00' function are       |
-   |                             | located.                                   |
-   |                             | In addition, it also contains the linker   |
-   |                             | script for configuring the memory          |
-   |                             | distribution and the files supported at    |
-   |                             | the system level.                          |
-   +-----------------------------+--------------------------------------------+
+The directory and file structures of these two parts is as follows:
 
-.. table:: Python Part (PC-side code)
-   :name: python-part-pc-side-code
-   :widths: grid
+.. csv-table::
+   :name: |embedded-bootloader|
+   :delim: ;
+   :file: ./impl-structure-embedded-bootloader.csv
 
-   +-----------------------------+--------------------------------------------+
-   | Module                      | Description                                |
-   +=============================+============================================+
-   | bootloader.py               | Contains the Bootloader class, which       |
-   |                             | serves as the main entry point for         |
-   |                             | sending application data or requests to    |
-   |                             | the bootloader.                            |
-   +-----------------------------+--------------------------------------------+
-   | bootloader_can.py           | Contains the BootloaderInterfaceCan class, |
-   |                             | which enables high-level communication     |
-   |                             | with the bootloader via CAN.               |
-   +-----------------------------+--------------------------------------------+
-   | bootloader_can_basics.py    | Contains the BootloaderCanBasics class,    |
-   |                             | where the basic CAN communication          |
-   |                             | functions, including sending and receiving |
-   |                             | specified messages, are implemented.       |
-   +-----------------------------+--------------------------------------------+
-   | bootloader_binary_file.py   | Contains the BootloaderBinaryFile class,   |
-   |                             | responsible for managing the application   |
-   |                             | binary file and providing functions to     |
-   |                             | perform operations on it, such as          |
-   |                             | calculating CRC, extracting data, and      |
-   |                             | more.                                      |
-   +-----------------------------+--------------------------------------------+
-   | bootloader_can_messages.py  | Contains all enums of CAN messages and     |
-   |                             | functions to get specified CAN messages in |
-   |                             | a dictionary.                              |
-   +-----------------------------+--------------------------------------------+
+.. csv-table::
+   :name: |bootloader-host-application|
+   :delim: ;
+   :file: ./impl-structure-bootloader-host-application.csv
 
 Memory Configuration
 --------------------
@@ -436,43 +388,49 @@ More details about the ECC can be found in
 Functional Mechanisms
 ---------------------
 
-The functions of the bootloader are implemented through the cooperation of two
-independent final state machines (FSMs).
-One FSM is called the boot FSM, as it directly controls the boot process of the
-bootloader.
-The other is called the CAN FSM because it helps control the CAN communication
-and ensures the correct sequence of the data transfer process.
+.. |boot-fsm| replace:: Boot FSM
+.. |can-fsm| replace:: CAN FSM
 
-This section will first present the CAN FSM and the boot FSM separately, using
-their corresponding state diagrams.
-After that, the functional mechanism of the bootloader will be demonstrated by
-explaining the principles of starting the |foxbms| application, resetting the
-boot process, and uploading the |foxbms| application into the flash
-memory of the |bms-master|.
 
-CAN FSM
-^^^^^^^
-The entire state diagram of the CAN FSM state machine is shown in :numref:`can_fsm_state`.
+The functions of the |embedded-bootloader| are implemented through the
+cooperation of two independent final state machines (FSMs).
+One FSM is called the|boot-fsm|, as it directly controls the boot process of
+the |embedded-bootloader|.
+The other is called the |can-fsm| because it helps control the CAN
+communication and ensures the correct sequence of the data transfer process.
+
+This section will first present the |can-fsm| and the |boot-fsm| separately,
+using their corresponding state diagrams.
+After that, the functional mechanism of the |embedded-bootloader| will be
+demonstrated by explaining the principles of starting the |foxbms| application,
+resetting the boot process, and uploading the |foxbms| application into the
+flash memory of the |bms-master|.
+
+|can-fsm|
+^^^^^^^^^
+
+The entire state diagram of the CAN FSM state machine is shown in
+:numref:`can_fsm_state`.
 
 .. drawio-figure:: img/can_fsm_state.drawio
    :format: svg
    :name: can_fsm_state
    :align: center
-   :alt: CAN FSM state
+   :alt: |can-fsm| state
    :width: 90 %
 
-   State diagram of the CAN FSM
+   State diagram of the |can-fsm|
 
-Boot FSM
-^^^^^^^^
+|boot-fsm|
+^^^^^^^^^^
 
 As shown in :numref:`boot_fsm_state`, at the start of the program, the state of
-the boot FSM is initialized to ``BOOT_FSM_STATE_WAIT``.
-From this state, the state of the boot FSM can change to
+the |boot-fsm| is initialized to ``BOOT_FSM_STATE_WAIT``.
+From this state, the state of the |boot-fsm| can change to
 ``BOOT_FSM_STATE_LOAD``, ``BOOT_FSM_STATE_RUN``, or ``BOOT_FSM_STATE_RESET`` in
-response to changes in the CAN FSM.
+response to changes in the |can-fsm|.
 If any error happens during the state ``BOOT_FSM_STATE_LOAD``,
-``BOOT_FSM_STATE_RUN`` or ``BOOT_FSM_STATE_RESET``, the state of the boot FSM
+``BOOT_FSM_STATE_RUN`` or ``BOOT_FSM_STATE_RESET``, the state of the |boot-fsm|
 will change to  ``BOOT_FSM_STATE_ERROR``.
 
 .. drawio-figure:: img/boot_fsm_state.drawio
@@ -480,9 +438,9 @@ will change to  ``BOOT_FSM_STATE_ERROR``.
    :name: boot_fsm_state
    :align: center
    :width: 65 %
-   :alt: Boot FSM state
+   :alt: |boot-fsm| state
 
-   State diagram of the boot FSM
+   State diagram of the |boot-fsm|
 
 Start the |foxbms| Application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -494,7 +452,7 @@ bootloader via the CAN bus.
 Once the CAN module has received this CAN message, it will change its state
 from the initial state ``CAN_FSM_STATE_NO_COMMUNICATION`` to
 ``CAN_FSM_STATE_RUN_PROGRAM`` as shown in :numref:`can_boot_run`.
-If the boot FSM is in the expected state (``BOOT_FSM_STATE_WAIT``), at this
+If the |boot-fsm| is in the expected state (``BOOT_FSM_STATE_WAIT``), at this
 moment, a validation process will be initiated to check if the flashed |foxbms|
 application is valid.
 The bootloader will only jump into the application if the validation process
@@ -506,15 +464,17 @@ Otherwise, it will inform the host PC that there is no valid program available.
    :name: can_boot_run
    :align: center
    :width: 60 %
-   :alt: Interaction between the boot FSM and the CAN FSM after a "run-app" command is issued
+   :alt: Interaction between the |boot-fsm| and the |can-fsm| after a run-app
+      command is issued
 
-   Interaction between the boot FSM and the CAN FSM after a "run-app" command is issued
+   Interaction between the |boot-fsm| and the |can-fsm| after a ``run-app``
+   command is issued
 
 Reset the Boot Process
 ^^^^^^^^^^^^^^^^^^^^^^
 
 If a reset request (see :numref:`how_to_use_it`) has been sent via the CAN bus,
-the CAN FSM state will change to ``CAN_FSM_STATE_RESET_BOOT`` from any state
+the |can-fsm| state will change to ``CAN_FSM_STATE_RESET_BOOT`` from any state
 as shown in :numref:`can_boot_reset`.
 After that, the bootloader will reset its boot-relevant configurations,
 including global variables that contain the boot- and CAN-relevant program
@@ -529,9 +489,11 @@ Finally, a software reset will be performed to reset the MCU.
    :name: can_boot_reset
    :align: center
    :width: 60 %
-   :alt: Interaction between the boot FSM and the CAN FSM after a "reset" command is issued
+   :alt: Interaction between the |boot-fsm| and the |can-fsm| after a reset
+      command is issued
 
-   Interaction between the boot FSM and the CAN FSM after a "reset" command is issued
+   Interaction between the |boot-fsm| and the |can-fsm| after a ``reset``
+   command is issued
 
 Transfer the |foxbms| Application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -546,9 +508,11 @@ state will change to ``BOOT_FSM_STATE_LOAD``, as shown in
    :name: can_boot_load
    :align: center
    :width: 60 %
-   :alt: Interaction between the boot FSM and the CAN FSM after a "load-app" command is issued
+   :alt: Interaction between the |boot-fsm| and the |can-fsm| after a load-app
+      command is issued
 
-   Interaction between the boot FSM and the CAN FSM after a "load-app" command is issued
+   Interaction between the |boot-fsm| and the |can-fsm| after a ``load-app``
+   command is issued
 
 Once the information of the program has been successfully transferred, the
 state of the CAN FSM will change from ``CAN_FSM_STATE_WAIT_FOR_INFO``
@@ -601,13 +565,13 @@ What Should Be Considered/Modified While Configuring the Flash Memory?
 To configure the memory of the microcontroller (|ti-tms570lc4357|), several
 parts need to be considered/configured:
 
-#. The linker script of the application (|foxbms|) ``app.cmd``
-   and ``app_hex.cmd``.
-#. The linker script of the bootloader ``bootloader.cmd``.
+#. The linker script of the application (|foxbms|) ``src/app/main/app.cmd``
+   and ``src/app/main/app_hex.cmd``.
+#. The linker script of the bootloader ``src/bootloader/main/bootloader.cmd``.
 #. The address jump between the first vector table and the second vector table,
-   which is defined in ``intvecs.asm``.
+   which is defined in ``src/bootloader/main/intvecs.asm``.
 #. The corresponding macros defined in the bootloader header file
-   : ``boot_cfg.h``.
+   ``src/bootloader/engine/boot/boot_cfg.h``.
 
 .. _about_vector_table:
 
@@ -618,7 +582,7 @@ The
 `vector table <https://www.ti.com/lit/an/spna236/spna236.pdf?ts=1724301653744>`__
 is usually placed at the start address (``0x00``) of the flash and has a length
 of ``0x20``.
-It contains eight 32-bit ARM instructions in our case.
+Here, it contains eight 32-bit ARM instructions.
 
 In the bootloader, there are two vector tables (``VECTORS_TABLE_INIT`` and
 ``VECTORS_TABLE``)
@@ -631,17 +595,18 @@ The second vector table hosts the real functions entries to handle these
 exception entries using
 `b xxx <https://developer.arm.com/documentation/den0042/a/Exceptions-and-Interrupts/Exception-priorities/The-Vector-table>`__.
 
-Different from handlers listed above, the reset entry points always to the ``_c_int00``
-function which will also be called first before any other functions.
+Different from handlers listed above, the reset entry points always to the
+startup function ``_c_int00`` which will also be called first before any other
+functions.
 The IRQ and FIQ interrupt table will be loaded by
 `ldr pc, [pc, #-0x1b0] <https://developer.arm.com/documentation/den0042/a/Exceptions-and-Interrupts/Exception-priorities/The-Vector-table>`__
 inside the first vector table.
 The configuration and initialization of the vectored interrupt manager is done
 in ``_c_int00`` by ``vimInit()``.
 
-During booting, the ``_c_int00`` function is first called, but the actual
-working exception entries (except for IRQ and FIQ) will be the ones defined the
-second vector table.
+During booting, the startup function ``_c_int00`` is first called, but the
+actual working exception entries (except for IRQ and FIQ) will be the ones
+defined the second vector table.
 After the |foxbms| application is flashed, the |foxbms| application vector
 table will overwrite the second vector table ``VECTORS_TABLE``.
 This means that by jumping into the second vector table, the ``_c_int00``
@@ -652,6 +617,7 @@ shipped with the application.
 
 Change Operation Mode
 ^^^^^^^^^^^^^^^^^^^^^
+
 Since some functions inside flash and CRC modules change values in the
 protected flash area, such as register values, certain privileges need to be
 claimed before calling these functions.
@@ -671,6 +637,7 @@ More details can be found in
 `here <https://www.ti.com/lit/ug/spnu501h/spnu501h.pdf?ts=1725300688204>`__,
 which is also called
 `run-time relocation <https://software-dl.ti.com/codegen/docs/tiarmclang/compiler_tools_user_guide/compiler_manual/program_loading_and_running/run-time-relocation-stdz0694629.html#stdz0694629>`__.
+
 To execute program code from SRAM, the following steps must be done:
 
 #. Change the MPU configuration for the region from ``0x08000000`` to
@@ -686,12 +653,17 @@ To execute program code from SRAM, the following steps must be done:
 How to Use the Onboard CRC Module in Semi-AUTO Mode?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There is an onboard CRC controller available on the TMS570LC43.
-It offers three modes of operation: Auto, Semi-CPU, and Full-CPU.
-In our case, the Semi-CPU mode is used to calculate the CRC.
+There is an onboard CRC controller available on the |ti-tms570lc4357|.
+It offers three modes of operation:
+- ``Auto``,
+- ``Semi-CPU``, and
+- ``Full-CPU``.
+
+In our case, the ``Semi-CPU`` mode is used to calculate the CRC.
 Unlike Auto mode, where the CRC calculation and evaluation are performed
-without CPU intervention, in Semi-CPU mode, the generated CRC signature must be
-compared with a pre-determined CRC value with the assistance of the CPU.
+without CPU intervention, in ``Semi-CPU`` mode, the generated CRC signature
+must be compared with a pre-determined CRC value with the assistance of the
+CPU.
 
 More detailed information regarding CRC onboard module and the CRC algorithm
 used within the CRC onboard module can be found in
@@ -729,9 +701,9 @@ integer.
 
 is a function pointer cast and call operation. Here's what it does :
 
-#. ``(void (*)(void))boot_jumpAddress`` casts the
-   ``boot_jumpAddress`` variable to a function pointer. This cast
-   assumes that the address stored in ``boot_jumpAddress`` points to
+#. ``(void (*)(void))boot_jumpAddress`` casts the ``boot_jumpAddress`` variable
+   to a function pointer.
+   This cast assumes that the address stored in ``boot_jumpAddress`` points to
    a function with no arguments and no return value (i.e., a function
    that takes ``void`` as both its argument and return types).
 #. ``()`` immediately invokes (calls) the function pointed to by the

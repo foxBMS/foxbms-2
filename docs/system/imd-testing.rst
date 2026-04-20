@@ -28,7 +28,6 @@ Test preparation
 
 Needed to test the IMD are:
 
-- |foxbms| workspace as described in :ref:`GETTING_STARTED_WITH_FOXBMS_2`
 - resistors with different values are required
 
 .. table:: important resistance values
@@ -48,7 +47,7 @@ Needed to test the IMD are:
 Testing resistance
 ******************
 
-First ``data_blockInsulationMonitoring`` and ``data_blockErrors`` is added to
+First ``data_blockInsulation`` and ``data_blockErrors`` is added to
 the watch window of the debugger to observe the output of the IMD.
 
 To test if resistance is read correctly put a resistor between the high voltage

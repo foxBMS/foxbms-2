@@ -1,0 +1,37 @@
+{
+  "application": {
+    "algorithm": {
+      "state-estimation": {
+        "soc": "none",
+        "soe": "none",
+        "sof": "trapezoid",
+        "soh": "none"
+      }
+    },
+    "balancing-strategy": "none",
+    "current-sensor": {
+      "type": "can",
+      "manufacturer": "isabellenhuette",
+      "model": "ivt-s"
+    },
+    "insulation-monitoring-device": "none"
+  },
+  "debug": {
+    "interfaces": []
+  },
+  "rtos": {
+    "name": "freertos",
+    "addons": []
+  },
+  "bms-slave": {
+    "analog-front-end": {
+      "ic": "default",
+      "manufacturer": "debug"
+    },
+    "temperature-sensor": {
+      "manufacturer": "epcos",
+      "method": "polynomial",
+      "model": "b57251v5103j060"
+    }
+  }
+}

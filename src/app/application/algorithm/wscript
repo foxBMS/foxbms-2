@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,58 +37,41 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""TODO"""
-
-import os
-
 
 def build(bld):
-    """builds the algorithm library"""
-    soc = bld.env.state_estimator_soc
-    soe = bld.env.state_estimator_soe
-    sof = bld.env.state_estimator_sof
-    soh = bld.env.state_estimator_soh
-    source = [
-        os.path.join("algorithm.c"),
-        os.path.join("config", "algorithm_cfg.c"),
-        os.path.join("moving_average", "moving_average.c"),
-        os.path.join("state_estimation", "soc", soc, f"soc_{soc}.c"),
-        os.path.join("state_estimation", "soe", soe, f"soe_{soe}.c"),
-        os.path.join("state_estimation", "sof", sof, f"sof_{sof}.c"),
-        os.path.join("state_estimation", "sof", sof, f"sof_{sof}_cfg.c"),
-        os.path.join("state_estimation", "soh", soh, f"soh_{soh}.c"),
-        os.path.join("state_estimation", "state_estimation.c"),
-    ]
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    bld.recurse(["config", "moving_average", "state_estimation"])
+
     includes = [
         ".",
         "config",
-        "moving_average",
-        "state_estimation",
-        os.path.join("state_estimation", "soc", soc),
-        os.path.join("state_estimation", "soe", soe),
-        os.path.join("state_estimation", "sof", sof),
-        os.path.join("state_estimation", "soh", soh),
-        os.path.join("..", "config"),
-        os.path.join("..", "..", "application", "bms"),
-        os.path.join("..", "..", "driver", "config"),
-        os.path.join("..", "..", "driver", "contactor"),
-        os.path.join("..", "..", "driver", "foxmath"),
-        os.path.join("..", "..", "driver", "fram"),
-        os.path.join("..", "..", "driver", "sps"),
-        os.path.join("..", "..", "driver", "mcu"),
-        os.path.join("..", "..", "engine", "config"),
-        os.path.join("..", "..", "engine", "database"),
-        os.path.join("..", "..", "engine", "diag"),
-        os.path.join("..", "..", "main", "include"),
-        os.path.join("..", "..", "task", "config"),
-        os.path.join("..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-algorithms"
-    bld.stlib(
-        source=source,
+        "../../main/include",
+        "../../task/os",
+    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    source = "algorithm"
+    bld.objects(
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+    )
+
+    use = [
+        f"{op}algorithm",
+        f"{op}algorithm_cfg",
+        f"{op}moving_average",
+        f"{op}state_estimation",
+        f"{op}soc_{bld.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOC}",
+        f"{op}soe_{bld.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOE}",
+        f"{op}sof_{bld.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOF}",
+        f"{op}sof_{bld.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOF}_cfg",
+        f"{op}soh_{bld.env.FOXBMS_ALGORITHM_STATE_ESTIMATOR_SOH}",
+    ]
+
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}algorithm",
     )

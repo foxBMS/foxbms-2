@@ -26,7 +26,7 @@ The following regular expression can be used to check for ``FreeRTOS`` specific
 - functions:
 
   ```text
-  (uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount|vTaskSuspend|vTaskResume)
+  (vTaskStartScheduler|uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount|vTaskSuspend|vTaskResume|xTaskNotifyWait|xTaskNotifyFromISR|xTaskNotifyWaitIndexed|xTaskNotifyIndexedFromISR|vTaskNotifyGiveFromISR|ulTaskNotifyTake)
   ```
 
 - types:
@@ -37,20 +37,28 @@ The following regular expression can be used to check for ``FreeRTOS`` specific
 
 The corresponding OS agnostic macros, functions and types are listed below:
 
-| FreeRTOS                      | foxBMS                            |
-|-------------------------------|-----------------------------------|
-| ``taskENTER_CRITICAL``        | ``OS_EnterTaskCritical``          |
-| ``taskEXIT_CRITICAL``         | ``OS_ExitTaskCritical``           |
-| ``uxQueueMessagesWaiting``    | ``OS_GetTickCount``               |
-| ``vTaskDelayUntil``           | ``OS_DelayTaskUntil``             |
-| ``xQueueReceive``             | ``OS_ReceiveFromQueue``           |
-| ``xQueueSendToBack``          | ``OS_SendToBackOfQueue``          |
-| ``xQueueSendToBackFromISR``   | ``OS_SendToBackOfQueueFromIsr``   |
-| ``xTaskGetTickCount``         | ``OS_GetTickCount``               |
-| ``QueueHandle_t``             | ``OS_QUEUE``                      |
-| ``TaskHandle_t``              | ``OS_TASK_HANDLE``                |
-| ``vTaskSuspend``              | ``OS_SuspendTask``                |
-| ``vTaskResume``               | ``OS_ResumeTask``                 |
+| FreeRTOS                      | foxBMS                                  |
+|-------------------------------|-----------------------------------------|
+| ``taskENTER_CRITICAL``        | ``OS_EnterTaskCritical``                |
+| ``taskEXIT_CRITICAL``         | ``OS_ExitTaskCritical``                 |
+| ``vTaskStartScheduler``       | ``OS_StartScheduler``                   |
+| ``uxQueueMessagesWaiting``    | ``OS_GetTickCount``                     |
+| ``vTaskDelayUntil``           | ``OS_DelayTaskUntil``                   |
+| ``xQueueReceive``             | ``OS_ReceiveFromQueue``                 |
+| ``xQueueSendToBack``          | ``OS_SendToBackOfQueue``                |
+| ``xQueueSendToBackFromISR``   | ``OS_SendToBackOfQueueFromIsr``         |
+| ``uxQueueMessagesWaiting``    | ``OS_GetNumberOfStoredMessagesInQueue`` |
+| ``xTaskGetTickCount``         | ``OS_GetTickCount``                     |
+| ``QueueHandle_t``             | ``OS_QUEUE``                            |
+| ``TaskHandle_t``              | ``OS_TASK_HANDLE``                      |
+| ``vTaskSuspend``              | ``OS_SuspendTask``                      |
+| ``vTaskResume``               | ``OS_ResumeTask``                       |
+| ``xTaskNotifyWait``           | ``OS_WaitForNotification``              |
+| ``xTaskNotifyFromISR``        | ``OS_NotifyFromIsr``                    |
+| ``xTaskNotifyWaitIndexed``    | ``OS_WaitForNotificationIndexed``       |
+| ``xTaskNotifyIndexedFromISR`` | ``OS_NotifyIndexedFromIsr``             |
+| ``vTaskNotifyGiveFromISR``    | ``OS_NotifyGiveFromISR``                |
+| ``ulTaskNotifyTake``          | ``OS_NotifyTake``                       |
 
 ### Includes
 

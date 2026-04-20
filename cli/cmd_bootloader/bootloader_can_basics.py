@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,9 +38,9 @@
 # - "This product is derived from foxBMS®"
 
 """This file implement the basic functions of CAN module (CanInterface) to send
-and receive bootloader relevant CAN messages via CAN bus."""
+and receive bootloader relevant CAN messages via CAN bus.
+"""
 
-import logging
 import sys
 import time
 from enum import Enum
@@ -51,6 +51,7 @@ import can
 from cantools import database
 from cantools.typechecking import DecodeResultType, SignalDictType
 
+from ..helpers.logger import logger
 from ..helpers.misc import BOOTLOADER_DBC_FILE
 from .bootloader_can_messages import (
     AcknowledgeMessageType,
@@ -63,8 +64,7 @@ from .bootloader_can_messages import (
 
 
 class BootloaderCanBasics:
-    """
-    This class implements all CAN relevant functions and can be used to wait or
+    """This class implements all CAN relevant functions and can be used to wait or
     receive specified messages on CAN bus.
     """
 
@@ -86,10 +86,9 @@ class BootloaderCanBasics:
             )
         self.db = tmp
         self.can_bus = can_bus
-        self.messages = Messages()
+        self.messages = Messages(dbc_file=dbc_file)
 
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def wait_can_message(
+    def wait_can_message(  # noqa: PLR0913
         self,
         arbitration_id: int,
         dbc_file: Path | None = None,
@@ -99,6 +98,7 @@ class BootloaderCanBasics:
         timeout_bus_recv: float = 1.0,
     ) -> DecodeResultType | None:
         """This function wait for a specified CAN message.
+
         Args:
             arbitration_id: id of the CAN message e.g., 0x480
             params: a dictionary that contains the variable name
@@ -113,7 +113,6 @@ class BootloaderCanBasics:
             The waited message, which value will be replaced with a string of
             enums if it is defined in the dbc file.
         """
-
         if not dbc_file:
             db = self.db
         else:
@@ -146,15 +145,14 @@ class BootloaderCanBasics:
                     if msg[mux_key_name] != mux_value:
                         return None
                     msg.pop(mux_key_name)
-                for key in params.keys():
-                    if key in msg.keys():
-                        if msg[key] != params[key]:
-                            goto_next_message = True
-                            break
+                for k, v in params.items():
+                    if msg.get(k) != v:
+                        goto_next_message = True
+                        break
                 if goto_next_message:
                     goto_next_message = False
                     continue
-                logging.debug("Received message: %s", msg)
+                logger.debug("Received message: %s", msg)
                 return msg
         return None
 
@@ -168,7 +166,7 @@ class BootloaderCanBasics:
         for msg in args:
             msg_name = msg["Name"]
             msg.pop("Name")
-            logging.debug("Sending CAN message: '%s': '%s'", msg_name, msg)
+            logger.debug("Sending CAN message: '%s': '%s'", msg_name, msg)
             message = self.db.get_message_by_name(msg_name)
             data = message.encode(msg)
             message_send = can.Message(
@@ -176,7 +174,7 @@ class BootloaderCanBasics:
             )
             try:
                 self.can_bus.send(message_send)
-                logging.debug("Message sent on '%s'.", self.can_bus.channel_info)
+                logger.debug("Message sent on '%s'.", self.can_bus.channel_info)
             except can.CanOperationError as e:
                 sys.exit(f"'{e}': Could not send message on CAN bus.")
 
@@ -248,8 +246,7 @@ class BootloaderCanBasics:
             "f_BootloaderFsmStates"
         ).frame_id
         msg = self.wait_can_message(arbitration_id_bootloader_fsm_states)
-        msg_bootloader_fsm_states = cast(BootloaderFsmStatesType, msg)
-        return msg_bootloader_fsm_states
+        return cast(BootloaderFsmStatesType, msg)
 
     def wait_data_transfer_info_msg(self) -> DataTransferInfoType | None:
         """This function is to wait for the messages contain the information of the data transfer.
@@ -261,8 +258,7 @@ class BootloaderCanBasics:
             "f_BootloaderDataTransferInfo"
         ).frame_id
         msg = self.wait_can_message(arbitration_id_data_transfer_info)
-        msg_data_transfer_info = cast(DataTransferInfoType, msg)
-        return msg_data_transfer_info
+        return cast(DataTransferInfoType, msg)
 
     def wait_bootloader_version_info_msg(self) -> BootloaderVersionInfoType | None:
         """This function is to wait for the messages contain the version information
@@ -277,8 +273,7 @@ class BootloaderCanBasics:
         msg = self.wait_can_message(
             arbitration_id_bootloader_version_info, mux_value="BootloaderVersionInfo"
         )
-        msg_bootloader_version_info = cast(BootloaderVersionInfoType, msg)
-        return msg_bootloader_version_info
+        return cast(BootloaderVersionInfoType, msg)
 
     def wait_can_ack_msg(
         self,

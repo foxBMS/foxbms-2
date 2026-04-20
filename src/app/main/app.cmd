@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -114,10 +114,10 @@
  * - Abort stack
  * - Undefined stack
  */
-#define STACKS_SIZE (0x800)
+#define STACKS_SIZE (0x1800)
 
 /* size of the FreeRTOS RAM; Also mentioned in cc-options.yaml; TODO does this have to fit to another value? */
-#define KERNEL_DATA_SIZE (0x1000)
+#define KERNEL_DATA_SIZE (0xB000)
 
 /* size of shared-RAM section for DMA */
 #define SHARED_RAM_SIZE (0x2000)

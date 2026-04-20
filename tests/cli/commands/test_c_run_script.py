@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -68,6 +68,21 @@ class TestFoxCliMainRunScript(unittest.TestCase):
             ["dummy-argument"], cwd=None, stdout=None, stderr=None
         )
         self.assertEqual("", result.stdout)
+        self.assertEqual("", result.stderr)
+        self.assertEqual(0, result.exit_code)
+
+    def test_run_script_help(self):
+        """Test 'fox.py run-script --help' command."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["run-script", "--help"])
+        expected_stdout = """Usage: main run-script [OPTIONS] [SCRIPT_ARGS]...
+
+  Run the provided script.
+
+Options:
+  --cwd DIRECTORY  Directory where the script is run from.
+"""
+        self.assertEqual(expected_stdout, result.stdout)
         self.assertEqual("", result.stderr)
         self.assertEqual(0, result.exit_code)
 

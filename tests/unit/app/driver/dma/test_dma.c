@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_dma.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -52,6 +52,8 @@
  * @details TODO
  *
  */
+
+/* cspell:ignore CHCTRL ELDOFFSET ELSOFFSET FRSOFFSET */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
@@ -138,5 +140,148 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testDummy(void) {
+void testDMA_Initialize(void) {
+
+    /* DMA control packets configuration for SPI  */
+    g_dmaCTRL dma_controlPacketSpiTx = {
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTA_READ_PORTB_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_16_BIT,          /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_16_BIT,          /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_INC1,              /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_FIXED,             /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
+    };
+
+    g_dmaCTRL dma_controlPacketSpiRx = {
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTB_READ_PORTA_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_16_BIT,          /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_16_BIT,          /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_FIXED,             /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_INC1,              /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
+    };
+
+    /* DMA control packets configuration for I2C1  */
+    g_dmaCTRL dma_controlPacketI2cTx = {
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTA_READ_PORTB_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_8_BIT,           /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_8_BIT,           /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_INC1,              /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_FIXED,             /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
+    };
+
+    g_dmaCTRL dma_controlPacketI2cRx = {
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTB_READ_PORTA_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_8_BIT,           /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_8_BIT,           /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_FIXED,             /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_INC1,              /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
+    };
+
+    dmaEnable_Expect();
+
+    /* Test SPI */
+
+    for (uint8_t i = 0u; i < DMA_NUMBER_SPI_INTERFACES; i++) {
+        dmaReqAssign_Expect(
+            (dmaChannel_t)dma_spiDmaChannels[i].txChannel, (dmaRequest_t)dma_spiDmaRequests[i].txRequest);
+        dmaReqAssign_Expect(
+            (dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaRequest_t)dma_spiDmaRequests[i].rxRequest);
+
+        dmaEnableInterrupt_Expect(
+            (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].txChannel, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+
+        dma_controlPacketSpiTx.DADD = (uint32_t)(&(dma_spiInterfaces[i]->DAT1)) + DMA_BIG_ENDIAN_ADDRESS_16BIT;
+        dma_controlPacketSpiRx.SADD = (uint32_t)(&(dma_spiInterfaces[i]->BUF)) + DMA_BIG_ENDIAN_ADDRESS_16BIT;
+
+        dmaEnableInterrupt_Expect(
+            (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+        dmaSetCtrlPacket_Expect((dmaChannel_t)dma_spiDmaChannels[i].txChannel, dma_controlPacketSpiTx);
+        dmaSetCtrlPacket_Expect((dmaChannel_t)dma_spiDmaChannels[i].rxChannel, dma_controlPacketSpiRx);
+        dmaSetChEnable_Expect((dmaChannel_t)dma_spiDmaChannels[i].txChannel, (dmaTriggerType_t)DMA_HW);
+        dmaSetChEnable_Expect((dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaTriggerType_t)DMA_HW);
+    }
+
+    /* Test I2C1 */
+
+    dmaReqAssign_Expect((dmaChannel_t)DMA_CHANNEL_I2C1_TX, (dmaRequest_t)DMA_REQ_LINE_I2C1_TX);
+    dmaReqAssign_Expect((dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaRequest_t)DMA_REQ_LINE_I2C1_RX);
+    dmaEnableInterrupt_Expect(
+        (dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt_Expect(
+        (dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt_Expect(
+        (dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaInterrupt_t)LFS, (dmaIntGroup_t)DMA_INTA);
+
+    dma_controlPacketI2cTx.DADD = (uint32_t)(&(i2cREG1->DXR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+    dma_controlPacketI2cRx.SADD = (uint32_t)(&(i2cREG1->DRR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+
+    dmaSetCtrlPacket_Expect((dmaChannel_t)DMA_CHANNEL_I2C1_TX, dma_controlPacketI2cTx);
+    dmaSetCtrlPacket_Expect((dmaChannel_t)DMA_CHANNEL_I2C1_RX, dma_controlPacketI2cRx);
+    dmaSetChEnable_Expect((dmaChannel_t)DMA_CHANNEL_I2C1_TX, (dmaTriggerType_t)DMA_HW);
+    dmaSetChEnable_Expect((dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaTriggerType_t)DMA_HW);
+
+    /* Test for I2C2 */
+
+    dmaReqAssign_Expect((dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaRequest_t)DMA_REQ_LINE_I2C2_TX);
+    dmaReqAssign_Expect((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaRequest_t)DMA_REQ_LINE_I2C2_RX);
+
+    dmaEnableInterrupt_Expect(
+        (dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt_Expect(
+        (dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt_Expect(
+        (dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaInterrupt_t)LFS, (dmaIntGroup_t)DMA_INTA);
+
+    dma_controlPacketI2cTx.DADD = (uint32_t)(&(i2cREG2->DXR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+    dma_controlPacketI2cRx.SADD = (uint32_t)(&(i2cREG2->DRR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+
+    dmaSetCtrlPacket_Expect((dmaChannel_t)DMA_CHANNEL_I2C2_TX, dma_controlPacketI2cTx);
+    dmaSetCtrlPacket_Expect((dmaChannel_t)DMA_CHANNEL_I2C2_RX, dma_controlPacketI2cRx);
+    dmaSetChEnable_Expect((dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaTriggerType_t)DMA_HW);
+    dmaSetChEnable_Expect((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaTriggerType_t)DMA_HW);
+
+    DMA_Initialize();
 }

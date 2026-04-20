@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -88,27 +88,71 @@ typedef enum {
     BMS_TAKE_PRECHARGE_INTO_ACCOUNT,        /*!< do take precharge into account */
 } BMS_CONSIDER_PRECHARGE_e;
 
+typedef enum {
+    BMS_PRECHARGING_ONGOING,
+    BMS_PRECHARGING_FAILED,
+    BMS_PRECHARGING_FINISHED,
+    BMS_PRECHARING_HAS_NOT_STARTED,
+} BMS_RESULT_PRECHARGE_PROCESS_e;
+
 /** States of the BMS state machine */
 typedef enum {
     /* Init-Sequence */
-    BMS_STATEMACH_UNINITIALIZED,
-    BMS_STATEMACH_INITIALIZATION,
-    BMS_STATEMACH_INITIALIZED,
-    BMS_STATEMACH_IDLE,
-    BMS_STATEMACH_OPEN_CONTACTORS,
-    BMS_STATEMACH_STANDBY,
-    BMS_STATEMACH_PRECHARGE,
-    BMS_STATEMACH_NORMAL,
-    BMS_STATEMACH_DISCHARGE,
-    BMS_STATEMACH_CHARGE,
-    BMS_STATEMACH_ERROR,
-    BMS_STATEMACH_UNDEFINED,
-    BMS_STATEMACH_RESERVED1,
-} BMS_STATEMACH_e;
+    BMS_FSM_STATE_UNINITIALIZED,
+    BMS_FSM_STATE_INITIALIZATION,
+    BMS_FSM_STATE_INITIALIZED,
+    BMS_FSM_STATE_IDLE,
+    BMS_FSM_STATE_OPEN_CONTACTORS,
+    BMS_FSM_STATE_STANDBY,
+    BMS_FSM_STATE_PRECHARGE,
+    BMS_FSM_STATE_NORMAL,
+    BMS_FSM_STATE_DISCHARGE,
+    BMS_FSM_STATE_CHARGE,
+    BMS_FSM_STATE_ERROR,
+    BMS_FSM_STATE_UNDEFINED,
+    BMS_FSM_STATE_RESERVED1,
+} BMS_FSM_STATES_e;
+
+/** Substates of the BMS state machine */
+typedef enum {
+    BMS_FSM_SUBSTATE_ENTRY,                       /*!< Substate entry state */
+    BMS_FSM_SUBSTATE_CHECK_ERROR_FLAGS_INTERLOCK, /*!< Substate check measurements after interlock closed */
+    BMS_FSM_SUBSTATE_INTERLOCK_CHECKED,           /*!< Substate interlocked checked */
+    BMS_FSM_SUBSTATE_CHECK_STATE_REQUESTS,        /*!< Substate check if there is a state request */
+    BMS_FSM_SUBSTATE_CHECK_BALANCING_REQUESTS,    /*!< Substate check if there is a balancing request */
+    BMS_FSM_SUBSTATE_CHECK_ERROR_FLAGS,           /*!< Substate check if any error flag set */
+    BMS_FSM_SUBSTATE_CHECK_CONTACTOR_NORMAL_STATE, /*!< Substate in precharge, check if there contactors reached normal */
+    BMS_FSM_SUBSTATE_CHECK_CONTACTOR_CHARGE_STATE, /*!< Substate in precharge, check if there contactors reached normal */
+    BMS_FSM_SUBSTATE_PRECHARGE_CLOSE_MINUS,
+    BMS_FSM_SUBSTATE_PRECHARGE_CLOSE_PRECHARGE,
+    BMS_FSM_SUBSTATE_PRECHARGE_CHECK_PRECHARGE_PROCESS,
+    BMS_FSM_SUBSTATE_PRECHARGE_OPEN_PRECHARGE,
+    BMS_FSM_SUBSTATE_PRECHARGE_CHECK_OPEN_PRECHARGE,
+    BMS_FSM_SUBSTATE_OPEN_FIRST_CONTACTOR,
+    BMS_FSM_SUBSTATE_OPEN_SECOND_CONTACTOR_MINUS,
+    BMS_FSM_SUBSTATE_OPEN_SECOND_CONTACTOR_PLUS,
+    BMS_FSM_SUBSTATE_CHECK_CLOSE_SECOND_STRING_CONTACTOR_PRECHARGE_STATE,
+    BMS_FSM_SUBSTATE_CHECK_ERROR_FLAGS_PRECHARGE,
+    BMS_FSM_SUBSTATE_CHECK_ERROR_FLAGS_PRECHARGE_FIRST_STRING,
+    BMS_FSM_SUBSTATE_PRECHARGE_CLOSE_NEXT_STRING,
+    BMS_FSM_SUBSTATE_CLOSE_SECOND_CONTACTOR_PLUS,
+    BMS_FSM_SUBSTATE_CHECK_STRING_CLOSED,
+    BMS_FSM_SUBSTATE_CHECK_ERROR_FLAGS_PRECHARGE_CLOSING_STRINGS,
+    BMS_FSM_SUBSTATE_CHECK_ERROR_FLAGS_CLOSING_PRECHARGE,
+    BMS_FSM_SUBSTATE_NORMAL_CLOSE_NEXT_STRING,
+    BMS_FSM_SUBSTATE_NORMAL_CLOSE_SECOND_STRING_CONTACTOR,
+    BMS_FSM_SUBSTATE_OPEN_ALL_PRECHARGE_CONTACTORS,
+    BMS_FSM_SUBSTATE_CHECK_ALL_PRECHARGE_CONTACTORS_OPEN,
+    BMS_FSM_SUBSTATE_OPEN_STRINGS_ENTRY,
+    BMS_FSM_SUBSTATE_OPEN_FIRST_STRING_CONTACTOR,
+    BMS_FSM_SUBSTATE_OPEN_SECOND_STRING_CONTACTOR,
+    BMS_FSM_SUBSTATE_CHECK_SECOND_STRING_CONTACTOR,
+    BMS_FSM_SUBSTATE_HANDLE_SUPPLY_VOLTAGE_30C_LOSS,
+    BMS_FSM_SUBSTATE_OPEN_STRINGS_EXIT,
+} BMS_FSM_SUB_e;
 
 /** CAN states of the BMS state machine */
 typedef enum {
-    /* Init-Sequence */
     BMS_CAN_STATE_UNINITIALIZED,
     BMS_CAN_STATE_INITIALIZATION,
     BMS_CAN_STATE_INITIALIZED,
@@ -121,49 +165,11 @@ typedef enum {
     BMS_CAN_STATE_ERROR,
 } BMS_CAN_STATE_e;
 
-/** Substates of the BMS state machine */
-typedef enum {
-    BMS_ENTRY,                        /*!< Substate entry state */
-    BMS_CHECK_ERROR_FLAGS_INTERLOCK,  /*!< Substate check measurements after interlock closed */
-    BMS_INTERLOCK_CHECKED,            /*!< Substate interlocked checked */
-    BMS_CHECK_STATE_REQUESTS,         /*!< Substate check if there is a state request */
-    BMS_CHECK_BALANCING_REQUESTS,     /*!< Substate check if there is a balancing request */
-    BMS_CHECK_ERROR_FLAGS,            /*!< Substate check if any error flag set */
-    BMS_CHECK_CONTACTOR_NORMAL_STATE, /*!< Substate in precharge, check if there contactors reached normal */
-    BMS_CHECK_CONTACTOR_CHARGE_STATE, /*!< Substate in precharge, check if there contactors reached normal */
-    BMS_PRECHARGE_CLOSE_MINUS,
-    BMS_PRECHARGE_CLOSE_PRECHARGE,
-    BMS_PRECHARGE_CHECK_VOLTAGES,
-    BMS_PRECHARGE_OPEN_PRECHARGE,
-    BMS_PRECHARGE_CHECK_OPEN_PRECHARGE,
-    BMS_OPEN_FIRST_CONTACTOR,
-    BMS_OPEN_SECOND_CONTACTOR_MINUS,
-    BMS_OPEN_SECOND_CONTACTOR_PLUS,
-    BMS_CHECK_CLOSE_SECOND_STRING_CONTACTOR_PRECHARGE_STATE,
-    BMS_CHECK_ERROR_FLAGS_PRECHARGE,
-    BMS_CHECK_ERROR_FLAGS_PRECHARGE_FIRST_STRING,
-    BMS_PRECHARGE_CLOSE_NEXT_STRING,
-    BMS_CLOSE_SECOND_CONTACTOR_PLUS,
-    BMS_CHECK_STRING_CLOSED,
-    BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSING_STRINGS,
-    BMS_CHECK_ERROR_FLAGS_CLOSING_PRECHARGE,
-    BMS_NORMAL_CLOSE_NEXT_STRING,
-    BMS_NORMAL_CLOSE_SECOND_STRING_CONTACTOR,
-    BMS_OPEN_ALL_PRECHARGE_CONTACTORS,
-    BMS_CHECK_ALL_PRECHARGE_CONTACTORS_OPEN,
-    BMS_OPEN_STRINGS_ENTRY,
-    BMS_OPEN_FIRST_STRING_CONTACTOR,
-    BMS_OPEN_SECOND_STRING_CONTACTOR,
-    BMS_CHECK_SECOND_STRING_CONTACTOR,
-    BMS_HANDLE_SUPPLY_VOLTAGE_30C_LOSS,
-    BMS_OPEN_STRINGS_EXIT,
-} BMS_STATEMACH_SUB_e;
-
 /** State requests for the BMS state machine */
 typedef enum {
-    BMS_STATE_INIT_REQUEST,  /*!< request for initialization */
-    BMS_STATE_ERROR_REQUEST, /*!< request for ERROR state */
-    BMS_STATE_NO_REQUEST,    /*!< dummy request for no request */
+    BMS_STATE_INITIALIZATION_REQUEST, /*!< request for initialization */
+    BMS_STATE_ERROR_REQUEST,          /*!< request for ERROR state */
+    BMS_STATE_NO_REQUEST,             /*!< dummy request for no request */
 } BMS_STATE_REQUEST_e;
 
 /** Possible return values when state requests are made to the BMS state machine */
@@ -187,13 +193,14 @@ typedef enum {
  * this variable
  */
 typedef struct {
-    uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
+    uint32_t currentSystick; /*!< current system timestamp. Updated with every call of #BMS_Trigger */
+    uint16_t timer;          /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
     BMS_STATE_REQUEST_e stateRequest;           /*!< current state request made to the state machine */
-    BMS_STATEMACH_e state;                      /*!< current state of State Machine */
-    BMS_STATEMACH_SUB_e substate;               /*!< current substate of the state machine */
-    BMS_STATEMACH_e lastState;                  /*!< previous state of the state machine */
-    BMS_STATEMACH_SUB_e lastSubstate;           /*!< previous substate of the state machine */
-    uint32_t ErrRequestCounter;                 /*!< counts the number of illegal requests to the LTC state machine */
+    BMS_FSM_STATES_e state;                     /*!< current state of State Machine */
+    BMS_FSM_SUB_e substate;                     /*!< current substate of the state machine */
+    BMS_FSM_STATES_e lastState;                 /*!< previous state of the state machine */
+    BMS_FSM_SUB_e lastSubstate;                 /*!< previous substate of the state machine */
+    uint32_t ErrRequestCounter;                 /*!< counts the number of illegal requests to the AFE state machine */
     STD_RETURN_TYPE_e initFinished;             /*!< #STD_OK if the initialization has passed, #STD_NOT_OK otherwise */
     uint8_t triggerentry;                       /*!< counter for re-entrance protection (function running flag) */
     uint8_t counter;                            /*!< general purpose counter */
@@ -206,7 +213,7 @@ typedef struct {
     uint16_t stringOpenTimeout;                 /*!< timeout to abort if string opening takes too long */
     uint32_t nextStringClosedTimer;             /*!< timer to wait if the next string was closed */
     uint16_t stringCloseTimeout;                /*!< timeout to abort if a string takes too long to close */
-    BMS_STATEMACH_e nextState;                  /*!< next state of the State Machine */
+    BMS_FSM_STATES_e nextState;                 /*!< next state of the State Machine */
     uint8_t firstClosedString;                  /*!< strings with highest or lowest voltage, that was closed first */
     uint16_t prechargeOpenTimeout;              /*!< timeout to abort if string opening takes too long */
     uint16_t prechargeCloseTimeout;             /*!< timeout to abort if a string takes too long to close */
@@ -215,10 +222,11 @@ typedef struct {
     uint32_t timeAboveContactorBreakCurrent_ms; /*!< duration of current flow above maximum contactor break current */
     uint8_t stringToBeOpened;                   /*!< string that is currently opened */
     CONT_TYPE_e contactorToBeOpened;            /*!< contactor that is currently opened */
+    uint32_t startOfPrecharging;                /*!< systick, when precharging has been initiated */
     bool transitionToErrorState;                /*!< flag if fatal error has been detected and delay is active */
-    uint8_t closedPrechargeContactors[BS_NR_OF_STRINGS]; /*!< strings whose precharge contactors are closed */
-    uint8_t closedStrings[BS_NR_OF_STRINGS];             /*!< strings whose contactors are closed */
-    uint8_t deactivatedStrings[BS_NR_OF_STRINGS]; /*!< Deactivated strings after error detection, cannot be closed */
+    bool closedPrechargeContactors[BS_NR_OF_STRINGS]; /*!< strings whose precharge contactors are closed */
+    bool closedStrings[BS_NR_OF_STRINGS];             /*!< strings whose contactors are closed */
+    bool deactivatedStrings[BS_NR_OF_STRINGS]; /*!< Deactivated strings after error detection, cannot be closed */
 } BMS_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -241,16 +249,16 @@ extern BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq);
 /**
  * @brief   Returns the current state.
  * @details This function is used in the functioning of the SYS state machine.
- * @return  current state, taken from BMS_STATEMACH_e
+ * @return  current state, taken from BMS_FSM_STATES_e
  */
-extern BMS_STATEMACH_e BMS_GetState(void);
+extern BMS_FSM_STATES_e BMS_GetState(void);
 
 /**
  * @brief   Returns the current substate.
  * @details This function is used in the functioning of the SYS state machine.
- * @return  current substate, taken from BMS_STATEMACH_SUB_e
+ * @return  current substate, taken from BMS_FSM_SUB_e
  */
-extern BMS_STATEMACH_SUB_e BMS_GetSubstate(void);
+extern BMS_FSM_SUB_e BMS_GetSubstate(void);
 
 /**
  * @brief   Gets the initialization state.
@@ -327,6 +335,11 @@ extern bool TEST_BMS_IsContactorFeedbackValid(uint8_t stringNumber, CONT_TYPE_e 
 extern bool TEST_BMS_IsAnyFatalErrorFlagSet(void);
 extern void TEST_BMS_GetMeasurementValues(void);
 extern void TEST_BMS_CheckOpenSenseWire(void);
+extern STD_RETURN_TYPE_e TEST_BMS_MonitorPrechargeProcess(
+    uint8_t stringNumber,
+    const DATA_BLOCK_PACK_VALUES_s *pPackValues,
+    BS_PRECHARGE_MONITORING_e monitoringParameters,
+    uint32_t timeout_ms);
 extern STD_RETURN_TYPE_e TEST_BMS_CheckPrecharge(uint8_t stringNumber, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 extern uint8_t TEST_BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 extern uint8_t TEST_BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues);

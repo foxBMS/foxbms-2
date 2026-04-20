@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fram.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -77,12 +77,12 @@ extern void FRAM_Initialize(void);
 /**
  * @brief   Reinitialize all entries in the FRAM.
  * @details This function must be called if the alignment in the FRAM is
- *          wrong due to a change in the FRAM data structue.
- * @return  #STD_OK if all writes successfull, otherwise #STD_NOT_OK
+ *          wrong due to a change in the FRAM data structure.
+ * @return  #STD_OK if all writes successful, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void);
 
-/* The variable corrresponding to the block_ID is written */
+/* The variable corresponding to the block_ID is written */
 /**
  * @brief   Writes a variable to the FRAM.
  * @details This function stores the variable corresponding to the ID passed as
@@ -92,7 +92,7 @@ extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void);
  */
 extern FRAM_RETURN_TYPE_e FRAM_WriteData(FRAM_BLOCK_ID_e blockId);
 
-/* The variable corrresponding to the block_ID is written */
+/* The variable corresponding to the block_ID is written */
 /**
  * @brief   Reads a variable from the FRAM.
  * @details This function reads the variable corresponding to the ID passed as

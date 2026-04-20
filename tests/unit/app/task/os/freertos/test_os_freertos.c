@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,10 +59,12 @@
  *
  */
 
+/* cspell:ignore testv */
+
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "MockHL_sys_core.h"
-#include "Mockcan_cbs_tx_crash-dump.h"
+#include "Mockcan_cbs_tx_f_crash-dump.h"
 #include "Mockftask.h"
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"
@@ -384,11 +386,28 @@ void testOS_SendToBackOfQueue(void) {
     TEST_ASSERT_EQUAL(OS_FAIL, failure);
 }
 
-void testOS_TaskNotifyGiveFromISR(void) {
+void testOS_NotifyGive(void) {
+    /* ======= Assertion tests ============================================= */
+    TEST_ASSERT_FAIL_ASSERT(OS_NotifyGive(NULL_PTR));
+    /* ======= Routine tests =============================================== */
+    TaskHandle_t taskToNotify = ftsk_testtaskHandle;
+    xTaskGenericNotify_ExpectAndReturn(ftsk_testtaskHandle, tskDEFAULT_INDEX_TO_NOTIFY, 0, eIncrement, NULL, pdPASS);
+    TEST_ASSERT_EQUAL(pdPASS, OS_NotifyGive(taskToNotify));
+}
+
+void testOS_NotifyGiveFromIsr(void) {
+    /* ======= Assertion tests ============================================= */
+    TEST_ASSERT_FAIL_ASSERT(OS_NotifyGiveFromIsr(NULL_PTR, pdFALSE));
+    /* ======= Routine tests =============================================== */
     TaskHandle_t taskToNotify           = ftsk_testtaskHandle;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     vTaskGenericNotifyGiveFromISR_Expect(ftsk_testtaskHandle, 0u, &xHigherPriorityTaskWoken);
-    OS_TaskNotifyGiveFromISR(taskToNotify, &xHigherPriorityTaskWoken);
+    OS_NotifyGiveFromIsr(taskToNotify, &xHigherPriorityTaskWoken);
 
     TEST_ASSERT_EQUAL(xHigherPriorityTaskWoken, pdFALSE);
+}
+
+void testOS_NotifyTake(void) {
+    ulTaskGenericNotifyTake_ExpectAndReturn(0, 0u, 0xFu, 0u);
+    OS_NotifyTake(0u, 0xFu);
 }

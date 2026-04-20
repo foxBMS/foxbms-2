@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,12 +37,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for running scripts"""
+"""Click command definition for ``run-script``."""
 
 import click
 
 from ..cmd_run_script import run_script_impl
-from ..helpers.click_helpers import DISABLE_DEFAULT_HELP, IGNORE_UNKNOWN_OPTIONS
+from ..helpers.click_helpers import DISABLE_DEFAULT_HELP, IGNORE_UNKNOWN_OPTIONS, echo
 
 CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
 
@@ -55,13 +55,19 @@ CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
     help="Directory where the script is run from.",
 )
 @click.argument("script_args", nargs=-1, type=click.UNPROCESSED)
+@click.option("--dummy", hidden=True)
 @click.pass_context
 def run_script(
     ctx: click.Context,
     cwd: str,
     script_args: tuple[str],
+    dummy: str,  # pylint: disable=unused-argument
 ) -> None:
     """Run the provided script."""
+    if script_args in (("-h",), ("--help",)):
+        ctx = click.get_current_context()
+        echo(ctx.get_help())
+        ctx.exit()
     ret = run_script_impl.run_python_script(
         list(script_args), cwd=cwd, stdout=None, stderr=None
     )

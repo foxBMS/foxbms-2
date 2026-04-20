@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    rtc.h
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -55,6 +55,8 @@
 
 #ifndef FOXBMS__RTC_H_
 #define FOXBMS__RTC_H_
+
+/* cspell:ignore CLKOUT CLEARPRESCALER OTPR SWRESET */
 
 /*========== Includes =======================================================*/
 
@@ -114,7 +116,8 @@ typedef struct {
 
 /* Power management configuration value to switch to battery voltage
    and monitor battery voltage */
-#define RTC_CTRL3_POWER_MANAGE_DIRECT_SWITCH_LOW_DETECTION_ENABLE_MODE (0x03u)
+#define RTC_CTRL3_POWER_MANAGE_DIRECT_SWITCH_LOW_DETECTION_ENABLE_MODE   (0x03u)
+#define RTC_CTRL3_POWER_MANAGE_STANDARD_SWITCH_LOW_DETECTION_ENABLE_MODE (0x0u)
 
 /* Defines for the RTC CLKOUT_ctl register */
 /**@{*/

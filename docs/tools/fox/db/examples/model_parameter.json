@@ -1,0 +1,32 @@
+[
+  {
+    "name": "current limits",
+    "sources": [
+      "cell_datasheet.pdf"
+    ],
+    "charge": {
+      "current": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "temperatures": [
+        0.0,
+        25.0,
+        40.0
+      ]
+    },
+    "discharge": {
+      "current": [
+        2.0,
+        3.0,
+        4.0
+      ],
+      "temperatures": [
+        0.0,
+        25.0,
+        40.0
+      ]
+    }
+  }
+]

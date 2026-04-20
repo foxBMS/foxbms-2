@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,11 +40,10 @@
 """Gets the macro values from the compiler output"""
 
 import argparse
-import logging
+import logging  # noqa: TID251
 import os
 import sys
 from pathlib import Path
-from typing import List
 
 import git
 from git.exc import InvalidGitRepositoryError
@@ -59,13 +58,13 @@ except InvalidGitRepositoryError:
     pass
 
 
-def get_ppm_files() -> List[Path]:
-    """creates a generator for all relevant macro files in the build directory"""
+def get_ppm_files() -> list[Path]:
+    """Creates a generator for all relevant macro files in the build directory"""
     build_dir = REPO_ROOT / "build/app_embedded"
     return build_dir.rglob("*.ppm")
 
 
-def main():
+def main() -> None:
     """This script does this and that"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -132,7 +131,7 @@ def main():
 
     macro_cmm_file_in = REPO_ROOT / "tools/debugger/lauterbach/load_macro_values.cmm.in"
     if not macro_cmm_file_in.is_file():
-        sys.exit("Could not find file %s", macro_cmm_file_in)
+        sys.exit(f"Could not find file {macro_cmm_file_in}.")
     logging.info("Reading configuration file '%s'", macro_cmm_file_in)
     txt = macro_cmm_file_in.read_text(encoding="utf-8")
     replacement = "\n".join(

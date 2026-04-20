@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_contactor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -135,19 +135,30 @@ void testDiagContactorStringContactorFeedback(void) {
     /* string contactor feedback can be resetted via ok event (instead a reset is required), therefore the
      * string contactor feedback must stay in not ok mode */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->contactorInNegativePathOfStringFeedbackError[s]);
+        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->contactorInPositivePathOfStringFeedbackError[s]);
     }
 
     /* reset event sets the string contactor feedback back in ok mode */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         DIAG_StringContactorFeedback(
-            DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
+            DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->contactorInNegativePathOfStringFeedbackError[s]);
+        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->contactorInPositivePathOfStringFeedbackError[s]);
+    }
+
+    /* not ok event sets the string contactor feedback back in not ok mode */
+    for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
+        /* reset event sets the string contactor feedback back in ok mode */
+        DIAG_StringContactorFeedback(
+            DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, s);
+    }
+    for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
+        /* reset event sets the string contactor feedback back in ok mode */
+        TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->contactorInPositivePathOfStringFeedbackError[s]);
     }
 }
 

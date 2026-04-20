@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,15 +45,18 @@ from waflib.Utils import unversioned_sys_platform
 
 
 @feature("validate_hashes")
-def validate_hashes(tg):
+def validate_hashes(tg) -> None:
     """Validates file hashes"""
     hashes = tg.path.find_node("hashes.json").read_json()
     for i in hashes:
         node = tg.path.find_node(i["path"])
         node_hash = node.h_file()
-        if not node_hash == binascii.a2b_hex(i["hash"][unversioned_sys_platform()]):
+        if node_hash not in (
+            binascii.a2b_hex(i["hash"][unversioned_sys_platform()]),
+            binascii.a2b_hex(i["hash"]["linux"]),
+        ):
             tg.bld.fatal(
                 "File hash of vendored file does not match: "
                 f"'{node}' should return {i['hash'][unversioned_sys_platform()]} "
-                f"but returned {node_hash.encode('utf-8')}."
+                f"but returned {node_hash.hex()}."
             )

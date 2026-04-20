@@ -29,7 +29,7 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR`.
 
 ---------------
 Pinout Overview

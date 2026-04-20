@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,18 +44,19 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
-
-from yaml import YAMLError, safe_load
+from unittest.mock import Mock, patch
 
 try:
     from cli.cmd_plot.data_handling.csv_handler import CSVHandler
     from cli.cmd_plot.data_handling.data_handler_factory import DataHandlerFactory
     from cli.cmd_plot.data_handling.data_source_types import DataSourceTypes
+    from cli.cmd_plot.data_handling.parquet_handler import PARQUETHandler
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
     from cli.cmd_plot.data_handling.csv_handler import CSVHandler
     from cli.cmd_plot.data_handling.data_handler_factory import DataHandlerFactory
     from cli.cmd_plot.data_handling.data_source_types import DataSourceTypes
+    from cli.cmd_plot.data_handling.parquet_handler import PARQUETHandler
 
 PATH_EXECUTION = Path(__file__).parent.parent / "test_execution"
 
@@ -65,13 +66,7 @@ class TestGetObject(unittest.TestCase):
 
     def setUp(self) -> None:
         """Setups the factory object and the config"""
-        with open(
-            PATH_EXECUTION / "test_data_source_config.yaml", encoding="utf-8"
-        ) as stream:
-            try:
-                self.test_data_source_config = safe_load(stream)
-            except YAMLError as exc:
-                raise exc
+        self.config_path = PATH_EXECUTION / "test_data_source_config.yaml"
         self.factory = DataHandlerFactory()
 
     def test_get_object_csv(self) -> None:
@@ -88,21 +83,34 @@ class TestGetObject(unittest.TestCase):
             4,
             3,
         )
-        actual = self.factory.get_object(
-            DataSourceTypes.CSV, self.test_data_source_config
-        )
+        actual = self.factory.get_object(DataSourceTypes.CSV, self.config_path)
         self.assertIsInstance(actual, CSVHandler)
         self.assertEqual(actual.skip, expected.skip)
         self.assertEqual(actual.precision, expected.precision)
         self.assertDictEqual(actual.columns, expected.columns)
 
+    def test_get_object_parquet(self) -> None:
+        """Tests the function get_object with CSV as data type"""
+        actual = self.factory.get_object(DataSourceTypes.PARQUET, None)
+        self.assertIsInstance(actual, PARQUETHandler)
+
     def test_get_object_unkown_data_type(self) -> None:
         """Tests the function get_object with unkown data type"""
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            self.factory.get_object("not_csv", self.test_data_source_config)
+            self.factory.get_object("not_csv", self.config_path)
         self.assertEqual(cm.exception.code, 1)
         self.assertIn("Data source type not known", buf.getvalue())
+
+    @patch("cli.cmd_plot.data_handling.data_handler_factory.read_config")
+    def test_get_object_permission_error(self, config_mock: Mock) -> None:
+        """Tests the function get_object with unkown data type"""
+        config_mock.side_effect = PermissionError
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            self.factory.get_object(DataSourceTypes.CSV, None)
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("Problematic configuration file", buf.getvalue())
 
 
 if __name__ == "__main__":

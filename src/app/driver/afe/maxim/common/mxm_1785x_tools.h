@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -249,16 +249,17 @@ typedef struct {
     MXM_DC_BYTE_e dcByte;          /*!< content of the data-check-byte */
     uint8_t mxmVoltageCellCounter; /*!< counter for getting all cell voltages */
     uint8_t highest5xDevice;       /*!< address of highest monitoring device of the 5x family */
-    MXM_5X_STATE_REQUEST_STATUS_e requestStatus5x;                /*!< status of request to 5x */
-    MXM_5X_COMMAND_PAYLOAD_s batteryCmdBuffer;                    /*!< buffer for Battery Management Commands */
-    STD_RETURN_TYPE_e resultSelfCheck;                            /*!< Status of driver-wide self-check */
-    MXM_SELFCHECK_s selfCheck;                                    /*!< stores self check return values */
-    MXM_BALANCING_STATE_s *const pBalancingState;                 /*!< pointer to the balancing structure */
-    MXM_41B_INSTANCE_s *const pInstance41B;                       /*!< instance-pointer of the 41b-state-machine */
-    MXM_5X_INSTANCE_s *const pInstance5X;                         /*!< instance-pointer of the 5x-state-machine */
-    DATA_BLOCK_CELL_VOLTAGE_s *const pCellVoltages_table;         /*!< cell voltages table */
-    DATA_BLOCK_CELL_TEMPERATURE_s *const pCellTemperatures_table; /*!< cell temperatures table */
-    DATA_BLOCK_OPEN_WIRE_s *const pOpenWire_table;                /*!< open wire table */
+    uint64_t serialId[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< serial id number of the afe */
+    MXM_5X_STATE_REQUEST_STATUS_e requestStatus5x;                    /*!< status of request to 5x */
+    MXM_5X_COMMAND_PAYLOAD_s batteryCmdBuffer;                        /*!< buffer for Battery Management Commands */
+    STD_RETURN_TYPE_e resultSelfCheck;                                /*!< Status of driver-wide self-check */
+    MXM_SELFCHECK_s selfCheck;                                        /*!< stores self check return values */
+    MXM_BALANCING_STATE_s *const pBalancingState;                     /*!< pointer to the balancing structure */
+    MXM_41B_INSTANCE_s *const pInstance41B;                           /*!< instance-pointer of the 41b-state-machine */
+    MXM_5X_INSTANCE_s *const pInstance5X;                             /*!< instance-pointer of the 5x-state-machine */
+    DATA_BLOCK_CELL_VOLTAGE_s *const pCellVoltages_table;             /*!< cell voltages table */
+    DATA_BLOCK_CELL_TEMPERATURE_s *const pCellTemperatures_table;     /*!< cell temperatures table */
+    DATA_BLOCK_OPEN_WIRE_s *const pOpenWire_table;                    /*!< open wire table */
     /**
      * @brief Local storage for cell-voltages
      *
@@ -287,7 +288,7 @@ typedef struct {
  * @brief       Convert a measurement value to a voltage value.
  * @details     This function converts measurement values from the monitoring
  *              IC into a voltage value. It assumes that measurement values are
- *              spread over the LSB and MSB according to the data sheet. This
+ *              spread over the LSB and MSB according to the datasheet. This
  *              means that the two lowest bits are 0 and the 14-bit measurement
  *              is spread over the 14 highest bits.
  *

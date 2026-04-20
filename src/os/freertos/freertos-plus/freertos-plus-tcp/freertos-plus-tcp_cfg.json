@@ -6,6 +6,7 @@
     "source/portable/Compiler/CCS",
     "source/portable/NetworkInterface/Common",
     "source/portable/NetworkInterface/include",
-    "source/portable/NetworkInterface/loopback"
+    "source/portable/NetworkInterface/loopback",
+    "source/portable/NetworkInterface/tms570lc435"
   ]
 }

@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -83,8 +83,8 @@ LINKFLAGS:
   - --emit_warnings_as_errors
   - --be32
   - --rom_model
-  - --heap_size=0x1000
-  - --stack_size=0x800
+  - --heap_size=0x2000
+  - --stack_size=0x1800
   - --undef_sym=__TI_static_base__
   - --undef_sym=resetEntry
   - -o4

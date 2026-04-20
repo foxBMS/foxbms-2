@@ -52,7 +52,7 @@ Management Plan
 - The Dependency Update Responsible **SHOULD** be changed in every update
   cycle, so that all team members know how to update the dependencies.
 - Every update cycle **SHALL** have a ticket that follows the naming
-  conventions ``Dependency update: <XXXX>/Q<Y>``, where ``<XXXX>`` is the year
+  conventions ``Update dependency: <XXXX>/Q<Y>``, where ``<XXXX>`` is the year
   ``<Y>`` the quarter.
   Use ``.gitlab/issue_templates/issue-dependency-update.md`` as template for
   the issue.
@@ -64,7 +64,7 @@ Management Plan
   Use ``.gitlab/merge_request_templates/mr-dependency-update.md`` as template
   for the merge request.
   The commit message (i.e., the merge request title) **SHALL** be
-  ``Dependency update: <XXXX>/Q<Y>: <Dependency name> <version number>``.
+  ``Update dependency: <XXXX>/Q<Y>: <Dependency name> <version number>``.
 
 .. note::
 

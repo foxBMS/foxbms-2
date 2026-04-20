@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,12 +37,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Check the license information header in the provided files.
+"""Validate license headers in source and script files.
 
 This script verifies that files of various types (C, ASM, Python, YAML, TOML,
 PowerShell, Shell) contain the correct license header for either "BSD-3-Clause"
-or "confidential". It compares the beginning of each file against the expected
-header text and reports any mismatches.
+or "confidential". It dispatches files to the appropriate checker by file
+extension and reports any mismatches.
 It is intended for use with pre-commit.
 """
 
@@ -50,9 +50,27 @@ import argparse
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, get_args
+from typing import Literal, Protocol, TypedDict, get_args
 
 LicenseTypes = Literal["BSD-3-Clause", "confidential"]
+
+
+class CheckFunction(Protocol):  # pylint: disable=too-few-public-methods
+    """Callable signature used by license header checkers."""
+
+    def __call__(  # noqa: D102
+        self,
+        *,
+        files: Sequence[str],
+        license_type: LicenseTypes,
+    ) -> int: ...
+
+
+class CheckEntry(TypedDict):
+    """Per-checker configuration and accumulated file list."""
+
+    check: CheckFunction
+    files: list[str]
 
 
 LICENSE_BASE_TEXT_BSD_3_CLAUSE = [
@@ -101,6 +119,87 @@ LICENSE_TYPE_TO_LICENSE_BASE_TEXT = {
 }
 
 
+def _checker_for_file(path: Path) -> str | None:
+    """Return checker key for a file path, or ``None`` when unsupported."""
+    file_type = None
+    if path.name == "wscript" or path.suffix == ".py":
+        file_type = "py"
+    elif path.suffix in {".c", ".h"}:
+        file_type = "c"
+    elif path.suffix == ".asm":
+        file_type = "asm"
+    elif path.suffix in {".yml", ".yaml"}:
+        file_type = "yaml"
+    elif path.suffix == ".toml":
+        file_type = "toml"
+    elif path.suffix == ".ps1":
+        file_type = "pwsh"
+    elif path.suffix == ".sh":
+        file_type = "shell"
+    return file_type
+
+
+def _as_repo_relative(path: Path) -> Path:
+    """Return a repository-relative path when possible."""
+    if not path.is_absolute():
+        return path
+    try:
+        return path.relative_to(Path.cwd())
+    except ValueError:
+        return path
+
+
+def _source_to_test_file(path: Path) -> Path | None:
+    """Map a src C file to its accompanying tests/unit test file path."""
+    rel_path = _as_repo_relative(path)
+    if rel_path.suffix != ".c":
+        return None
+
+    try:
+        src_index = rel_path.parts.index("src")
+    except ValueError:
+        return None
+
+    src_rel = Path(*rel_path.parts[src_index + 1 :])
+    if not src_rel.parts:
+        return None
+    return Path("tests/unit") / src_rel.parent / f"test_{src_rel.name}"
+
+
+def _source_to_test_wscript(path: Path) -> Path | None:
+    """Map a src wscript file to its accompanying tests/unit wscript path."""
+    rel_path = _as_repo_relative(path)
+    if rel_path.name != "wscript":
+        return None
+
+    try:
+        src_index = rel_path.parts.index("src")
+    except ValueError:
+        return None
+
+    src_rel = Path(*rel_path.parts[src_index + 1 :])
+    if not src_rel.parts:
+        return None
+    return Path("tests/unit") / src_rel
+
+
+def _read_text_utf8_lines(file: Path) -> list[str] | None:
+    """Read text file as UTF-8 and return split lines.
+
+    Returns ``None`` and emits an error when decoding fails.
+    """
+    try:
+        return file.read_text(encoding="utf-8").splitlines()
+    except UnicodeDecodeError:
+        msg = f"{file.as_posix()}: Cannot read file as UTF-8."
+        print(msg, file=sys.stderr)
+        return None
+    except (FileNotFoundError, PermissionError) as e:
+        msg = f"{file.as_posix()}: Cannot read file ({e})."
+        print(msg, file=sys.stderr)
+        return None
+
+
 def compare_header(
     file_name: Path, expected: list[str], actual: list[str], start: int, end: int
 ) -> int:
@@ -113,12 +212,12 @@ def compare_header(
         start: Start index in the file lines to compare.
         end: End index in the file lines to compare.
 
-    Return:
-        1 if the header differs, 0 if it matches.
+    Returns:
+        ``1`` if the selected header range differs, otherwise ``0``.
 
     """
     err = 0
-    if not len(actual) >= end:
+    if len(actual) < end:
         msg = f"{file_name.as_posix()}: License header is not correct."
         print(msg, file=sys.stderr)
         err += 1
@@ -127,10 +226,11 @@ def compare_header(
         msg = f"{file_name.as_posix()}: License header is not correct."
         print(msg, file=sys.stderr)
         print("The following lines differ", file=sys.stderr)
-        for i, (e, a) in enumerate(zip(expected, actual, strict=False)):
+        for i, (e, a) in enumerate(zip(expected, actual[start:end], strict=False)):
             if e != a:
-                print(f"Line {i + 1}: Expected: '{e}'", file=sys.stderr)
-                print(f"Line {i + 1}: Actual:   '{a}'", file=sys.stderr)
+                line = start + i + 1
+                print(f"Line {line}: Expected: '{e}'", file=sys.stderr)
+                print(f"Line {line}: Actual:   '{a}'", file=sys.stderr)
         err += 1
     return err
 
@@ -142,14 +242,14 @@ def check_asm(files: Sequence[str], license_type: LicenseTypes = "confidential")
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
     err = 0
     prolog = [
         # pylint: disable-next=line-too-long
-        "; @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "; @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         "; All rights reserved.",
         ";",
     ]
@@ -163,9 +263,13 @@ def check_asm(files: Sequence[str], license_type: LicenseTypes = "confidential")
     start = 0
     end = start + len(license_text)
     for i in files:
-        tmp = Path(i).read_text(encoding="utf-8").splitlines()
+        file_path = Path(i)
+        tmp = _read_text_utf8_lines(file_path)
+        if not tmp:
+            err += 1
+            continue
         err += compare_header(
-            file_name=Path(i),
+            file_name=file_path,
             expected=license_text,
             actual=tmp,
             start=start,
@@ -181,7 +285,7 @@ def check_c(files: Sequence[str], license_type: LicenseTypes = "confidential") -
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
@@ -190,7 +294,7 @@ def check_c(files: Sequence[str], license_type: LicenseTypes = "confidential") -
         "/**",
         " *",
         # pylint: disable-next=line-too-long
-        " * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        " * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         " * All rights reserved.",
         " *",
     ]
@@ -204,14 +308,32 @@ def check_c(files: Sequence[str], license_type: LicenseTypes = "confidential") -
     start = 0
     end = start + len(license_text)
     for i in files:
-        tmp = Path(i).read_text(encoding="utf-8").splitlines()
+        source_file = Path(i)
+        tmp = _read_text_utf8_lines(source_file)
+        if not tmp:
+            err += 1
+            continue
         err += compare_header(
-            file_name=Path(i),
+            file_name=source_file,
             expected=license_text,
             actual=tmp,
             start=start,
             end=end,
         )
+
+        test_file = _source_to_test_file(source_file)
+        if test_file and test_file.exists():
+            test_lines = _read_text_utf8_lines(test_file)
+            if not test_lines:
+                err += 1
+                continue
+            err += compare_header(
+                file_name=test_file,
+                expected=license_text,
+                actual=test_lines,
+                start=start,
+                end=end,
+            )
     return err
 
 
@@ -222,7 +344,7 @@ def check_py(files: Sequence[str], license_type: LicenseTypes = "confidential") 
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
@@ -230,7 +352,7 @@ def check_py(files: Sequence[str], license_type: LicenseTypes = "confidential") 
     prolog = [
         "#",
         # pylint: disable-next=line-too-long
-        "# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         "# All rights reserved.",
         "#",
     ]
@@ -243,14 +365,32 @@ def check_py(files: Sequence[str], license_type: LicenseTypes = "confidential") 
     start = 1
     end = start + len(license_text)
     for i in files:
-        tmp = Path(i).read_text(encoding="utf-8").splitlines()
+        source_file = Path(i)
+        tmp = _read_text_utf8_lines(source_file)
+        if not tmp:
+            err += 1
+            continue
         err += compare_header(
-            file_name=Path(i),
+            file_name=source_file,
             expected=license_text,
             actual=tmp,
             start=start,
             end=end,
         )
+
+        test_file = _source_to_test_wscript(source_file)
+        if test_file and test_file.exists():
+            test_lines = _read_text_utf8_lines(test_file)
+            if not test_lines:
+                err += 1
+                continue
+            err += compare_header(
+                file_name=test_file,
+                expected=license_text,
+                actual=test_lines,
+                start=start,
+                end=end,
+            )
     return err
 
 
@@ -263,14 +403,14 @@ def check_yaml(
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
     err = 0
     prolog = [
         # pylint: disable-next=line-too-long
-        "# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         "# All rights reserved.",
         "#",
     ]
@@ -283,9 +423,13 @@ def check_yaml(
     start = 0
     end = start + len(license_text)
     for i in files:
-        tmp = Path(i).read_text(encoding="utf-8").splitlines()
+        file_path = Path(i)
+        tmp = _read_text_utf8_lines(file_path)
+        if not tmp:
+            err += 1
+            continue
         err += compare_header(
-            file_name=Path(i),
+            file_name=file_path,
             expected=license_text,
             actual=tmp,
             start=start,
@@ -303,7 +447,7 @@ def check_toml(
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
@@ -320,7 +464,7 @@ def check_pwsh(
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
@@ -337,7 +481,7 @@ def check_shell(
         files: List of file paths to check.
         license_type: Type of license to check for.
 
-    Return:
+    Returns:
         Count of files with incorrect headers.
 
     """
@@ -351,17 +495,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     Args:
         argv: Optional sequence of command-line arguments.
 
-    Return:
+    Returns:
         Exit code (0 if all headers are correct, >0 otherwise).
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--file-type",
-        default="c",
-        choices=["asm", "c", "pwsh", "py", "shell", "toml", "yaml"],
-        help="File type",
-    )
     parser.add_argument("files", nargs="*", help="Files to check")
     parser.add_argument(
         "--license-type",
@@ -370,9 +508,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="License type",
     )
     args = parser.parse_args(argv)
-    return globals()[f"check_{args.file_type}"](
-        files=args.files, license_type=args.license_type
-    )
+    checks: dict[str, CheckEntry] = {
+        "asm": {"check": check_asm, "files": []},
+        "c": {"check": check_c, "files": []},
+        "pwsh": {"check": check_pwsh, "files": []},
+        "py": {"check": check_py, "files": []},
+        "shell": {"check": check_shell, "files": []},
+        "toml": {"check": check_toml, "files": []},
+        "yaml": {"check": check_yaml, "files": []},
+    }
+    for file_arg in args.files:
+        file_path = Path(file_arg)
+        file_type = _checker_for_file(file_path)
+        if not file_type:
+            continue
+        checks[file_type]["files"].append(file_arg)
+
+    err = 0
+    for data in checks.values():
+        files = data["files"]
+        if files:
+            err += data["check"](files=files, license_type=args.license_type)
+    return err
 
 
 if __name__ == "__main__":

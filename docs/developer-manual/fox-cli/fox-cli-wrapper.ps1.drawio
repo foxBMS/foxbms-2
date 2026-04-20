@@ -1,0 +1,292 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Page-1" id="d_jy2efu28WGUQZo3gD0">
+    <mxGraphModel dx="277" dy="159" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-26" target="BD1TUV4fcC1nCOwpNY_s-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="70" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-2" target="BD1TUV4fcC1nCOwpNY_s-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-85" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-5" value="macOS" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="BD1TUV4fcC1nCOwpNY_s-4" vertex="1" connectable="0">
+          <mxGeometry x="-0.2341" y="2" relative="1" as="geometry">
+            <mxPoint x="2" y="-24" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-12" value="Windows" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-2" target="BD1TUV4fcC1nCOwpNY_s-23" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-2" value="OS?" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="55" y="103" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-9" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="205" y="73" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-11" target="BD1TUV4fcC1nCOwpNY_s-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-11" value="Calculate Installation Prefix" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;rotation=0;" parent="1" vertex="1">
+          <mxGeometry y="270" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-16" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-13" target="BD1TUV4fcC1nCOwpNY_s-15" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-38" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-13" target="BD1TUV4fcC1nCOwpNY_s-37" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-13" value="Python&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;env&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;activate script&lt;/span&gt;&lt;div&gt;exists?&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="25" y="335" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-15" target="BD1TUV4fcC1nCOwpNY_s-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-15" value="Activate environment" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry y="490" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-29" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-21" target="FvWTrhxQxPpmvC0IcavU-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-33" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-21" target="BD1TUV4fcC1nCOwpNY_s-32" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-21" value="&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Python&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;executeable&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;exists?&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="25" y="560" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-23" target="BD1TUV4fcC1nCOwpNY_s-11" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="257" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-23" value="Push into repository root" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;rotation=0;" parent="1" vertex="1">
+          <mxGeometry y="200" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-26" value="fox.ps1" style="ellipse;shape=doubleEllipse;html=1;dashed=0;whiteSpace=wrap;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="40" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-28" target="BD1TUV4fcC1nCOwpNY_s-49" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="85" y="930" />
+              <mxPoint x="175" y="930" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-28" value="Pipe stdin &amp;amp;&lt;div&gt;&lt;div&gt;&lt;div&gt;Run&lt;/div&gt;&lt;div&gt;python fox.py &amp;lt;args&amp;gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry y="871" width="170" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-30" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit with fox.py&#39;s error code&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="160" y="1088" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-32" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="190" y="595" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-42" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-26" target="BD1TUV4fcC1nCOwpNY_s-41" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-46" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-37" target="BD1TUV4fcC1nCOwpNY_s-45" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-37" value="Base&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Python&lt;/span&gt;&lt;div&gt;installation&lt;div&gt;exists?&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="170" y="335" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-44" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-41" target="FvWTrhxQxPpmvC0IcavU-25" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="639" y="360" as="sourcePoint" />
+            <mxPoint x="660" y="325" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-41" value="Run setup script ./cli/helpers/python_setup.py" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="466" y="365" width="211" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-48" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-45" target="BD1TUV4fcC1nCOwpNY_s-47" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-45" value="Inform user to&lt;div&gt;install Python&lt;/div&gt;&lt;div&gt;(GUI or stdout)&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="287" width="170" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-47" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; &amp;nbsp;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="521" y="296" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-49" target="BD1TUV4fcC1nCOwpNY_s-50" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-49" value="Deactivate environment" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="968" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-52" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-50" target="BD1TUV4fcC1nCOwpNY_s-30" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-50" value="Pop directory" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="1028" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-2" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="205" y="143" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-2" target="FvWTrhxQxPpmvC0IcavU-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="215" y="75" as="targetPoint" />
+            <mxPoint x="105" y="133" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="150" y="123" />
+              <mxPoint x="150" y="158" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-4" value="Linux" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="FvWTrhxQxPpmvC0IcavU-3" vertex="1" connectable="0">
+          <mxGeometry x="-0.2341" y="2" relative="1" as="geometry">
+            <mxPoint x="-2" y="19" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-6" value="User shall use `fox.sh`" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="239" y="143" width="95" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-8" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-7" target="FvWTrhxQxPpmvC0IcavU-18" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="100" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-10" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="FvWTrhxQxPpmvC0IcavU-7" target="FvWTrhxQxPpmvC0IcavU-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-7" value="&lt;div&gt;GUI mode?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="25" y="701" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-13" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-9" target="FvWTrhxQxPpmvC0IcavU-11" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="231" y="669" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-9" value="Require std streams?" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="181" y="681" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-11" value="Run&lt;div&gt;pythonw fox.py &amp;lt;args&amp;gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="311" y="649" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-12" target="BD1TUV4fcC1nCOwpNY_s-49" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="746.0000000000005" y="735" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="530" y="771" />
+              <mxPoint x="530" y="940" />
+              <mxPoint x="175" y="940" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-12" value="Run&lt;div&gt;python fox.py &amp;lt;args&amp;gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="311" y="751" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-14" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-9" target="FvWTrhxQxPpmvC0IcavU-12" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="241" y="691" as="sourcePoint" />
+            <mxPoint x="320" y="675" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="231" y="771" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-21" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-18" target="BD1TUV4fcC1nCOwpNY_s-28" edge="1">
+          <mxGeometry x="-0.3115" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="75" y="860" />
+              <mxPoint x="85" y="860" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-18" value="&lt;div&gt;Ignore&lt;/div&gt;&lt;div&gt;stdin?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="32.5" y="779" width="85" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-22" value="Run&lt;div&gt;python fox.py &amp;lt;args&amp;gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="190" y="871" width="150" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-22" target="BD1TUV4fcC1nCOwpNY_s-49" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="95" y="938" as="sourcePoint" />
+            <mxPoint x="195" y="978" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="265" y="930" />
+              <mxPoint x="175" y="930" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-24" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-18" target="FvWTrhxQxPpmvC0IcavU-22" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="85" y="881" as="sourcePoint" />
+            <mxPoint x="95" y="913" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-25" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; &amp;nbsp;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="710" y="370" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-28" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-37" target="FvWTrhxQxPpmvC0IcavU-26" edge="1">
+          <mxGeometry x="-0.2063" relative="1" as="geometry">
+            <mxPoint x="201" y="470" as="sourcePoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-34" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-26" target="FvWTrhxQxPpmvC0IcavU-33" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-26" value="GUI mode?" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="365" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-29" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-33" target="FvWTrhxQxPpmvC0IcavU-31" edge="1">
+          <mxGeometry x="-0.0062" relative="1" as="geometry">
+            <mxPoint x="420" y="465" as="sourcePoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-31" target="FvWTrhxQxPpmvC0IcavU-32" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="639" y="440" as="sourcePoint" />
+            <mxPoint x="660" y="405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-31" value="Run setup script ./cli/helpers/python_setup.py --confirm" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="466" y="471.5" width="264" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-32" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; &amp;nbsp;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="761" y="476.5" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-38" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-33" target="FvWTrhxQxPpmvC0IcavU-36" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-33" value="Python 3.12 installation&lt;div&gt;exists?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="315" y="445" width="110" height="93" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-35" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="FvWTrhxQxPpmvC0IcavU-36" target="FvWTrhxQxPpmvC0IcavU-37" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-36" value="Inform user to&lt;div&gt;install Python&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="466" y="560" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-37" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; &amp;nbsp;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="671" y="565" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-11" target="BD1TUV4fcC1nCOwpNY_s-49" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="481" y="781" as="sourcePoint" />
+            <mxPoint x="185" y="1001" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="540" y="669" />
+              <mxPoint x="540" y="950" />
+              <mxPoint x="175" y="950" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -59,20 +59,23 @@ def main(argv: Sequence[str] | None = None) -> int:
     Args:
         argv: Optional sequence of command-line arguments.
 
-    Return:
-        Number of files with duplicate names found (exit code).
+    Returns:
+        Number of provided files whose basename occurs multiple times.
 
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)
     err = 0
-    git = str(which("git"))
+    git = which("git")
+    if not git:
+        print("Could not find 'git' in PATH.", file=sys.stderr)
+        return 1
     with Popen([git, "ls-files"], stdout=PIPE) as p:
         out = p.communicate()[0]
     tmp = out.decode("utf-8").splitlines()
     repo_files: list[Path] = []
-    repo_file_names = []
+    repo_file_names: list[str] = []
     for i in tmp:
         repo_files.append(Path(i))
         repo_file_names.append(Path(i).name)
@@ -81,7 +84,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             msg = f"{Path(i).as_posix()}: File name '{Path(i).name}' exists multiple times."
             print(msg, file=sys.stderr)
             for j, name in enumerate(repo_file_names):
-                if Path(i).name == Path(name).name:
+                if Path(i).name == name:
                     print(f"  {repo_files[j].as_posix()}", file=sys.stderr)
             err += 1
     return err

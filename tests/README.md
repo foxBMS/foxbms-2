@@ -2,7 +2,6 @@
 
 | Directory Name   | Long Name                   | Content Description                                                      |
 | ---------------- | --------------------------- | ------------------------------------------------------------------------ |
-| `axivion`        | Axivion                     | Configuration files to describe the software architecture of foxBMS. Additional static program analysis configurations are stored here (e.g., MISRA-C) |
 | `can`            | CAN                         | Heuristic tests for the correct implementation of DBC file in the code   |
 | `ccs`            | Code Composer Studio        | Compiler setup for different CCS versions to compile foxBMS with         |
 | `cli`            | Command line interface      | Tests for the CLI tool, to interact with the repository                  |

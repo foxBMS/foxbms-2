@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,13 +37,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-# pylint: disable=invalid-name
 
 """Template for Python scripts"""
 
 import argparse
 import json
-import logging
+import logging  # noqa: TID251
 import os
 import sys
 from pathlib import Path
@@ -62,7 +61,7 @@ except InvalidGitRepositoryError:
     sys.exit("Test can only be run in a git repository.")
 
 
-def main():  # pylint: disable=too-many-locals
+def main() -> int:  # pylint: disable=too-many-locals
     """This script compiles the c standard test suite and runs the tests"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -133,16 +132,15 @@ def main():  # pylint: disable=too-many-locals
     test_errors = 0
     for std, warning in outs.items():
         expected_warning = expected_output[std]
-        if not warning == expected_warning:
+        if warning != expected_warning:
             logging.error("Warning did not match for %s.", std)
             logging.error("Expected: %s", warning)
             logging.error("Got:      %s", expected_warning)
             test_errors += 1
+        elif warning:
+            logging.debug("Got expected result (compiler warning) for %s.", std)
         else:
-            if warning:
-                logging.debug("Got expected result (compiler warning) for %s.", std)
-            else:
-                logging.debug("Got expected result (no warning) for %s.", std)
+            logging.debug("Got expected result (no warning) for %s.", std)
     sys.exit(test_errors)
 
 

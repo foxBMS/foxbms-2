@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,38 +37,46 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the 'IMD'-driver objects.
-
-The build processes of the specific 'IMD'-driver is propagated to lower level
-build scripts for the specific IMD device vendor."""
-
-import os
-
 
 def build(bld):
-    """Build Insulation Monitoring Device Driver"""
-    includes = [
-        os.path.join("..", "can"),
-        os.path.join("..", "config"),
-        os.path.join("..", "..", "application", "config"),
-        os.path.join("..", "..", "driver", "mcu"),
-        os.path.join("..", "..", "engine", "config"),
-        os.path.join("..", "..", "engine", "database"),
-        os.path.join("..", "..", "engine", "diag"),
-        os.path.join("..", "..", "main", "include"),
-        os.path.join("..", "..", "task", "config"),
-        os.path.join("..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
 
-    # Build imd.c as object
+    bld.recurse(bld.env.FOXBMS_IMD_MANUFACTURER)
+
+    includes = [
+        "../can",
+        "../config",
+        "../../application/config",
+        "../../driver/mcu",
+        "../../engine/config",
+        "../../engine/database",
+        "../../engine/diag",
+        "../../main/include",
+        "../../task/config",
+        "../../task/os",
+    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    source = "imd"
     bld.objects(
-        source="imd.c",
+        source=f"{source}.c",
         includes=includes,
-        cflags=cflags,
-        target="imd-device",
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
     )
 
-    # Build selected IMD
-    bld.recurse(bld.env.imd_manufacturer)
+    use = [
+        f"{op}imd",
+        f"{op}{bld.env.FOXBMS_IMD_MANUFACTURER}_{bld.env.FOXBMS_IMD_MODEL}",
+    ]
+    if bld.is_imd_bender_ir155():
+        use.extend(
+            [
+                f"{op}{bld.env.FOXBMS_IMD_MANUFACTURER}_{bld.env.FOXBMS_IMD_MODEL}_helper",
+            ]
+        )
+
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}imd",
+    )

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,13 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Check whether the provided files contain tab characters.
+"""Detect tab characters in files provided by pre-commit.
 
-This script scans each specified file for tab characters. If any are found,
-it reports the file and line number (when possible) for each occurrence.
-Intended for use in automated quality checks or pre-commit hooks to enforce
-whitespace standards.
-It is intended for use with pre-commit.
+If tabs are found, the script reports line numbers when text decoding is
+possible and always emits a file-level summary message.
 """
 
 import argparse
@@ -61,7 +58,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         argv: Optional sequence of command-line arguments.
 
     Returns:
-        The number of tab characters found (max 255).
+        Number of detected tab characters, capped to ``255``.
 
     """
     parser = argparse.ArgumentParser()
@@ -80,7 +77,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                             msg = f"{i.absolute().as_posix()}:{n + 1} contains tabs."
                             print(msg, file=sys.stderr)
                     break
-                except ValueError:
+                except UnicodeDecodeError:
                     pass
             print(f"{i.absolute().as_posix()} contains tabs.", file=sys.stderr)
         err += tabs

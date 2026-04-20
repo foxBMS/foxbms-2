@@ -24,7 +24,7 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR`.
 
 ^^^^^^^^^^^^^
 Block Diagram
@@ -54,8 +54,9 @@ Mechanical Dimensions
 
 The size of the PCB is 160x100mm.
 
-.. figure:: ./../../img/molex_connector-16pin.png
-   :width: 30 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: |bms-master| Daisy Chain Connector
    :name: master_daisy_connector
@@ -72,8 +73,9 @@ On the |bms-slave|, the connectors indicated as
 :numref:`block_diagram_6804-1_slave_12cell_v1.x.x` must be used.
 Their layout is described in :numref:`Table %s <primary_daisy_connector>`.
 
-.. figure:: ./../../img/molex_connector-4pin.png
-   :width: 10 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_04pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: Primary Daisy Chain Connector
    :name: primary_daisy_connector
@@ -121,9 +123,9 @@ If less than 12 battery cells are used, information on how to connect them can
 be found |ltc-ltc6804-1| data sheets ([ltc_data_sheet_6804]_ and
 [ltc_data_sheet_6811]_).
 
-.. _cell_voltage_connector_layout:
-.. figure:: ./../../img/molex_connector-16pin.png
-   :width: 30 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: |bms-slave|, battery cell voltage connector
    :name: cell_voltage_connector
@@ -154,8 +156,9 @@ temperature sensors to the |bms-slave|.
 connector.
 
 .. _cell_temperature_connector_layout:
-.. figure:: ./../../img/molex_connector-24pin.png
-   :width: 45 %
+.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
+   :format: svg
+   :width: 300px
 
 .. csv-table:: Temperature Sensor Connector
    :name: cell_temperature_connector
@@ -193,5 +196,5 @@ If sensors are added, they must be connected between the connector pins
 corresponding to the sensors 0 to 5, as shown in
 :numref:`Table %s <cell_temperature_connector>`.
 
-.. [ltc_data_sheet_6804] LTC6804 data sheet https://www.analog.com/media/en/technical-documentation/data-sheets/680412fc.pdf
-.. [ltc_data_sheet_6811] LTC6811 data sheet https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6811-1-6811-2.pdf
+.. [ltc_data_sheet_6804] LTC6804 datasheet https://www.analog.com/media/en/technical-documentation/data-sheets/680412fc.pdf
+.. [ltc_data_sheet_6811] LTC6811 datasheet https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6811-1-6811-2.pdf

@@ -6,7 +6,7 @@ BMS;                        Battery management system
 CI;                         continuous integration
 HARA;                       Hazard Analysis and Risk Assessment
 HIL;                        Hardware in the Loop
-MSDS;                       Material safety data sheet
+MSDS;                       Material safety datasheet
 NDA;                        Non-disclosure agreement
 RTC;                        Real time clock
 SPI;                        Serial Peripheral Interface

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,6 +39,10 @@
 
 """Implements the functionalities behind the 'log' command"""
 
+# we need this as long as we are on Python3.12 due to the annotation parsing
+# of Queue[Message]
+from __future__ import annotations
+
 from dataclasses import asdict
 from enum import Enum
 from multiprocessing import Event, Process, Queue, synchronize
@@ -64,12 +68,14 @@ class LoggerExitCodes(Enum):
     LOGGER_NOT_STARTED = 3
 
 
-class StopLogging(Exception):
+class StopLoggingError(Exception):
     """Stop logging"""
 
 
 def receive_can_message(
-    data_q: "Queue[Message]", bus_cfg: CanBusConfig, network_ok: synchronize.Event
+    data_q: Queue[Message],  # pylint: disable=unsubscriptable-object
+    bus_cfg: CanBusConfig,
+    network_ok: synchronize.Event,
 ) -> None:
     """Receives the CAN messages from the bus."""
     signal(SIGINT, SIG_IGN)  # keyboard interrupt is caught in the parent process
@@ -88,7 +94,7 @@ def receive_can_message(
                         if not network_ok.is_set():
                             # the parent process requests to stop, therefore
                             # we raise a StopError to escape the while-loop
-                            raise StopLogging
+                            raise StopLoggingError
                 except CanOperationError:
                     err_time = time()
                     op_errs = [i for i in op_errs if not (err_time - i) > 3600] + [
@@ -99,17 +105,19 @@ def receive_can_message(
                         # hour then something seems off and we can stop
                         # receiving messages
                         recho("Too many errors occurred while receiving messages.")
-                        raise StopLogging  # pylint: disable=raise-missing-from
+                        raise StopLoggingError from None
     except CanInitializationError:
         # Create a user facing error and exit gracefully
         recho("Could not initialize CAN bus.")
-    except StopLogging:
+    except StopLoggingError:
         secho("Stop receiving messages.")
     network_ok.clear()
 
 
 def log_can_message(
-    data_q: "Queue[Message]", network_ok: synchronize.Event, logger: SizedRotatingLogger
+    data_q: Queue[Message],  # pylint: disable=unsubscriptable-object
+    network_ok: synchronize.Event,
+    logger: SizedRotatingLogger,
 ) -> None:
     """Logs the CAN message to a file."""
     first_timestamp: float = 0
@@ -138,7 +146,9 @@ def log_can_message(
 def log(bus_cfg: CanBusConfig, output: Path, log_file_size: int = 200000) -> int:
     """Logs received CAN messages to file(s)."""
     network_ok = Event()
-    data_q: "Queue[Message]" = Queue()
+    # pylint is not correct
+    # pylint: disable-next=unsubscriptable-object
+    data_q: Queue[Message] = Queue()
     p_recv = Process(
         target=receive_can_message,
         args=(data_q, bus_cfg, network_ok),

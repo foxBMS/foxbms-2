@@ -24,8 +24,8 @@
  * @file    nxp_mc3377x-ll.c
  * @author  NXP
  * @date    2022-07-29 (date of creation)
- * @updated 2025-06-25 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *

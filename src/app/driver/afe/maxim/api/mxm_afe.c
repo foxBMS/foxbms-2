@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -122,6 +122,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
     .selfCheck.extractValueFromRegister = STD_NOT_OK,
     .selfCheck.parseVoltageReadall      = STD_NOT_OK,
     .selfCheck.addressSpaceChecker      = STD_NOT_OK,
+    .serialId                           = {0},
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -254,6 +255,10 @@ extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string) {
     mxm_state.openWireRequested = true;
 
     return retval;
+}
+
+extern uint64_t *AFE_IdentifyAfes(void) {
+    return &mxm_state.serialId[0][0];
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -47,19 +47,22 @@ from threading import Thread
 from tkinter import ttk
 from typing import TextIO
 
-from ...helpers.misc import PROJECT_BUILD_ROOT
+from ...helpers.misc import (
+    PROJECT_BUILD_ROOT,
+    PROJECT_ROOT,
+    ROOT_IS_PROJECT,
+)
 from ...helpers.spr import run_process
 from .frame_data_config import DataConfigFrame
 from .frame_plot_config import PlotConfigFrame
 from .frame_run_plot import RunPlotFrame
 
 
-# pylint: disable-next=too-many-instance-attributes, too-many-ancestors
+# pylint: disable-next=too-many-instance-attributes,too-many-ancestors
 class PlotFrame(ttk.Frame):
     """Plot Frame"""
 
-    # pylint: disable-next=too-many-statements
-    def __init__(self, parent, text_widget: tk.Text) -> None:
+    def __init__(self, parent: ttk.Notebook, text_widget: tk.Text) -> None:
         super().__init__(parent)
         self.parent: ttk.Notebook = parent
         self.queue: Queue = Queue()
@@ -67,8 +70,8 @@ class PlotFrame(ttk.Frame):
         self.file_stream: TextIO
         self.text = text_widget
         self.text_index: int = 0
-        self.file_path = PROJECT_BUILD_ROOT / "output_gui_plot.txt"
-        PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+        self.file_path = PROJECT_BUILD_ROOT / "gui" / "output_gui_plot.txt"
+        (PROJECT_BUILD_ROOT / "gui").mkdir(parents=True, exist_ok=True)
         self.file_path.touch()
 
         # Set Styles for Headings and for Notebook
@@ -108,7 +111,7 @@ class PlotFrame(ttk.Frame):
         data_source = self.tab_plot.data_source_entry.get().strip()
         data_type = self.tab_plot.data_type_entry.get().strip()
         if (
-            (not Path(data_config).is_file())
+            ((data_type != "PARQUET") and (not Path(data_config).is_file()))
             or (not Path(plot_config).is_file())
             or (not Path(data_source).is_file())
         ):
@@ -116,7 +119,7 @@ class PlotFrame(ttk.Frame):
                 "Configuration files and Data Source have to be given as valid file-paths\n"
             )
             return
-        if (output_dir == Path(".")) or (not output_dir.is_dir()):
+        if (output_dir == Path()) or (not output_dir.is_dir()):
             output_dir = PROJECT_BUILD_ROOT / "plot"
             output_dir.mkdir(parents=True, exist_ok=True)
             self.tab_plot.output_entry.delete(0, tk.END)
@@ -126,24 +129,26 @@ class PlotFrame(ttk.Frame):
             )
             return
         self.plot_button.state(["disabled"])
-        self.write_text("Plotting the given graphs\n")
 
-        # pylint: disable-next=consider-using-with
-        self.file_stream = open(self.file_path, mode="a", encoding="utf-8")
+        if ROOT_IS_PROJECT:
+            plot_command = [sys.executable, PROJECT_ROOT / "fox.py", "plot"]
+        else:
+            plot_command = [sys.executable, "-m", "fox_cli", "plot"]
         cmd = [
-            sys.executable,
-            "fox.py",
-            "plot",
-            "--data-config",
-            data_config,
+            *plot_command,
             "--plot-config",
             plot_config,
             "--output",
             output_dir,
             "--data-type",
             data_type,
-            data_source,
         ]
+        if data_type != "PARQUET":
+            cmd = cmd + ["--data-config", data_config]
+        cmd.append(data_source)
+        self.write_text("Plotting the given graphs\n")
+        # pylint: disable-next=consider-using-with
+        self.file_stream = open(self.file_path, mode="a", encoding="utf-8")  # noqa: SIM115
         self.plot_process = Thread(
             target=lambda cmd, stdout, stderr: self.queue.put(
                 run_process(cmd=cmd, stdout=stdout, stderr=stderr)

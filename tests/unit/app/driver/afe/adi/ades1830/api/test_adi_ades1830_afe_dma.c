@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -74,6 +74,7 @@ TEST_INCLUDE_PATH("../../src/app/application/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/ades1830")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/config")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/diag")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/pec")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
@@ -103,9 +104,12 @@ void tearDown(void) {
 void testAFE_DmaCallback(void) {
     /* invalid SPI index */
     const uint8_t testInvalidSpiIndex = ADI_SPI_INDEX + 1;
+    SPI_GetSpiIndex_ExpectAndReturn(spiREG1, 0u);
+    SPI_GetSpiIndex_ExpectAndReturn(spiREG4, 3u);
     TEST_ASSERT_FAIL_ASSERT(AFE_DmaCallback(testInvalidSpiIndex));
 
     /* correct SPI index */
+    SPI_GetSpiIndex_ExpectAndReturn(spiREG1, 0u);
     OS_NotifyFromIsr_ExpectAndReturn(ftsk_taskHandleAfe, 0x50, OS_SUCCESS);
     AFE_DmaCallback(ADI_SPI_INDEX);
 }

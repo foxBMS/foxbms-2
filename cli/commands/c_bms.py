@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,23 +37,32 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for the 'bms' command"""
+"""Click command definition for the interactive ``bms`` shell."""
+
+from pathlib import Path
 
 import click
 
 from ..cmd_bms import bms_shell
 from ..helpers.click_helpers import HELP_NAMES, verbosity_option
 from ..helpers.fcan import CanBusConfig, common_can_options
+from ..helpers.path_options import app_dbc_file_option
 
 
 @click.command(context_settings=HELP_NAMES)
 @common_can_options
+@app_dbc_file_option
 @verbosity_option
 @click.pass_context
 def bms(
-    ctx: click.Context, interface: str, channel: str, bitrate: str, verbose: int = 0
+    ctx: click.Context,
+    interface: str,
+    channel: str,
+    bitrate: str,
+    app_dbc: Path,
+    verbose: int = 0,
 ) -> None:
-    """Run the 'bms' command"""
+    """Run the interactive BMS communication shell."""
     bitrate_int = int(bitrate)
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
-    ctx.exit(bms_shell.run_shell(bus_cfg))
+    ctx.exit(bms_shell.run_shell(bus_cfg, app_dbc))

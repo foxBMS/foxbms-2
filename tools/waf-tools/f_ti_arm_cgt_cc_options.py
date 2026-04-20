@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -68,7 +68,7 @@ def options(opt):
 
 @conf
 def load_cc_options(ctx):  # pylint: disable=too-many-locals,too-many-branches
-    """configuration step of the TI ARM CGT compiler tool"""
+    """Configuration step of the TI ARM CGT compiler tool"""
     cc_spec_file = ctx.path.find_node(ctx.options.CC_OPTIONS)
     if not cc_spec_file:
         ctx.fatal(f"'{cc_spec_file}' does not exist.")
@@ -144,7 +144,7 @@ def load_cc_options(ctx):  # pylint: disable=too-many-locals,too-many-branches
         m = re.search(r".*ccs(\d{1,})", i.as_posix())
         if m:
             ccs_versions.append(int(m.group(1)))
-    sorted_ccs_versions = list(reversed(sorted(ccs_versions)))
+    sorted_ccs_versions = sorted(ccs_versions, reverse=True)
     search_path_group = []
     for i in sorted_ccs_versions:
         comp_base = Path(f"{prefix}/ti/ccs{i}/ccs/tools/compiler")

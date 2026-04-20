@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +44,7 @@
  * @author  foxBMS Team
  * @date    2024-12-11 (date of creation)
  * @updated wrong date
- * @version v1.10.0
+ * @version v1.11.0
  * @ingroup SOME_GROUP
  * @prefix  DUMMY
  *

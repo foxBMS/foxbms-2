@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,6 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore creationflags
+
 """Standardized process execution and result handling utilities for Python's subprocess.
 
 This module defines a data class for subprocess results, provides helpers to
@@ -44,16 +46,17 @@ decode outputs, and offers a function to run commands with consistent error
 handling and output formatting.
 """
 
-import logging
 import shutil
 import subprocess
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import IO, Any
 
 from .click_helpers import recho
 from .host_platform import get_platform
+from .logger import logger
 from .misc import PROJECT_ROOT
 
 
@@ -81,7 +84,7 @@ class SubprocessResult:
         Args:
             other: Another subprocess result to add.
 
-        Return:
+        Returns:
             A new result combining return codes, outputs, and errors.
 
         """
@@ -99,7 +102,7 @@ class SubprocessResult:
     def __str__(self) -> str:
         """Return a string representation of the subprocess result.
 
-        Return:
+        Returns:
             Formatted string with return code, stdout, and stderr.
 
         """
@@ -112,11 +115,11 @@ def prepare_subprocess_output(
     """Decode subprocess output from bytes to string and return a SubprocessResult.
 
     Args:
-        returncode (int): Return code from the process.
-        out (bytes): Standard output in bytes.
-        err (bytes): Standard error in bytes.
+        returncode: Return code from the process.
+        out: Standard output in bytes.
+        err: Standard error in bytes.
 
-    Return:
+    Returns:
         The decoded result.
 
     """
@@ -128,9 +131,9 @@ def prepare_subprocess_output(
 def run_process(
     cmd: Sequence[str | Path],
     cwd: str | Path = PROJECT_ROOT,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-    env=None,
+    stdout: int | IO[Any] | None = subprocess.PIPE,
+    stderr: int | IO[Any] | None = subprocess.PIPE,
+    env: dict[str, str] | None = None,
 ) -> SubprocessResult:
     """Run a command as a subprocess and capture its output.
 
@@ -141,15 +144,15 @@ def run_process(
         stderr: Subprocess stderr redirection.
         env: Environment variables to use.
 
-    Return:
+    Returns:
         The result of the executed process.
 
     """
-    logging.debug("Original cmd: %s", cmd)
+    logger.debug("Original cmd: %s", cmd)
     if len(cmd) == 0:
         recho("No program provided.")
         return prepare_subprocess_output(1, out=b"", err=b"No program provided.")
-    executable = cmd[0]
+    executable = str(cmd[0])
     if not shutil.which(executable):
         recho(f"Program '{cmd[0]}' does not exist.")
         return prepare_subprocess_output(
@@ -159,12 +162,22 @@ def run_process(
         )
     # fix executable name (required on Windows because of PATHEXT)
     cmd_str = [str(shutil.which(executable))] + [str(i) for i in cmd[1:]]
-    logging.debug("Stringified cmd: %s", " ".join(cmd_str))
-    platform_args = {"cwd": cwd, "stdout": stdout, "stderr": stderr, "env": env}
+    logger.debug("Stringified cmd: %s", " ".join(cmd_str))
     if get_platform() == "win32" and not hasattr(sys.stdin, "isatty"):
         # on Windows, when the GUI starts a process this would create a
-        # poping up window without using 'CREATE_NO_WINDOW'
-        platform_args["creationflags"] = subprocess.CREATE_NO_WINDOW
-    with subprocess.Popen(cmd_str, **platform_args) as p:
-        out, err = p.communicate()
+        # popping up window without using 'CREATE_NO_WINDOW'
+        with subprocess.Popen(
+            cmd_str,
+            cwd=cwd,
+            stdout=stdout,
+            stderr=stderr,
+            env=env,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        ) as p:
+            out, err = p.communicate()
+    else:
+        with subprocess.Popen(
+            cmd_str, cwd=cwd, stdout=stdout, stderr=stderr, env=env
+        ) as p:
+            out, err = p.communicate()
     return prepare_subprocess_output(p.returncode, out, err)

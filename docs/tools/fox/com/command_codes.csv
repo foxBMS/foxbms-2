@@ -1,0 +1,7 @@
+Code,Description
+read_coils,"Reads coil values. Response provides values as a list of bits."
+read_discrete_input,"Reads discrete input values. Response provides values as a list of bits."
+read_input_register,"Reads input registers. Response provides values as a list of register values."
+read_holding_register,"Reads holding registers. Response provides values as a list of register values."
+write_coils,"Writes multiple coil values. Response echoes written values (if provided by server)."
+write_holding_register,"Writes multiple holding registers. Response echoes written values (if provided by server)."

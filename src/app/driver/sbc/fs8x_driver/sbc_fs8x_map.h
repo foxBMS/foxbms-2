@@ -34,7 +34,7 @@
  * This header file contains addresses, masks, shifts and shifted discreet values
  * for runtime registers of the FS8x. Note that some registers have the same address;
  * the reason is that there are 2 register groups: main and fail-safe.
- * See data sheet for details.
+ * See datasheet for details.
  *
  * @author nxf44615
  * @version 1.1

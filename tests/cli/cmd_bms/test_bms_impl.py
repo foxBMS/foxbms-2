@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,12 +39,12 @@
 
 """Testing file 'cli/cmd_bms/bms_impl.py'."""
 
-import datetime
 import io
 import shutil
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from datetime import UTC, datetime
 from multiprocessing import Manager, Queue
 from pathlib import Path
 from queue import Empty
@@ -71,6 +71,7 @@ try:
         receive_send_can_message,
         reinitialize_fram,
         reset_software,
+        set_debug_message,
         set_rtc_time,
         shutdown,
     )
@@ -94,134 +95,222 @@ except ModuleNotFoundError:
         receive_send_can_message,
         reinitialize_fram,
         reset_software,
+        set_debug_message,
         set_rtc_time,
         shutdown,
     )
     from cli.helpers.misc import PROJECT_BUILD_ROOT
 
 
+class TestSetDebugMessage(unittest.TestCase):
+    """Tests the 'set_debug_message' function"""
+
+    @patch("cli.cmd_bms.bms_impl.Message")
+    def test_encoding(self, mock_can_message: MagicMock):
+        """Test setting of debug message"""
+        mock_message = MagicMock()
+        mock_message.encode.return_value = b""
+        mock_message.frame_id = 1
+        set_debug_message({}, mock_message)
+        mock_message.encode.assert_called_once_with({}, padding=True)
+        mock_can_message.assert_called_once_with(
+            arbitration_id=1, data=b"", is_extended_id=False
+        )
+
+
+@patch("cli.cmd_bms.bms_impl.set_debug_message")
 class TestCreateMessage(unittest.TestCase):
     """Tests all methods that create a message"""
 
-    def test_reinitialize_fram(self):
+    def test_reinitialize_fram(self, mock_set_debug_msg: MagicMock):
         """Test the reinitialize_fram  method"""
         queue = Queue()
-        reinitialize_fram(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x03\xff\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {"f_Debug_Mux": 0x03, "InitializeFram": 1}
+        mock_set_debug_msg.return_value = msg_data
+        reinitialize_fram(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_set_rtc_time(self):
+    @patch("cli.cmd_bms.bms_impl.datetime")
+    def test_set_rtc_time(self, mock_now: MagicMock, mock_set_debug_msg: MagicMock):
         """Test the set_rtc_time method."""
+        mock_now_return = MagicMock()
+        mock_now_return.day = 0
+        mock_now_return.hour = 0
+        mock_now_return.microsecond = 0
+        mock_now_return.minute = 0
+        mock_now_return.month = 0
+        mock_now_return.second = 0
+        mock_now_return.isoweekday.return_value = 0
+        mock_now_return.year = 2000
+        mock_now.return_value = mock_now_return
         queue = Queue()
-        set_rtc_time(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x04,
+            "SetDay": 0,
+            "SetHours": 0,
+            "SetHundredthOfSeconds": 0,
+            "SetMinutes": 0,
+            "SetSeconds": 0,
+            "SetMonth": 0,
+            "SetWeekday": 0,
+            "SetYear": 0,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        set_rtc_time(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_rtc_time(self):
+    def test_get_rtc_time(self, mock_set_debug_msg: MagicMock):
         """Tests the get_rtc_time method."""
         queue = Queue()
-        get_rtc_time(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x04\xfd\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {"f_Debug_Mux": 0x04, "RequestRtcTime": 1, "RequestBootTimestamp": 0}
+        mock_set_debug_msg.return_value = msg_data
+        get_rtc_time(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_boot_timestamp(self):
+    def test_get_boot_timestamp(self, mock_set_debug_msg: MagicMock):
         """Tests the get_boot_timestamp method"""
         queue = Queue()
-        get_boot_timestamp(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x04\xfe\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {"f_Debug_Mux": 0x04, "RequestRtcTime": 0, "RequestBootTimestamp": 1}
+        mock_set_debug_msg.return_value = msg_data
+        get_boot_timestamp(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_reset_software(self):
+    def test_reset_software(self, mock_set_debug_msg: MagicMock):
         """Tests the reset_software method."""
         queue = Queue()
-        reset_software(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x02\xff\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {"f_Debug_Mux": 0x02, "TriggerSoftwareReset": 1}
+        mock_set_debug_msg.return_value = msg_data
+        reset_software(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_uptime(self):
+    def test_get_uptime(self, mock_set_debug_msg: MagicMock):
         """Tests the get_uptime method."""
         queue = Queue()
-        get_uptime(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x05\xff\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {"f_Debug_Mux": 0x05, "RequestUptime": 1}
+        mock_set_debug_msg.return_value = msg_data
+        get_uptime(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_build_configuration(self):
+    def test_get_build_configuration(self, mock_set_debug_msg: MagicMock):
         """Tests the get_build_configuration method."""
         queue = Queue()
-        get_build_configuration(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x00\xe0\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x00,
+            "GetBuildConfiguration": 1,
+            "GetCommitHash": 0,
+            "GetMcuWaferInformation": 0,
+            "GetMcuLotNumber": 0,
+            "GetMcuUniqueDieId": 0,
+            "GetBmsSoftwareVersion": 0,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        get_build_configuration(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_commit_hash(self):
+    def test_get_commit_hash(self, mock_set_debug_msg: MagicMock):
         """Tests the get_commit_hash method."""
         queue = Queue()
-        get_commit_hash(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x00\xd0\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x00,
+            "GetBuildConfiguration": 0,
+            "GetCommitHash": 1,
+            "GetMcuWaferInformation": 0,
+            "GetMcuLotNumber": 0,
+            "GetMcuUniqueDieId": 0,
+            "GetBmsSoftwareVersion": 0,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        get_commit_hash(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_mcu_wafer_info(self):
+    def test_get_mcu_wafer_info(self, mock_set_debug_msg: MagicMock):
         """Tests the get_mcu_wafer_info method."""
         queue = Queue()
-        get_mcu_wafer_info(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x00\xc8\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x00,
+            "GetBuildConfiguration": 0,
+            "GetCommitHash": 0,
+            "GetMcuWaferInformation": 1,
+            "GetMcuLotNumber": 0,
+            "GetMcuUniqueDieId": 0,
+            "GetBmsSoftwareVersion": 0,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        get_mcu_wafer_info(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_mcu_lot_number(self):
+    def test_get_mcu_lot_number(self, mock_set_debug_msg: MagicMock):
         """Tests the get_mcu_lot_number method."""
         queue = Queue()
-        get_mcu_lot_number(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x00\xc4\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x00,
+            "GetBuildConfiguration": 0,
+            "GetCommitHash": 0,
+            "GetMcuWaferInformation": 0,
+            "GetMcuLotNumber": 1,
+            "GetMcuUniqueDieId": 0,
+            "GetBmsSoftwareVersion": 0,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        get_mcu_lot_number(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_mcu_id(self):
+    def test_get_mcu_id(self, mock_set_debug_msg: MagicMock):
         """Tests the get_mcu_id method."""
         queue = Queue()
-        get_mcu_id(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x00\xc2\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x00,
+            "GetBuildConfiguration": 0,
+            "GetCommitHash": 0,
+            "GetMcuWaferInformation": 0,
+            "GetMcuLotNumber": 0,
+            "GetMcuUniqueDieId": 1,
+            "GetBmsSoftwareVersion": 0,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        get_mcu_id(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
-    def test_get_software_version(self):
+    def test_get_software_version(self, mock_set_debug_msg: MagicMock):
         """Tests the get_software_version method."""
         queue = Queue()
-        get_software_version(queue)
-        msg = queue.get()
-        self.assertEqual(768, msg.arbitration_id)
-        self.assertEqual(0.0, msg.timestamp)
-        self.assertEqual(bytearray(b"\x00\xc1\xff\xff\xff\xff\xff\xff"), msg.data)
+        message = MagicMock()
+        msg_data = {
+            "f_Debug_Mux": 0x00,
+            "GetBuildConfiguration": 0,
+            "GetCommitHash": 0,
+            "GetMcuWaferInformation": 0,
+            "GetMcuLotNumber": 0,
+            "GetMcuUniqueDieId": 0,
+            "GetBmsSoftwareVersion": 1,
+        }
+        mock_set_debug_msg.return_value = msg_data
+        get_software_version(queue, message)
+        self.assertEqual(msg_data, queue.get())
 
 
 class TestInitializeLogger(unittest.TestCase):
     """Test initialize_logger method"""
 
     def setUp(self):
-        self.start_time = datetime.datetime.now()
+        self.start_time = datetime.now(tz=UTC)
 
     def tearDown(self):
         logs_dir = PROJECT_BUILD_ROOT / "logs"
         if logs_dir.is_dir():
             time_logs_dir = logs_dir.stat().st_mtime
-            mod_time_logs_dir = datetime.datetime.fromtimestamp(time_logs_dir)
+            mod_time_logs_dir = datetime.fromtimestamp(time_logs_dir, tz=UTC)
             if mod_time_logs_dir >= self.start_time:
                 shutil.rmtree(logs_dir)
 
@@ -255,7 +344,13 @@ class TestInitialize(unittest.TestCase):
         buf = io.StringIO()
         with redirect_stderr(buf):
             ret = initialization(
-                "", MagicMock(), MagicMock(), MagicMock(), MagicMock(), MagicMock()
+                "",
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
             )
         self.assertEqual(
             "Could not start receive and send process.\nExiting...\n", buf.getvalue()
@@ -272,7 +367,13 @@ class TestInitialize(unittest.TestCase):
         err = io.StringIO()
         with redirect_stderr(err):
             ret = initialization(
-                "", MagicMock(), MagicMock(), MagicMock(), network_ok, MagicMock()
+                MagicMock(),
+                "",
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                network_ok,
+                MagicMock(),
             )
         self.assertEqual(
             "Could not initialize CAN bus. Timeout\nShutdown...\n", err.getvalue()
@@ -295,7 +396,13 @@ class TestInitialize(unittest.TestCase):
         out = io.StringIO()
         with redirect_stderr(err), redirect_stdout(out):
             ret = initialization(
-                "", MagicMock(), MagicMock(), MagicMock(), network_ok, MagicMock()
+                MagicMock(),
+                "",
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                network_ok,
+                MagicMock(),
             )
         self.assertEqual("Could not start read process.\n", err.getvalue())
         self.assertEqual(
@@ -306,7 +413,7 @@ class TestInitialize(unittest.TestCase):
 
     @patch("cli.cmd_bms.bms_impl.Process")
     @patch("cli.cmd_bms.bms_impl.shutdown")
-    def test_sizedrotatinglogger_failure(
+    def test_sized_rotating_logger_failure(
         self,
         mock_shutdown: MagicMock,  # pylint: disable=unused-argument
         mock_process: MagicMock,
@@ -320,7 +427,13 @@ class TestInitialize(unittest.TestCase):
         out = io.StringIO()
         with redirect_stderr(err), redirect_stdout(out):
             ret = initialization(
-                "", MagicMock(), MagicMock(), MagicMock(), network_ok, MagicMock()
+                MagicMock(),
+                "",
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                network_ok,
+                MagicMock(),
             )
         self.assertEqual(
             "Could not create logger object.\n",
@@ -345,7 +458,13 @@ class TestInitialize(unittest.TestCase):
         buf = io.StringIO()
         with redirect_stdout(buf):
             ret_init = initialization(
-                "", MagicMock(), MagicMock(), MagicMock(), network_ok, MagicMock()
+                "",
+                MagicMock(),
+                MagicMock(),
+                MagicMock(),
+                network_ok,
+                MagicMock(),
+                MagicMock(),
             )
         self.assertEqual(  # pylint: disable-next=line-too-long
             "Started the receive and send process and initialized the CAN bus.\nStarted the read process.\n",
@@ -410,23 +529,25 @@ class TestLogCanMessage(unittest.TestCase):
         msg_arr = self.manager.list([[], [], []])
         msg = MagicMock()
         msg.arbitration_id = 1
-        log_can_message(msg, msg_arr, MagicMock(), "")
+        log_can_message(MagicMock(), msg, msg_arr, MagicMock(), "")
         self.assertEqual(msg_arr[0], [])
         self.assertEqual(msg_arr[1], [])
         self.assertEqual(msg_arr[2], [])
 
-    @patch("cantools.database.can.database.Database.get_message_by_frame_id")
-    def test_amount_one(self, mock_get_message):
+    def test_amount_one(self):
         """Tests the log_can_message function when msg has to be logged once."""
-        mock_get_message.return_value.decode.return_value = {"Message": "content"}
         msg_arr = self.manager.list([[1], [1], [1]])
         msg = MagicMock()
         msg.arbitration_id = 1
+        mock_raw_msg = MagicMock()
+        mock_raw_msg.decode.return_value = "Message"
+        app_dbc = MagicMock()
+        app_dbc.get_message_by_frame_id.return_value = mock_raw_msg
         buf = io.StringIO()
         with redirect_stdout(buf):
-            log_can_message(msg, msg_arr, MagicMock(), "prompt")
+            log_can_message(app_dbc, msg, msg_arr, MagicMock(), "prompt")
         self.assertEqual(
-            """Message ID 0x1: {'Message': 'content'}
+            """Message ID 0x1: Message
 All messages with ID 0x1 have been logged.\nprompt""",
             buf.getvalue(),
         )
@@ -434,32 +555,37 @@ All messages with ID 0x1 have been logged.\nprompt""",
         self.assertEqual(msg_arr[1], [])
         self.assertEqual(msg_arr[2], [])
 
-    @patch("cantools.database.can.database.Database.get_message_by_frame_id")
-    def test_amount_five(self, mock_get_message):
+    def test_amount_five(self):
         """Tests the log_can_message function when msg has to be logged several times."""
-        mock_get_message.return_value.decode.return_value = "Message"
         msg_arr = self.manager.list([[1], [5], [1]])
         msg = MagicMock()
         msg.arbitration_id = 1
+        mock_raw_msg = MagicMock()
+        mock_raw_msg.decode.return_value = "Message"
+        app_dbc = MagicMock()
+        app_dbc.get_message_by_frame_id.return_value = mock_raw_msg
         buf = io.StringIO()
         with redirect_stdout(buf):
-            log_can_message(msg, msg_arr, MagicMock(), "prompt")
+            log_can_message(app_dbc, msg, msg_arr, MagicMock(), "prompt")
         self.assertEqual("Message ID 0x1: Message\n", buf.getvalue())
         self.assertEqual(msg_arr[0], [1])
         self.assertEqual(msg_arr[1], [4])
         self.assertEqual(msg_arr[2], [1])
 
-    @patch("cantools.database.can.database.Database.get_message_by_frame_id")
-    def test_amount_zero(self, mock_get_message):
+    def test_amount_zero(self):
         """Tests the log_can_message function when the msg ID is in the array
-        but it is not supposed to be logged."""
-        mock_get_message.return_value.decode.return_value = "Message"
+        but it is not supposed to be logged.
+        """
         msg_arr = self.manager.list([[1], [0], [0]])
         msg = MagicMock()
         msg.arbitration_id = 1
+        mock_raw_msg = MagicMock()
+        mock_raw_msg.decode.return_value = "Message"
+        app_dbc = MagicMock()
+        app_dbc.get_message_by_frame_id.return_value = mock_raw_msg
         buf = io.StringIO()
         with redirect_stdout(buf):
-            log_can_message(msg, msg_arr, MagicMock(), "prompt")
+            log_can_message(app_dbc, msg, msg_arr, MagicMock(), "prompt")
         self.assertEqual("", buf.getvalue())
         self.assertEqual(msg_arr[0], [])
         self.assertEqual(msg_arr[1], [])
@@ -470,24 +596,48 @@ All messages with ID 0x1 have been logged.\nprompt""",
         msg_arr = self.manager.list([[1], [2], [0]])
         msg = MagicMock()
         msg.arbitration_id = 1
+        app_dbc = MagicMock()
         logger = MagicMock()
-        log_can_message(msg, msg_arr, logger, "prompt")
+        log_can_message(app_dbc, msg, msg_arr, logger, "prompt")
         self.assertEqual(msg_arr[0], [1])
         self.assertEqual(msg_arr[1], [1])
         self.assertEqual(msg_arr[2], [0])
 
-    @patch("cantools.database.can.database.Database.get_message_by_frame_id")
-    def test_short_hash_high(self, mock_get_message: MagicMock):
-        """Tests function when message contains 'shortHashHigh7' key"""
-        mock_get_message.return_value.decode.return_value = {
-            "shortHashHigh7": 1630615892
-        }
+    def test_dict(self):
+        """Tests function when message is a dictionary but does not contain
+        'shortHashHigh7' or 'shortHashLow7'
+        """
         msg_arr = self.manager.list([[1], [1], [1]])
         msg = MagicMock()
         msg.arbitration_id = 1
+        mock_raw_msg = MagicMock()
+        mock_raw_msg.decode.return_value = {"Message": "msg"}
+        app_dbc = MagicMock()
+        app_dbc.get_message_by_frame_id.return_value = mock_raw_msg
         buf = io.StringIO()
         with redirect_stdout(buf):
-            log_can_message(msg, msg_arr, MagicMock(), "prompt")
+            log_can_message(app_dbc, msg, msg_arr, MagicMock(), "prompt")
+        self.assertEqual(
+            """Message ID 0x1: {'Message': 'msg'}
+All messages with ID 0x1 have been logged.\nprompt""",
+            buf.getvalue(),
+        )
+        self.assertEqual(msg_arr[0], [])
+        self.assertEqual(msg_arr[1], [])
+        self.assertEqual(msg_arr[2], [])
+
+    def test_short_hash_high(self):
+        """Tests function when message contains 'shortHashHigh7' key"""
+        msg_arr = self.manager.list([[1], [1], [1]])
+        msg = MagicMock()
+        msg.arbitration_id = 1
+        mock_raw_msg = MagicMock()
+        mock_raw_msg.decode.return_value = {"shortHashHigh7": 1630615892}
+        app_dbc = MagicMock()
+        app_dbc.get_message_by_frame_id.return_value = mock_raw_msg
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            log_can_message(app_dbc, msg, msg_arr, MagicMock(), "prompt")
         self.assertEqual(
             """Message ID 0x1: {'shortHashHigh7': 'a19T'}
 All messages with ID 0x1 have been logged.\nprompt""",
@@ -497,18 +647,18 @@ All messages with ID 0x1 have been logged.\nprompt""",
         self.assertEqual(msg_arr[1], [])
         self.assertEqual(msg_arr[2], [])
 
-    @patch("cantools.database.can.database.Database.get_message_by_frame_id")
-    def test_short_hash_low(self, mock_get_message: MagicMock):
+    def test_short_hash_low(self):
         """Tests function when message contains 'shortHashLow7' key"""
-        mock_get_message.return_value.decode.return_value = {
-            "shortHashLow7": 1630615892
-        }
         msg_arr = self.manager.list([[1], [1], [1]])
         msg = MagicMock()
         msg.arbitration_id = 1
+        mock_raw_msg = MagicMock()
+        mock_raw_msg.decode.return_value = {"shortHashLow7": 1630615892}
+        app_dbc = MagicMock()
+        app_dbc.get_message_by_frame_id.return_value = mock_raw_msg
         buf = io.StringIO()
         with redirect_stdout(buf):
-            log_can_message(msg, msg_arr, MagicMock(), "prompt")
+            log_can_message(app_dbc, msg, msg_arr, MagicMock(), "prompt")
         self.assertEqual(
             """Message ID 0x1: {'shortHashLow7': 'a19T'}
 All messages with ID 0x1 have been logged.\nprompt""",
@@ -536,7 +686,8 @@ class TestReceiveSendCanMessage(unittest.TestCase):
     @patch("cli.cmd_bms.bms_impl.Bus")
     def test_stop_bus_queue_empty(self, mock_bus: MagicMock, mock_asdict: MagicMock):  # pylint: disable=unused-argument
         """Test that the CAN bus is stopped on a stop event and the case that
-        'recv' method of the CAN bus and the send-queue is empty."""
+        'recv' method of the CAN bus and the send-queue is empty.
+        """
         rec_q = MagicMock()
         send_q = MagicMock()
         send_q.get.side_effect = Empty
@@ -553,7 +704,8 @@ class TestReceiveSendCanMessage(unittest.TestCase):
     @patch("cli.cmd_bms.bms_impl.Bus")
     def test_stop_bus_emtpy(self, mock_bus: MagicMock, mock_asdict: MagicMock):  # pylint: disable=unused-argument
         """Test that the CAN bus is stopped on a stop event and the case that
-        'recv' method of the CAN bus is empty."""
+        'recv' method of the CAN bus is empty.
+        """
         rec_q = MagicMock()
         send_q = MagicMock()
         network_ok = MagicMock()
@@ -569,7 +721,8 @@ class TestReceiveSendCanMessage(unittest.TestCase):
     @patch("cli.cmd_bms.bms_impl.Bus")
     def test_stop_bus_receives_msgs(self, mock_bus: MagicMock, mock_asdict: MagicMock):  # pylint: disable=unused-argument
         """Test that the CAN bus is stopped on a stop event and the case that
-        'recv' method of the CAN bus receives a few messages."""
+        'recv' method of the CAN bus receives a few messages.
+        """
         rec_q = MagicMock()
         send_q = MagicMock()
         network_ok = MagicMock()
@@ -609,21 +762,23 @@ class TestReadCanMessage(unittest.TestCase):
         """Tests the read_can_message method in the case that initializing the Logger failed."""
         mock_logger.side_effect = ValueError
         rec_q = Queue()
+        app_dbc = MagicMock()
         network_ok = MagicMock()
         network_ok.clear = MagicMock()
-        read_can_message("", rec_q, network_ok, MagicMock())
+        read_can_message(app_dbc, "", rec_q, network_ok, MagicMock())
         network_ok.clear.assert_called_once()
 
     @patch("cli.cmd_bms.bms_impl.initialize_logger")
     def test_network_not_set(self, mock_logger: MagicMock):
         """Tests the read_can_message method in the case that network_ok is not set."""
         rec_q = Queue()
+        app_dbc = MagicMock()
         network_ok = MagicMock()
         network_ok.is_set.return_value = False
         mock_logger_instance = mock_logger.return_value
         buf = io.StringIO()
         with redirect_stdout(buf):
-            read_can_message("", rec_q, network_ok, MagicMock())
+            read_can_message(app_dbc, "", rec_q, network_ok, MagicMock())
         self.assertEqual("", buf.getvalue())
         network_ok.is_set.assert_has_calls([call(), call()])
         mock_logger_instance.stop.assert_called_once()
@@ -632,15 +787,17 @@ class TestReadCanMessage(unittest.TestCase):
     def test_network_set_no_msgs(self, mock_logger: MagicMock):
         """Tests the read_can_message method
         in the case that network_ok is set once
-        but there are no messages."""
+        but there are no messages.
+        """
         rec_q = Queue()
+        app_dbc = MagicMock()
         network_ok = MagicMock()
         network_ok.is_set = MagicMock()
         network_ok.is_set.side_effect = [True, False, False]
         mock_logger_instance = mock_logger.return_value
         buf = io.StringIO()
         with redirect_stdout(buf):
-            read_can_message("", rec_q, network_ok, MagicMock())
+            read_can_message(app_dbc, "", rec_q, network_ok, MagicMock())
         self.assertEqual("", buf.getvalue())
         network_ok.is_set.assert_has_calls([call(), call(), call()])
         mock_logger_instance.stop.assert_called_once()
@@ -652,7 +809,9 @@ class TestReadCanMessage(unittest.TestCase):
     ):
         """Tests the read_can_message method
         in the case that network_ok is set a few times
-        but there are less messages."""
+        but there are less messages.
+        """
+        app_dbc = MagicMock()
         msg = MagicMock()
         msg.timestamp = 1
         rec_q = MagicMock()
@@ -667,7 +826,7 @@ class TestReadCanMessage(unittest.TestCase):
         mock_logger.return_value = logger
         buf = io.StringIO()
         with redirect_stdout(buf):
-            read_can_message("", rec_q, network_ok, msg_arr)
+            read_can_message(app_dbc, "", rec_q, network_ok, msg_arr)
         self.assertEqual("", buf.getvalue())
         network_ok.is_set.assert_has_calls([call(), call(), call(), call()])
         rec_q.get.assert_has_calls(
@@ -675,8 +834,8 @@ class TestReadCanMessage(unittest.TestCase):
         )
         mock_log_message.assert_has_calls(
             [
-                call(msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
-                call(msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
+                call(app_dbc, msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
+                call(app_dbc, msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
             ]
         )
         logger.stop.assert_called_once()
@@ -688,7 +847,9 @@ class TestReadCanMessage(unittest.TestCase):
     ):
         """Tests the read_can_message method
         in the case that network_ok is set a few times,
-        there are more messages and they are not logged."""
+        there are more messages and they are not logged.
+        """
+        app_dbc = MagicMock()
         msg = MagicMock()
         msg.timestamp = 1
         rec_q = MagicMock()
@@ -703,7 +864,7 @@ class TestReadCanMessage(unittest.TestCase):
         mock_logger.return_value = logger
         buf = io.StringIO()
         with redirect_stdout(buf):
-            read_can_message("", rec_q, network_ok, msg_arr)
+            read_can_message(app_dbc, "", rec_q, network_ok, msg_arr)
         self.assertEqual("", buf.getvalue())
         logger.stop.assert_called_once()
         network_ok.is_set.assert_has_calls([call(), call(), call()])
@@ -712,9 +873,9 @@ class TestReadCanMessage(unittest.TestCase):
         )
         mock_log_message.assert_has_calls(
             [
-                call(msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
-                call(msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
-                call(msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
+                call(app_dbc, msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
+                call(app_dbc, msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
+                call(app_dbc, msg=msg, msg_arr=msg_arr, logger=logger, prompt=""),
             ]
         )
 

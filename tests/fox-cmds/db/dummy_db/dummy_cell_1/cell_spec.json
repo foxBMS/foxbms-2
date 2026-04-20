@@ -1,0 +1,15 @@
+{
+  "name": "dummy_cell_1",
+  "manufacturer": "dummy manufacturer",
+  "shape": "cylindrical",
+  "chemistry": "NMC",
+  "height": 0.065,
+  "length": 0.184,
+  "width": 0.184,
+  "weight": 0.049,
+  "temperature_max": 60.0,
+  "temperature_min": 10.0,
+  "voltage_min": 2.7,
+  "voltage_max": 4.2,
+  "voltage_nom": 3.8
+}

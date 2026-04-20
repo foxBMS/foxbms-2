@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,14 +42,14 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-import pandas
+import pandas as pd
 
 
 class LineGraphDrawerInterface(ABC):
     """Interface class that draws graph with given data."""
 
     @abstractmethod
-    def draw(self, data: pandas.DataFrame) -> None:
+    def draw(self, data: pd.DataFrame) -> None:
         """Draw the created plot."""
 
     @abstractmethod

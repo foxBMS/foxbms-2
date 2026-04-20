@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,49 +37,25 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Documentation build definition"""
 
-import os
-
-from waflib import Utils
 from waflib.Build import POST_LAZY, BuildContext
 
 
 def build(bld: BuildContext):
-    """Build the sphinx and the doxygen documentation"""
-    this = f"'{bld.path.abspath() + os.sep}wscript'"
     if bld.variant == "docs":
         # C source code examples that should build
-        bld.recurse(
-            [
-                "developer-manual/style-guide/examples",
-                "developer-manual/style-guide/state-machine-example",
-                "software/modules/driver/can",
-                "software/modules/engine/database",
-                "software/modules/task/ftask",
-            ],
-        )
-
-        # Python example code
-        def run_py(task: BuildContext):
-            cmd = " ".join(
-                [Utils.subst_vars("${PYTHON}", task.env), task.inputs[0].abspath()]
+        if bld.env.CC:
+            bld.recurse(
+                [
+                    "../tools/crc",
+                    "developer-manual/style-guide/examples",
+                    "developer-manual/style-guide/state-machine-example",
+                    "software/modules/driver/can",
+                    "software/modules/engine/database",
+                    "software/modules/task/ftask",
+                    "software/unit-tests",
+                ],
             )
-            return task.exec_command(cmd)
-
-        bld(
-            rule=run_py,
-            source="developer-manual/add-cli-cmds/test_foo.py",
-        )
-        bld(
-            rule=run_py,
-            source="developer-manual/style-guide/examples/python-006.py",
-        )
-        bld(
-            rule=run_py,
-            source="developer-manual/style-guide/examples/python-007.py",
-        )
-
         # build the sphinx documentation
         config = bld.path.find_node("conf.py")
         bld(
@@ -92,101 +68,52 @@ def build(bld: BuildContext):
         )
         bld.post_mode = POST_LAZY
 
-    elif bld.variant in (
-        "app_doxygen",
-        "app_doxygen_unit_test",
-        "bootloader_doxygen",
-        "bootloader_doxygen_unit_test",
-    ):
-        bld.add_group("generate_doc_files")
-        bld.add_group("doxygen")
-
-        bld.set_group("generate_doc_files")
-        # we use absolute paths for the doxygen configuration as it is written
-        # during configuration time, and therefore this is okay
-        config = {
-            "PROJECT_NAME": bld.env.APPNAME,
-            "PROJECT_NUMBER": bld.env.VERSION,
-            "PROJECT_BRIEF": "",  # filled in the next step
-            "DOT_PATH": bld.env.DOT[0],
-            "PROJECT_LOGO": bld.path.find_node("_static/foxbms250px.png"),
-            "OUTPUT_DIRECTORY": ".",
-            "INPUT": "",  # filled in the next step
-            "EXCLUDE": "",  # filled in the next step
-            "HTML_FOOTER": bld.path.find_node("doxygen_footer.html").abspath(),
-            "LAYOUT_FILE": bld.path.find_node("doxygen_layout.xml").abspath(),
-            "HTML_STYLESHEET": bld.path.find_node("style-sheet-file.css").abspath(),
-            "HTML_EXTRA_FILES": bld.path.find_node("_static/cc.large.png").abspath(),
-            "IMAGE_PATH": bld.path.find_node("_static/cc.large.png").abspath(),
-            "PREDEFINED": "",
+    elif "doxygen" in bld.variant:
+        feature = "doxygen"
+        common_input = {
+            "doxygen_conf": "doxygen.conf.in",
+            "project_number": f"{bld.env.APPNAME} {bld.env.VERSION}",
+            "project_logo": "_static/foxbms250px.png",
+            "layout_file": "doxygen_layout.xml",
+            "image_path": "_static/cc.large.png",
+            "html_footer": "doxygen_footer.html",
+            "html_stylesheet": "style-sheet-file.css",
+            "html_extra_files": "_static/cc.large.png",
+            "dot_path": bld.env.DOT[0],
         }
-
+        specific_input = {}
         base_name = '"%s Battery Management System %s API Documentation"'
-        brief, src, excl, pre = "", [], [], []
+
         if bld.variant == "app_doxygen":
-            brief = base_name % (bld.env.APPNAME, "Application")
-            src = [
-                bld.path.find_dir("developer-manual/style-guide/state-machine-example"),
-                bld.path.find_dir("../src/app"),
-            ]
-            excl = [
-                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.c"),
-                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.h"),
-                bld.path.find_dir("../src/app/driver/afe/nxp/mc33775a/vendor"),
-            ]
+            specific_input = {
+                "project_brief": base_name % (bld.env.APPNAME, "Application"),
+                "project_name": f"{bld.env.APPNAME} Bootloader",
+                "input": "developer-manual/style-guide/state-machine-example ../src/app",
+                "exclude_patterns": "*/vendor/*",
+            }
         elif bld.variant == "app_doxygen_unit_test":
-            brief = base_name % (bld.env.APPNAME, "Application Unit Test")
-            src = [
-                bld.path.find_dir("../src/app"),
-                bld.path.find_dir("../tests/unit/app"),
-            ]
-            excl = [
-                bld.path.find_node("../src/app/doxygen_app.h"),
-                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.c"),
-                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.h"),
-                bld.path.find_dir("../src/app/driver/afe/nxp/mc33775a/vendor"),
-                bld.path.find_dir("../tests/unit/app/build"),
-                bld.path.find_node(
-                    "../tests/unit/app/driver/afe/ltc/common/test_ltc_pec.c"
-                ),
-            ]
-            pre = ["UNITY_UNIT_TEST=1"]
+            specific_input = {
+                "project_brief": base_name % (bld.env.APPNAME, "Application Unit Test"),
+                "project_name": f"{bld.env.APPNAME} Application",
+                "input": "../src/app ../tests/unit/app",
+                "exclude": "../src/app/doxygen_app.h",
+                "exclude_patterns": "*/vendor/*",
+                "predefined": "UNITY_UNIT_TEST=1",
+            }
         elif bld.variant == "bootloader_doxygen":
-            brief = base_name % (bld.env.APPNAME, "Bootloader")
-            src = [bld.path.find_dir("../src/bootloader")]
-            excl = [
-                bld.path.find_node("../src/bootloader/main/fstartup.c"),
-                bld.path.find_dir("../src/bootloader/vendor"),
-            ]
+            specific_input = {
+                "project_brief": base_name % (bld.env.APPNAME, "Bootloader"),
+                "project_name": f"{bld.env.APPNAME} Bootloader",
+                "input": "../src/bootloader",
+                "exclude_patterns": "*/vendor/*",
+            }
         elif bld.variant == "bootloader_doxygen_unit_test":
-            brief = base_name % (bld.env.APPNAME, "Bootloader Unit Test")
-            src = [
-                bld.path.find_dir("../src/bootloader"),
-                bld.path.find_dir("../tests/unit/bootloader"),
-            ]
-            excl = [
-                bld.path.find_node("../src/bootloader/doxygen_bootloader.h"),
-                bld.path.find_node("../src/bootloader/main/fstartup.c"),
-                bld.path.find_dir("../src/bootloader/vendor"),
-                bld.path.find_dir("../tests/unit/bootloader/build"),
-                bld.path.find_dir("../tests/unit/bootloader/vendor"),
-                bld.path.find_node("../tests/unit/bootloader/main/test_fstartup.c"),
-            ]
-            pre = ["UNITY_UNIT_TEST=1"]
-        else:
-            bld.fatal(f"Something went really wrong in '{this}'.")
-
-        config["PROJECT_BRIEF"] = brief
-        config["INPUT"] = " ".join([i.abspath() for i in src if i])
-        config["EXCLUDE"] = " ".join([i.abspath() for i in excl if i])
-        config["PREDEFINED"] = " ".join(pre)
-
-        # create the doxygen configuration file
-        source = bld.path.find_node("doxygen.conf.in")
-        target = bld.path.get_bld().find_or_declare(f"{bld.variant}.conf")
-        bld(features="subst", source=source, target=target, **config)
-        # build the doxygen documentation
-        bld.set_group("doxygen")
-        bld(features="doxygen", doxygen_conf=target)
-    else:
-        bld.fatal(f"Build variant '{bld.variant}' not valid for {this}")
+            specific_input = {
+                "project_brief": base_name % (bld.env.APPNAME, "Bootloader Unit Test"),
+                "project_name": f"{bld.env.APPNAME} Bootloader",
+                "input": "../src/bootloader ../tests/unit/bootloader",
+                "exclude": "../src/bootloader/doxygen_bootloader.h",
+                "exclude_patterns": "*/vendor/*",
+                "predefined": "UNITY_UNIT_TEST=1",
+            }
+        bld(features=feature, **common_input, **specific_input)

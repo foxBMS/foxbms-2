@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    utils.c
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  UTIL
  *
@@ -57,12 +57,18 @@
 
 #include "fassert.h"
 #include "fstd_types.h"
+#include "os.h"
 
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+#define UTIL_PSEUDO_RANDOM_MULTIPLIER (0x015A4E35u)
+#define UTIL_PSEUDO_RANDOM_LEFT_SHIFT (16u)
+#define UTIL_PSEUDO_RANDOM_AND        (0x7FFFu)
 
 /*========== Static Constant and Variable Definitions =======================*/
+/** Stores the value for the next random number/seed between the calls */
+static uint32_t util_nextRandomNumber = 0u;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -95,6 +101,22 @@ extern void UTIL_ExtractCharactersFromString(
     }
 }
 
+extern void UTIL_SeedRandomNumber(uint32_t seed) {
+    /* AXIVION Routine Generic-MissingParameterAssert: seed: parameter accepts whole range */
+    util_nextRandomNumber = seed;
+}
+
+extern uint32_t UTIL_GetPseudoRandomNumber(void) {
+    /* Use OS_GetTickCount() to get some randomness into the increment */
+    uint32_t increment = OS_GetTickCount();
+    /* Currently only fixed operations. Needs further improvement. */
+    util_nextRandomNumber = (UTIL_PSEUDO_RANDOM_MULTIPLIER * util_nextRandomNumber) + increment;
+    return ((uint32_t)(util_nextRandomNumber >> UTIL_PSEUDO_RANDOM_LEFT_SHIFT) & UTIL_PSEUDO_RANDOM_AND);
+}
+
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern uint32_t UTIL_GetSeed() {
+    return util_nextRandomNumber;
+}
 #endif

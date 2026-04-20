@@ -6,6 +6,5 @@ Directory Name     ; Long Name                   ; Content Description
 ``ide``            ; Editor/IDEs                 ; Setups for editors and Integrated Development Environments
 ``precharge``      ; Precharge                   ; Script to help dimensioning the precharge resistor
 ``utils``          ; Utils                       ; Utility scripts
-``vendor``         ; Vendor                      ; Vendored, unchanged files
 ``waf-tools``      ; Waf tools                   ; Waf tools that are not part of vendored Waf
 ``waf``            ; Waf                         ; Waf binary

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x_defs.h
  * @author  foxBMS Team
  * @date    2020-09-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__NXP_MC3377X_DEFS_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
 
 #include "database.h"
 #include "spi.h"
@@ -72,7 +73,7 @@
 
 /* TODO: Determine which defines are version-specific*/
 
-/** error table for the LTC driver */
+/** error table for the NXP driver */
 typedef struct {
     bool communicationOk[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];        /*!<    */
     bool noCommunicationTimeout[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!<    */
@@ -83,7 +84,7 @@ typedef struct {
     bool mux3IsOK[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];               /*!<    */
 } N77X_ERROR_TABLE_s;
 
-/** error table for the LTC driver */
+/** error table for the NXP driver */
 typedef struct {
     uint16_t current[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
 } N77X_SUPPLY_CURRENT_s;
@@ -115,6 +116,19 @@ typedef struct {
 } N77X_DATA_s;
 
 /**
+ * This struct contains the various alarm reason states
+ */
+typedef struct {
+    bool alarmOccurred;
+    uint16_t alarmOutReason[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
+    uint16_t supplyFaultState0[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
+    uint16_t supplyFaultState1[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
+    uint16_t anaFaultState[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
+    uint16_t comFaultState[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
+    uint16_t measFaultState[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
+} N77X_ALARM;
+
+/**
  * This structure contains all the variables relevant for the N77X state machine.
  * The user can get the current state of the N77X state machine with this variable
  */
@@ -135,6 +149,7 @@ typedef struct {
                                                           (1,-1)...(3,-1),(0,1),...(0,7) */
     N77X_DATA_s n77xData;
     uint64_t serialId[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< serial ID of the IC */
+    N77X_ALARM alarm;
 } N77X_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/

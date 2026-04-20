@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.h
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
@@ -64,7 +64,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** struct for fail-safe registers
- * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
+ * for register description see datasheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
 typedef struct {
     uint16_t grl_flags;                             /*!< FS8X_FS_GRL_FLAGS_ADDR */
     uint16_t iOvervoltageUndervoltageSafeReaction1; /*!< FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR */
@@ -85,7 +85,7 @@ typedef struct {
 } FS85_FS_REGISTER_s;
 
 /** struct for main registers
- * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
+ * for register description see datasheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
 typedef struct {
     uint16_t flag;              /*!< FS8X_M_FLAG_ADDR */
     uint16_t mode;              /*!< FS8X_M_MODE_ADDR */

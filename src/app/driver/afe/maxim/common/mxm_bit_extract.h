@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_bit_extract.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -67,7 +67,7 @@
 /**
  * @brief Bit-values for registers
  */
-/* AXIVION Disable Style MisraC2012-2.5: Defines are based on data sheet and exist all for completeness. */
+/* AXIVION Disable Style MisraC2012-2.5: Defines are based on datasheet and exist all for completeness. */
 typedef uint8_t MXM_41B_REG_BIT_VALUE;
 /** one bit, 0u */
 #define MXM_41B_REG_FALSE ((MXM_41B_REG_BIT_VALUE)0x00u)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,24 +46,33 @@ import click
 from ..cmd_plot.execution import Executor
 from ..helpers.click_helpers import HELP_NAMES
 from ..helpers.file_tracker import FileTracker
+from ..helpers.misc import PROJECT_BUILD_ROOT
 
 
-@click.command(context_settings=HELP_NAMES)
+@click.command(
+    context_settings=HELP_NAMES,
+    epilog="""
+    Examples:
+
+        ./fox.sh plot -p config/plots.yml -d config/data.yml data/run1.csv
+        ./fox.sh plot -p config/plots.yml -d config/data.yml -t CSV data/
+    """,
+)
 @click.argument(
     "input_data", nargs=-1, type=click.Path(exists=True, path_type=Path), required=True
-)
-@click.option(
-    "-d",
-    "--data-config",
-    required=True,
-    help="Path of the configuration file for the data.",
-    type=click.Path(exists=True, path_type=Path),
 )
 @click.option(
     "-p",
     "--plot-config",
     required=True,
     help="Path of the configuration file for the plots.",
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option(
+    "-d",
+    "--data-config",
+    required=False,
+    help="Path of the configuration file for the data.",
     type=click.Path(exists=True, path_type=Path),
 )
 @click.option(
@@ -75,25 +84,32 @@ from ..helpers.file_tracker import FileTracker
 @click.option(
     "-t",
     "--data-type",
-    type=click.Choice(["CSV"], case_sensitive=True),
+    type=click.Choice(["CSV", "PARQUET"], case_sensitive=True),
     help="Type of the data-files to be used as input.",
 )
 @click.pass_context
 def plot(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context,
     input_data: list[Path],
-    data_config: Path,
     plot_config: Path,
+    data_config: Path | None,
     output: Path | None,
     data_type: str | None,
 ) -> None:
-    """Run the 'plot' tool with the given data as input."""
-    tmp_handler = FileTracker(Path.cwd())
+    """Generate plots from input data files or directories.
+
+    This command reads input data (for example, CSV using a data configuration
+    or PARQUET files) and renders graphs defined in a plot configuration.
+    The resulting images are written to the specified output directory or to a
+    default location if no output path is given.
+    """
+    PROJECT_BUILD_ROOT.mkdir(parents=True, exist_ok=True)
+    tmp_handler = FileTracker(PROJECT_BUILD_ROOT)
     no_tmp = tmp_handler.check_file_changed(data_config)
     Executor(
         input_data,
-        data_config,
         plot_config,
+        data_config,
         output,
         data_source_type=data_type,
         no_tmp=no_tmp,

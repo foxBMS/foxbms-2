@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    lib-build_main.c
  * @author  foxBMS Team
  * @date    2020-10-06 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -66,7 +66,6 @@
 #include "HL_sys_core.h"
 
 #include "adc.h"
-#include "checksum.h"
 #include "diag.h"
 #include "dma.h"
 #include "foxmath.h"
@@ -120,13 +119,6 @@ int unit_test_main(void)
     if (OS_INIT_PRE_OS != os_boot) {
         /* Could not create Queues, Mutexes, Events and Tasks do not boot further from this point on */
         FAS_ASSERT(FAS_TRAP);
-    }
-
-    if (STD_OK != CHK_ValidateChecksum()) {
-        if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u)) {
-            /* Could not validate checksum do not boot further from this point on */
-            FAS_ASSERT(FAS_TRAP);
-        }
     }
 
     os_schedulerStartTime = OS_GetTickCount();

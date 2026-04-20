@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,25 +39,23 @@
 
 """Implements a waf tool to use TI ARM CGT (https://www.ti.com/tool/ARM-CGT)."""
 
-# pylint: disable=too-many-statements,too-many-lines,too-many-locals
+# pylint: disable=too-many-lines
 
 import binascii
 import os
-import pathlib
 import re
 import shutil
-import sys
-from dataclasses import dataclass
-from datetime import date
 from hashlib import md5
 from string import Template
+from pathlib import Path
+
 
 import crc_bootloader
 import f_ti_arm_cgt_cc_options  # noqa: F401 pylint: disable=unused-import
 import f_ti_arm_helper  # noqa: F401 pylint: disable=unused-import
 import f_ti_arm_tools  # noqa: F401 pylint: disable=unused-import
 import waflib.Tools.asm
-from waflib import Context, Errors, Logs, Task, TaskGen, Utils
+from waflib import Context, Logs, Task, TaskGen, Utils
 from waflib.Build import BuildContext
 from waflib.Configure import conf
 from waflib.Node import Node
@@ -65,8 +63,6 @@ from waflib.TaskGen import taskgen_method
 from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task
 
-from git import Repo
-from git.exc import GitCommandError, InvalidGitRepositoryError
 
 TOOL_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -96,14 +92,15 @@ def options(opt):
 
 @TaskGen.extension(".asm")
 def asm_hook(self, node):
-    """creates the compiled task for assembler sources
-    :py:meth:`f_ti_arm_cgt.create_compiled_task_asm`."""
+    """Creates the compiled task for assembler sources
+    :py:meth:`f_ti_arm_cgt.create_compiled_task_asm`.
+    """
     return self.create_compiled_task_asm("asm", node)
 
 
 @taskgen_method
 def create_compiled_task_asm(self, name, node):
-    """creates the assembler task and binds it to the
+    """Creates the assembler task and binds it to the
     :py:class:`f_ti_arm_cgt.asm` class.
 
     The created tasks are appended to the list of ``compiled_tasks``.
@@ -117,56 +114,27 @@ def create_compiled_task_asm(self, name, node):
     return task
 
 
-class asm(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class asm(Task.Task):
     """class to run the TI ARM CGT compiler in compiler mode to create object
     files from assembler sources.
-
-    .. graphviz::
-        :caption: Input-output relation for assembler source files
-        :name: asm-to-obj
-
-        digraph ASM_TO_OBJECT {
-            compound=true;
-            rankdir=LR;
-            nd_armcl [label="armcl", style=filled, fillcolor=green];
-            nd_asm  [label="*.asm", style=filled];
-            nd_obj  [label="*.obj", style=filled];
-            subgraph cluster_cmd {
-                label = "Command Line";
-                rank=same;
-                nd_cflags           [label="CFLAGS"];
-                nd_cc_compile_only  [label="CC_COMPILE_ONLY"];
-                nd_incpaths         [label="INCPATHS"];
-                nd_defines          [label="DEFINES"];
-            }
-            nd_armcl    -> nd_cflags    [lhead=cluster_cmd];
-            nd_asm      -> nd_cflags    [lhead=cluster_cmd];
-            nd_cflags   -> nd_obj       [ltail=cluster_cmd];
-        }
     """
 
+    vars = ["CCDEPS"]
+    ext_in = [".h"]
+    scan = c_preproc.scan
     run_str = (
         "${CC} ${CFLAGS} ${CC_COMPILE_ONLY} "
         "${ASM_DIRECTORY}${TGT[0].parent.bldpath()} ${CPPPATH_ST:INCPATHS} "
         "${DEFINES_ST:DEFINES} ${SRC} ${CC_TGT_F}${TGT[0].relpath()}"
     )
-    """str: string to be interpolated to create the command line to compile
-    assembler files. See :numref:`asm-to-obj` for a simplified representation"""
-    #: list of str: values that effect the signature calculation
-    vars = ["CCDEPS"]
-    #: list of str: extensions that trigger a re-build
-    ext_in = [".h"]
-    #: fun: function to be used as scanner method
-    scan = c_preproc.scan
 
-    def keyword(self):
-        """displayed keyword when assembler source files are compiled"""
+    def keyword(self):  # noqa: D102
         return "Compiling"
 
 
 @TaskGen.extension(".c")
 def c_hook(self, node):
-    """creates all related task generators for C sources, which are
+    """Creates all related task generators for C sources, which are
 
     - :py:meth:`create_compiled_task_c`,
     - :py:meth:`create_compiled_task_c_pp`,
@@ -240,8 +208,7 @@ def create_compiled_task_c_ppi(self, name, node):
     :py:class:`f_ti_arm_cgt.c_ppi` class.
     """
     out = f"{node.name}.{self.idx}.ppi"
-    task = self.create_task(name, node, node.parent.find_or_declare(out))
-    return task
+    return self.create_task(name, node, node.parent.find_or_declare(out))
 
 
 @taskgen_method
@@ -250,8 +217,7 @@ def create_compiled_task_c_ppd(self, name, node):
     :py:class:`f_ti_arm_cgt.c_ppd` class.
     """
     out = f"{node.name}.{self.idx}.ppd"
-    task = self.create_task(name, node, node.parent.find_or_declare(out))
-    return task
+    return self.create_task(name, node, node.parent.find_or_declare(out))
 
 
 @taskgen_method
@@ -260,279 +226,115 @@ def create_compiled_task_c_ppm(self, name, node):
     :py:class:`f_ti_arm_cgt.c_ppm` class.
     """
     out = f"{node.name}.{self.idx}.ppm"
-    task = self.create_task(name, node, node.parent.find_or_declare(out))
-    return task
+    return self.create_task(name, node, node.parent.find_or_declare(out))
 
 
-class c(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class c(Task.Task):
     """This class implements the TI ARM CGT compiler in compiler mode to create
     object files from c sources. Additionally an aux file (user information
     file), a crl files (cross-reference listing file) and a rl file (output
     preprocessor listing) are generated.
-
-    .. graphviz::
-        :caption: Input-output relation for assembler source files
-        :name: c-to-obj
-
-        digraph C_TO_OBJECT {
-            compound=true;
-            rankdir=LR;
-            nd_armcl [label="armcl", style=filled, fillcolor=green];
-            nd_c    [label="*.c", style=filled];
-            nd_obj  [label="*.obj", style=filled];
-            nd_aux  [label="*.aux", style=filled];
-            nd_crl  [label="*.crl", style=filled];
-            nd_rl   [label="*.rl", style=filled];
-            subgraph cluster_cmd {
-                label = "Command Line";
-                rank=same;
-                nd_cflags               [label="CFLAGS"];
-                nd_cflags_compile_only  [label="CFLAGS_COMPILE_ONLY"];
-                nd_cc_compile_only      [label="CC_COMPILE_ONLY"];
-                nd_incpaths             [label="INCPATHS"];
-                nd_defines              [label="DEFINES"];
-            }
-            nd_armcl    ->  nd_cflags   [lhead=cluster_cmd];
-            nd_c        ->  nd_cflags   [lhead=cluster_cmd];
-            nd_cflags   ->  nd_obj      [ltail=cluster_cmd];
-            nd_cflags   ->  nd_aux      [ltail=cluster_cmd];
-            nd_cflags   ->  nd_crl      [ltail=cluster_cmd];
-            nd_cflags   ->  nd_rl       [ltail=cluster_cmd];
-        }
     """
 
+    vars = ["CCDEPS", "CMD_FILES_HASH"]
+    ext_in = [".h"]
+    scan = c_preproc.scan
     run_str = (
         "${CC} ${CFLAGS} ${CMD_FILES_ST:CMD_FILES} ${CFLAGS_COMPILE_ONLY} ${CC_COMPILE_ONLY} "
         "${OBJ_DIRECTORY}${TGT[0].parent.bldpath()} ${CPPPATH_ST:INCPATHS} "
         "${DEFINES_ST:DEFINES} ${SRC[0].abspath()} ${CC_TGT_F}${TGT[0].abspath()}"
     )
-    """str: string to be interpolated to create the command line to compile C
-    files. See :numref:`c-to-obj` for a simplified representation"""
-    #: list of str: values that effect the signature calculation
-    vars = ["CCDEPS", "CMD_FILES_HASH"]
-    #: list of str: extensions that trigger a re-build
-    ext_in = [".h"]
-    #: fun: function to be used as scanner method
-    scan = c_preproc.scan
 
-    def keyword(self):
-        """displayed keyword when source files are compiled"""
+    def keyword(self):  # noqa: D102
+        """Displayed keyword when source files are compiled"""
         return "Compiling"
 
 
-class c_pp(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class c_pp(Task.Task):
     """class to run the TI ARM CGT compiler in "preproc_only" mode, to
     have a pp file that includes the preprocess information
-
-    .. graphviz::
-        :caption: Input-output relation for C source files and preprocess information
-        :name: c-to-pp
-
-        digraph C_TO_PPI {
-            compound=true;
-            rankdir=LR;
-            nd_armcl [label="armcl", style=filled, fillcolor=green];
-            nd_c    [label="*.c", style=filled];
-            nd_pp   [label="*.pp", style=filled];
-            subgraph cluster_cmd {
-                label = "Command Line";
-                rank=same;
-                nd_cflags       [label="CFLAGS"];
-                nd_cflags_pp    [label="PP"];
-                nd_incpaths     [label="INCPATHS"];
-                nd_defines      [label="DEFINES"];
-            }
-            nd_armcl    ->  nd_cflags   [lhead=cluster_cmd];
-            nd_c        ->  nd_cflags   [lhead=cluster_cmd];
-            nd_cflags   ->  nd_ppi      [ltail=cluster_cmd];
-        }
     """
 
-    #: str: color in which the command line is displayed in the terminal
+    vars = ["CCDEPS", "CMD_FILES_HASH"]
+    ext_in = [".h"]
+    scan = c_preproc.scan
     color = "CYAN"
     run_str = (
         "${CC} ${CFLAGS} ${CMD_FILES_ST:CMD_FILES} ${PPO} ${CC_TGT_F}${TGT[0].abspath()} "
         "${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC[0].abspath()}"
     )
-    """str: string to be interpolated to create the command line to get include
-    information from C files. See :numref:`c-to-pp` for a simplified
-    representation"""
-    #: list of str: values that effect the signature calculation
-    vars = ["CCDEPS", "CMD_FILES_HASH"]
-    #: list of str: extensions that trigger a re-build
-    ext_in = [".h"]
-    #: fun: function to be used as scanner method
-    scan = c_preproc.scan
 
-    def keyword(self):
-        """displayed keyword when source files are parsed for pp information"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
-class c_ppi(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class c_ppi(Task.Task):
     """class to run the TI ARM CGT compiler in "preproc_includes" mode, to
     have a ppi file that includes the include information
-
-    .. graphviz::
-        :caption: Input-output relation for C source files and include information
-        :name: c-to-ppi
-
-        digraph C_TO_PPI {
-            compound=true;
-            rankdir=LR;
-            nd_armcl [label="armcl", style=filled, fillcolor=green];
-            nd_c    [label="*.c", style=filled];
-            nd_ppi  [label="*.ppi", style=filled];
-            subgraph cluster_cmd {
-                label = "Command Line";
-                rank=same;
-                nd_cflags       [label="CFLAGS"];
-                nd_cflags_ppi   [label="PPI"];
-                nd_incpaths     [label="INCPATHS"];
-                nd_defines      [label="DEFINES"];
-            }
-            nd_armcl    ->  nd_cflags   [lhead=cluster_cmd];
-            nd_c        ->  nd_cflags   [lhead=cluster_cmd];
-            nd_cflags   ->  nd_ppi      [ltail=cluster_cmd];
-        }
     """
 
-    #: str: color in which the command line is displayed in the terminal
+    vars = ["CCDEPS", "CMD_FILES_HASH"]
+    ext_in = [".h"]
+    scan = c_preproc.scan
     color = "CYAN"
     run_str = (
         "${CC} ${CFLAGS} ${CMD_FILES_ST:CMD_FILES} ${PPI} ${CC_TGT_F}${TGT[0].abspath()} "
         "${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC[0].abspath()}"
     )
-    """str: string to be interpolated to create the command line to get include
-    information from C files. See :numref:`c-to-ppi` for a simplified
-    representation"""
-    #: list of str: values that effect the signature calculation
-    vars = ["CCDEPS", "CMD_FILES_HASH"]
-    #: list of str: extensions that trigger a re-build
-    ext_in = [".h"]
-    #: fun: function to be used as scanner method
-    scan = c_preproc.scan
 
-    def keyword(self):
-        """displayed keyword when source files are parsed for ppi information"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
-class c_ppd(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class c_ppd(Task.Task):
     """class to run the TI ARM CGT compiler in "preproc_dependency" mode, to
     have a ppd file that includes dependency information
-
-    .. graphviz::
-        :caption: Input-output relation for C source files and include information
-        :name: c-to-ppd
-
-        digraph C_TO_PPD {
-            compound=true;
-            rankdir=LR;
-            nd_armcl [label="armcl", style=filled, fillcolor=green];
-            nd_c    [label="*.c", style=filled];
-            nd_ppd  [label="*.ppd", style=filled];
-            subgraph cluster_cmd {
-                label = "Command Line";
-                rank=same;
-                nd_cflags       [label="CFLAGS"];
-                nd_cflags_ppd   [label="PPD"];
-                nd_incpaths     [label="INCPATHS"];
-                nd_defines      [label="DEFINES"];
-            }
-            nd_armcl    ->  nd_cflags   [lhead=cluster_cmd];
-            nd_c        ->  nd_cflags   [lhead=cluster_cmd];
-            nd_cflags   ->  nd_ppd      [ltail=cluster_cmd];
-        }
     """
 
-    #: str: color in which the command line is displayed in the terminal
+    vars = ["CCDEPS", "CMD_FILES_HASH"]
+    ext_in = [".h"]
+    scan = c_preproc.scan
     color = "CYAN"
     run_str = (
         "${CC} ${CFLAGS} ${CMD_FILES_ST:CMD_FILES} ${PPD} ${CC_TGT_F}${TGT[0].abspath()} "
         "${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC[0].abspath()}"
     )
-    """str: string to be interpolated to create the command line to get
-    dependency information from C files. See :numref:`c-to-ppd` for a
-    simplified representation"""
-    #: list of str: values that effect the signature calculation
-    vars = ["CCDEPS", "CMD_FILES_HASH"]
-    #: list of str: extensions that trigger a re-build
-    ext_in = [".h"]
-    #: fun: function to be used as scanner method
-    scan = c_preproc.scan
 
-    def keyword(self):
-        """displayed keyword when source files are parsed for ppd information"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
-class c_ppm(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class c_ppm(Task.Task):
     """class to run the TI ARM CGT compiler in "preproc_macros" mode, to have
     a ppm file that includes all compile time macros
-
-    .. graphviz::
-        :caption: Input-output relation for C source files and include information
-        :name: c-to-ppm
-
-        digraph C_TO_PPM {
-            compound=true;
-            rankdir=LR;
-            nd_armcl [label="armcl", style=filled, fillcolor=green];
-            nd_c    [label="*.c", style=filled];
-            nd_ppm  [label="*.ppm", style=filled];
-            subgraph cluster_cmd {
-                label = "Command Line";
-                rank=same;
-                nd_cflags       [label="CFLAGS"];
-                nd_cflags_ppm   [label="PPM"];
-                nd_incpaths     [label="INCPATHS"];
-                nd_defines      [label="DEFINES"];
-            }
-            nd_armcl    ->  nd_cflags   [lhead=cluster_cmd];
-            nd_c        ->  nd_cflags   [lhead=cluster_cmd];
-            nd_cflags   ->  nd_ppm      [ltail=cluster_cmd];
-        }
     """
 
-    #: str: color in which the command line is displayed in the terminal
+    vars = ["CCDEPS", "CMD_FILES_HASH"]
+    ext_in = [".h"]
+    scan = c_preproc.scan
     color = "CYAN"
     run_str = (
         "${CC} ${CFLAGS} ${CMD_FILES_ST:CMD_FILES} ${PPM} ${CC_TGT_F}${TGT[0].abspath()} "
         "${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC[0].abspath()}"
     )
-    """str: string to be interpolated to create the command line to get
-    macro information from C files. See :numref:`c-to-ppm` for a
-    simplified representation"""
-    #: list of str: values that effect the signature calculation
-    vars = ["CCDEPS", "CMD_FILES_HASH"]
-    #: list of str: extensions that trigger a re-build
-    ext_in = [".h"]
-    #: fun: function to be used as scanner method
-    scan = c_preproc.scan
 
-    def keyword(self):
-        """displayed keyword when source files are parsed for ppm information"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
-class cprogram(link_task):  # pylint: disable=invalid-name,too-few-public-methods
+class cprogram(link_task):
     """class to run the TI ARM CGT compiler in linker mode to create the target"""
 
     run_str = (
@@ -546,72 +348,61 @@ class cprogram(link_task):  # pylint: disable=invalid-name,too-few-public-method
         "${TI_ARM_CGT_LINKER_END_GROUP} "
         "${TARGETLIB_ST:TARGETLIB} ${LDFLAGS}"
     )
-    #: list of str: values that effect the signature calculation
+
     vars = ["LINKDEPS", "CMD_FILES_HASH"]
-    #: list of str: extensions that trigger a re-build
     ext_out = [".elf"]
 
     # set inst_to to a dummy value so that waf knows that it can execute
     # an installation task
     inst_to = True
 
-    def keyword(self):
-        """displayed keyword when linking the target"""
+    def keyword(self):  # noqa: D102
         return "Linking"
 
 
-class stlink_task(link_task):  # pylint: disable=invalid-name,too-few-public-methods
+class stlink_task(link_task):
     """static link task"""
 
     run_str = [
-        remove_targets,
+        remove_targets,  # cspell:disable-next-line
         "${AR} ${ARFLAGS} ${AR_TGT_F} ${TGT[0].abspath()} ${AR_SRC_F}${SRC}",
     ]
 
-    def keyword(self):
-        """displayed keyword when linking"""
+    def keyword(self):  # noqa: D102
         return "Linking"
 
 
-class cstlib(stlink_task):  # pylint: disable=invalid-name,too-few-public-methods
+class cstlib(stlink_task):
     """c static library"""
 
-    pass  # pylint: disable=unnecessary-pass
 
-
-class copy_to_out_dir(Task.Task):  # pylint: disable=invalid-name
+class copy_to_out_dir(Task.Task):
     """This class implements the copying of a node to another location
-    in the build tree"""
+    in the build tree
+    """
 
-    #: int: priority of the task
     weight = 3
-
-    #: str: color in which the command line is displayed in the terminal
     color = "CYAN"
-
-    #: list of str: tasks after that hexgen task can be run
     after = ["link_task"]
 
-    def run(self):
-        """copy the generated elf file to build directory of the variant"""
-        for in_file, out_file in zip(self.inputs, self.outputs):
+    def run(self):  # noqa: D102
+        """Copy the generated elf file to build directory of the variant"""
+        for in_file, out_file in zip(self.inputs, self.outputs, strict=False):
             shutil.copy2(in_file.abspath(), out_file.abspath())
 
-    def keyword(self):
-        """displayed keyword when copying the elf file"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
 @TaskGen.feature("cprogram")
 @TaskGen.after("apply_link")
 def add_copy_elf_task(self):
-    """creates a task to copy the elf file into the output root
-    (task :py:class:`f_ti_arm_cgt.copy_to_out_dir`)"""
-
+    """Creates a task to copy the elf file into the output root
+    (task :py:class:`f_ti_arm_cgt.copy_to_out_dir`)
+    """
     if self.bld.variant_dir == self.link_task.outputs[0].parent.abspath():
         return
     if not hasattr(self, "link_task"):
@@ -632,7 +423,7 @@ def add_copy_elf_task(self):
 
 @conf
 def tiprogram(bld: BuildContext, *k, **kw):
-    """wrapper for bld.program for simpler target configuration.
+    """Wrapper for bld.program for simpler target configuration.
     The linker script is added as env input/output dependency for the
     target.
     Based on the target name all related targets are created:
@@ -641,7 +432,6 @@ def tiprogram(bld: BuildContext, *k, **kw):
     - linker information: <target>.<format>.xml
     - map information: <target>.<format>.map
     """
-
     if "target" not in kw:
         kw["target"] = "out"
     if "linker_script" not in kw:
@@ -713,7 +503,8 @@ def apply_incpaths(self):
 def check_duplicate_and_not_existing_includes(self):
     """Check if include directories are included more than once and if they
     really exist on the file system. If include directories do not exist, or
-    they are included twice, raise an error."""
+    they are included twice, raise an error.
+    """
     includes = self.to_incnodes(
         self.to_list(getattr(self, "includes", [])) + self.env.INCLUDES
     )
@@ -754,36 +545,30 @@ def check_duplicate_and_not_existing_includes(self):
         self.bld.fatal(err)
 
 
-class hexgen(Task.Task):  # pylint: disable=invalid-name
+class hexgen(Task.Task):
     """Task create hex file from elf files"""
 
-    #: str: color in which the command line is displayed in the terminal
     color = "YELLOW"
-
-    #: list of str: tasks after that hexgen task can be run
     after = ["link_task"]
 
     run_str = (
         "${ARMHEX} -q ${HEXGENFLAGS} --map=${TGT[1].abspath()} ${LINKER_SCRIPT_HEX} "
         "${SRC[0].abspath()} -o ${TGT[0].abspath()}"
     )
-    """str: string to be interpolated to create the command line to create a
-    hex file from an elf file."""
 
-    def keyword(self):
-        """displayed keyword when generating the hex file"""
+    def keyword(self):  # noqa: D102
         return "Compiling"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs[0]} -> {self.outputs[0]}"
 
 
 @TaskGen.feature("hexgen")
 @TaskGen.after("apply_link")
 def add_hexgen_task(self):
-    """creates a tasks to create a hex file from the linker output
-    (task :py:class:`f_ti_arm_cgt.hexgen`)"""
+    """Creates a tasks to create a hex file from the linker output
+    (task :py:class:`f_ti_arm_cgt.hexgen`)
+    """
     if not hasattr(self, "link_task"):
         return
     self.hexgen = self.create_task(
@@ -796,37 +581,29 @@ def add_hexgen_task(self):
     )
 
 
-class bingen(Task.Task):  # pylint: disable=invalid-name
+class bingen(Task.Task):
     """Task create bin file from elf files"""
 
     weight = 3
-
-    #: str: color in which the command line is displayed in the terminal
     color = "CYAN"
-
-    #: list of str: tasks after that hexgen task can be run
     after = ["link_task"]
 
     run_str = (
         "${TIOBJ2BIN} ${SRC[0].abspath()} ${TGT[0].abspath()} ${ARMOFD} "
         "${ARMHEX} ${MKHEX4BIN}"
     )
-    """str: string to be interpolated to create the command line to create a
-    bin file from an elf file."""
 
-    def keyword(self):
-        """displayed keyword when generating the bin file"""
+    def keyword(self):  # noqa: D102
         return "Compiling"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs[0]} -> {self.outputs[0]}"
 
 
 @TaskGen.feature("cprogram")
 @TaskGen.after("apply_link")
 def add_bingen_task(self):
-    """creates a task to create a bin file from the linker output
+    """Creates a task to create a bin file from the linker output
     (task :py:class:`f_ti_arm_cgt.bingen`)
     """
     if not hasattr(self, "link_task"):
@@ -838,43 +615,38 @@ def add_bingen_task(self):
     )
 
 
-class app_crc_gen(Task.Task):  # pylint: disable=invalid-name
+class app_crc_gen(Task.Task):
     """Task create the CRC file from the .bin file"""
 
     color = "CYAN"
-
     after = ["link_task"]
 
-    def run(self):
-        """implements the CRC file generation."""
+    def run(self):  # noqa: D102
         try:
             crc_bootloader.BootloaderBinaryFile(
-                app_file=pathlib.Path(self.inputs[0].abspath()),
-                crc64_table=pathlib.Path(self.outputs[0].abspath()),
-                info_file=pathlib.Path(self.outputs[1].abspath()),
+                app_file=Path(self.inputs[0].abspath()),
+                crc64_table=Path(self.outputs[0].abspath()),
+                info_file=Path(self.outputs[1].abspath()),
             )
         except SystemExit as exc:
             Logs.error(exc.code)
             return 1
         return 0
 
-    def keyword(self):
-        """displayed keyword when generating the CRC table file"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.inputs[0]} -> {self.outputs[0]}"
 
 
-class update_lauterbach_script(Task.Task):  # pylint: disable=invalid-name
+class update_lauterbach_script(Task.Task):
     """Task create the CRC file from the .bin file"""
 
     color = "CYAN"
-
     after = ["link_task"]
 
-    def run(self):
-        """implements the CRC file generation."""
+    def run(self):  # noqa: D102
         app_info = self.inputs[1].read_json()
         with open(self.inputs[0].abspath(), "rb") as f:
             try:  # catch OSError in case of a one line file
@@ -906,11 +678,10 @@ class update_lauterbach_script(Task.Task):  # pylint: disable=invalid-name
         )
         self.outputs[0].write(cmm_txt)
 
-    def keyword(self):
-        """displayed keyword when generating the CRC table file"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs[0]}"
 
 
@@ -964,14 +735,14 @@ def add_crc_task(self):
 
 @taskgen_method
 def accept_node_to_link(self, node):  # pylint: disable=unused-argument
-    """filters which output files are not meant to be linked"""
+    """Filters which output files are not meant to be linked"""
     return not node.name.endswith((".aux", "crl", "rl"))
 
 
 @TaskGen.feature("c", "cprogram")
 @TaskGen.after("apply_link")
 def process_sizes(self):
-    """creates size tasks for generated object and object-like files"""
+    """Creates size tasks for generated object and object-like files"""
     if getattr(self, "link_task", None) is None:
         return
     for node in self.link_task.inputs:
@@ -983,17 +754,13 @@ def process_sizes(self):
             self.create_task("size", node, out)
 
 
-class size(Task.Task):  # pylint: disable=invalid-name
+class size(Task.Task):
     """Task to run size on all input files"""
 
     vars = ["ARMSIZE", "ARMSIZE_OPTS"]
-
-    #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
 
-    def run(self):
-        """implements the actual behavior of size and pipes the output into
-        a file."""
+    def run(self):  # noqa: D102
         cmd = (
             Utils.subst_vars("${ARMSIZE} ${ARMSIZE_OPTS}", self.env)
             + " "
@@ -1014,19 +781,17 @@ class size(Task.Task):  # pylint: disable=invalid-name
         if err:
             Logs.error(err)
 
-    def keyword(self):
-        """displayed keyword when size is run on object files"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
 @TaskGen.feature("c", "cprogram")
 @TaskGen.after("apply_link")
 def process_nm(self):
-    """creates nm tasks for generated object files"""
+    """Creates nm tasks for generated object files"""
     if getattr(self, "link_task", None) is None:
         return
     for node in self.link_task.inputs:
@@ -1038,50 +803,39 @@ def process_nm(self):
             self.create_task("nm", node, out)
 
 
-class nm(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
+class nm(Task.Task):
     """Task to run armnm on all input files"""
 
-    #: str: color in which the command line is displayed in the terminal
     color = "PINK"
-
     run_str = "${ARMNM} ${NMFLAGS} --output=${TGT} ${SRC}"
-    """str: string to be interpolated to create the command line to create a
-    nm file from an ``*.obj``, ``*.a`` or ``*.elf`` file."""
 
-    def keyword(self):
-        """displayed keyword when armnm is run on object files"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
 @TaskGen.feature("c")
 @TaskGen.after("c_pp")
 def remove_stuff_from_pp(self):
-    """creates pp tasks for generated object files"""
+    """Creates pp tasks for generated object files"""
     for node in getattr(self, "c_pp_tasks", []):
         outs = [node.outputs[0].change_ext(".ppr"), node.outputs[0].change_ext(".pprs")]
         self.create_task("clean_pp_file", node.outputs[0], outs)
 
 
-# pylint: disable-next=invalid-name,too-few-public-methods
 class clean_pp_file(Task.Task):
     """Task to remove some information from the preprocessed files"""
 
-    #: str: color in which the command line is displayed in the terminal
     color = "PINK"
-
-    #: tuple: strings that need to be removed from the preprocessed file
     remove_str = ("#define", "#pragma", "# pragma", "_Pragma")
-
-    #: list: regular expressions that should be removed with a certain string
     replace_str = [(r"__attribute__\(.*\)", "")]
 
-    def run(self):
+    def run(self):  # noqa: D102
         """Removes empty lines and strips some intrinsics that should not be
-        included in the postprocessed file"""
+        included in the postprocessed file
+        """
         # read file, split text in list by lines and remove all empty entries
         txt = list(filter(str.rstrip, self.inputs[0].read().splitlines()))
         # join all lines without right side whitespace and write it to file
@@ -1096,504 +850,75 @@ class clean_pp_file(Task.Task):
             txt = re.sub(rep[0], rep[1], txt)
         self.outputs[1].write(txt, encoding="utf-8")
 
-    def keyword(self):
-        """displayed keyword when post-processing the pre-processed files"""
+    def keyword(self):  # noqa: D102
         return "Processing"
 
-    def __str__(self):
-        """additional information appended to the keyword"""
+    def __str__(self) -> str:
         return f"{self.inputs} -> {self.outputs}"
 
 
-@dataclass
-class GitInformation:  # pylint: disable=too-many-instance-attributes
-    """git version information object"""
-
-    version: str
-    dirty: str
-    tag: str
-    major: int
-    minor: int
-    patch: int
-    distance: int
-    commit: str
-
-
-class create_version_source(Task.Task):  # pylint: disable=invalid-name
+class create_version_source(Task.Task):
     """creates the version information file"""
 
-    #: int: priority of the task
     weight = 2
-
-    #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
-
-    #: list of str: specifies task, that this task needs to run before
     before = ["c"]
-
-    #: list of str: extensions that trigger a re-build
     ext_out = [".h"]
-
     always_run = True
 
-    def get_remote(self):
-        """returns the git 'origin' remote"""
-        # pylint: disable=no-member
-        remote = "No remote"
-        if self.repo:
-            try:
-                remote = self.repo.git.ls_remote("--get-url")
-            except GitCommandError:
-                Logs.warn("Remote repository could not be determined.")
-                Logs.warn("'git ls-remote --get-url' failed.")
-                remote = "no-remote-set"
-                Logs.warn(f"Setting remote to '{remote}'.")
-        # pylint: enable=no-member
-        # see src/version/version.h: VER_VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH
-        git_remote_maximum_string_length = 128
-        return remote[:git_remote_maximum_string_length]
-
-    def get_version_from_git(self) -> GitInformation:
-        """returns a version information object that is extracted directly
-        from the underlying git repository, if available.
-        if the project is not within a git repository, the version defined
-        in the top level wscript is used.
-        """
-        # pylint: disable=no-member
-
-        # see src/version/version.h: VER_VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH
-        maximum_commit_hash_length = 14
-        if not self.repo:
-            version_str = f"no-vcs-{self.env.VERSION}-dirty"
-            if "conf_check" not in self.generator.bld.path.get_bld().abspath():
-                Logs.warn(f"{self.env.APPNAME} is not developed in a git repository.")
-                Logs.warn(f"Setting version to '{version_str}'.")
-            return GitInformation(
-                version=version_str,
-                dirty=True,
-                tag=self.env.VERSION,
-                major=self.env.VERSION.split(".")[0],
-                minor=self.env.VERSION.split(".")[1],
-                patch=self.env.VERSION.split(".")[2],
-                distance=65535,
-                commit="f" * maximum_commit_hash_length,
-            )
-
-        # get commit
-        cmd = [self.generator.env.GIT[0], "rev-parse", "HEAD"]
-        commit_long, _ = self.generator.bld.cmd_and_log(
-            cmd,
-            quiet=Context.BOTH,
-            output=Context.BOTH,
-            cwd=self.env.PROJECT_ROOT[0],
-        )
-        commit_long = commit_long.strip()
-        commit_short = commit_long[0:14]
-        # distance to master
-        distance = 0
-        cmd = [self.generator.env.GIT[0], "rev-list", "--count", commit_long, "^master"]
-        try:
-            tmp, _ = self.generator.bld.cmd_and_log(
-                cmd,
-                quiet=Context.BOTH,
-                output=Context.BOTH,
-                cwd=self.env.PROJECT_ROOT[0],
-            )
-            distance = int(tmp.strip())
-        except Errors.WafError:
-            pass
-        # version and dirty information
-        cmd = [
-            self.generator.env.GIT[0],
-            "describe",
-            "--dirty",
-            "--tags",
-        ]
-        describe_output, _ = self.generator.bld.cmd_and_log(
-            cmd,
-            quiet=Context.BOTH,
-            output=Context.BOTH,
-            cwd=self.env.PROJECT_ROOT[0],
-        )
-        describe_output = describe_output.strip()
-
-        # pylint: disable-next=simplifiable-if-statement
-        if describe_output.endswith("-dirty"):
-            dirty = True
-        else:
-            dirty = False
-
-        tag = "unreleased"
-        major = 0
-        minor = 0
-        patch = 0
-        if describe_output.startswith(("v", "gh-")):
-            # internal releases are tagged by        'v<version>'
-            # while GitHub releases are tagged with  'gh-<version>'
-            # This is not a typo, at some point we chose it that way and we
-            # keep it like that.
-            if describe_output.startswith("v"):
-                describe_output = describe_output[1:]  # remove v from start
-            elif describe_output.startswith("gh-"):
-                describe_output = describe_output[3:]  # remove gh- from start
-            # we are on a branch with a tagged version
-            try:
-                tag, _ = describe_output.split("-", 1)
-            except ValueError:
-                tag = describe_output
-            # try to extract major minor patch
-            major, minor, patch = tag.split(".")
-            version = f"{tag}-{distance}-{commit_short}"
-        else:
-            # no recognizable version has been tagged
-            # expecting the output to be commit-id
-            version = f"{tag}-{describe_output}"
-
-        if dirty:
-            version = f"{version}-dirty"
-
-        if not len(commit_short) == maximum_commit_hash_length:
-            self.generator.bld.fatal(
-                "The expected short SHA needs to be 14 characters long.\n"
-                f"Length of SHA '{commit_short}' is {len(commit_short)}."
-            )
-        # see src/version/version.h: VER_VERSION_s
-        maximum_version_size = 255
-        maximum_distance_size = 65535
-
-        major = min(maximum_version_size, int(major))
-        minor = min(maximum_version_size, int(minor))
-        patch = min(maximum_version_size, int(patch))
-        distance = min(maximum_distance_size, int(distance))
-
-        # assemble information
-        version_output = GitInformation(
-            version=version,
-            dirty=dirty,
-            tag=tag,
-            major=major,
-            minor=minor,
-            patch=patch,
-            distance=distance,
-            commit=commit_short,
-        )
-        return version_output
-
-    def get_repo_dirty_from_git(self):
-        """returns a boolean marking if the project's working
-        directory is dirty (which means it contains unstaged changes)
-        """
-        # pylint: disable=no-member
-        dirty = True
-        if self.repo:
-            dirty = self.repo.is_dirty()
-        return dirty
-
-    def run(self):
-        """Created the version information file"""
-        waf_version = self.env.VERSION
-
-        is_git_repo = "false"  # C bool
-        if self.repo:  # pylint: disable=no-member
-            is_git_repo = "true"  # C bool
-        is_dirty = "false"  # C bool
-        if self.get_repo_dirty_from_git():
-            is_dirty = "true"  # C bool
-        git_remote = self.get_remote()
-
-        version = self.get_version_from_git()
-
-        if waf_version == "x.y.z":
-            version.version = "x.y.z"
-            version.tag = "0.0.0"
-            version.major = 120  # ascii representation for "x"
-            version.minor = 121  # ascii representation for "y"
-            version.patch = 122  # ascii representation for "z"
-
-        if not version.tag == waf_version and (not waf_version == "x.y.z"):
-            self.generator.bld.fatal(
-                f"Extracted version from git repo ({version.tag}) "
-                f"does not match version defined in waf ({waf_version})."
-            )
-
+    def run(self):  # noqa: D102
         txt = self.inputs[0].read(encoding="utf-8")
-        txt = txt.replace('#include "c.h"', '#include "version.h"')
-        doxygen_comment_tpl = [
-            " * @file    c.c",
-            " * @author  foxBMS Team",
-            " * @date    2019-08-27 (date of creation)",
-            " * @updated 2024-01-09 (date of last update)",
-            " * @version vx.y.z",
-            " * @ingroup SOME_GROUP",
-            " * @prefix  ABC",
-            " * @brief   Implementation of some software",
-        ]
-        tmp = date.today().strftime("%Y-%m-%d")
-        doxygen_comment = [
-            " * @file    version.c",
-            " * @author  foxBMS Team",
-            f" * @date    {tmp} (date of creation)",
-            f" * @updated {tmp} (date of last update)",
-            f" * @version v{version.major}.{version.minor}.{version.patch}",
-            " * @ingroup GENERAL",
-            " * @prefix  VER",
-            (
-                " * @brief   Header file for the version information that is "
-                "generated by the\n *          toolchain."
-            ),
-        ]
-        for finding, _replacement in zip(doxygen_comment_tpl, doxygen_comment):
-            txt = txt.replace(finding, _replacement)
-        # pylint: disable=line-too-long
-        marker = "/*========== Static Constant and Variable Definitions =======================*/"
-        txt = txt.replace(
-            marker,
-            os.linesep.join(
-                [
-                    marker,
-                    "const VER_VERSION_s ver_versionInformation VER_VERSION_INFORMATION = {",
-                    f"    .underVersionControl = {is_git_repo},",
-                    f"    .isDirty = {is_dirty},",
-                    f"    .major = {version.major},",
-                    f"    .minor = {version.minor},",
-                    f"    .patch = {version.patch},",
-                    f"    .distanceFromLastRelease = {version.distance},",
-                    f'    .commitHash = "{version.commit}",',
-                    f'    .gitRemote = "{git_remote}",',
-                    "};\n",
-                ]
-            ),
-        )
-        # pylint: enable=line-too-long
-
+        txt = self.generator.bld.create_version_c(txt)
         self.outputs[0].write(txt, encoding="utf-8")
+        self.outputs[1].write("DisableFormat: true\nSortIncludes: false\n")
+
+    def keyword(self):  # noqa: D102
+        return "Creating"
+
+    def __str__(self) -> str:
+        return str(self.outputs[0].path_from(self.generator.bld.path))
 
 
-class create_app_build_cfg_source(Task.Task):  # pylint: disable=invalid-name
+class create_app_build_cfg_source(Task.Task):
     """creates the app build configuration information file"""
 
-    #: int: priority of the task
     weight = 2
-
-    #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
-
-    #: list of str: specifies task, that this task needs to run before
     before = ["c"]
-
-    #: list of str: extensions that trigger a re-build
     ext_out = [".h"]
-
     always_run = True
 
-    def run(self):
-        """Created the application build information file"""
-        # get information for the build configuration struct
-        build_configuration = self.get_build_configuration()
+    def run(self):  # noqa: D102
         txt = self.inputs[0].read(encoding="utf-8")
-        txt = txt.replace('#include "c.h"', '#include "app_build_cfg.h"')
-        doxygen_comment_tpl = [
-            " * @file    c.c",
-            " * @author  foxBMS Team",
-            " * @date    2019-08-27 (date of creation)",
-            " * @updated 2024-01-09 (date of last update)",
-            " * @version vx.y.z",
-            " * @ingroup SOME_GROUP",
-            " * @prefix  ABC",
-            " * @brief   Implementation of some software",
-        ]
-        tmp = date.today().strftime("%Y-%m-%d")
-        doxygen_comment = [
-            " * @file    app_build_cfg.c",
-            " * @author  foxBMS Team",
-            f" * @date    {tmp} (date of creation)",
-            f" * @updated {tmp} (date of last update)",
-            f" * @version v{self.env.VERSION}",
-            " * @ingroup GENERAL",
-            " * @prefix  VER",
-            (
-                " * @brief   Header file for the version information that is "
-                "generated by the\n *          toolchain."
-            ),
-        ]
-        for finding, _replacement in zip(doxygen_comment_tpl, doxygen_comment):
-            txt = txt.replace(finding, _replacement)
-        # pylint: disable=line-too-long
-        marker = "/*========== Static Constant and Variable Definitions =======================*/"
-        txt = txt.replace(
-            marker,
-            os.linesep.join(
-                [
-                    marker,
-                    "const VER_BUILD_CONFIGURATION_s ver_foxbmsBuildConfiguration = {",
-                    f"    .socAlgorithm = SOC_ALGORITHM_{build_configuration['soc_state_estimator']},",
-                    f"    .soeAlgorithm = SOE_ALGORITHM_{build_configuration['soe_state_estimator']},",
-                    f"    .sofAlgorithm = SOF_ALGORITHM_{build_configuration['sof_state_estimator']},",
-                    f"    .sohAlgorithm = SOH_ALGORITHM_{build_configuration['soh_state_estimator']},",
-                    f"    .imdName = {build_configuration['imd_name']},",
-                    f"    .balancingStrategy = BALANCING_STRATEGY_{build_configuration['balancing_strategy']},",
-                    f"    .rtos = {build_configuration['rtos']},",
-                    f"    .afeName = {build_configuration['afe_name']},",
-                    f"    .temperatureSensorName = {build_configuration['temp_sensor_name']},",
-                    f"    .temperatureSensorMethod = {build_configuration['temp_sensor_method']},",
-                    "};",
-                ]
-            ),
-        )
-        # pylint: enable=line-too-long
-
+        txt = self.generator.bld.create_app_build_cfg_c(txt)
         self.outputs[0].write(txt, encoding="utf-8")
 
-    def get_build_configuration(self):  # pylint: disable=too-many-branches
-        """Puts together the information for the build configuration struct
-        returns the build configuration in a dictionary"""
-        build_configuration = {}
+    def keyword(self):  # noqa: D102
+        return "Creating"
 
-        # get state estimators
-        build_configuration["soc_state_estimator"] = "INVALID"
-        if not self.env.state_estimator_soc == []:
-            build_configuration["soc_state_estimator"] = str(
-                self.env.state_estimator_soc
-            ).upper()
-        build_configuration["soe_state_estimator"] = "INVALID"
-        if not self.env.state_estimator_soe == []:
-            build_configuration["soe_state_estimator"] = str(
-                self.env.state_estimator_soe
-            ).upper()
-        build_configuration["sof_state_estimator"] = "INVALID"
-        if not self.env.state_estimator_sof == []:
-            build_configuration["sof_state_estimator"] = str(
-                self.env.state_estimator_sof
-            ).upper()
-        build_configuration["soh_state_estimator"] = "INVALID"
-        if not self.env.state_estimator_soh == []:
-            build_configuration["soh_state_estimator"] = str(
-                self.env.state_estimator_soh
-            ).upper()
-
-        # get imd name
-        imd_man = str(self.env.imd_manufacturer)
-        imd_model = str(self.env.imd_model)
-        imd_name = "IMD_NONE"
-        if imd_man == "bender":
-            if imd_model == "iso165c":
-                imd_name = f"IMD_{imd_man.upper()}_ISO_165C"
-            elif imd_model == "ir155":
-                imd_name = f"IMD_{imd_man.upper()}_IR_155"
-        build_configuration["imd_name"] = imd_name
-
-        # get balancing strategy
-        build_configuration["balancing_strategy"] = "NONE"
-        if not self.env.balancing_strategy == []:
-            build_configuration["balancing_strategy"] = str(
-                self.env.balancing_strategy
-            ).upper()
-
-        # get rtos
-        build_configuration["rtos"] = "FREERTOS"
-        if not self.env.RTOS_NAME == []:
-            build_configuration["rtos"] = str(self.env.RTOS_NAME[0]).upper()
-
-        # get afe name
-        afe_man = str(self.env.afe_manufacturer)
-        afe_ic = str(self.env.afe_ic)
-        afe_ic_d = "DEBUG_DEFAULT"
-        if afe_man == "ltc":
-            if afe_ic in ("6804-1", "6811-1", "6812-1"):
-                afe_ic_d = "6813-1"
-            if afe_ic == "6804-1":
-                afe_ic_d = f"{afe_man.upper()}_LTC6804_1"
-            elif afe_ic == "6806":
-                afe_ic_d = f"{afe_man.upper()}_LTC6806"
-            elif afe_ic == "6811-1":
-                afe_ic_d = f"{afe_man.upper()}_LTC6811_1"
-            elif afe_ic == "6812-1":
-                afe_ic_d = f"{afe_man.upper()}_LTC6812_1"
-            elif afe_ic == "6813-1":
-                afe_ic_d = f"{afe_man.upper()}_LTC6813_1"
-        elif afe_man == "nxp":
-            if afe_ic == "mc33775a":
-                afe_ic_d = f"{afe_man.upper()}_MC33775A"
-        elif afe_man == "adi":
-            if afe_ic == "ades1830":
-                afe_ic_d = f"{afe_man.upper()}_ADES1830"
-        elif afe_man == "debug":
-            if afe_ic == "default":
-                afe_ic_d = f"{afe_man.upper()}_DEFAULT"
-        elif afe_man == "maxim":
-            if afe_ic == "max17852":
-                afe_ic_d = f"{afe_man.upper()}_MAX17852"
-        elif afe_man == "ti":
-            if afe_ic == "dummy":
-                afe_ic_d = "TI_DUMMY"
-        build_configuration["afe_name"] = afe_ic_d
-
-        # get temp sensor name
-        temp_sensor_man = str(self.env.temperature_sensor_manuf)
-        temp_sensor_model = str(self.env.temperature_sensor_model)
-        temp_sensor = "FAK00"
-        if temp_sensor_man == "epcos":
-            if temp_sensor_model == "b57251v5103j060":
-                temp_sensor = "EPC00"
-            elif temp_sensor_model == "b57861s0103f045":
-                temp_sensor = "EPC01"
-        elif temp_sensor_man == "murata":
-            if temp_sensor_model == "ncxxxxh103":
-                temp_sensor = "MUR00"
-        elif temp_sensor_man == "semitec":
-            if temp_sensor_model == "103jt":
-                temp_sensor = "SEM00"
-        elif temp_sensor_man == "tdk":
-            if temp_sensor_model == "ntcgs103jf103ft8":
-                temp_sensor = "TDK00"
-        elif temp_sensor_man == "vishay":
-            if temp_sensor_model == "ntcalug01a103g":
-                temp_sensor = "VIS00"
-            elif temp_sensor_model == "ntcle317e4103sba":
-                temp_sensor = "VIS01"
-            elif temp_sensor_model == "ntcle413e2103f102l":
-                temp_sensor = "VIS02"
-        build_configuration["temp_sensor_name"] = temp_sensor
-
-        # get temp sensor method
-        temp_sensor_meth = str(self.env.temperature_sensor_meth)
-        temp_sensor_method = "LOOKUP_TABLE"
-        if temp_sensor_meth == "polynomial":
-            temp_sensor_method = "POLYNOMIAL"
-        build_configuration["temp_sensor_method"] = temp_sensor_method
-
-        return build_configuration
+    def __str__(self) -> str:
+        return str(self.outputs[0].path_from(self.generator.bld.path))
 
 
 @TaskGen.feature("cprogram")
 @TaskGen.after_method("process_rule")
 def create_version_file(self):
     """Task generator for version information file"""
-    no_version = getattr(self, "no_version", False)
-    try:
-        repo = Repo(self.bld.top_dir)
-    except InvalidGitRepositoryError:
-        if not no_version:
-            Logs.warn("Not a git repository. Proceeding without version information.")
-        repo = None
-    except:  # noqa: E722 pylint: disable=bare-except
-        Logs.error(f"An unexpected error occurred:\n{sys.exc_info()[0]}")
-        Logs.warn("Proceeding without version information.")
-        repo = None
-
     generated_sources = []
 
     src = self.path.ctx.root.find_node(f"{self.env.PROJECT_ROOT[0]}/conf/tpl/c.c")
     version_c = self.path.find_or_declare("version.c")
+    no_clang_node = self.path.find_or_declare(".clang-format")
+
     version_src_tsk = self.create_task(
-        "create_version_source", src=src, tgt=[version_c], repo=repo
+        "create_version_source", src=src, tgt=[version_c, no_clang_node]
     )
     generated_sources.append(version_src_tsk.outputs[0])
 
     if getattr(self, "app_build_cfg", False):
         app_build_cfg_c = self.path.find_or_declare("app_build_cfg.c")
         app_cfg_tsk = self.create_task(
-            "create_app_build_cfg_source", src=src, tgt=[app_build_cfg_c], repo=repo
+            "create_app_build_cfg_source", src=src, tgt=[app_build_cfg_c]
         )
         generated_sources.append(app_cfg_tsk.outputs[0])
 
@@ -1606,8 +931,9 @@ def create_version_file(self):
 @TaskGen.feature("c")
 @TaskGen.before_method("apply_incpaths")
 def hash_cmd_files(self):
-    """calculate hashes for command files, before running the c-related tasks,
-    as c-related tasks might rely on these files"""
+    """Calculate hashes for command files, before running the c-related tasks,
+    as c-related tasks might rely on these files
+    """
     if not isinstance(getattr(self.env, "CMD_FILES", []), list):
         self.bld.fatal("'ctx.env.CMD_FILES' must be a list.")
     if not isinstance(getattr(self, "cmd_files", []), list):
@@ -1628,12 +954,12 @@ def hash_cmd_files(self):
     )
 
 
-class get_stack(Task.Task):  # pylint: disable=invalid-name
+class get_stack(Task.Task):
     """gathers all stack information in one file"""
 
     after = ["link_task"]
 
-    def run(self):
+    def run(self):  # noqa: D102
         """Gathers the stack usage information"""
 
         def parse(txt, line_number):
@@ -1661,8 +987,8 @@ class get_stack(Task.Task):  # pylint: disable=invalid-name
 
         out = {}
         func_re = re.compile(r"\|\s+FUNCTION:\s+(\w+)\s+|")
-        srcs = self.generator.bld.bldnode.ant_glob("**/*.aux", quiet=True)
-        for src in srcs:
+        sources = self.generator.bld.bldnode.ant_glob("**/*.aux", quiet=True)
+        for src in sources:
             txt_lines = src.read().splitlines()
             for i, line in enumerate(txt_lines):
                 m = func_re.match(line)
@@ -1675,7 +1001,7 @@ class get_stack(Task.Task):  # pylint: disable=invalid-name
 @TaskGen.feature("cprogram")
 @TaskGen.after_method("process_source")
 def test_exec_fun(self):
-    """get stack usage"""
+    """Get stack usage"""
     tgt = os.path.join(
         self.bld.bldnode.abspath(), f"{self.env.APPNAME.lower()}.stacks.json"
     )
@@ -1688,8 +1014,9 @@ def test_exec_fun(self):
 
 @conf
 def find_armcl(ctx):
-    """configures the compiler, determines the compiler version, and sets the
-    default include paths."""
+    """Configures the compiler, determines the compiler version, and sets the
+    default include paths.
+    """
     found_versions = []
     err = 0
     for i, path_list in enumerate(ctx.env.CCS_SEARCH_PATH_GROUP):
@@ -1697,7 +1024,7 @@ def find_armcl(ctx):
         err = 0
         cc = ctx.find_program(["armcl"], var="CC", path_list=path_list)
         ctx.env.CC_NAME = "cgt"
-        cc_path = pathlib.Path(cc[0])
+        cc_path = Path(cc[0])
         ctx.env.append_unique(
             "INCLUDES", os.path.join(cc_path.parent.parent.absolute(), "include")
         )
@@ -1760,14 +1087,14 @@ def find_armcl(ctx):
 
 @conf
 def find_armar(ctx):
-    """configures the archive tool"""
+    """Configures the archive tool"""
     path_list = ctx.env.CCS_SEARCH_PATH_GROUP[ctx.env.CCS_SEARCH_PATH_GROUP_ID]
     ctx.find_program(["armar"], var="AR", path_list=path_list)
 
 
 @conf
 def cgt_flags(ctx):
-    """sets flags and related configuration options of the compiler."""
+    """Sets flags and related configuration options of the compiler."""
     env = ctx.env
     env.DEST_BIN_FMT = "elf"
     env.AR_TGT_F = ["rq"]
@@ -1805,8 +1132,10 @@ def cgt_flags(ctx):
 
 
 def configure(ctx):
-    """configuration step of the TI ARM CGT compiler tool"""
+    """Configuration step of the TI ARM CGT compiler tool"""
     ctx.load_special_tools("c_*.py")
+    ctx.load("create_version", tooldir=TOOL_DIR)
+    ctx.load("create_app_build_cfg", tooldir=TOOL_DIR)
     ctx.start_msg("Checking for TI ARM CGT compiler and tools")
     ctx.load_cc_options()
     ctx.find_armcl()

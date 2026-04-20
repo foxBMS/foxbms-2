@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -67,7 +67,6 @@ def extract_enum_from_dbc_file(enum_name: str, dbc_file: Path) -> Enum:
     Returns:
         enum with the name of the enum.
     """
-
     # Load the DBC file
     if not dbc_file.is_file():
         sys.exit(f"The input '{dbc_file}' is not a file.")
@@ -81,7 +80,7 @@ def extract_enum_from_dbc_file(enum_name: str, dbc_file: Path) -> Enum:
                 if not signal.choices:
                     sys.exit(f"There is no enum for signal '{enum_name}'.")
                 choices = {str(value): key for key, value in signal.choices.items()}
-                retval = Enum(signal.name, choices)  #
+                retval = Enum(signal.name, choices)
                 print_enum(retval)
                 return retval
 

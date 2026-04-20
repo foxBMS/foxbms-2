@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,10 +38,11 @@
 # - "This product is derived from foxBMS®"
 
 """Python script to check if all callbacks defined in the .dbc file are
-implemented in callback functions."""
+implemented in callback functions.
+"""
 
 import argparse
-import logging
+import logging  # noqa: TID251
 import os
 import re
 import sys
@@ -56,7 +57,7 @@ FILE_RE_COMPILED = re.compile(FILE_RE)
 
 
 def get_git_root(path: str) -> str:
-    """helper function to find the repository root
+    """Helper function to find the repository root
 
     Args:
         path (string): path of file in git repository
@@ -91,7 +92,7 @@ def evaluate_implementation(callback_file: Path, function_name: str) -> bool:
     return found
 
 
-def main():
+def main() -> int:
     """This script checks whether a expected callback is implemented."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -157,7 +158,7 @@ def main():
             hex(i.frame_id),
             i.comment,
         )
-        m = FILE_RE_COMPILED.search(i.comment)  # pylint: disable=invalid-name
+        m = FILE_RE_COMPILED.search(i.comment)
         if not m:
             errors += 1
             logging.error(
@@ -173,7 +174,7 @@ def main():
             search_file = files[0]
         except IndexError:
             errors += 1
-            logging.error(
+            logging.exception(
                 "Could not find implementation file '%s' for message '%s'.",
                 m[1],
                 i.name,

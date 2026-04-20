@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -47,6 +47,8 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import ANY, MagicMock, call, mock_open, patch
 
+from yaml import YAMLError
+
 try:
     from cli.cmd_embedded_ut import embedded_ut_impl
     from cli.helpers.spr import SubprocessResult
@@ -64,7 +66,7 @@ class TestEmbeddedUTImplModuleImport(unittest.TestCase):
         return super().setUp()
 
     def test_platform_linux(self):
-        """test Linux."""
+        """Test Linux."""
         with patch("sys.platform", new="linux"):
             importlib.reload(embedded_ut_impl)
         self.assertTrue(
@@ -72,12 +74,43 @@ class TestEmbeddedUTImplModuleImport(unittest.TestCase):
         )
 
     def test_platform_win32(self):
-        """test dummy'PLATFORM' value."""
+        """Test dummy'PLATFORM' value."""
         with patch("sys.platform", new="win32"):
             importlib.reload(embedded_ut_impl)
         self.assertTrue(
             str(embedded_ut_impl.CEEDLING_PROJECT_FILE_SRC_APP).count("win32") == 1
         )
+
+
+class TestGetRemoveCfg(unittest.TestCase):
+    """Testing '_get_remove_cfg' function."""
+
+    @patch.object(Path, "read_text", return_value="dummy")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.safe_load")
+    def test_success(self, mock_safe_load, _):
+        """Loading remove configuration works."""
+        mock_safe_load.return_value = [Path("/dummy/a"), Path("/dummy/b")]
+        result = embedded_ut_impl._get_remove_cfg(Path("cfg.yaml"))  # pylint:disable=protected-access
+        self.assertEqual(result, [Path("/dummy/a"), Path("/dummy/b")])
+        mock_safe_load.assert_called_once_with("dummy")
+
+    @patch.object(Path, "read_text", return_value="dummy")
+    @patch(
+        "cli.cmd_embedded_ut.embedded_ut_impl.safe_load",
+        side_effect=YAMLError("bad yaml"),
+    )
+    def test_yaml_error(self, *_):
+        """Invalid yaml."""
+        with self.assertRaises(SystemExit) as cm:
+            embedded_ut_impl._get_remove_cfg(Path("cfg.yaml"))  # pylint:disable=protected-access
+        self.assertEqual(cm.exception.code, "Could not load remove configuration.")
+
+    @patch.object(Path, "read_text", side_effect=FileNotFoundError("no file"))
+    def test_file_not_found(self, _):
+        """File cannot be read."""
+        with self.assertRaises(SystemExit) as cm:
+            embedded_ut_impl._get_remove_cfg(Path("missing.yaml"))  # pylint:disable=protected-access
+        self.assertEqual(cm.exception.code, "Could not load remove configuration file.")
 
 
 class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
@@ -146,8 +179,7 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._run_halcogen")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._run_ceedling")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._print_result")
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def test_run_embedded_tests_no_pickle(
+    def test_run_embedded_tests_no_pickle(  # noqa: PLR0913
         self,
         m_print_result: MagicMock,
         m_run_ceedling: MagicMock,
@@ -169,7 +201,7 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
         err = io.StringIO()
         err_exp = ""
         out = io.StringIO()
-        out_exp = self.out_start.format("app")
+        out_exp = self.out_start.format("app") + "HALCoGen needs to run.\n"
         with redirect_stderr(err), redirect_stdout(out):
             ret = embedded_ut_impl.run_embedded_tests(
                 ["gcov:test_abc.c"], project="app"
@@ -184,14 +216,19 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
         m_run_ceedling.assert_called_once_with(
             ["gcov:test_abc.c"], cwd=cwd, stderr=None, stdout=None
         )
+
+        remove_file = root / "conf/hcg/app-remove.yml"
         m_run_halcogen.assert_called_once_with(
-            cwd,
-            cwd / "app.hcg",
-            root / "conf/hcg/app.dil",
-            cwd / "app.dil",
-            cwd / "manual_runner.pickle",
+            embedded_ut_impl.HcgRunData(
+                base_dir=cwd,
+                input_hcg=cwd / "app.hcg",
+                input_dil=root / "conf/hcg/app.dil",
+                output_dil=cwd / "app.dil",
+                hash_pickle=cwd / "manual_runner.pickle",
+                remove_file=remove_file,
+            )
         )
-        m_get_multiple_files_hash_str.assert_called_once_with([])
+        m_get_multiple_files_hash_str.assert_called_once_with([remove_file])
         m_glob.assert_has_calls([call("source/*.c"), call("include/*.h")])
         m_is_file.assert_called_once()
         m_copy_config_if_needed.assert_called_once_with("app")
@@ -207,8 +244,7 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._run_halcogen")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._run_ceedling")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._print_result")
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def test_run_embedded_tests_pickle_available_but_invalid(
+    def test_run_embedded_tests_pickle_available_but_invalid(  # noqa: PLR0913
         self,
         m_print_result: MagicMock,
         m_run_ceedling: MagicMock,
@@ -233,7 +269,7 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
         err = io.StringIO()
         err_exp = ""
         out = io.StringIO()
-        out_exp = self.out_start.format("app")
+        out_exp = self.out_start.format("app") + "HALCoGen needs to run.\n"
         with redirect_stderr(err), redirect_stdout(out):
             ret = embedded_ut_impl.run_embedded_tests(
                 ["gcov:test_abc.c"], project="app"
@@ -248,14 +284,18 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
         m_run_ceedling.assert_called_once_with(
             ["gcov:test_abc.c"], cwd=cwd, stderr=None, stdout=None
         )
+        remove_file = root / "conf/hcg/app-remove.yml"
         m_run_halcogen.assert_called_once_with(
-            cwd,
-            cwd / "app.hcg",
-            root / "conf/hcg/app.dil",
-            cwd / "app.dil",
-            cwd / "manual_runner.pickle",
+            embedded_ut_impl.HcgRunData(
+                base_dir=cwd,
+                input_hcg=cwd / "app.hcg",
+                input_dil=root / "conf/hcg/app.dil",
+                output_dil=cwd / "app.dil",
+                hash_pickle=cwd / "manual_runner.pickle",
+                remove_file=remove_file,
+            )
         )
-        m_get_multiple_files_hash_str.assert_called_once_with([])
+        m_get_multiple_files_hash_str.assert_called_once_with([remove_file])
         m_glob.assert_has_calls([call("source/*.c"), call("include/*.h")])
         m_load.assert_called_once()
         m_open.assert_called_with(cwd / "manual_runner.pickle", "rb")
@@ -272,8 +312,7 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
     @patch("cli.cmd_embedded_ut.embedded_ut_impl.get_multiple_files_hash_str")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._run_ceedling")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl._print_result")
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def test_run_embedded_tests_pickle_available_and_valid(
+    def test_run_embedded_tests_pickle_available_and_valid(  # noqa: PLR0913
         self,
         m_print_result: MagicMock,
         m_run_ceedling: MagicMock,
@@ -313,7 +352,8 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
         m_run_ceedling.assert_called_once_with(
             ["gcov:test_abc.c"], cwd=cwd, stderr=None, stdout=None
         )
-        m_get_multiple_files_hash_str.assert_called_once_with([])
+        remove_file = root / "conf/hcg/bootloader-remove.yml"
+        m_get_multiple_files_hash_str.assert_called_once_with([remove_file])
         m_glob.assert_has_calls([call("source/*.c"), call("include/*.h")])
         m_load.assert_called_once()
         m_open.assert_called_with(cwd / "manual_runner.pickle", "rb")
@@ -322,55 +362,104 @@ class TestEmbeddedUTImplRunEmbeddedTests(unittest.TestCase):
         m_make_unit_test_dir.assert_called_once_with("bootloader")
 
 
-class TestEmbeddedUTImplPrivateCleanupHcGSources(unittest.TestCase):
-    """Testing the '_cleanup_hcg_sources' function"""
+class TestCleanupHcgSources(unittest.TestCase):
+    """Testing '_cleanup_hcg_sources' function."""
 
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.unlink")
-    def test_cleanup_hcg_sources(self, mock_unlink: MagicMock):
-        """Test when base directory does not exist."""
-        mock_unlink.return_value = None
-        # pylint: disable-next=protected-access
-        embedded_ut_impl._cleanup_hcg_sources(Path("does/not/exist"))
-
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.unlink")
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.read_text")
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.is_file")
-    def test_cleanup_hcg_sources_exists_no_match(
-        self,
-        mock_is_file: MagicMock,
-        mock_read_text: MagicMock,
-        mock_unlink: MagicMock,
-    ):
-        """Test when base does exists, but regex does not match."""
-        mock_unlink.return_value = None
-        mock_read_text.return_value = "foo"
-        mock_is_file.return_value = True
-        with self.assertRaises(SystemExit) as cm:
-            # pylint: disable-next=protected-access
-            embedded_ut_impl._cleanup_hcg_sources(Path("asd"))
-        self.assertEqual(cm.exception.code, "Could not determine clock frequency.")
-
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.unlink")
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.read_text")
-    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.is_file")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl._get_remove_cfg")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.unlink", autospec=True)
     @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.write_text")
-    def test_cleanup_hcg_sources_exists_match(
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.read_text")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.is_file")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.re.search")
+    def test_removes_files(
         self,
-        mock_write_text: MagicMock,
-        mock_is_file: MagicMock,
-        mock_read_text: MagicMock,
-        mock_unlink: MagicMock,
+        _mock_re_search,
+        mock_is_file,
+        _mock_read_text,
+        _mock_write_text,
+        mock_unlink,
+        mock_get_remove_cfg,
     ):
-        """Test when base does exists and regex matches."""
-        mock_unlink.return_value = None
-        mock_read_text.return_value = (
-            "#define configCPU_CLOCK_HZ ( ( unsigned portLONG ) 100000000 )\n"
-        )
-        mock_is_file.return_value = True
-        mock_write_text.return_value = None
+        """Remove 2 files."""
+        base_dir = Path("/base")
+        remove_files = [Path("x.c"), Path("y.c")]
+        mock_get_remove_cfg.return_value = remove_files
 
-        # pylint: disable-next=protected-access
-        embedded_ut_impl._cleanup_hcg_sources(Path("asd"))
+        # Simulate FreeRTOSConfig.h not present
+        mock_is_file.return_value = False
+
+        # pylint:disable-next=protected-access
+        embedded_ut_impl._cleanup_hcg_sources(base_dir, Path("remove.yaml"))
+
+        self.assertEqual(mock_unlink.call_count, 2)
+        unlinked_paths = [call.args[0] for call in mock_unlink.call_args_list]
+        expected_paths = [(base_dir / f) for f in remove_files]
+        self.assertEqual(unlinked_paths, expected_paths)
+
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl._get_remove_cfg")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.unlink", autospec=True)
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.write_text")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.read_text")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.is_file")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.re.search")
+    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
+    def test_freertos_config_frequency_success(
+        self,
+        mock_re_search,
+        mock_is_file,
+        mock_read_text,
+        mock_write_text,
+        _mock_unlink,
+        mock_get_remove_cfg,
+    ):
+        """Determine define from generated file"""
+        base_dir = Path("/base")
+        mock_get_remove_cfg.return_value = []
+        mock_is_file.return_value = True
+        mock_read_text.return_value = (
+            "#define configCPU_CLOCK_HZ ( ( unsigned portLONG ) 123456789 )"
+        )
+
+        # Simulate regex match for frequency
+        mock_match = MagicMock()
+        mock_match.group.return_value = "123456789"
+        mock_re_search.return_value = mock_match
+
+        # pylint:disable-next=protected-access
+        embedded_ut_impl._cleanup_hcg_sources(base_dir, Path("remove.yaml"))
+
+        mock_write_text.assert_called_once()
+        output = mock_write_text.call_args[0][0]
+        self.assertIn("#define HALCOGEN_CPU_CLOCK_HZ (123456789)", output)
+
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl._get_remove_cfg")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.unlink", autospec=True)
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.write_text")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.read_text")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.Path.is_file")
+    @patch("cli.cmd_embedded_ut.embedded_ut_impl.re.search")
+    def test_freertos_config_frequency_not_found(
+        self,
+        mock_re_search,
+        mock_is_file,
+        mock_read_text,
+        _mock_write_text,
+        _mock_unlink,
+        mock_get_remove_cfg,
+    ):
+        """Could not determine define from generated file"""
+        base_dir = Path("/base")
+        mock_get_remove_cfg.return_value = []
+        mock_is_file.return_value = True
+        mock_read_text.return_value = "#define something_else 1"
+
+        # Simulate regex never matches
+        mock_re_search.return_value = None
+
+        with self.assertRaises(SystemExit) as cm:
+            # pylint:disable-next=protected-access
+            embedded_ut_impl._cleanup_hcg_sources(base_dir, Path("remove.yaml"))
+        self.assertEqual(cm.exception.code, "Could not determine clock frequency.")
 
 
 class TestEmbeddedUTImplPrivateMakeUnitTestDir(unittest.TestCase):
@@ -504,7 +593,8 @@ class TestEmbeddedUTImplPrivateCopyConfigIfNeeded(unittest.TestCase):
         self, m_cmp: MagicMock, m_is_file: MagicMock, _m_open: MagicMock
     ):
         """Configuration files are in sync with the target files, therefore no
-        need to copy."""
+        need to copy.
+        """
         m_is_file.return_value = True
         m_cmp.return_value = True
         err = io.StringIO()
@@ -535,7 +625,9 @@ class TestEmbeddedUTImplPrivateRunHalcogen(unittest.TestCase):
         out_exp = ""
         with redirect_stderr(err), redirect_stdout(out):
             embedded_ut_impl._run_halcogen(  # pylint: disable=protected-access
-                Path("."), Path("."), Path("."), Path("."), Path(".")
+                embedded_ut_impl.HcgRunData(
+                    Path(), Path(), Path(), Path(), Path(), Path()
+                )
             )
         self.assertEqual(err.getvalue(), err_exp)
         self.assertEqual(out.getvalue(), out_exp)
@@ -555,7 +647,9 @@ class TestEmbeddedUTImplPrivateRunHalcogen(unittest.TestCase):
         with redirect_stderr(err), redirect_stdout(out):
             with self.assertRaises(SystemExit) as cm:
                 embedded_ut_impl._run_halcogen(  # pylint: disable=protected-access
-                    Path("."), Path("."), Path("."), Path("."), Path(".")
+                    embedded_ut_impl.HcgRunData(
+                        Path(), Path(), Path(), Path(), Path(), Path()
+                    )
                 )
         self.assertEqual(cm.exception.code, "Could not run HALCoGen.")
         self.assertEqual(err.getvalue(), err_exp)
@@ -569,8 +663,7 @@ class TestEmbeddedUTImplPrivateRunHalcogen(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open)
     @patch("cli.cmd_embedded_ut.embedded_ut_impl.pickle.dump")
     @patch("cli.cmd_embedded_ut.embedded_ut_impl.shutil.copyfile")
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def test__run_halcogen_ok(
+    def test__run_halcogen_ok(  # noqa: PLR0913
         self,
         m_copy_file: MagicMock,
         m_dump: MagicMock,
@@ -593,21 +686,33 @@ class TestEmbeddedUTImplPrivateRunHalcogen(unittest.TestCase):
         err_exp = ""
         out = io.StringIO()
         out_exp = ""
+        remove = Path("remove.yml")
+        pickle = Path("foo.pickle")
+        in_dil = Path("in.dil")
+        out_dil = Path("out.dil")
+
         with redirect_stderr(err), redirect_stdout(out):
             embedded_ut_impl._run_halcogen(  # pylint: disable=protected-access
-                Path("foo"), Path("bar"), Path("dil_in"), Path("dil_out"), Path("bla")
+                embedded_ut_impl.HcgRunData(
+                    base_dir=Path("base"),
+                    input_hcg=Path("in.hcg"),
+                    input_dil=in_dil,
+                    output_dil=out_dil,
+                    hash_pickle=pickle,
+                    remove_file=remove,
+                )
             )
         self.assertEqual(err.getvalue(), err_exp)
         self.assertEqual(out.getvalue(), out_exp)
         m_which.assert_called_once_with("halcogen")
         m_run_process.assert_called_once_with(
-            ["halcogen", "-i", "bar"], cwd=Path("foo"), stderr=None, stdout=None
+            ["halcogen", "-i", "in.hcg"], cwd=Path("base"), stderr=None, stdout=None
         )
-        m_cleanup_hcg_sources.assert_called_once_with(Path("foo"))
-        m_get_multiple_files_hash_str.assert_called_once_with([])
-        m_open.assert_called_once_with(Path("bla"), "wb")
+        m_cleanup_hcg_sources.assert_called_once_with(Path("base"), remove)
+        m_get_multiple_files_hash_str.assert_called_once_with([remove])
+        m_open.assert_called_once_with(pickle, "wb")
         m_dump.assert_called_once_with("1234", ANY)
-        m_copy_file.assert_called_once_with(Path("dil_in"), Path("dil_out"))
+        m_copy_file.assert_called_once_with(in_dil, out_dil)
 
 
 class TestEmbeddedUTImplPrivateRunCeedling(unittest.TestCase):

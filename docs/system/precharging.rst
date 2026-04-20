@@ -28,9 +28,8 @@ of:
 - a switch or contactor in series to the precharge resistor to
   activate/deactivate precharging
 
-.. drawio-figure:: img/battery-system-setup.drawio
+.. drawio-figure:: img/battery-system-setup-precharging.drawio
    :format: svg
-   :page-name: precharging
    :alt: Precharging circuit in a battery system
    :name: battery-system-precharging
    :width: 350px

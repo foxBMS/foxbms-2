@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_spi.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,7 @@
 #include "Mockmcu.h"
 #include "Mockos.h"
 #include "Mockspi_cfg.h"
+#include "Mockspi_cfg_initialization.h"
 
 #include "spi.h"
 #include "spi_cfg-helper.h"
@@ -488,4 +489,40 @@ void testSPI_GetSpiIndex(void) {
 
     /* ======= RT2/2: test output verification */
     /* nothing to be verified */
+}
+
+void testSPI_DmaSendLastByte(void) {
+    TEST_ASSERT_FAIL_ASSERT(SPI_DmaSendLastByte(DMA_NUMBER_SPI_INTERFACES + 1));
+}
+
+void testSPI_Unlock(void) {
+    TEST_ASSERT_FAIL_ASSERT(SPI_Unlock(spi_nrBusyFlags));
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SPI_Unlock(0u);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SPI_Unlock(spi_nrBusyFlags + 1);
+}
+
+void testSPI_Lock(void) {
+    TEST_ASSERT_FAIL_ASSERT(SPI_Lock(spi_nrBusyFlags));
+
+    spi_busyFlags[0u] = SPI_IDLE;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    STD_RETURN_TYPE_e ret = SPI_Lock(0u);
+
+    TEST_ASSERT_EQUAL(STD_OK, ret);
+
+    spi_busyFlags[0u] = SPI_BUSY;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    ret = SPI_Lock(0u);
+
+    TEST_ASSERT_EQUAL(STD_NOT_OK, ret);
 }

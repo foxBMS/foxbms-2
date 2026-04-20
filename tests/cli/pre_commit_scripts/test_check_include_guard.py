@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -66,7 +66,7 @@ class TestIncludeGuard(unittest.TestCase):
         self.assertEqual(result, 0)
 
     def test_main_invalid_h_file(self):
-        """test main function with empty .h-file"""
+        """Test main function with empty .h-file"""
         argv = [str(self.tests_dir / "test_file_empty.h")]
         err = io.StringIO()
         with redirect_stderr(err):
@@ -81,17 +81,19 @@ class TestIncludeGuard(unittest.TestCase):
             f"{file_name}: #endif /* FOXBMS__TEST_FILE_EMPTY_H_ */ is missing.",
             f"{file_name}: The pattern needs to be:",
         ]
-        for line, expected_err in zip(err.getvalue().splitlines(), expected_errs):
+        for line, expected_err in zip(
+            err.getvalue().splitlines(), expected_errs, strict=False
+        ):
             self.assertIn(expected_err, line)
 
     def test_main_valid_h_file(self):
-        """test main function with valid .h-file"""
+        """Test main function with valid .h-file"""
         argv = [str(self.tests_dir / "test_file_valid.h")]
         result = check_include_guard.main(argv)
         self.assertEqual(result, 0)
 
     def test_main_invalid_h_file_multiple(self):
-        """test main function with invalid .h-file with one marker twice"""
+        """Test main function with invalid .h-file with one marker twice"""
         argv = [str(self.tests_dir / "test_file_multiple.h")]
         err = io.StringIO()
         with redirect_stderr(err):
@@ -103,11 +105,13 @@ class TestIncludeGuard(unittest.TestCase):
         expected_errs = [
             f"{file_name}: #endif /* FOXBMS__TEST_FILE_MULTIPLE_H_ */ occurs more than once.",
         ]
-        for line, expected_err in zip(err.getvalue().splitlines(), expected_errs):
+        for line, expected_err in zip(
+            err.getvalue().splitlines(), expected_errs, strict=False
+        ):
             self.assertIn(expected_err, line)
 
     def test_main_invalid_h_file_missing(self):
-        """test main function with invalid .h-file with missing #define statement"""
+        """Test main function with invalid .h-file with missing #define statement"""
         argv = [str(self.tests_dir / "test_file_invalid_content.h")]
         err = io.StringIO()
         with redirect_stderr(err):
@@ -123,7 +127,9 @@ class TestIncludeGuard(unittest.TestCase):
             "#ifndef FOXBMS__TEST_FILE_INVALID_CONTENT_H_",
             "#define FOXBMS__TEST_FILE_INVALID_CONTENT_H_",
         ]
-        for line, expected_err in zip(err.getvalue().splitlines(), expected_errs):
+        for line, expected_err in zip(
+            err.getvalue().splitlines(), expected_errs, strict=False
+        ):
             self.assertIn(expected_err, line)
 
 

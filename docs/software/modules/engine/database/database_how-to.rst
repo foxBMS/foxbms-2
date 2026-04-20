@@ -23,8 +23,7 @@ and write access to the database.
 
     The new ID must start with ``DATA_BLOCK_ID_``. Before any source is
     compiled the build process checks that a database variable is
-    initialized with the matching ID from ``DATA_BLOCK_ID_e``. For the details
-    of the checker implementation see :ref:`database_variable_checking`.
+    initialized with the matching ID from ``DATA_BLOCK_ID_e``.
 
 In this example the name of the new database entry is **example**, therefore the
 corresponding ID must be the prefix and the name in uppercase, which
@@ -50,8 +49,7 @@ of all the data needed for the entry.
 
     The new database entry must start with ``DATA_BLOCK_``. Before any source is
     compiled the build process checks that a database variable is
-    initialized with the matching ID from ``DATA_BLOCK_ID_e``. For the details
-    of the checker implementation see :ref:`database_variable_checking`.
+    initialized with the matching ID from ``DATA_BLOCK_ID_e``.
 
 Again, the name of the new database entry is **example**, therefore the
 corresponding data block must be the prefix followed by the name in uppercase and

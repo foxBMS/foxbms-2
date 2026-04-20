@@ -35,8 +35,8 @@
 /**
  * @file    app-hl_notification.c
  * @date    11-Dec-2018
- * @updated 2025-08-05 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  IGNOR
  *
@@ -54,6 +54,8 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config.h"
+
 /* clang-format off */
 #include "HL_esm.h"
 #include "HL_adc.h"
@@ -70,7 +72,6 @@
 #include "HL_eqep.h"
 #include "HL_ecap.h"
 #include "HL_epc.h"
-#include "HL_emac.h"
 #include "HL_sys_dma.h"
 /* clang-format on */
 
@@ -122,8 +123,12 @@ void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
 void linNotification(linBASE_t *lin, uint32 flags) {
 }
 
+#if !defined(FOXBMS_UART_SUPPORT)
+/* In case the application uses the UART debug interface, the sciNotification
+ * is implemented in src/app/driver/uart/uart. */
 void sciNotification(sciBASE_t *sci, uint32 flags) {
 }
+#endif
 
 void spiEndNotification(spiBASE_t *spi) {
 }
@@ -153,12 +158,6 @@ void epcCAMFullNotification(void) {
 }
 
 void epcFIFOFullNotification(uint32 epcFIFOStatus) {
-}
-
-void emacTxNotification(hdkif_t *hdkif) {
-}
-
-void emacRxNotification(hdkif_t *hdkif) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

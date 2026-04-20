@@ -14,7 +14,7 @@ This release features the quarterly dependency update of the following tools:
 - External:
 
   - Doxygen: ``1.14.0``
-  - drawio-desktop: ``27.0.29``
+  - drawio-desktop: ``27.0.9``
   - Graphviz: ``13.0.0``
   - pre-commit Hooks: see below for version details
   - Python environment: ``2025-06-pale-fox``
@@ -101,7 +101,7 @@ Changed
   - External:
 
     - Doxygen: ``1.14.0``
-    - drawio-desktop: ``27.0.29``
+    - drawio-desktop: ``27.0.9``
     - Graphviz: ``13.0.0``
     - pre-commit Hooks:
 
@@ -125,6 +125,8 @@ Removed
   executable during linking.
   This is only needed when defining ``weak`` functions and this should
   generally be avoided.
+- Remove autoenable of the PHY.
+  See :ref:`REMOVING_THE_PULL_UP_RESISTOR_FOR_THE_PHY` for more details.
 
 Fixed
 =====

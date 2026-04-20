@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_helper.h
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -132,7 +132,7 @@ extern uint8_t DATA_GetModuleNumberFromTemperatureIndex(uint16_t sensorIndex);
 
 /**
  * @brief   Returns sensor number of passed temperature sensor index
- * @param[in]  sensorIndex   index of sensorstarting by 0
+ * @param[in]  sensorIndex   index of sensor starting by 0
  * @return  temperature sensor number of passed sensor index
  */
 extern uint8_t DATA_GetSensorNumberFromTemperatureIndex(uint16_t sensorIndex);

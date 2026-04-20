@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    rtc.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -52,6 +52,8 @@
  * @details Uses the NXP PCF2131 RTC over I2C
  *
  */
+
+/* cspell:ignore CLKOUT CLEARPRESCALER OTPR SWRESET */
 
 /*========== Includes =======================================================*/
 #include "rtc.h"
@@ -462,10 +464,18 @@ extern STD_RETURN_TYPE_e RTC_Initialize(void) {
             /* Write POWER_MANAGE bits */
             /* Set address to write to */
             rtc_i2cWriteBuffer[0u] = RTC_REG_CONTROL_3_ADDR;
-            /* Set data to write, to activate direct switching mode and battery low detection */
+            /* Set data to write, to activate direct switching mode and battery
+             * low detection */
             rtc_i2cWriteBuffer[1u] = 0u;
-            rtc_i2cWriteBuffer[1u] |= ((uint8_t)RTC_CTRL3_POWER_MANAGE_DIRECT_SWITCH_LOW_DETECTION_ENABLE_MODE)
+            /* Removed for now since Vdd and Vbat are to close for direct
+             * switching mode to be used */
+            /* rtc_i2cWriteBuffer[1u] |= ((uint8_t)RTC_CTRL3_POWER_MANAGE_DIRECT_SWITCH_LOW_DETECTION_ENABLE_MODE)
+             *                          << RTC_CTRL3_BATTERY_POWER_MANAGE_BITS_POSITION; */
+
+            /* Keep the RTC in standard switching mode instead */
+            rtc_i2cWriteBuffer[1u] |= ((uint8_t)RTC_CTRL3_POWER_MANAGE_STANDARD_SWITCH_LOW_DETECTION_ENABLE_MODE)
                                       << RTC_CTRL3_BATTERY_POWER_MANAGE_BITS_POSITION;
+
             retValI2c = I2C_WriteDma(
                 RTC_I2C_INTERFACE,
                 RTC_I2C_ADDRESS,

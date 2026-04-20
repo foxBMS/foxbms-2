@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for Ceedling"""
+"""Click command definition for embedded unit tests via Ceedling."""
 
 from typing import get_args
 
@@ -65,7 +65,7 @@ def ceedling(
     ceedling_args: tuple[str],
     verbose: int = 0,
 ) -> None:
-    """Run the 'ceedling' unit testing tool."""
+    """Run the ``ceedling`` unit testing tool."""
     if not ceedling_args:
         ceedling_args = ("help",)
     ret = embedded_ut_impl.run_embedded_tests(

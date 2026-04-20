@@ -63,9 +63,6 @@
     "**/docs/macros.txt": "restructuredtext",
     "**/docs/units.txt": "restructuredtext",
     "**/src/**/main/*.cmd": "linkerscript",
-    "**/tests/axivion/architecture.gxl": "xml",
-    "**/tests/axivion/cafeCC.config": "xml",
-    "**/tests/axivion/mapping.gxl": "xml",
     "**/tools/debugger/lauterbach/*.cmm*": "practice",
     "**/tools/debugger/lauterbach/*.t32*": "practice",
     "**/wscript": "python"
@@ -99,7 +96,6 @@
     "**/tmp/**": true,
     ".github/**": true,
     ".ruff_cache": true,
-    "build/app_spa/**": true,
     "build/c4che/**": true,
     "build/conf_check_*/**": true,
     "build/predefined_defines/**": true,
@@ -118,8 +114,7 @@
     "**/build/**/*.ppr": true,
     "**/build/**/*.pprs": true,
     "**/conf/hcg/include/**": true,
-    "**/waf-3-*/**": true,
-    "tests/axivion/qualification-kit/**": true
+    "**/waf-3-*/**": true
   },
   "pylint.args": [
     "place-holder"
@@ -133,8 +128,7 @@
     "**build/**/*.obj": true,
     "**build/**/*.pp": true,
     "**build/**/*.ppr": true,
-    "**build/**/*.pprs": true,
-    "tests/axivion/qualification-kit/**": true
+    "**build/**/*.pprs": true
   },
   "task.autoDetect": "off",
   "terminal.integrated.persistentSessionReviveProcess": "never",

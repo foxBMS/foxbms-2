@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ltc_6813-1_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -170,11 +170,11 @@
 #define LTC_SPI_PRESCALER (*LTC_SPI_HANDLE.Init.BaudRatePrescaler)
 /**@}*/
 
-/** start definition of LTC timings; Twake (see LTC data sheet) */
+/** start definition of LTC timings; Twake (see LTC datasheet) */
 #define LTC_TWAKE_US (300)
-/** start definition of LTC timings; Tready (see LTC data sheet) */
+/** start definition of LTC timings; Tready (see LTC datasheet) */
 #define LTC_TREADY_US (10)
-/** start definition of LTC timings; Tidle (see LTC data sheet) */
+/** start definition of LTC timings; Tidle (see LTC datasheet) */
 #define LTC_TIDLE_US (6700)
 
 /** LTC SPI wakeup time */
@@ -185,12 +185,12 @@
 
 /**
  * time for the first initialization of the daisy chain
- * see LTC6804 data sheet page 41
+ * see LTC6804 datasheet page 41
  */
 #define LTC_STATEMACH_DAISY_CHAIN_FIRST_INITIALIZATION_TIME ((LTC_TWAKE_US * LTC_N_LTC) / 1000)
 /**
  * time for the second initialization of the daisy chain
- * see LTC6804 data sheet page 41
+ * see LTC6804 datasheet page 41
  */
 #define LTC_STATEMACH_DAISY_CHAIN_SECOND_INITIALIZATION_TIME ((LTC_TREADY_US * LTC_N_LTC) / 1000)
 

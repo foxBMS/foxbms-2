@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,7 +40,7 @@
 """Testing file 'cli/commands/c_gui.py'."""
 
 import importlib
-import logging
+import logging  # noqa: TID251
 import sys
 import unittest
 from pathlib import Path
@@ -74,7 +74,7 @@ class TestFoxCliMainCommandGui(unittest.TestCase):
         runner = CliRunner()
         with self.assertLogs(level=logging.ERROR) as cm:
             result = runner.invoke(main, ["gui"])
-        self.assertEqual(cm.output, ["ERROR:root:tkinter is not available."])
+        self.assertEqual(cm.output, ["ERROR:fox.py:tkinter is not available."])
         self.assertEqual(result.exit_code, 0)
 
     @patch("importlib.util.find_spec")

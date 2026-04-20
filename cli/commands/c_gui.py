@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,14 +37,14 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for the GUI"""
+"""Click command definition for starting the GUI."""
 
-import logging
 from importlib.util import find_spec
 
 import click
 
 from ..helpers.click_helpers import HELP_NAMES, verbosity_option
+from ..helpers.logger import logger
 
 TKINTER_AVAILABLE = False
 if find_spec("tkinter"):
@@ -67,9 +67,9 @@ def gui(
     debug_gui: bool = False,  # pylint: disable=unused-argument
     verbose: int = 0,
 ) -> None:
-    """Run the Graphical User Interface."""
+    """Run the graphical user interface."""
     if TKINTER_AVAILABLE:
         gui_impl.run_gui()  # pylint: disable=possibly-used-before-assignment
     else:
-        logging.error("tkinter is not available.")
+        logger.error("tkinter is not available.")
     ctx.exit(0)

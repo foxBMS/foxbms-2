@@ -1,0 +1,7 @@
+Register,Start Address,Length,Default Values,Description
+Coils,10,4,"[0, 0, 0, 0]","Writable coils used for testing; used by read_coils and write_coils."
+Discrete Inputs,20,8,"[1, 1, 1, 1, 1, 1, 1, 1]","Read-only digital inputs."
+Input Registers,40,4,"[20, 210, 450, 800]","Read-only analog input sample values."
+Input Registers,60,1,"[100]","Single read-only input register."
+Holding Registers,10,1,"[225]","Writable holding register."
+Holding Registers,20,1,"[400]","Writable holding register."

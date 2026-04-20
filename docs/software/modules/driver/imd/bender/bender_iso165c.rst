@@ -56,8 +56,7 @@ Initialization procedure
 The state flow diagram of the initialization procedure of the Bender iso165C
 state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram.drawio
-   :page-name: initialization
+.. drawio-figure:: state-diagrams/iso165c_state_diagram-initialization.drawio
    :format: svg
    :alt: iso165C initialization state flow diagram
    :name: iso165c-init-state-diagram
@@ -73,8 +72,7 @@ Activation of insulation measurement
 The state flow diagram of the enabling procedure of the Bender iso165C
 state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram.drawio
-   :page-name: enable
+.. drawio-figure:: state-diagrams/iso165c_state_diagram-enable.drawio
    :format: svg
    :alt: iso165C initialization state flow diagram
    :name: iso165c-enable-state-diagram
@@ -90,8 +88,7 @@ Disable insulation measurement
 The state flow diagram of the disabling procedure of the Bender iso165C
 state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram.drawio
-   :page-name: disable
+.. drawio-figure:: state-diagrams/iso165c_state_diagram-disable.drawio
    :format: svg
    :alt: iso165C disable state flow diagram
    :name: iso165c-disable-state-diagram
@@ -107,8 +104,7 @@ Insulation measurement
 The state flow diagram of the periodic insulation measurement procedure of the
 Bender iso165C state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram.drawio
-   :page-name: running
+.. drawio-figure:: state-diagrams/iso165c_state_diagram-running.drawio
    :format: svg
    :alt: iso165C running state flow diagram
    :name: iso165c-running-state-diagram

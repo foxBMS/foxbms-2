@@ -1,0 +1,266 @@
+This release features the quarterly dependency update of the following tools:
+
+- Internal:
+  - FreeRTOS:
+
+    - FreeRTOS Add-ons
+
+      - FreeRTOS-Plus-TCP ``4.3.3``
+
+  - Waf: ``2.1.6``
+
+- External:
+
+  - drawio-desktop: ``28.1.2``
+  - Graphviz: ``14.0.0``
+  - pre-commit Hooks: see below for version details
+  - Python environment: ``2025-11-pale-fox``
+
+See :ref:`SOFTWARE_INSTALLATION` on how to update the individual external
+tools.
+
+Added
+=====
+
+- Add documentation for the GUI.
+- Add feature to continuously monitor the precharge process.
+  The contactors are closed as soon as the precharge conditions are satisfied.
+  It is now also configurable if current, voltage or both parameters are used
+  as a decision criteria for precharging.
+- Add ``ulTaskNotifyTake()`` to OS wrapper.
+- Add documentation about different TI HALCoGen configuration files for the
+  application and the bootloader.
+- Add a new macro ``BS_CURRENT_DIRECTION_FLOAT`` to simplify the conversion of
+  current direction dependent values..
+- Add CAN message to transmit the state of the system state machine.
+- Add pseudo random number generator to utils.
+- Add ``AFE_IdentifyAfes()`` to the AFE interface.
+  This function returns a pointer to an array containing serial IDs of the
+  connected AFEs.
+- Add CAN message ``f_DebugIdentifyHardware`` for hardware identification
+  This message supports identification of the BMS-Master and the BMS-Slaves.
+  The BMS-Slaves information contains the AFE number (i.e., position in the
+  daisy chain) as well the respective serial ID.
+  The BMS-Master information is not yet implemented.
+  This information is requested via the ``f_Debug`` message and the
+  ``IdentifyHardware`` multiplexer.
+- Add functionalities that enables the usage of the TCP port
+
+  - Add EMAC driver.
+  - Add Network Interface to connect EMAC driver and FreeRTOS-Plus-TCP stack.
+  - Add Application code that implements an Echo Server.
+  - Add more details and how-to to the documentation.
+
+- Add dedicated SOC algorithm that only relies on a lookup-table.
+- Add alarm line features for NXP MC33775A afe driver.
+- Pass alarms from NXP MC3377x driver to diagnosis module.
+- Add support for the CAN-based LEM CAB-500 current sensor.
+- Add ``xTaskNotifyGive()`` to OS wrapper.
+- Add unit test compatible wrapper for ``portYIELD_FROM_ISR()`` to FSYS.
+- Add RS485-based UART driver for serial communication.
+- Add a ``convert`` subcommand to ``etl`` command for Gamry ``dta`` files.
+- Add a CAN, Modbus and MQTT communication wrapper class ``com`` as well as
+  a ``fox CLI`` command (``com-test``) to test these communication
+  functionalities.
+- Add a ``convert`` subcommand to ``etl`` command for Gamry ``dta`` and
+  GRAPHTEC ``csv`` files.
+- Add an option to ``install`` command to install a virtual Python environment
+  locally.
+- Add more configuration options to the ``fox CLI``.
+- Add variable ``ROOT_IS_PROJECT`` to indicate whether the ``fox CLI`` is run
+  from the foxBMS repository or not.
+- Add configuration for building a package from the repository.
+- There are now two messages for pack minimum and maximum values, i.e., one for
+  temperatures and one for cell voltages.
+  The index of these minimum and maximum values is also transmitted.
+- Add option for 9-16 temperature sensors via second multiplexer on NXP MC33775.
+- Add ``Simulate BMS`` tab to GUI to connect to CAN busses.
+- Add how to page for the configuration of the contactors.
+- Add option for enabling up to four strings for LTC and ADI SPI communication.
+- Add support for the EPCOS B57332V5103F360 temperature sensor.
+- Add CAN message ID for alarms issued by the AFE driver.
+- Add AFE-specific initialization functions and timeout handling for the first
+  measurement cycle in the SYS state machine.
+- Add support for running ``run-program`` and ``run-script`` from the GUI.
+- Add configurable separator and outer join support to ``fox etl table``.
+
+Changed
+=======
+
+- Enable more code quality checks for Python code.
+- Use UTC always when timestamps are required.
+- Unit tests need to be run using ``.\fox.ps1 ceedling ...`` or
+  ``./fox.sh ceedling ...`` as the build tool integration has been removed
+  for now (e.g., ``.\fox.ps1 waf build_app_unit_test``).
+  At a later point, it will be re-integrated in a more sophisticated way.
+- Split the current sensor data block into multiple data blocks.
+  This makes the database entries independent of the data source (e.g., the
+  system voltage measurement does not rely anymore on the current sensor and
+  its ability to measure voltages also, but the system voltage measurement
+  could also be provided by another measurement source).
+- Use a custom ``fox.py`` logger instead of the ``root`` logger in the
+  ``fox CLI``.
+- Move version consistency checker to separate waf tool.
+- Improve Python docstrings.
+- Improve performance of MATH_SwapBytes using processor intrinsics when
+  possible.
+- Improve ``fox.ps1`` wrapper when any Python dependency is missing.
+- Use define-guards to only compile code that is relevant to the chosen
+  application configuration.
+- Make useless suppressions in pylint an error.
+  Sometimes, the ``useless-suppression`` creates false positives, i.e., a
+  double annotation like
+  ``pylint: disable=wrong-import-position,useless-suppression``
+  is required, but overall it improves the code maintainability.
+- Simplify ``etl`` command implementation of the ``fox CLI`` and update its
+  documentation.
+- Improve configuration of the ``waf distcheck`` command.
+- Move ``fox waf check_test_files`` into ``cli/cmd_misc/check_test_files.py``.
+- Centralize *to-be-removed*-files of the TI HALCoGen code generator in
+  configuration files (for the app and the bootloader) instead of different
+  parts of the build and other scripts.
+  These files are found in ``conf/hcg``.
+- Improve documentation build performance.
+- Refactor and simplify the Waf tool for TI ARM CGT.
+- Save configuration-time macros to ``foxbms_config.h`` instead of passing
+  them on the commandline, i.e., source files which require macros need to
+  include this file now.
+  The unit tests are not affected by this change and are still configured by
+  ``conf/unit/app_project_posix.yml`` and ``conf/unit/app_project_win32.yml``.
+- Improve build scripts.
+  Every directory contains a separate build script.
+  Every source within a directory is then built by a source-specific build
+  instruction.
+- Simplify balancing module implementation:
+
+  - Remove compiler-specific ``weak`` ``pragma``\ s.
+    The ``pragma``\ s are not needed and as stated compiler-specific and
+    therefore will most likely create portability problems.
+  - Be more detailed about the build process of the balancing module, i.e.,
+    every balancing type is built as separate objects and linked together in
+    the ``application``-library.
+  - Fix some naming issues.
+
+- Simplify **Configuration** documentation of the TI HALCoGen tool.
+- Update Dependencies:
+
+  - Internal:
+
+    - Waf: ``2.1.6``
+    - FreeRTOS:
+
+    - FreeRTOS Add-ons
+
+      - FreeRTOS-Plus-TCP ``4.3.3``
+
+  - External:
+
+    - drawio-desktop: ``28.1.2``
+    - Graphviz: ``14.0.0``
+    - pre-commit Hooks:
+
+      - cspell: ``v9.2.0``
+      - cffconvert: ``b6045d78aac9e02b039703b030588d54d53262ac``
+      - mirrors-clang-format: ``v21.1.1``
+      - pre-commit-hooks: ``v6.0.0``
+      - ruff-pre-commit: ``v0.13.2``
+      - shellcheck-py: ``v0.11.0.1``
+
+    - Python environment: ``2025-11-pale-fox``
+
+- Improve overall unit tests coverage for CAN callbacks.
+- Update Lauterbach debugger part numbers as the production of the previously
+  proposed debugger has been discontinued.
+- Simplify current sensor implementation.
+
+  - A current sensor must always be present in the battery system.
+  - CAN based current sensors are required to always send their measurement
+    values cyclically.
+
+
+- Rename IMD database block identifiers and related variables for clarity
+  and consistency:
+
+    - ``DATA_BLOCK_INSULATION_MONITORING_s`` → ``DATA_BLOCK_INSULATION_s``
+    - ``DATA_BLOCK_ID_INSULATION_MONITORING`` → ``DATA_BLOCK_ID_INSULATION``
+    - Rename member ```isInsulationMeasurementValid`` to
+      ``isMeasurementValid`` within ``DATA_BLOCK_INSULATION_s``.
+
+- Improve documentation
+
+  - Restructure chapter ``Software Structure``
+
+- Change RTC battery switch-over function.
+  The RTC is now no longer put into direct switching mode, but rather put into
+  the standard switching mode.
+
+- Change FreeRTOS's debug output to use the serial communication via UART.
+- Improve ``fox etl decode``, so that it searches for a ``dbc`` file in the
+  current working directory and in the config file directory if no ``dbc`` file
+  is provided.
+- Add ``wscript`` files for embedded unit tests and simplify related build
+  scripts.
+- Remove redundant Flash API library from the bootloader build.
+- Power down PHY by default.
+- Use dedicated environments for documentation builds (general documentation
+  and doxygen builds).
+- Change range checking of SPI channels in SPI_Lock() and SPI_Unlock() to
+  asserting.
+- Change SOC algorithm configuration name from ``lookup_table`` to
+  ``lookup-table`` to be consistent within the project.
+- Rename CAN callback configuration files.
+- The CAN message definitions have been changed to improve the message layout.
+    The messages have been changed as follows (an \* for the old message name
+    and ID indicates, that the message did previously not exist):
+
+    +---------------------------------+-----------+---------------------------------+-----------+
+    | Old Message Definition                      | New Message Definition                      |
+    +=================================+===========+=================================+===========+
+    | **Name**                        | **ID**    | **Name**                        | **ID**    |
+    +---------------------------------+-----------+---------------------------------+-----------+
+    | ``f_PackMinimumMaximumValues``  | 231h      | ``f_PackMinMaxCellTemperature`` | 230h      |
+    +---------------------------------+-----------+---------------------------------+-----------+
+    | \*                              | \*        | ``f_PackMinMaxCellVoltage``     | 231h      |
+    +---------------------------------+-----------+---------------------------------+-----------+
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Remove superfluous ``os.path.join`` calls in the build scripts.
+- Remove obsolete task deletion in application code.
+- Remove checksum module as it is no longer needed.
+  The checksum is now validated by the embedded bootloader before the
+  bootloader jumps into the application.
+- Remove ``misc build-doc-code`` and ``misc build-crc-code`` in the
+  ``fox CLI``.
+  These test builds have been integrated in the ``waf build_docs`` command.
+
+Fixed
+=====
+
+- Fix missing typing information in the ``fox CLI``.
+- Fix ``MATLAB®`` include path.
+- Fix PHY not getting link status.
+- Fix GUI tests.
+- Align SYM/DBC file with fatal diagnosis events.
+- Fix vendor hash check (``tools/waf-tools/hash_check.py``).
+- Fix foxBMS BMS-Master supply voltage to max 36V continuous.
+- Fix stack size of the I2C Task.
+- Fix bug in ``CAN`` module that in exceptional cases invalid data is
+  transmitted on the bus (CAN ID does not match message data).
+- Fix Vishay NTCLE413E2103F102L returning °C instead of deci-°C.
+- Fix include paths for the AFE builds.
+  The relative build directory was not append (as it is the default behavior in
+  Waf), as the AFE includes are computed absolute during configuration time.
+  Now, all include paths are always computed relative the to respective build
+  script and there fore the source and respective build directory are added to
+  the include path.
+- Fix wrong calculation of ``deltaSOC_perc`` by removing scaling by 1/1000.
+- Fix resetting gpio errors in measurements for the NXP MC33775A AFE.
+- Fix a conversion error when receiving negative cell temperature values via
+  Debug CAN AFE.
+- Handle permission errors in the ``etl`` command of the ``fox CLI``
+  gracefully.

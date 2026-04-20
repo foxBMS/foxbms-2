@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_can_message_notification.c
  * @author  foxBMS Team
  * @date    2025-08-06 (date of creation)
- * @updated 2025-08-07 (date of last update)
- * @version v1.10.0
+ * @updated 2026-04-20 (date of last update)
+ * @version v1.11.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,6 +64,7 @@
 #include "Mockio.h"
 #include "Mockos.h"
 #include "Mockpex.h"
+#include "Mockportmacro.h"
 
 #include "HL_can.h"
 
@@ -175,7 +176,7 @@ uint32 canIsTxMessagePending(canBASE_t *node, uint32 messageBox) {
     return 0u;
 }
 
-/* not called for this test; no implementation details needed */
+/* not called for this test; no implementation details needed */ /* cspell:disable-next-line */
 void canUpdateID(canBASE_t *node, uint32 messageBox, uint32 msgBoxArbitVal) {
 }
 

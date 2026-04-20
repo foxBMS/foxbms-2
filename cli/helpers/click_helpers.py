@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,32 +40,50 @@
 
 """Miscellaneous helper functions."""
 
-from collections.abc import Callable
-from typing import Any, Literal, TypeVar
+from typing import Literal
 
 import click
+from click.decorators import FC
 
+from ..helpers.logger import set_logging_level
 from .io import get_stderr, get_stdout
-from .misc import set_logging_level
 
 HELP_NAMES = {"help_option_names": ["-h", "--help"]}
 DISABLE_DEFAULT_HELP = {"help_option_names": ["--dummy"]}
 IGNORE_UNKNOWN_OPTIONS = {"ignore_unknown_options": True}
 
 
-def recho(msg: Any | None, fg: Literal["red", "yellow"] = "red") -> None:
-    """Print to stderr using click's 'secho'."""
+def recho(msg: str | bytes | None, fg: Literal["red", "yellow"] = "red") -> None:
+    """Print a colored message to stderr.
+
+    Args:
+        msg: Message to print.
+        fg: Foreground color used by Click.
+    """
     click.secho(msg, file=get_stderr(), fg=fg, err=True)  # noqa: TID251
 
 
-def echo(msg: Any | None = None, nl: bool = True) -> None:
-    """Print to stdout using click's 'echo'."""
+def echo(msg: str | bytes | None = None, nl: bool = True) -> None:
+    """Print a message to stdout.
+
+    Args:
+        msg: Message to print.
+        nl: Whether to append a trailing newline.
+    """
     click.echo(msg, file=get_stdout(), nl=nl)  # noqa: TID251
 
 
-def secho(msg: Any | None = None, nl: bool = True, **kwargs) -> None:
-    """Print to stdout using click's 'secho'."""
-    click.secho(msg, file=get_stdout(), nl=nl, **kwargs)  # noqa: TID251
+def secho(
+    msg: str | bytes | None = None, nl: bool = True, fg: str | None = None
+) -> None:
+    """Print a colored message to stdout.
+
+    Args:
+        msg: Message to print.
+        nl: Whether to append a trailing newline.
+        fg: Optional foreground color.
+    """
+    click.secho(msg, file=get_stdout(), nl=nl, fg=fg)  # noqa: TID251
 
 
 def set_logging_level_cb(
@@ -74,21 +92,24 @@ def set_logging_level_cb(
     """Set the module logging level through a click option callback.
 
     Args:
-        ctx: context the callback shall be applied too (unused)
-        param: arguments of the callback (unused)
-        value: arbitrary value passed to the callback (unused)
+        ctx: Click callback context (unused).
+        param: Click parameter metadata (unused).
+        value: Verbosity option value provided by Click.
 
     """
     set_logging_level(verbosity=value)
     return value
 
 
-# pylint: disable-next=invalid-name
-VB_CALLBACK_TYPE = TypeVar("VB_CALLBACK_TYPE", bound=Callable[..., Any])
+def verbosity_option(fun: FC) -> FC:
+    """Add a ``-v/--verbose`` Click option to a command function.
 
+    Args:
+        fun: Click command function to decorate.
 
-def verbosity_option(fun: VB_CALLBACK_TYPE) -> VB_CALLBACK_TYPE:
-    """Add a verbosity option to click commands."""
+    Returns:
+        Decorated command function.
+    """
     return click.option(
         "-v",
         "--verbose",

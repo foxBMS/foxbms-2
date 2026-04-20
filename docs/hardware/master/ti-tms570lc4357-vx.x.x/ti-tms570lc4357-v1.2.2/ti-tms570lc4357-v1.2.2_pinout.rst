@@ -11,6 +11,9 @@
 |local_bms_master_identifier_full| Pinout
 =========================================
 
+..
+   cspell:ignore isomon
+
 .. important::
 
    The following description only applies for the |bms-master| hardware version
@@ -24,10 +27,10 @@
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`,
-   :ref:`CONVENTION_FOR_SAMTEC_EDGE_RATE_CONNECTOR_PIN_NUMBERING`,
-   :ref:`CONVENTION_FOR_MICTOR_CONNECTOR_PIN_NUMBERING` or
-   :ref:`CONVENTION_FOR_WUERTH_WR_MJ_CONNECTOR_PIN_NUMBERING`.
+   :ref:`MOLEX_MICRO_FIT_3_0_CONNECTOR`,
+   :ref:`SAMTEC_EDGE_RATE_CONNECTOR`,
+   :ref:`MICTOR_CONNECTOR` or
+   :ref:`WUERTH_WR_MJ_CONNECTOR`.
 
 This section describes the pinout of all connectors on the |bms-master|
 |local_bms_master_version|.
@@ -167,7 +170,7 @@ The pinout and pin usage is described in
 
 .. _ti-tms570lc4357-v1.2.2_pinout_extension_connector:
 
-Extension connector
+Extension Connector
 ###################
 
 For the connection to an optional |bms-extension|, a 120-pole Samtec Edge Rate
@@ -180,6 +183,20 @@ The pinout and pin usage is described in
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_extension.csv
+
+.. _ti-tms570lc4357-v1.2.2_pinout_emif_connector:
+
+EMIF Connector
+##############
+
+The EMIF of the |ti-tms570| is available on the 60-pole Samtec Edge Rate
+mezzanine connector (J9001).
+
+.. csv-table:: Signal connector to the optional EMIF (J9001)
+   :name: ti-tms570lc4357-v1.2.2_emif
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.2.2_emif.csv
 
 .. _ti-tms570lc4357-v1.2.2_pinout_debug_connector:
 

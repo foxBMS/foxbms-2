@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,55 +37,94 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build the MC33775A-1-based 'AFE'-driver."""
-
 
 def build(bld):
-    """Build the MC33775A-1-based 'AFE'-driver."""
-    bld.recurse("vendor")
-    bld.recurse("../common/mc3377x")
-    source = [
-        "../api/nxp_afe.c",
-        "api/nxp_mc33775a_afe.c",
-        "config/nxp_mc33775a_cfg.c",
-        "nxp_mc33775a_balancing.c",
-        "nxp_mc33775a_i2c.c",
-        "nxp_mc33775a_measurement.c",
-    ]
-    includes = [
-        "../common/mc3377x/vendor",
-        "../../../config",
-        "../../../dma",
-        "../../../foxmath",
-        "../../../io",
-        "../../../mcu",
-        "../../../pex",
-        "../../../rtc",
-        "../../../spi",
-        "../../../ts",
-        "../../../ts/api",
-        "../../../../application/config",
-        "../../../../engine/config",
-        "../../../../engine/database",
-        "../../../../engine/diag",
-        "../../../../main/include",
-        "../../../../task/config",
-        "../../../../task/config",
-        "../../../../task/ftask",
-        "../../../../task/os",
-    ]
-    includes.extend(bld.env.INCLUDES_AFE)
-    includes.extend(bld.env.INCLUDES_RTOS)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver"
-    bld.stlib(
-        source=source,
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    bld.recurse(["api", "config", "vendor"])
+
+    includes = (
+        [
+            "../common/mc3377x/vendor",
+            "../../../config",
+            "../../../dma",
+            "../../../foxmath",
+            "../../../io",
+            "../../../mcu",
+            "../../../pex",
+            "../../../rtc",
+            "../../../spi",
+            "../../../ts",
+            "../../../ts/api",
+            "../../../../application/config",
+            "../../../../engine/config",
+            "../../../../engine/database",
+            "../../../../engine/diag",
+            "../../../../main/include",
+            "../../../../task/config",
+            "../../../../task/config",
+            "../../../../task/ftask",
+            "../../../../task/os",
+        ]
+        + [
+            bld.root.find_node(i).path_from(bld.path)
+            for i in bld.env.FOXBMS_INCLUDES_AFE
+        ]
+        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+    )
+    source = "nxp_mc33775a_alarm"
+    bld.objects(
+        source=f"{source}.c",
         includes=includes,
-        use=[
-            f"{bld.env.APPNAME.lower()}-nxp-afe",
-            f"{bld.env.APPNAME.lower()}-afe-driver-nxp-mc3377x-common",
-            f"{bld.env.APPNAME.lower()}-afe-driver-nxp-mc3377x-common-vendor",
-        ],
-        cflags=cflags,
-        target=target,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc33775a_balancing"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    source = "nxp_mc33775a_i2c"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+    source = "nxp_mc33775a_measurement"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        cflags=bld.env.CFLAGS_FOXBMS,
+        target=f"{op}{source}",
+        idx=1,
+    )
+
+    use = [
+        f"{op}uc_msg_t",
+        f"{op}nxp_afe",
+        f"{op}nxp_mc3377x_afe_dma",
+        f"{op}nxp_mc3377x_database",
+        f"{op}nxp_mc3377x_helpers",
+        f"{op}nxp_mc3377x_mux",
+        f"{op}nxp_mc3377x-ll",
+        f"{op}nxp_mc3377x",
+        f"{op}nxp_mc33775a_afe",
+        f"{op}nxp_mc33775a_cfg",
+        f"{op}nxp_mc33775a_alarm",
+        f"{op}nxp_mc33775a_balancing",
+        f"{op}nxp_mc33775a_i2c",
+        f"{op}nxp_mc33775a_measurement",
+    ]
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}afe",
     )
