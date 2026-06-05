@@ -50,6 +50,7 @@
  *
  * @brief   Plausibility checks for cell voltage and cell temperatures
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011
  *
  */
 
@@ -71,6 +72,7 @@
 /**
  * @brief Pack voltage plausibility check between AFE and current sensor values
  *
+ * @req   REQ-001
  * @param  voltageAfe_mV            pack voltage measured by AFE
  * @param  voltageCurrentSensor_mV  pack voltage measured by current sensor
  *
@@ -85,6 +87,7 @@ extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageAfe_mV, int32_t vo
 /**
  * @brief Cell voltage plausibility check between two redundant cell voltage measurement values
  *
+ * @req   REQ-002, REQ-008
  * @param[in]  baseCellVoltage         cell voltage from base measurement
  * @param[in]  redundancy0CellVoltage  cell voltage from redundant measurement
  * @param[out] pCellVoltage            output cell voltage after plausibility check
@@ -99,6 +102,7 @@ extern STD_RETURN_TYPE_e PL_CheckCellVoltage(
 /**
  * @brief Cell temperature plausibility check between two redundant cell temperature measurement values
  *
+ * @req   REQ-003, REQ-008
  * @param[in]  baseCellTemperature         cell temperature from base measurement
  * @param[in]  redundancy0CellTemperature  cell temperature from redundant measurement
  * @param[out] pCellTemperature            output cell temperature after plausibility check
@@ -113,6 +117,7 @@ extern STD_RETURN_TYPE_e PL_CheckCellTemperature(
 /**
  * @brief  Cell voltage spread plausibility check
  *
+ * @req   REQ-004, REQ-006, REQ-009, REQ-010
  * @param[in,out]  pCellVoltages     pointer to cell voltage database entry
  * @param[in]  pMinMaxAverageValues  pointer to minimum/maximum/average database entry
  *
@@ -125,6 +130,7 @@ extern STD_RETURN_TYPE_e PL_CheckVoltageSpread(
 /**
  * @brief  Cell temperature spread plausibility check
  *
+ * @req   REQ-005, REQ-007, REQ-009, REQ-011
  * @param[in,out]  pCellTemperatures pointer to cell temperature database entry
  * @param[in]  pMinMaxAverageValues  pointer to minimum/maximum/average database entry
  *

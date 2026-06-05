@@ -50,6 +50,7 @@
  *
  * @brief   Plausibility checks for cell voltage and cell temperatures
  * @details TODO
+ * @requirements REQ-012, REQ-013, REQ-014, REQ-015, REQ-016
  */
 
 #ifndef FOXBMS__PLAUSIBILITY_CFG_H_
@@ -66,7 +67,7 @@
  * \par Range:
  * [0, 10000]
  */
-#define PL_STRING_VOLTAGE_TOLERANCE_mV (3000)
+#define PL_STRING_VOLTAGE_TOLERANCE_mV (3000) /**< REQ-012: 电池包总电压容差阈值 (mV) */
 
 /**
  * @brief   Maximum difference between redundant cell voltage measurement
@@ -74,7 +75,7 @@
  * \par Range:
  * [0, 10000]
  */
-#define PL_CELL_VOLTAGE_TOLERANCE_mV (10)
+#define PL_CELL_VOLTAGE_TOLERANCE_mV (10) /**< REQ-013: 冗余单体电压容差阈值 (mV) */
 
 /**
  * @brief   Maximum difference between redundant cell temperature measurements
@@ -83,7 +84,7 @@
  * \par Range:
  * [0, 100]
  */
-#define PL_CELL_TEMPERATURE_TOLERANCE_dK (50)
+#define PL_CELL_TEMPERATURE_TOLERANCE_dK (50) /**< REQ-014: 冗余单体温度容差阈值 (dK) */
 
 /**
  * @brief   Maximum deviation between a single cell voltage measurement and the
@@ -92,7 +93,7 @@
  * \par Range:
  * [0, 10000]
  */
-#define PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV (300)
+#define PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV (300) /**< REQ-015: 电压分布容差阈值 (mV) */
 
 /**
  * @brief   Maximum deviation between a single cell temperature measurement and
@@ -101,7 +102,7 @@
  * \par Range:
  * [0, 100]
  */
-#define PL_CELL_TEMPERATURE_SPREAD_TOLERANCE_dK (100)
+#define PL_CELL_TEMPERATURE_SPREAD_TOLERANCE_dK (100) /**< REQ-016: 温度分布容差阈值 (dK) */
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

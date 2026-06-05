@@ -74,21 +74,42 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*========== Macros and Definitions =========================================*/
-/** default value for unset "active delay time" */
+/*========== 宏定义和常量定义 =========================================*/
+/** 未设置的活跃延迟时间的默认值 */
+/** @需求 需求-051 系统应支持毫秒单位的可配置延迟时间 */
 #define BMS_NO_ACTIVE_DELAY_TIME_ms (UINT32_MAX)
 
 /**
- * Saves the last state and the last substate
+ * 保存最后的状态和最后的子状态
+ * @需求 需求-005 系统应跟踪前一个状态和子状态
  */
 #define BMS_SAVE_LAST_STATES()                \
     bms_state.lastState    = bms_state.state; \
     bms_state.lastSubstate = bms_state.substate
 
-/*========== Static Constant and Variable Definitions =======================*/
+/*========== 静态常数和变量定义 =======================*/
 
 /**
- * contains the state of the bms state machine
+ * 包含BMS状态机的状态
+ * @需求 需求-004 系统应在不同BMS状态之间进行转换
+ * @需求 需求-005 系统应跟踪前一个状态和子状态
+ * @需求 需求-006 系统应支持状态的进入、保持和退出子状态
+ * @需求 需求-032 系统应记录哪些字符串处于闭合状态
+ * @需求 需求-033 系统应记录哪些字符串的预充电接触器处于闭合状态
+ * @需求 需求-034 系统应记录已关闭的字符串数量
+ * @需求 需求-035 系统应记录已停用的字符串
+ * @需求 需求-036 系统应记录首个闭合字符串的标识符
+ * @需求 需求-037 系统应为字符串打开操作设置超时
+ * @需求 需求-038 系统应为字符串关闭操作设置超时
+ * @需求 需求-039 系统应为下一个字符串闭合设置计时器
+ * @需求 需求-045 系统应维护当前系统计时器值
+ * @需求 需求-046 系统应支持配置松弛期（Relaxation Period）
+ * @需求 需求-047 系统应记录当前的流动状态
+ * @需求 需求-048 系统应追踪接触器断路电流超出的时间
+ * @需求 需求-052 系统应使用静态变量存储BMS状态
+ * @需求 需求-055 系统应设置允许的错误请求计数器
+ * @需求 需求-056 系统应在初始化完成后设置初始化标志
+ * @需求 需求-057 系统应支持振荡超时检测机制
  */
 static BMS_STATE_s bms_state = {
     .currentSystick                    = 0u,
@@ -125,10 +146,14 @@ static BMS_STATE_s bms_state = {
     .contactorToBeOpened               = CONT_UNDEFINED,
 };
 
-/** local copies of database tables */
+/** 本地数据库表的副本 */
 /**@{*/
+/** @需求 需求-012 系统应维护本地数据库表副本，包括最小/最大值表 */
 static DATA_BLOCK_MIN_MAX_s bms_tableMinMax         = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+/** @需求 需求-012 系统应维护本地数据库表副本，包括开路检测表 */
+/** @需求 需求-013 系统应检测任何电压感知线路的开路状况 */
 static DATA_BLOCK_OPEN_WIRE_s bms_tableOpenWire     = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+/** @需求 需求-012 系统应维护本地数据库表副本，包括电池包值表 */
 static DATA_BLOCK_PACK_VALUES_s bms_tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 /**@}*/
 
@@ -142,86 +167,99 @@ static DATA_BLOCK_PACK_VALUES_s bms_tablePackValues = {.header.uniqueId = DATA_B
  *              results of the checked is returned immediately.
  * @param[in]   statereq    state request to be checked
  * @return      result of the state request that was made
+ * @req REQ-001 System should check and validate state request validity
+ * @req REQ-055 System should set allowed error request counter
  */
 static BMS_RETURN_TYPE_e BMS_CheckStateRequest(BMS_STATE_REQUEST_e statereq);
 
 /**
- * @brief   transfers the current state request to the state machine.
- * @details This function takes the current state request from #bms_state
- *          transfers it to the state machine. It resets the value from
- *          #bms_state to #BMS_STATE_NO_REQUEST
- * @return  current state request
+ * @简述 将当前状态请求转移到状态机
+ * @详情 此函数从#bms_state中获取当前状态请求，
+ *       将其转移到状态机。它将#bms_state中的值
+ *       重置为#BMS_STATE_NO_REQUEST
+ * @返回 当前状态请求
+ * @需求 需求-002 系统应将经过验证的状态请求转移到状态机中
  */
 static BMS_STATE_REQUEST_e BMS_TransferStateRequest(void);
 
 /**
- * @brief   re-entrance check of SYS state machine trigger function
- * @details This function is not re-entrant and should only be called time- or
- *          event-triggered. It increments the triggerentry counter from the
- *          state variable bms_state. It should never be called by two
- *          different processes, so if it is the case, triggerentry should
- *          never be higher than 0 when this function is called.
- * @return  retval  0 if no further instance of the function is active, 0xff
- *          else
+ * @简述 SYS状态机触发函数的重进入检查
+ * @详情 此函数不可重入，应仅由时间或事件触发调用。
+ *       它从状态变量bms_state中增加triggerentry计数器。
+ *       绝对不应该由两个不同的进程同时调用。
+ * @返回 retval  如果没有进一步的函数实例处于活动状态返回0，
+ *               否则返回0xff
+ * @需求 需求-040 系统应检查状态机触发函数的重进入情况
+ * @需求 需求-041 系统应在重进入时返回错误状态（0xff）
+ * @需求 需求-042 状态机触发函数不应该被多个不同进程同时调用
  */
 static uint8_t BMS_CheckReEntrance(void);
 
 /**
- * @brief   Checks the state requests made to the BMS state machine.
- * @details Checks of the state request in the database and sets this value as
- *          return value.
- * @return  requested state
+ * @简述 检查对BMS状态机所做的状态请求
+ * @详情 检查数据库中的状态请求并将此值设置为返回值
+ * @返回 请求的状态
+ * @需求 需求-043 系统应从数据库中检查CAN总线请求
+ * @需求 需求-044 系统应将CAN请求转换为状态请求
  */
 static uint8_t BMS_CheckCanRequests(void);
 
 /**
- * @brief   Checks all the error flags from diagnosis module with a severity of
- *          #DIAG_FATAL_ERROR
- * @details Checks all the error flags from diagnosis module with a severity of
- *          #DIAG_FATAL_ERROR. Furthermore, sets parameter minimumActiveDelay_ms
- *          of bms_state variable.
- * @return  true if error flag is set, otherwise false
+ * @简述 检查诊断模块中严重级别为#DIAG_FATAL_ERROR的所有错误标志
+ * @详情 检查诊断模块中严重级别为#DIAG_FATAL_ERROR的所有错误标志。
+ *       此外，设置bms_state变量的minimumActiveDelay_ms参数。
+ * @返回 如果设置了错误标志返回true，否则返回false
+ * @需求 需求-007 系统应监测诊断模块中所有严重级别为DIAG_FATAL_ERROR的错误标志
+ * @需求 需求-008 系统应在检测到致命错误时设置minimumActiveDelay_ms参数
+ * @需求 需求-009 系统应在多个错误同时激活时使用最短延迟时间
  */
 static bool BMS_IsAnyFatalErrorFlagSet(void);
 
 /**
- * @brief   Checks if any error flag is set and handles delay until contactors
- *          need to be opened.
- * @details Checks all the diagnosis entries with severity of #DIAG_FATAL_ERROR
- *          and handles the configured delay until the contactors need to be
- *          opened. The shortest delay is used, if multiple errors are active at
- *          once.
- * @return  #STD_NOT_OK if error detected and delay time elapsed, otherwise #STD_OK
+ * @简述 检查是否有任何错误标志被设置，并处理延迟直到接触器需要打开
+ * @详情 检查所有严重级别为#DIAG_FATAL_ERROR的诊断条目，
+ *       并处理配置的延迟时间直到接触器需要打开。
+ *       如果同时有多个错误处于活动状态，使用最短的延迟。
+ * @返回 如果检测到错误且延迟时间已过期返回#STD_NOT_OK，否则返回#STD_OK
+ * @需求 需求-010 系统应检测电池系统状态是否正常，并在延迟时间到期时触发接触器打开
  */
 static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void);
 
 /**
- * @brief   Checks if the contactor feedback for a specific contactor is valid
- *          need to be opened.
- * @details Reads error flag database entry and checks if the feedback for this
- *          specific contactor is valid or not.
- * @return  true if no error detected feedback is valid, otherwise false
+ * @简述 检查特定接触器的反馈是否有效
+ * @详情 读取错误标志数据库条目，检查此特定接触器的反馈是否有效
+ * @返回 如果没有检测到错误反馈有效则返回true，否则返回false
+ * @需求 需求-015 系统应验证特定接触器的反馈有效性
+ * @需求 需求-016 系统应从错误标志数据库条目中读取接触器反馈状态
+ * @需求 需求-017 系统应支持检查指定字符串和接触器类型的反馈
  */
 static bool BMS_IsContactorFeedbackValid(uint8_t stringNumber, CONT_TYPE_e contactorType);
 
-/** Get latest database entries for static module variables */
+/** 获取最新数据库条目供静态模块变量使用 */
+/** @需求 需求-011 系统应从数据库中获取最新的测量值 */
 static void BMS_GetMeasurementValues(void);
 
 /**
- * @brief   Check for any open voltage sense wire
+ * @简述 检查任何开路电压感知线
+ * @需求 需求-013 系统应检测任何电压感知线路的开路状况
+ * @需求 需求-014 系统应在检测到开路时记录故障诊断信息
  */
 static void BMS_CheckOpenSenseWire(void);
 
 /**
- * @brief       Checks if the current limitations are violated
- * @param[in]   stringNumber          string addressed
- * @param[in]   pPackValues           pointer to pack values database entry
- * @param[in]   monitoringParameters
- * @param[in]   timeout_ms
- * @return      BMS_PRECHARGING_SUCCESSFUL if precharging succeeded
- *              BMS_PRECHARGING_ONGOING if precharging is ongoing
- *              BMS_PRECHARGING_FAILED if timeout reached and precharge
- *              process was not successful (type: #BMS_RESULT_PRECHARGE_PROCESS_e)
+ * @简述 检查电流限制是否被违反
+ * @参数[输入] stringNumber          要处理的字符串
+ * @参数[输入] pPackValues           指向电池包值数据库条目的指针
+ * @参数[输入] monitoringParameters
+ * @参数[输入] timeout_ms
+ * @返回 如果预充电成功返回BMS_PRECHARGING_SUCCESSFUL
+ *       如果预充电正在进行返回BMS_PRECHARGING_ONGOING
+ *       如果达到超时且预充电未成功返回BMS_PRECHARGING_FAILED
+ *       (类型: #BMS_RESULT_PRECHARGE_PROCESS_e)
+ * @需求 需求-021 系统应监控预充电过程并检测其成功/失败状态
+ * @需求 需求-022 系统应支持预充电超时配置
+ * @需求 需求-023 系统应支持预充电重试计数
+ * @需求 需求-024 系统应返回预充电过程的相应状态
  */
 static BMS_RESULT_PRECHARGE_PROCESS_e BMS_MonitorPrechargeProcess(
     uint8_t stringNumber,
@@ -230,120 +268,130 @@ static BMS_RESULT_PRECHARGE_PROCESS_e BMS_MonitorPrechargeProcess(
     uint32_t timeout_ms);
 
 /**
- * @brief       Checks if passed battery current is below limit
- * @param[in]   stringNumber string addressed
- * @param[in]   pPackValues  pointer to pack values database entry
- * @return      #STD_OK if battery current is below limit, otherwise #STD_NOT_OK
+ * @简述 检查传入的电池电流是否低于限制
+ * @参数[输入] stringNumber 要处理的字符串
+ * @参数[输入] pPackValues  指向电池包值数据库条目的指针
+ * @返回 如果电池电流低于限制返回#STD_OK，否则返回#STD_NOT_OK
+ * @需求 需求-025 系统应检查预充电电流是否低于配置的限制值
+ * @需求 需求-027 系统应在检查失败时返回STD_NOT_OK
  */
 static STD_RETURN_TYPE_e BMS_IsPrechargeCurrentBelowLimit(
     uint8_t stringNumber,
     const DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief       Checks if the current limitations are violated
- * @param[in]   stringNumber string addressed
- * @param[in]   pPackValues  pointer to pack values database entry
- * @return      true if voltage difference between battery and DC link voltage is below limit, otherwise false
+ * @简述 检查电流限制是否被违反
+ * @参数[输入] stringNumber 要处理的字符串
+ * @参数[输入] pPackValues  指向电池包值数据库条目的指针
+ * @返回 如果电池和DC链路电压之间的差异低于限制则返回true，否则返回false
+ * @需求 需求-026 系统应检查电池电压与DC链路电压之间的差异是否低于限制值
+ * @需求 需求-027 系统应在检查失败时返回STD_NOT_OK
  */
 static STD_RETURN_TYPE_e BMS_IsPrechargeVoltageBelowLimit(
     uint8_t stringNumber,
     const DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Returns ID of string with highest total voltage
- * @details This is used to close the first string when drive-off is requested.
- * @param[in]   precharge   If #BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT,
- *                          precharge availability for string is ignored.
- *                          if #BMS_TAKE_PRECHARGE_INTO_ACCOUNT, only select
- *                          string that has precharge available.
- * @param[in]   pPackValues pointer to pack values database entry
- * @return  index of string with highest voltage If no string is available,
- *          returns #BMS_NO_STRING_AVAILABLE.
+ * @简述 返回总电压最高的字符串ID
+ * @详情 这用于在请求放电时选择要闭合的第一个字符串
+ * @参数[输入] precharge   如果#BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT，
+ *                        则忽略字符串的预充电可用性。
+ *                        如果#BMS_TAKE_PRECHARGE_INTO_ACCOUNT，仅选择
+ *                        有预充电可用的字符串。
+ * @参数[输入] pPackValues 指向电池包值数据库条目的指针
+ * @返回 具有最高电压的字符串索引。如果没有字符串可用，
+ *       返回#BMS_NO_STRING_AVAILABLE。
+ * @需求 需求-028 系统应能识别具有最高总电压的字符串
  */
 static uint8_t BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Returns ID of string with voltage closest to first closed string voltage
- * @details This is used to close further strings in drive.
- * @param[in]   precharge   If #BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT,
- *                          precharge availability for string is ignored.
- *                          if #BMS_TAKE_PRECHARGE_INTO_ACCOUNT, only select
- *                          string that has precharge available.
- * @param[in]   pPackValues pointer to pack values database entry
- * @return  index of string with voltage closest to the first closed string voltage.
- *          If no string is available, returns #BMS_NO_STRING_AVAILABLE.
+ * @简述 返回电压最接近首个闭合字符串电压的字符串ID
+ * @详情 这用于在驾驶中闭合进一步的字符串
+ * @参数[输入] precharge   如果#BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT，
+ *                        则忽略字符串的预充电可用性。
+ *                        如果#BMS_TAKE_PRECHARGE_INTO_ACCOUNT，仅选择
+ *                        有预充电可用的字符串。
+ * @参数[输入] pPackValues 指向电池包值数据库条目的指针
+ * @返回 电压最接近首个闭合字符串电压的字符串索引。
+ *       如果没有字符串可用，返回#BMS_NO_STRING_AVAILABLE。
+ * @需求 需求-029 系统应能识别与首个闭合字符串电压最接近的字符串
  */
 static uint8_t BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Returns ID of string with lowest total voltage
- * @details This is used to close the first string when charge-off is requested.
+ * @简述 返回总电压最低的字符串ID
+ * @详情 这用于在请求充电时选择要闭合的第一个字符串。
  *
- * @param[in]   precharge   If 0, precharge availability for string is ignored.
- *                          If 1, only selects a string that has precharge
- *                          available.
- * @param[in]   pPackValues pointer to pack values database entry
- * @return  index of string with lowest voltage. If no string is available,
- *          returns #BMS_NO_STRING_AVAILABLE.
+ * @参数[输入] precharge   如果为0，则忽略字符串的预充电可用性。
+ *                        如果为1，仅选择有预充电可用的字符串。
+ * @参数[输入] pPackValues 指向电池包值数据库条目的指针
+ * @返回 具有最低电压的字符串索引。如果没有字符串可用，
+ *       返回#BMS_NO_STRING_AVAILABLE。
+ * @需求 需求-030 系统应能识别具有最低总电压的字符串
  */
 static uint8_t BMS_GetLowestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Returns voltage difference between first closed string and
- *          string ID
- * @details This function is used to check voltage when trying to close further
- *          strings.
- * @param[in]   string  ID of string that must be compared with first closed
- *                      string
- * @param[in]   pPackValues pointer to pack values database entry
- * @return voltage difference in mV, will return INT32_MAX if voltages are
- *         invalid and difference can not be calculated
+ * @简述 返回首个闭合字符串与字符串ID之间的电压差
+ * @详情 此函数用于检查尝试闭合进一步字符串时的电压
+ * @参数[输入] string      ID，必须与首个闭合字符串进行比较
+ * @参数[输入] pPackValues 指向电池包值数据库条目的指针
+ * @返回 电压差（单位mV），如果电压无效且无法计算差值则返回INT32_MAX
+ * @需求 需求-031 系统应计算首个闭合字符串与其他字符串之间的电压差
  */
 static int32_t BMS_GetStringVoltageDifference(uint8_t string, const DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Returns the average current flowing through all strings.
- * @details This function is used when closing strings.
- * @param[in]   pPackValues pointer to pack values database entry
- * @return  average current taking all strings into account in mA. INT32_MAX if there is no valid current measurement
+ * @简述 返回通过所有字符串流动的平均电流
+ * @详情 此函数用于闭合字符串时
+ * @参数[输入] pPackValues 指向电池包值数据库条目的指针
+ * @返回 考虑所有字符串的平均电流（单位mA）。
+ *       如果没有有效的电流测量值则返回INT32_MAX
+ * @需求 需求-048 系统应追踪接触器断路电流超出的时间
  */
 static int32_t BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Updates battery system state variable depending on measured/recent
- *          current values
- * @param[in]   pPackValues  recent measured values from current sensor
+ * @简述 根据测量/最近的电流值更新电池系统状态变量
+ * @参数[输入] pPackValues  来自电流传感器的最近测量值
+ * @需求 需求-047 系统应记录当前的流动状态（BMS_RELAXATION或BMS_ACTIVE）
  */
 static void BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
- * @brief   Get first string contactor that should be opened depending on the
- *          actual current flow direction
- * @details Check the mounting direction of the contactors and open the
- *          contactor that is mounted in the preferred current flow direction.
- *          Open the plus contactor first if, there is no contactor in
- *          preferred direction to the current flow to open available. This may
- *          be either because both contactors are installed in the same
- *          direction or because the contactors are bidirectional.
- * @param stringNumber         string that will be opened
- * @param flowDirection        current flow direction (charging or discharging)
- * @return #CONT_TYPE_e contactor that should be opened
+ * @简述 获取应根据实际电流流动方向打开的首个字符串接触器
+ * @详情 检查接触器的安装方向，打开安装在首选电流流动方向的接触器。
+ *       如果没有安装在首选方向的接触器，则首先打开正极接触器。
+ *       这可能是因为两个接触器都安装在相同方向，或者
+ *       接触器是双向的。
+ * @参数 stringNumber         将被打开的字符串
+ * @参数 flowDirection        电流流动方向（充电或放电）
+ * @返回 #CONT_TYPE_e 应该打开的接触器
+ * @需求 需求-020 系统应记录需要打开的接触器及其对应的字符串
  */
 static CONT_TYPE_e BMS_GetFirstContactorToBeOpened(uint8_t stringNumber, BMS_CURRENT_FLOW_STATE_e flowDirection);
 
 /**
- * @brief   Get second string contactor that should be opened
- * @details Mounting direction of the contactor does not need to be checked
- *          for the second contactor as the current has already been
- *          interrupted opening the first contactor.
- * @param stringNumber             string that will be opened
- * @param firstOpenedContactorType type of first contactor that has been opened
- * @return #CONT_TYPE_e contactor that should be opened
+ * @简述 获取应打开的第二个字符串接触器
+ * @详情 对于第二个接触器，不需要检查安装方向，因为
+ *       电流已经通过打开首个接触器而中断。
+ * @参数 stringNumber             将被打开的字符串
+ * @参数 firstOpenedContactorType 已打开的首个接触器的类型
+ * @返回 #CONT_TYPE_e 应该打开的接触器
+ * @需求 需求-018 系统应追踪电源路径状态（打开/闭合）
+ * @需求 需求-019 系统应管理多个电池字符串的接触器状态
+ * @需求 需求-020 系统应记录需要打开的接触器及其对应的字符串
  */
 static CONT_TYPE_e BMS_GetSecondContactorToBeOpened(uint8_t stringNumber, CONT_TYPE_e firstOpenedContactorType);
 
 /*========== Static Function Implementations ================================*/
 
+/**
+ * Implementation of BMS_CheckStateRequest
+ * @implements REQ-001 System should check and validate state request validity
+ * @implements REQ-055 System should maintain allowed error request counter
+ */
 static BMS_RETURN_TYPE_e BMS_CheckStateRequest(BMS_STATE_REQUEST_e statereq) {
     if (statereq == BMS_STATE_ERROR_REQUEST) {
         return BMS_OK;
@@ -365,6 +413,12 @@ static BMS_RETURN_TYPE_e BMS_CheckStateRequest(BMS_STATE_REQUEST_e statereq) {
     }
 }
 
+/**
+ * BMS_CheckReEntrance的实现
+ * @实现 需求-040 系统应检查状态机触发函数的重进入情况
+ * @实现 需求-041 系统应在重进入时返回错误状态（0xff）
+ * @实现 需求-042 状态机触发函数不应该被多个不同进程同时调用
+ */
 static uint8_t BMS_CheckReEntrance(void) {
     uint8_t retval = 0;
     OS_EnterTaskCritical();
@@ -377,6 +431,10 @@ static uint8_t BMS_CheckReEntrance(void) {
     return retval;
 }
 
+/**
+ * BMS_TransferStateRequest的实现
+ * @实现 需求-002 系统应将经过验证的状态请求转移到状态机中
+ */
 static BMS_STATE_REQUEST_e BMS_TransferStateRequest(void) {
     BMS_STATE_REQUEST_e retval = BMS_STATE_NO_REQUEST;
 
@@ -387,10 +445,20 @@ static BMS_STATE_REQUEST_e BMS_TransferStateRequest(void) {
     return retval;
 }
 
+/**
+ * BMS_GetMeasurementValues的实现
+ * @实现 需求-011 系统应从数据库中获取最新的测量值
+ * @实现 需求-012 系统应维护本地数据库表副本
+ */
 static void BMS_GetMeasurementValues(void) {
     DATA_READ_DATA(&bms_tablePackValues, &bms_tableOpenWire, &bms_tableMinMax);
 }
 
+/**
+ * BMS_CheckCanRequests的实现
+ * @实现 需求-043 系统应从数据库中检查CAN总线请求
+ * @实现 需求-044 系统应将CAN请求转换为状态请求
+ */
 static uint8_t BMS_CheckCanRequests(void) {
     uint8_t retVal                     = BMS_REQ_ID_NOREQ;
     DATA_BLOCK_STATE_REQUEST_s request = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
@@ -412,6 +480,11 @@ static uint8_t BMS_CheckCanRequests(void) {
     return retVal;
 }
 
+/**
+ * BMS_CheckOpenSenseWire的实现
+ * @实现 需求-013 系统应检测任何电压感知线路的开路状况
+ * @实现 需求-014 系统应在检测到开路时记录故障诊断信息
+ */
 static void BMS_CheckOpenSenseWire(void) {
     uint8_t openWireDetected = 0;
 
@@ -437,13 +510,19 @@ static void BMS_CheckOpenSenseWire(void) {
     }
 }
 
+/**
+ * BMS_MonitorPrechargeProcess的实现
+ * @实现 需求-021 系统应监控预充电过程并检测其成功/失败状态
+ * @实现 需求-022 系统应支持预充电超时配置
+ * @实现 需求-023 系统应支持预充电重试计数
+ * @实现 需求-024 系统应返回预充电过程的相应状态
+ */
 static BMS_RESULT_PRECHARGE_PROCESS_e BMS_MonitorPrechargeProcess(
     uint8_t stringNumber,
     const DATA_BLOCK_PACK_VALUES_s *pPackValues,
     BS_PRECHARGE_MONITORING_e monitoringParameters,
     uint32_t timeout_ms) {
-    /* make sure that we do not access the arrays in the database
-       tables out of bounds */
+    /* 确保不访问数据库表中超出界限的数组 */
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FAS_ASSERT(pPackValues != NULL_PTR);
     FAS_ASSERT(
@@ -482,11 +561,16 @@ static BMS_RESULT_PRECHARGE_PROCESS_e BMS_MonitorPrechargeProcess(
     return prechargingState;
 }
 
+/**
+ * BMS_IsPrechargeCurrentBelowLimit的实现
+ * @实现 需求-025 系统应检查预充电电流是否低于配置的限制值
+ * @实现 需求-027 系统应在检查失败时返回STD_NOT_OK
+ */
 static STD_RETURN_TYPE_e BMS_IsPrechargeCurrentBelowLimit(
     uint8_t stringNumber,
     const DATA_BLOCK_PACK_VALUES_s *pPackValues) {
-    /* AXIVION Routine Generic-MissingParameterAssert: stringNumber: function parameters are checked by caller */
-    /* AXIVION Routine Generic-MissingParameterAssert: pPackValues: function parameters are checked by caller */
+    /* AXIVION Routine Generic-MissingParameterAssert: stringNumber: 函数参数由调用者检查 */
+    /* AXIVION Routine Generic-MissingParameterAssert: pPackValues: 函数参数由调用者检查 */
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     /* Only current, not the current direction is checked */
     if ((pPackValues->invalidStringCurrent[stringNumber] == 0u) &&
@@ -496,6 +580,11 @@ static STD_RETURN_TYPE_e BMS_IsPrechargeCurrentBelowLimit(
     return retval;
 }
 
+/**
+ * Implementation of BMS_IsPrechargeVoltageBelowLimit
+ * @implements REQ-026 System should check if voltage difference between battery and DC link is below limit
+ * @implements REQ-027 System should return STD_NOT_OK on check failure
+ */
 static STD_RETURN_TYPE_e BMS_IsPrechargeVoltageBelowLimit(
     uint8_t stringNumber,
     const DATA_BLOCK_PACK_VALUES_s *pPackValues) {
@@ -512,6 +601,12 @@ static STD_RETURN_TYPE_e BMS_IsPrechargeVoltageBelowLimit(
     return retval;
 }
 
+/**
+ * Implementation of BMS_IsAnyFatalErrorFlagSet
+ * @implements REQ-007 System should monitor all error flags with DIAG_FATAL_ERROR severity
+ * @implements REQ-008 System should set minimumActiveDelay_ms parameter on fatal error detection
+ * @implements REQ-009 System should use shortest delay when multiple errors are active
+ */
 static bool BMS_IsAnyFatalErrorFlagSet(void) {
     bool fatalErrorActive = false;
 
@@ -531,6 +626,10 @@ static bool BMS_IsAnyFatalErrorFlagSet(void) {
     return fatalErrorActive;
 }
 
+/**
+ * Implementation of BMS_IsBatterySystemStateOkay
+ * @implements REQ-010 System should detect battery system state and trigger contactor opening on delay expiration
+ */
 static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
     STD_RETURN_TYPE_e retVal          = STD_OK; /* is set to STD_NOT_OK if error detected */
     static uint32_t previousTimestamp = 0u;
@@ -574,6 +673,12 @@ static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
     return retVal;
 }
 
+/**
+ * Implementation of BMS_IsContactorFeedbackValid
+ * @implements REQ-015 System should verify specific contactor feedback validity
+ * @implements REQ-016 System should read contactor feedback state from error flag database
+ * @implements REQ-017 System should support checking feedback for specified string and contactor type
+ */
 static bool BMS_IsContactorFeedbackValid(uint8_t stringNumber, CONT_TYPE_e contactorType) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FAS_ASSERT(contactorType != CONT_UNDEFINED);
@@ -605,6 +710,10 @@ static bool BMS_IsContactorFeedbackValid(uint8_t stringNumber, CONT_TYPE_e conta
     return feedbackValid;
 }
 
+/**
+ * Implementation of BMS_GetHighestString
+ * @implements REQ-028 System should identify string with highest total voltage for drive-off mode
+ */
 static uint8_t BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
     uint8_t highest_string_index = BMS_NO_STRING_AVAILABLE;
@@ -630,6 +739,10 @@ static uint8_t BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
     return highest_string_index;
 }
 
+/**
+ * Implementation of BMS_GetClosestString
+ * @implements REQ-029 System should identify string with voltage closest to first closed string for drive mode
+ */
 static uint8_t BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
     uint8_t closestStringIndex     = BMS_NO_STRING_AVAILABLE;
@@ -676,6 +789,10 @@ static uint8_t BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
     return closestStringIndex;
 }
 
+/**
+ * Implementation of BMS_GetLowestString
+ * @implements REQ-030 System should identify string with lowest total voltage for charge-off mode
+ */
 static uint8_t BMS_GetLowestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
     uint8_t lowest_string_index  = BMS_NO_STRING_AVAILABLE;
@@ -700,6 +817,10 @@ static uint8_t BMS_GetLowestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOC
     return lowest_string_index;
 }
 
+/**
+ * Implementation of BMS_GetStringVoltageDifference
+ * @implements REQ-031 System should calculate voltage difference between first closed and other strings
+ */
 static int32_t BMS_GetStringVoltageDifference(uint8_t string, const DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
     FAS_ASSERT(pPackValues != NULL_PTR);
@@ -720,6 +841,10 @@ static int32_t BMS_GetStringVoltageDifference(uint8_t string, const DATA_BLOCK_P
     return voltageDifference_mV;
 }
 
+/**
+ * Implementation of BMS_GetAverageStringCurrent
+ * @implements REQ-048 System should track time when contactor break current exceeded
+ */
 static int32_t BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
     int32_t average_current = pPackValues->packCurrent_mA / (int32_t)BS_NR_OF_STRINGS;
@@ -729,6 +854,10 @@ static int32_t BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues
     return average_current;
 }
 
+/**
+ * Implementation of BMS_UpdateBatterySystemState
+ * @implements REQ-047 System should record current flow state (BMS_RELAXATION or BMS_ACTIVE)
+ */
 static void BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
 
@@ -776,6 +905,10 @@ static void BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues) 
     }
 }
 
+/**
+ * Implementation of BMS_GetFirstContactorToBeOpened
+ * @implements REQ-020 System should record contactors that need to be opened and their corresponding strings
+ */
 static CONT_TYPE_e BMS_GetFirstContactorToBeOpened(uint8_t stringNumber, BMS_CURRENT_FLOW_STATE_e flowDirection) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     /* AXIVION Routine Generic-MissingParameterAssert: flowDirection: parameter accepts all defined enums */
@@ -839,6 +972,12 @@ static CONT_TYPE_e BMS_GetFirstContactorToBeOpened(uint8_t stringNumber, BMS_CUR
     return contactorToBeOpened;
 }
 
+/**
+ * Implementation of BMS_GetSecondContactorToBeOpened
+ * @implements REQ-018 System should track power path state (open/closed)
+ * @implements REQ-019 System should manage contactor states for multiple battery strings
+ * @implements REQ-020 System should record contactors that need to be opened and their corresponding strings
+ */
 static CONT_TYPE_e BMS_GetSecondContactorToBeOpened(uint8_t stringNumber, CONT_TYPE_e firstOpenedContactorType) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FAS_ASSERT((firstOpenedContactorType != CONT_UNDEFINED) && (firstOpenedContactorType != CONT_PRECHARGE));
@@ -867,20 +1006,37 @@ static CONT_TYPE_e BMS_GetSecondContactorToBeOpened(uint8_t stringNumber, CONT_T
     return contactorToBeOpened;
 }
 
-/*========== Extern Function Implementations ================================*/
+/*========== 外部函数实现 ================================*/
 
+/**
+ * 获取BMS初始化状态
+ * @实现 需求-056 系统应在初始化完成后设置初始化标志
+ */
 extern STD_RETURN_TYPE_e BMS_GetInitializationState(void) {
     return bms_state.initFinished;
 }
 
+/**
+ * 获取当前BMS FSM状态
+ * @实现 需求-004 系统应在不同BMS状态之间进行转换
+ */
 extern BMS_FSM_STATES_e BMS_GetState(void) {
     return bms_state.state;
 }
 
+/**
+ * 获取当前BMS FSM子状态
+ * @实现 需求-006 系统应支持状态的进入、保持和退出子状态
+ */
 extern BMS_FSM_SUB_e BMS_GetSubstate(void) {
     return bms_state.substate;
 }
 
+/**
+ * 设置BMS状态请求
+ * @实现 需求-001 系统应能检查并验证状态请求的有效性
+ * @实现 需求-002 系统应将经过验证的状态请求转移到状态机中
+ */
 BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq) {
     BMS_RETURN_TYPE_e retVal = BMS_OK;
 
@@ -895,6 +1051,18 @@ BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq) {
     return retVal;
 }
 
+/**
+ * BMS状态机触发函数
+ * @实现 需求-004 系统应在不同BMS状态之间进行转换
+ * @实现 需求-005 系统应跟踪前一个状态和子状态
+ * @实现 需求-011 系统应从数据库中获取最新测量值
+ * @实现 需求-013 系统应检测任何电压感知线路的开路状况
+ * @实现 需求-040 系统应检查状态机触发函数的重进入情况
+ * @实现 需求-041 系统应在重进入时返回错误状态
+ * @实现 需求-045 系统应维护当前系统计时器值
+ * @实现 需求-047 系统应记录当前的流动状态
+ * @实现 需求-049 系统应支持时间或事件触发模式
+ */
 void BMS_Trigger(void) {
     BMS_STATE_REQUEST_e statereq                   = BMS_STATE_NO_REQUEST;
     DATA_BLOCK_SYSTEM_STATE_s systemState          = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
