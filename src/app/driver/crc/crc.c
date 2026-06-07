@@ -49,6 +49,7 @@
  * @prefix  CRC
  *
  * @brief   CRC module implementation
+ * @requirements REQ-001, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009
  * @details Uses the system CRC hardware for data integrity calculation
  */
 
@@ -73,6 +74,7 @@
 /*========== Extern Function Implementations ================================*/
 
 extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32_t lengthInBytes) {
+    /* REQ-009: 断言保护 — 输入指针非空检查 */
     FAS_ASSERT(pCrc != NULL_PTR);
     FAS_ASSERT(pData != NULL_PTR);
 
@@ -91,12 +93,14 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
     if (crcCalls == 0u) {
         crcCalls++;
 
+        /* REQ-003: 设置 Data Capture Mode 写入种子值 */
         /* Set mode to Data Capture Mode, otherwise writing the seed
        starts the computation */
         crcREG1->CTRL2 &= CRC_DATA_CAPTURE_MODE_CLEAR_MASK;
         /* Set seed*/
         crcREG1->PSA_SIGREGH1 = CRC_SEED_HIGH;
         crcREG1->PSA_SIGREGL1 = CRC_SEED_LOW;
+        /* REQ-003: 设置 Full-CPU Mode 开始计算 */
         /* Set mode to Full-CPU Mode to start the computation when writing the data*/
         crcREG1->CTRL2 |= CRC_FULL_CPU_MODE_SET_MASK;
 
@@ -107,6 +111,7 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
 
         /* Treat packets of 64 bit data */
         while (remainingBytes >= CRC_REGISTER_SIZE_IN_BYTES) {
+            /* REQ-004: 大小端字节序转换 — 64位数据打包 */
             /* Invert two 32 bit chunks before 64 bit write, due to big endian */
             if (registerSide == CRC_REGISTER_LOW) {
                 dataBufferLow = 0u;
@@ -131,6 +136,7 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
         }
 
         if (remainingBytes > 0u) {
+            /* REQ-005: 处理剩余不足64位的尾部数据 */
             /* Now treat last packet that is less than 32 bits if existing */
             /* Get data in a 32 bit variable, pad with 0 */
             while (remainingBytes > 0u) {
@@ -153,13 +159,16 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
 
         /* No data remaining but only low register data available: compute CRC */
         if (registerSide == CRC_REGISTER_HIGH) {
+            /* REQ-005: 仅低32位寄存器有数据，写入触发CRC计算 */
             crcREG1->PSA_SIGREGL1 = dataBufferLow;
         }
 
+        /* REQ-001: 读取64位CRC计算结果 */
         *pCrc = crcREG1->PSA_SIGREGL1;
         *pCrc |= ((uint64_t)crcREG1->PSA_SIGREGH1) << CRC_REGISTER_SIZE_IN_BITS;
         crcCalls--;
     } else {
+        /* REQ-006: CRC硬件正忙，返回错误 */
         *pCrc  = 0u;
         retVal = STD_NOT_OK;
     }

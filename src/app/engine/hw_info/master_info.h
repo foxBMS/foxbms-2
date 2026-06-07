@@ -51,6 +51,8 @@
  * @brief   General foxBMS-master system information
  * @details Header file for the implementation to gather information on the
  *          foxBMS-Master and its connected peripherals on the master PCB.
+ * @requirements REQ-APP_ENGINE_HW_INFO_001, REQ-APP_ENGINE_HW_INFO_002,
+ *              REQ-APP_ENGINE_HW_INFO_003
  */
 
 #ifndef FOXBMS__MASTER_INFO_H_

@@ -50,6 +50,7 @@
  *
  * @brief   Header file of FreeRTOS abstraction
  * @details As the TCP-Support is build optionally the abstraction is placed here
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005
  */
 
 #ifndef FOXBMS__ETHERNET_FREERTOS_H_
@@ -63,9 +64,10 @@
 #include "os.h"
 
 /*========== Macros and Definitions =========================================*/
+/** REQ-005: 任务创建操作的返回状态枚举 */
 typedef enum {
-    ETH_OK,
-    ETH_TASK_ALREADY_CREATED,
+    ETH_OK,                    /**< REQ-005: 操作成功 */
+    ETH_TASK_ALREADY_CREATED,  /**< REQ-005: 任务已存在，不重复创建 */
 } ETH_RETURN_TYPE_e;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -77,6 +79,7 @@ typedef enum {
  * @details This function creates a single instance of a listening task using FreeRTOS's
  * xTaskCreateStatic. If the task has already been created, it returns an error.
  *
+ * @req  REQ-001, REQ-003
  * @param[in] taskFunction Pointer to the task function to be executed.
  * @param[in] pEndPoint    Pointer to the network endpoint configuration.
  *
@@ -90,6 +93,7 @@ extern ETH_RETURN_TYPE_e ETH_CreateListeningTask(TaskFunction_t taskFunction, Ne
  * @details This function deletes any previously existing Echo Server task and creates
  * a new one using FreeRTOS's xTaskCreateStatic to handle the given connected socket.
  *
+ * @req  REQ-002, REQ-003
  * @param[in] taskFunction   Pointer to the task function to be executed.
  *
  * @return ETH_OK on successful creation,
@@ -101,6 +105,7 @@ extern ETH_RETURN_TYPE_e ETH_CreateEchoServerTask(TaskFunction_t taskFunction);
  *
  * @details This function uses FreeRTOS's vTaskDelete to delete the calling task.
  * The task must have been created using the FreeRTOS API.
+ * @req  REQ-004
  */
 extern void ETH_DeleteCurrentTask(void);
 

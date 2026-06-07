@@ -50,6 +50,7 @@
  *
  * @brief   Headers for the driver for the storage in the EEPROM memory
  * @details Header file driver of external EEPROM device
+ * @requirements REQ-003, REQ-005, REQ-007
  */
 
 #ifndef FOXBMS__ALGORITHM_H_
@@ -66,17 +67,20 @@
 /**
  * @brief   Calling this function sets a signal that lets
  *          #ALGO_Initialization() know that the initialization has to be run.
+ * @req     REQ-003
  */
 extern void ALGO_UnlockInitialization(void);
 
 /**
  * @brief   handles the call of different algorithm functions when cycle time
  *          has expired
+ * @req     REQ-005
  */
 extern void ALGO_MainFunction(void);
 
 /**
  * @brief   monitors the calculation duration of the different algorithms
+ * @req     REQ-007, REQ-013
  */
 extern void ALGO_MonitorExecutionTime(void);
 

@@ -50,6 +50,7 @@
  *
  * @brief   Declaration of the OS wrapper interface
  * @details This module describes the interface to different operating systems
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013
  */
 
 #ifndef FOXBMS__OS_H_

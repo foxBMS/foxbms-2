@@ -50,6 +50,7 @@
  *
  * @brief   Task configuration
  * @details TODO
+ * @requirements REQ-022, REQ-023, REQ-024, REQ-025, REQ-026, REQ-027, REQ-028
  */
 
 /*========== Includes =======================================================*/
@@ -184,6 +185,9 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionEmac = {
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+/**
+ * @req REQ-022: Engine任务初始化 → 数据库/FRAM/系统监控初始化，失败触发陷阱
+ */
 extern void FTSK_InitializeUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
     /* See function declaration doxygen comment for details */
@@ -205,6 +209,9 @@ extern void FTSK_InitializeUserCodeEngine(void) {
     /* See function declaration doxygen comment for details */
 }
 
+/**
+ * @req REQ-022: Engine任务循环 → 数据库消息处理 + 系统监控通知检查
+ */
 extern void FTSK_RunUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
     /* See function declaration doxygen comment for details */
@@ -214,6 +221,9 @@ extern void FTSK_RunUserCodeEngine(void) {
                                /* See function declaration doxygen comment for details */
 }
 
+/**
+ * @req REQ-023: 预循环初始化 → 系统状态/端口扩展器/接触器/SPS/测量/冗余模块初始化
+ */
 extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     /*  Init Sys */
     SYS_RETURN_TYPE_e sys_retVal = SYS_SetStateRequest(SYS_STATE_INITIALIZATION_REQUEST);
@@ -243,7 +253,11 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     LED_SetToggleTime(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
 }
 
+/**
+ * @req REQ-003, REQ-023: Cyclic 1ms用户代码 → 系统计时器递增 + 诊断标志更新 + MEAS控制 + CAN Rx读取
+ */
 extern void FTSK_RunUserCodeCyclic1ms(void) {
+    /* REQ-003: 每1ms递增操作系统计时器 */
     /* Increment of operating system timer */
     /* This must not be changed, add user code only below */
     OS_IncrementTimer();
@@ -255,6 +269,9 @@ extern void FTSK_RunUserCodeCyclic1ms(void) {
     CAN_ReadRxBuffer();
 }
 
+/**
+ * @req REQ-024: Cyclic 10ms用户代码 → SYS/ILCK/ADC/CAN/SOF/BMS核心控制，每50ms执行MRC验证
+ */
 extern void FTSK_RunUserCodeCyclic10ms(void) {
     static uint8_t ftsk_cyclic10msCounter = 0;
     /* user code */
@@ -281,6 +298,9 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     ftsk_cyclic10msCounter++;
 }
 
+/**
+ * @req REQ-025: Cyclic 100ms用户代码 → BAL/IMD/LED/MINFO控制，每1s运行状态估计
+ */
 extern void FTSK_RunUserCodeCyclic100ms(void) {
     /* user code */
     static uint8_t ftsk_cyclic100msCounter = 0;
@@ -302,6 +322,9 @@ extern void FTSK_RunUserCodeCyclic100ms(void) {
     ftsk_cyclic100msCounter++;
 }
 
+/**
+ * @req REQ-026: Algorithm 100ms用户代码 → 算法主函数 ALGO_MainFunction
+ */
 extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void) {
     /* user code */
     static uint8_t ftsk_cyclicAlgorithm100msCounter = 0;

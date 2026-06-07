@@ -51,6 +51,7 @@
  * @brief   Header of task driver implementation
  * @details Declares the functions that are need to needed to initialize the
  *          operating system. This includes queues, mutexes, events and tasks.
+ * @requirements REQ-020, REQ-021
  */
 
 #ifndef FOXBMS__FTASK_H_

@@ -50,6 +50,7 @@
  *
  * @brief   Header file for the application build information that is generated
  *          by the toolchain
+ * @requirements REQ-031, REQ-032, REQ-033
  * @details Defines the structure and type of information that is stored in the
  *          application build configuration variable.
  *          The application build information is extracted from
@@ -68,6 +69,7 @@
 /** @{
  * AFE types enum
  */
+/** @req REQ-031: AFE 模拟前端采集芯片类型枚举 */
 typedef enum {
     /* Higher two hexadecimal digits are the different manufacturers
     * and the lower two digits are the specific AFE type */
@@ -96,6 +98,7 @@ typedef enum {
 /** @{
  * soc algorithm enum
  */
+/** @req REQ-032: SOC 状态估计算法枚举 */
 typedef enum {
     SOC_ALGORITHM_NONE,
     SOC_ALGORITHM_DEBUG,
@@ -108,6 +111,7 @@ typedef enum {
 /** @{
  * soe algorithm enum
  */
+/** @req REQ-032: SOE 状态估计算法枚举 */
 typedef enum {
     SOE_ALGORITHM_NONE,
     SOE_ALGORITHM_DEBUG,
@@ -119,6 +123,7 @@ typedef enum {
 /** @{
  * sof algorithm enum
  */
+/** @req REQ-032: SOF 状态估计算法枚举 */
 typedef enum {
     SOF_ALGORITHM_TRAPEZOID,
     SOF_ALGORITHM_INVALID,
@@ -128,6 +133,7 @@ typedef enum {
 /** @{
  * soh algorithm enum
  */
+/** @req REQ-032: SOH 状态估计算法枚举 */
 typedef enum {
     SOH_ALGORITHM_NONE,
     SOH_ALGORITHM_DEBUG,
@@ -138,6 +144,7 @@ typedef enum {
 /** @{
  *  balancing strategy enum
  */
+/** @req REQ-032: 均衡策略枚举 */
 typedef enum {
     BALANCING_STRATEGY_NONE,
     BALANCING_STRATEGY_VOLTAGE,
@@ -148,6 +155,7 @@ typedef enum {
 /** @{
  *  IMD enum
  */
+/** @req REQ-032: 绝缘监测装置类型枚举 */
 typedef enum {
     IMD_NONE,
     IMD_BENDER_ISO165C,
@@ -158,6 +166,7 @@ typedef enum {
 /** @{
  *  rtos enum
  */
+/** @req REQ-032: RTOS 类型枚举 */
 typedef enum {
     RTOS_FREERTOS,
     RTOS_SAFERTOS,
@@ -167,6 +176,7 @@ typedef enum {
 /** @{
  *  temperature sensor method enum
  */
+/** @req REQ-032: 温度传感器计算方法枚举 */
 typedef enum {
     TEMPERATURE_SENSOR_METHOD_POLYNOMIAL,
     TEMPERATURE_SENSOR_METHOD_LOOKUP_TABLE,
@@ -176,6 +186,7 @@ typedef enum {
 /** @{
  *  temperature sensors enum
  */
+/** @req REQ-032: 温度传感器型号枚举 */
 typedef enum {
     TEMPERATURE_SENSOR_FAK00,
     TEMPERATURE_SENSOR_EPC00,
@@ -191,7 +202,7 @@ typedef enum {
 } VER_TEMPERATURE_SENSOR_e;
 /** @} */
 
-/** struct type that describes the build configuration of the system */
+/** @req REQ-033: 构建配置统一数据结构 */
 typedef struct {
     const VER_SOC_ALGORITHM_e socAlgorithm;                        /*!< state estimator for soc*/
     const VER_SOE_ALGORITHM_e soeAlgorithm;                        /*!< state estimator for soe*/

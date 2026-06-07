@@ -53,6 +53,10 @@
  *          reporting.
  *          Reported errors are logged into the global database and can be
  *          reviewed on user request.
+ * @requirements REQ-APP_ENGINE_DIAG_001, REQ-APP_ENGINE_DIAG_002, REQ-APP_ENGINE_DIAG_003,
+ *              REQ-APP_ENGINE_DIAG_004, REQ-APP_ENGINE_DIAG_005, REQ-APP_ENGINE_DIAG_006,
+ *              REQ-APP_ENGINE_DIAG_007, REQ-APP_ENGINE_DIAG_008, REQ-APP_ENGINE_DIAG_009,
+ *              REQ-APP_ENGINE_DIAG_010
  */
 
 /*========== Includes =======================================================*/

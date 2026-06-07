@@ -53,6 +53,7 @@
  *          (SOH). Functions as a wrapper for the individual state-estimation
  *          algorithms.
  * @details TODO
+ * @requirements REQ-002, REQ-004, REQ-006, REQ-008, REQ-011
  */
 
 #ifndef FOXBMS__STATE_ESTIMATION_H_

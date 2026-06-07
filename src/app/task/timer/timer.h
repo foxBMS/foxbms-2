@@ -50,6 +50,7 @@
  *
  * @brief   Header file for the timer wrapper
  * @details Our wrapper implementation for the software timers from RTOS.
+ * @requirements REQ-029, REQ-030
  */
 
 #ifndef FOXBMS__TIMER_H_

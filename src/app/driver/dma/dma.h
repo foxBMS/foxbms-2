@@ -49,6 +49,7 @@
  * @prefix  DMA
  *
  * @brief   Headers for the driver for the DMA module.
+ * @requirements REQ-007, REQ-008, REQ-009, REQ-010, REQ-011
  * @details TODO
  *
  */

@@ -50,6 +50,7 @@
  *
  * @brief   Main module to handle the execution of algorithms
  * @details TODO
+ * @requirements REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-012, REQ-013, REQ-014, REQ-016
  */
 
 /*========== Includes =======================================================*/
@@ -76,6 +77,7 @@ static bool algo_initializationRequested = false;
 /**
  * @brief   initializes local variables and module internals needed to use the
  *          algorithm module
+ * @req     REQ-004, REQ-006, REQ-012
  */
 static void ALGO_Initialization(void);
 
@@ -107,16 +109,21 @@ static void ALGO_Initialization(void) {
 /*========== Extern Function Implementations ================================*/
 
 extern void ALGO_UnlockInitialization(void) {
+    /* REQ-003: 在临界区内设置初始化请求标志 */
+    /* REQ-014: 临界区保护防止竞态条件 */
     OS_EnterTaskCritical();
     algo_initializationRequested = true;
     OS_ExitTaskCritical();
 }
 
 extern void ALGO_MainFunction(void) {
+    /* REQ-014: 临界区保护初始化请求标志读取 */
     OS_EnterTaskCritical();
     const bool initializationRequested = algo_initializationRequested;
     OS_ExitTaskCritical();
+    /* REQ-005: 检查初始化请求，若已请求则执行初始化 */
     if (initializationRequested == true) {
+        /* REQ-004: 执行算法初始化流程 */
         ALGO_Initialization();
         OS_EnterTaskCritical();
         algo_initializationRequested = false;
@@ -125,10 +132,12 @@ extern void ALGO_MainFunction(void) {
 
     static uint32_t counter_ticks = 0u;
 
+    /* REQ-005: 遍历所有注册算法，检查执行条件 */
     for (uint16_t i = 0u; i < algo_length; i++) {
         const bool runAlgorithmAsap = (algo_algorithms[i].cycleTime_ms == 0u);
         const bool runAlgorithmCycleElapsed =
             ((algo_algorithms[i].cycleTime_ms != 0u) && ((counter_ticks % algo_algorithms[i].cycleTime_ms) == 0u));
+        /* REQ-005: ASAP 模式或周期已到则执行算法 */
         if ((runAlgorithmAsap != false) || (runAlgorithmCycleElapsed != false)) {
             /* Cycle time elapsed -> call function */
             if (algo_algorithms[i].state == ALGO_READY) {
@@ -136,9 +145,10 @@ extern void ALGO_MainFunction(void) {
                 algo_algorithms[i].state     = ALGO_RUNNING;
                 algo_algorithms[i].startTime = OS_GetTickCount();
                 algo_algorithms[i].fpAlgorithm();
+                /* REQ-008: 算法执行完成，标记为就绪 */
                 ALGO_MarkAsDone(i);
             }
-            /* check if we need to reinitialize */
+            /* REQ-009: 检查是否需要重初始化 */
             if (algo_algorithms[i].state == ALGO_REINIT_REQUESTED) {
                 /* set to uninitialized so that the algorithm can be reinitialized */
                 algo_algorithms[i].state = ALGO_UNINITIALIZED;
@@ -148,15 +158,18 @@ extern void ALGO_MainFunction(void) {
         }
     }
 
+    /* REQ-010: Tick 计数器累加 */
     counter_ticks += ALGO_TICK_ms;
 }
 
 extern void ALGO_MonitorExecutionTime(void) {
     const uint32_t timestamp = OS_GetTickCount();
 
+    /* REQ-007: 遍历所有算法，检查执行超时 */
     for (uint16_t i = 0u; i < algo_length; i++) {
         if ((algo_algorithms[i].startTime != 0u) && (algo_algorithms[i].state == ALGO_RUNNING) &&
             ((algo_algorithms[i].startTime + algo_algorithms[i].maxCalculationDuration_ms) < timestamp)) {
+            /* REQ-013: 执行超时 → 阻塞算法，防止继续执行 */
             /* Block task from further execution because of runtime violation, but task will finish its execution */
             algo_algorithms[i].state = ALGO_BLOCKED;
 

@@ -50,6 +50,7 @@
  *
  * @brief   Diagnosis driver header
  * @details TODO
+ * @requirements REQ-APP_ENGINE_DIAG_CBS_001
  */
 
 #ifndef FOXBMS__DIAG_CBS_H_

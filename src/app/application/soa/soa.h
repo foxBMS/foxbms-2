@@ -50,6 +50,9 @@
  *
  * @brief   Header for SOA module, responsible for checking battery parameters
  *          against safety limits
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007,
+ *              REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014,
+ *              REQ-015, REQ-016, REQ-017
  * @details TODO
  */
 
@@ -71,6 +74,7 @@
 
 /**
  * @brief   checks the abidance by the safe operating area
+ * @req     REQ-001, REQ-002, REQ-003, REQ-004, REQ-016
  * @param[in]   pMinimumMaximumCellVoltages  pointer to database entry with
  *                                           minimum and maximum cell voltages
  * @details verify for cell voltage measurements (U), if minimum and maximum
@@ -80,6 +84,7 @@ extern void SOA_CheckVoltages(DATA_BLOCK_MIN_MAX_s *pMinimumMaximumCellVoltages)
 
 /**
  * @brief   checks the abidance by the safe operating area
+ * @req     REQ-005, REQ-006, REQ-007, REQ-008, REQ-016
  * @param[in]   pMinimumMaximumCellTemperatures  pointer to database entry with
  * @param[in]   pCurrent                         pointer to pack value database entry
  * @details verify for cell temperature measurements (T), if minimum and
@@ -91,6 +96,7 @@ extern void SOA_CheckTemperatures(
 
 /**
  * @brief   checks the abidance by the safe operating area
+ * @req     REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014, REQ-015, REQ-016
  * @param[in]   pTablePackValues   pointer to pack values database entry
  * @details verify for cell current measurements (I), if minimum and maximum
  *          values are out of range
@@ -99,6 +105,7 @@ extern void SOA_CheckCurrent(DATA_BLOCK_PACK_VALUES_s *pTablePackValues);
 
 /**
  * @brief   FOR FUTURE COMPATIBILITY; DUMMY FUNCTION; DO NOT USE
+ * @req     REQ-017
  * @details FOR FUTURE COMPATIBILITY; DUMMY FUNCTION; DO NOT USE
  */
 extern void SOA_CheckSlaveTemperatures(void);

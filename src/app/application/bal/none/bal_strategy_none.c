@@ -47,6 +47,7 @@
  * @version v1.11.0
  * @ingroup APPLICATION
  * @prefix  BAL
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006
  *
  * @brief   WEAK Driver for the Balancing module for ICs that to not support
  *          balancing
@@ -69,17 +70,42 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+/**
+ * @brief   获取均衡初始化状态
+ * @req     REQ-001
+ * @details 在无均衡策略下，始终返回 STD_OK，表示初始化已完成。
+ *          因为无任何均衡硬件需要初始化。
+ * @return  STD_OK 始终返回已初始化状态
+ */
 extern STD_RETURN_TYPE_e BAL_GetInitializationState(void) {
+    /* REQ-001: 始终返回已初始化 — 无均衡硬件需初始化 */
     return STD_OK;
 }
 
+/**
+ * @brief   设置均衡状态请求
+ * @req     REQ-002, REQ-006
+ * @details 在无均衡策略下，无条件接受所有状态请求并返回 BAL_OK，
+ *          但不对请求做任何实际处理。
+ * @param   stateRequest 待设置的状态请求（本策略忽略此参数）
+ * @return  BAL_OK 始终返回操作成功
+ */
 extern BAL_RETURN_TYPE_e BAL_SetStateRequest(BAL_STATE_REQUEST_e stateRequest) {
     /* this is a dummy implementation and not using the argument here is fine */
-    (void)stateRequest;
+    (void)stateRequest; /**< REQ-006: 标准 C 写法抑制未使用参数警告 */
+    /* REQ-002: 无条件接受所有请求，返回成功 */
     return BAL_OK;
 }
 
+/**
+ * @brief   均衡状态机触发函数
+ * @req     REQ-003, REQ-004
+ * @details 在无均衡策略下，此函数体为空。不执行任何均衡相关操作。
+ *          该接口的存在保证了上层调用方无需针对不同策略编写条件编译代码。
+ *          期望编译器优化（-O2）后，此函数被内联或完全优化掉。
+ */
 extern void BAL_Trigger(void) {
+    /* REQ-003: 空操作 — 无均衡硬件，无需任何处理 */
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

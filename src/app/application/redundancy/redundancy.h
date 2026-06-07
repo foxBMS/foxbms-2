@@ -50,6 +50,9 @@
  *
  * @brief   Header files for handling redundancy between redundant cell voltage
  *          and cell temperature measurements
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008,
+ *              REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014, REQ-015, REQ-016,
+ *              REQ-017, REQ-018, REQ-019, REQ-020, REQ-021, REQ-022, REQ-023
  * @details TODO
  *
  */
@@ -73,6 +76,7 @@
  * values. If no new values are updated within this time frame it
  * will invalidate the measurement values.
  */
+/**< REQ-004, REQ-022: 电流测量更新超时阈值 (ms) */
 #define MRC_CURRENT_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
 
 /**
@@ -87,6 +91,7 @@
  * it will validate the measurement values it has up to
  * this point if possible.
  */
+/**< REQ-004, REQ-022: AFE 测量更新超时阈值 (ms) */
 #define MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
 
 /**
@@ -100,6 +105,7 @@
  * validate the measurement values it has up to this point
  * if possible.
  */
+/**< REQ-004, REQ-022: 电流传感器测量更新超时阈值 (ms) */
 #define MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms (300u)
 
 /**
@@ -110,10 +116,12 @@
  * allowed invalid cell voltages are detected. The result will be marked as
  * valid if less then this number of cells are detected as invalid.
  */
+/**< REQ-016, REQ-023: 电芯串电压估算时允许的最大无效单体电压数 */
 #define MRC_ALLOWED_NUMBER_OF_INVALID_CELL_VOLTAGES (5u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /**
+ * @req REQ-002
  * This structure contains all the variables relevant for the redundancy state machine.
  */
 typedef struct {
@@ -128,7 +136,7 @@ typedef struct {
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief Function to initialize redundancy module
- *
+ * @req  REQ-001
  * @return #STD_OK if module has been initialized successfully, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e MRC_Initialize(void);
@@ -136,7 +144,7 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void);
 /**
  * @brief Function to validate the measurement between redundant measurement
  *        values for cell voltage and cell temperature
- *
+ * @req  REQ-005
  * @return #STD_OK if measurement has been validated successfully, otherwise i.e.
  *         if no new values have been measured since the last call #STD_NOT_OK
  */
@@ -145,7 +153,7 @@ extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void);
 /**
  * @brief Function to validate the measurements of pack values (string values,
  *        pack values)
- *
+ * @req  REQ-014
  * @return #STD_OK if measurement has been validated successfully, otherwise i.e.
  *         if no new values have been measured since the last call #STD_NOT_OK
  */

@@ -50,6 +50,14 @@
  *
  * @brief   Sys driver implementation
  * @details TODO
+ * @requirements REQ-APP_ENGINE_SYS_001, REQ-APP_ENGINE_SYS_002, REQ-APP_ENGINE_SYS_003,
+ *              REQ-APP_ENGINE_SYS_004, REQ-APP_ENGINE_SYS_005, REQ-APP_ENGINE_SYS_006,
+ *              REQ-APP_ENGINE_SYS_007, REQ-APP_ENGINE_SYS_008, REQ-APP_ENGINE_SYS_009,
+ *              REQ-APP_ENGINE_SYS_010, REQ-APP_ENGINE_SYS_011, REQ-APP_ENGINE_SYS_012,
+ *              REQ-APP_ENGINE_SYS_013, REQ-APP_ENGINE_SYS_014, REQ-APP_ENGINE_SYS_015,
+ *              REQ-APP_ENGINE_SYS_016, REQ-APP_ENGINE_SYS_017, REQ-APP_ENGINE_SYS_018,
+ *              REQ-APP_ENGINE_SYS_019, REQ-APP_ENGINE_SYS_020, REQ-APP_ENGINE_SYS_021,
+ *              REQ-APP_ENGINE_SYS_023
  */
 
 /*========== Includes =======================================================*/
@@ -78,14 +86,14 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** Magic number that is searched by the #SYS_GeneralMacroBist(). */
+/** Magic number that is searched by the #SYS_GeneralMacroBist(). @req REQ-APP_ENGINE_SYS_023 */
 #define SYS_BIST_GENERAL_MAGIC_NUMBER (42u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
-/** contains the current state of the SYS machine */
+/** contains the current state of the SYS machine @req REQ-APP_ENGINE_SYS_002 @req REQ-APP_ENGINE_SYS_004 */
 SYS_STATE_s sys_state = {
     .timer                  = 0,
     .stateRequest           = SYS_STATE_NO_REQUEST,
@@ -115,7 +123,7 @@ SYS_STATE_s sys_state = {
  * @return  #SYS_MULTIPLE_CALLS_YES if there were multiple calls,
  *          #SYS_MULTIPLE_CALLS_NO otherwise
  */
-static SYS_CHECK_MULTIPLE_CALLS_e SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState);
+static SYS_CHECK_MULTIPLE_CALLS_e SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_006 */
 
 /**
  * @brief   Sets the next state, the next substate and the timer value
@@ -129,7 +137,7 @@ static void SYS_SetState(
     SYS_STATE_s *pSystemState,
     SYS_FSM_STATES_e nextState,
     SYS_FSM_SUBSTATES_e nextSubstate,
-    uint16_t idleTime);
+    uint16_t idleTime); /**< @req REQ-APP_ENGINE_SYS_005 */
 
 /**
  * @brief   Sets the next substate and the timer value
@@ -138,35 +146,35 @@ static void SYS_SetState(
  * @param   nextSubstate   substate to be transferred into
  * @param   idleTime       wait time for the state machine
  */
-static void SYS_SetSubstate(SYS_STATE_s *pSystemState, SYS_FSM_SUBSTATES_e nextSubstate, uint16_t idleTime);
+static void SYS_SetSubstate(SYS_STATE_s *pSystemState, SYS_FSM_SUBSTATES_e nextSubstate, uint16_t idleTime); /**< @req REQ-APP_ENGINE_SYS_005 */
 
 /**
  * @brief   Processes the initialization state
  * @param   pSystemState state of the SYS state machine
  * @return  the next state of the SYS state machine
  */
-static SYS_FSM_STATES_e SYS_ProcessInitializationState(SYS_STATE_s *pSystemState);
+static SYS_FSM_STATES_e SYS_ProcessInitializationState(SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_008 @req REQ-APP_ENGINE_SYS_009 @req REQ-APP_ENGINE_SYS_010 @req REQ-APP_ENGINE_SYS_011 @req REQ-APP_ENGINE_SYS_012 @req REQ-APP_ENGINE_SYS_013 */
 
 /**
  * @brief   Processes the pre running state
  * @param   pSystemState state of the SYS state machine
  * @return  the next state of the SYS state machine
  */
-static SYS_FSM_STATES_e SYS_ProcessPreRunningState(SYS_STATE_s *pSystemState);
+static SYS_FSM_STATES_e SYS_ProcessPreRunningState(SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_014 @req REQ-APP_ENGINE_SYS_015 @req REQ-APP_ENGINE_SYS_016 @req REQ-APP_ENGINE_SYS_017 @req REQ-APP_ENGINE_SYS_018 @req REQ-APP_ENGINE_SYS_019 */
 
 /**
  * @brief   Processes the running state
  * @param   pSystemState state of the SYS state machine
  * @return  the next state of the SYS state machine
  */
-static SYS_FSM_STATES_e SYS_ProcessRunningState(const SYS_STATE_s *pSystemState);
+static SYS_FSM_STATES_e SYS_ProcessRunningState(const SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_020 */
 
 /**
  * @brief   Processes the error state
  * @param   pSystemState state of the SYS state machine
  * @return  the next state of the SYS state machine
  */
-static SYS_FSM_STATES_e SYS_ProcessErrorState(const SYS_STATE_s *pSystemState);
+static SYS_FSM_STATES_e SYS_ProcessErrorState(const SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_021 */
 
 /**
  * @brief   Defines the state transitions
@@ -177,7 +185,7 @@ static SYS_FSM_STATES_e SYS_ProcessErrorState(const SYS_STATE_s *pSystemState);
  * @param   pSystemState state of the system state machine
  * @return  TODO
  */
-static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState);
+static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_004 */
 
 /**
  * @brief   Checks the state requests that are made.
@@ -186,7 +194,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState);
  * @param   stateRequest    state request to be checked
  * @return  Validity of the state requests.
  */
-static SYS_RETURN_TYPE_e SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest);
+static SYS_RETURN_TYPE_e SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest); /**< @req REQ-APP_ENGINE_SYS_001 */
 
 /**
  * @brief   Transfers the current state request to the state machine.
@@ -194,13 +202,13 @@ static SYS_RETURN_TYPE_e SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest)
  *          requested member of #sys_state.
  * @return  Requested state
  */
-static SYS_STATE_REQUEST_e SYS_TransferStateRequest(void);
+static SYS_STATE_REQUEST_e SYS_TransferStateRequest(void); /**< @req REQ-APP_ENGINE_SYS_007 */
 
 /**
  * @brief   Built-in self-test for the macros in general.h
  * @details Internal built-in self-test for the macros in the file general.h
  */
-static void SYS_GeneralMacroBist(void);
+static void SYS_GeneralMacroBist(void); /**< @req REQ-APP_ENGINE_SYS_023 */
 
 /*========== Static Function Implementations ================================*/
 static SYS_CHECK_MULTIPLE_CALLS_e SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState) {
@@ -247,7 +255,7 @@ static void SYS_SetState(
 
     if (earlyExit == false) {
         if (pSystemState->currentState != nextState) {
-            /* distinguish between just a state transfer to the error state and a normal state transfer */
+            /* REQ-APP_ENGINE_SYS_005: 区分正常状态转移与错误状态转移 */
             if (nextState == SYS_FSM_STATE_ERROR) {
                 /* Error state gets treated differently since we dont need to enter it through the Entry sub state */
                 pSystemState->previousState    = pSystemState->currentState;
@@ -577,6 +585,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
             /* waiting for Initialization Request */
             stateRequest = SYS_TransferStateRequest();
             if (stateRequest == SYS_STATE_INITIALIZATION_REQUEST) {
+                /* REQ-APP_ENGINE_SYS_001: 仅 UNINITIALIZED 状态接受初始化请求 */
                 SYS_SetState(pSystemState, SYS_FSM_STATE_INITIALIZATION, SYS_FSM_SUBSTATE_ENTRY, SYS_FSM_SHORT_TIME);
             } else if (stateRequest == SYS_STATE_NO_REQUEST) {
                 /* no actual request pending */
@@ -647,6 +656,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
 static SYS_STATE_REQUEST_e SYS_TransferStateRequest(void) {
     SYS_STATE_REQUEST_e requestedState = SYS_STATE_NO_REQUEST;
 
+    /* REQ-APP_ENGINE_SYS_007: 临界区内原子传输状态请求 */
     OS_EnterTaskCritical();
     requestedState         = sys_state.stateRequest;
     sys_state.stateRequest = SYS_STATE_NO_REQUEST;
@@ -691,6 +701,7 @@ static void SYS_GeneralMacroBist(void) {
 SYS_RETURN_TYPE_e SYS_SetStateRequest(SYS_STATE_REQUEST_e stateRequest) {
     SYS_RETURN_TYPE_e stateRequestStatus = SYS_ILLEGAL_REQUEST;
 
+    /* REQ-APP_ENGINE_SYS_001: 临界区内验证并设置状态请求 */
     OS_EnterTaskCritical();
     stateRequestStatus = SYS_CheckStateRequest(stateRequest);
 
@@ -708,6 +719,7 @@ extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState) {
     STD_RETURN_TYPE_e returnValue = STD_OK;
 
     /* Check multiple calls of function */
+    /* REQ-APP_ENGINE_SYS_006: 检测多重调用（重入保护） */
     if (SYS_MULTIPLE_CALLS_YES == SYS_CheckMultipleCalls(pSystemState)) {
         returnValue = STD_NOT_OK;
         earlyExit   = true;

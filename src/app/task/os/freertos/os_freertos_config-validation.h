@@ -48,8 +48,9 @@
  * @ingroup OS
  * @prefix  OS
  *
- * @brief   Declaration of the OS wrapper interface
- * @details This module describes the interface to different operating systems
+ * @brief   FreeRTOS configuration validation
+ * @details Compile-time validation of FreeRTOS configuration parameters
+ * @requirements REQ-014
  */
 
 #ifndef FOXBMS__OS_FREERTOS_CONFIG_VALIDATION_H_
@@ -68,16 +69,19 @@
 
 /*========== Macros and Definitions =========================================*/
 
+/** @req REQ-014: 验证vTaskDelayUntil功能可用 → foxBMS依赖此FreeRTOS功能 */
 #if !defined(INCLUDE_vTaskDelayUntil)
 #error \
     "foxBMS requires using FreeRTOS 'vTaskDelayUntil' (wrapped in 'OS_taskDelayUntil'), therefore 'INCLUDE_vTaskDelayUntil' must be defined to '1'."
 #endif /* INCLUDE_vTaskDelayUntil */
 
+/** @req REQ-014: 验证xTaskGetSchedulerState功能可用 → foxBMS依赖此FreeRTOS功能 */
 #if !defined(INCLUDE_xTaskGetSchedulerState)
 #error \
     "foxBMS requires using FreeRTOS 'xTaskGetSchedulerState' therefore 'INCLUDE_xTaskGetSchedulerState' must be defined to '1'."
 #endif /* INCLUDE_xTaskGetSchedulerState */
 
+/** @req REQ-014: 编译期验证各任务栈大小大于最小要求 */
 FAS_STATIC_ASSERT(
     (configMINIMAL_STACK_SIZE * GEN_BYTES_PER_WORD) < (StackType_t)FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES,
     "Size of the 'Engine' task is too small.");

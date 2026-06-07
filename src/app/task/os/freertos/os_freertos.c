@@ -51,6 +51,7 @@
  * @brief   FreeRTOS specific implementation of the tasks and resources used by
  *          the system
  * @details TODO
+ * @requirements REQ-001, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-016, REQ-017, REQ-018
  */
 
 /*========== Includes =======================================================*/
@@ -74,6 +75,9 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+/**
+ * @req REQ-001, REQ-018: 调度器初始化与缓存控制 → 根据 OS_ENABLE_CACHE 启用/禁用缓存
+ */
 extern void OS_InitializeScheduler(void) {
     if (OS_ENABLE_CACHE == true) {
         _cacheEnable_();
@@ -141,6 +145,9 @@ void vApplicationIdleHook(void) {
 /* AXIVION Next Codeline Style Generic-MissingParameterAssert: As stated above,
    the parameters are not used, so there is no reason to assert their on their
    values.*/
+/**
+ * @req REQ-017: 栈溢出钩子 → 通过CAN发送崩溃转储，触发硬件陷阱
+ */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     /* After the FreeRTOS stack overflow detection has been triggered, try to
        instantly send a CAN message, that tells the higher level control unit,

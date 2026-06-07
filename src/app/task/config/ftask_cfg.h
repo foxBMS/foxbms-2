@@ -50,6 +50,7 @@
  *
  * @brief   Task configuration header
  * @details TODO
+ * @requirements REQ-028
  */
 
 #ifndef FOXBMS__FTASK_CFG_H_

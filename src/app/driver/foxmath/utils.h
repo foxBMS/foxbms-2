@@ -49,6 +49,7 @@
  * @prefix  UTIL
  *
  * @brief   Utilities
+ * @requirements REQ-009, REQ-010, REQ-011
  * @details Some utility macros and functions
  */
 

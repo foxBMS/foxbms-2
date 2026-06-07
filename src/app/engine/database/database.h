@@ -50,6 +50,9 @@
  *
  * @brief   Database module header
  * @details Provides interfaces to database module
+ * @requirements REQ-APP_ENGINE_DATABASE_002, REQ-APP_ENGINE_DATABASE_003,
+ *              REQ-APP_ENGINE_DATABASE_004, REQ-APP_ENGINE_DATABASE_005,
+ *              REQ-APP_ENGINE_DATABASE_007
  */
 
 #ifndef FOXBMS__DATABASE_H_
@@ -152,13 +155,13 @@ extern void DATA_DummyFunction(void);
  *
  * @return  #STD_OK if initialization successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Initialize(void);
+extern STD_RETURN_TYPE_e DATA_Initialize(void); /**< @req REQ-APP_ENGINE_DATABASE_001 */
 
 /**
  * @brief   trigger of database manager
  * @details TODO
  */
-extern void DATA_Task(void);
+extern void DATA_Task(void); /**< @req REQ-APP_ENGINE_DATABASE_005 */
 
 /**
  * @brief   Stores one data block in database
@@ -269,7 +272,7 @@ extern STD_RETURN_TYPE_e DATA_Read4DataBlocks(
  *          the database module is working as expected. If the test fails, it
  *          will fail an assertion.
  */
-extern void DATA_ExecuteDataBist(void);
+extern void DATA_ExecuteDataBist(void); /**< @req REQ-APP_ENGINE_DATABASE_007 */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

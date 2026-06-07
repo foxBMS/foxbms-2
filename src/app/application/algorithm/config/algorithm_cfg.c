@@ -50,6 +50,7 @@
  *
  * @brief   Configuration for the algorithm module
  * @details TODO
+ * @requirements REQ-008, REQ-009, REQ-011, REQ-014, REQ-015
  */
 
 /*========== Includes =======================================================*/
@@ -80,18 +81,23 @@ const uint16_t algo_length = sizeof(algo_algorithms) / sizeof(algo_algorithms[0]
 /*========== Extern Function Implementations ================================*/
 
 extern void ALGO_MarkAsDone(uint32_t algorithmIndex) {
+    /* REQ-008: 算法执行完成后标记为就绪 */
     FAS_ASSERT(algorithmIndex < algo_length);
     if (algo_algorithms[algorithmIndex].state == ALGO_REINIT_REQUESTED) {
+        /* REQ-008: 重初始化请求挂起时不改变状态 */
         /* do not alter state if a reinitialize request is pending */
     } else if (algo_algorithms[algorithmIndex].state != ALGO_BLOCKED) {
         algo_algorithms[algorithmIndex].state = ALGO_READY;
     } else {
+        /* REQ-008: 阻塞状态保持不变 */
         /* algorithm is in "blocked" state, nothing to do here */
     }
 }
 
 extern void ALGO_MarkAsReinit(uint32_t algorithmIndex) {
+    /* REQ-009: 在临界区内标记算法需要重初始化 */
     FAS_ASSERT(algorithmIndex < algo_length);
+    /* REQ-014: 临界区保护 */
     OS_EnterTaskCritical();
     algo_algorithms[algorithmIndex].state = ALGO_REINIT_REQUESTED;
     OS_ExitTaskCritical();

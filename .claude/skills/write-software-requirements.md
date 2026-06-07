@@ -48,8 +48,14 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 从代码分析中提取需求，遵循以下规则：
 
 1. **需求编号**：
-   - 简单模式：`REQ-001` ~ `REQ-NNN`（自增编号）
-   - 详细模式：`FR-X.Y.Z`（功能需求）/ `NFR-X.Y.Z`（非功能需求）
+   - 编号格式：`REQ-<路径前缀>_NNN`（如 `REQ-APP_APPLICATION_BAL_001`）
+   - **路径前缀**：由源文件在 `src/` 下的目录路径推导，各层级大写，用下划线连接
+     - 格式：`<层级1>_<层级2>_<层级3>_<模块名>`
+     - 示例：`src/app/application/bal/bal.c` → 前缀 `APP_APPLICATION_BAL`
+     - 示例：`src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c` → 前缀 `APP_APPLICATION_ALGORITHM_STATE_ESTIMATION_SOC_COUNTING`
+     - 示例：`src/app/driver/afe/ti/dummy/ti_dummy.c` → 前缀 `APP_DRIVER_AFE_TI_DUMMY`
+   - 自增编号 `NNN` 从 `001` 开始，每个文件内独立递增
+   - 详细模式额外支持子编号：`FR-X.Y.Z` / `NFR-X.Y.Z` 置于前缀之后
    
 2. **需求描述规范**：
    - 使用"系统应……"或"模块应……"句式
@@ -124,7 +130,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
    /**
     * @brief   BMS 主控制模块
     * @file    bms.c
-    * @requirements REQ-001, REQ-002, REQ-003, REQ-005, REQ-008 ~ REQ-015
+    * @requirements REQ-APP_APPLICATION_BMS_001, REQ-APP_APPLICATION_BMS_002, REQ-APP_APPLICATION_BMS_003
     */
    ```
 
@@ -133,7 +139,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
    ```c
    /**
     * @brief   初始化 BMS 状态机
-    * @req     REQ-001, REQ-002
+    * @req     REQ-APP_APPLICATION_BMS_001, REQ-APP_APPLICATION_BMS_002
     * @param   p_bms 指向 BMS 状态结构体的指针
     * @return  初始化结果状态
     */
@@ -144,7 +150,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 
    ```c
    if (voltage > threshold) {
-       /* REQ-008: 过压检测 → 触发故障保护 */
+       /* REQ-APP_APPLICATION_BMS_008: 过压检测 → 触发故障保护 */
        BMS_TriggerFault(FAULT_OVERVOLTAGE);
    }
    ```
@@ -152,18 +158,18 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 4. **宏定义/配置常量注释**：在宏定义旁以行内注释标注对应的需求编号。
 
    ```c
-   #define BMS_OVERVOLTAGE_THRESHOLD_mV  4200u  /**< REQ-008: 过压保护阈值 (mV) */
-   #define BMS_UNDERVOLTAGE_THRESHOLD_mV 2800u  /**< REQ-009: 欠压保护阈值 (mV) */
+   #define BMS_OVERVOLTAGE_THRESHOLD_mV  4200u  /**< REQ-APP_APPLICATION_BMS_008: 过压保护阈值 (mV) */
+   #define BMS_UNDERVOLTAGE_THRESHOLD_mV 2800u  /**< REQ-APP_APPLICATION_BMS_009: 欠压保护阈值 (mV) */
    ```
 
 #### 4.2 注释层级规范
 
 | 层级 | 位置 | 标签格式 | 示例 |
 | ---- | ---- | -------- | ---- |
-| 文件级 | 文件头注释块 | `@requirements` | `@requirements REQ-001, REQ-002, REQ-003` |
-| 函数级 | Doxygen 注释块 | `@req` | `@req REQ-001, REQ-002` |
-| 代码块级 | 行内注释 | `/* REQ-XXX: ... */` | `/* REQ-005: 状态切换 → 运行模式 */` |
-| 宏/变量级 | 行尾注释 | `/**< REQ-XXX: ... */` | `/**< REQ-012: 最大重试次数 */` |
+| 文件级 | 文件头注释块 | `@requirements` | `@requirements REQ-APP_APPLICATION_BAL_001, REQ-APP_APPLICATION_BAL_002` |
+| 函数级 | Doxygen 注释块 | `@req` | `@req REQ-APP_APPLICATION_BAL_001, REQ-APP_APPLICATION_BAL_002` |
+| 代码块级 | 行内注释 | `/* REQ-<前缀>_NNN: ... */` | `/* REQ-APP_APPLICATION_BMS_005: 状态切换 */` |
+| 宏/变量级 | 行尾注释 | `/**< REQ-<前缀>_NNN: ... */` | `/**< REQ-APP_APPLICATION_BAL_012: 最大重试次数 */` |
 
 #### 4.3 操作步骤
 
@@ -188,11 +194,23 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 
 ### 需求编号规则
 
+**前缀推导**: 从源文件在 `src/` 下的路径提取目录层级，大写，下划线连接。
+
+| 源文件路径 | 前缀 | 需求编号示例 |
+|-----------|------|-------------|
+| `src/app/application/bal/bal.c` | `APP_APPLICATION_BAL` | `REQ-APP_APPLICATION_BAL_001` |
+| `src/app/application/bms/bms.c` | `APP_APPLICATION_BMS` | `REQ-APP_APPLICATION_BMS_001` |
+| `src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c` | `APP_APPLICATION_ALGORITHM_STATE_ESTIMATION_SOC_COUNTING` | `REQ-APP_APPLICATION_ALGORITHM_STATE_ESTIMATION_SOC_COUNTING_001` |
+| `src/app/driver/afe/ti/dummy/ti_dummy.c` | `APP_DRIVER_AFE_TI_DUMMY` | `REQ-APP_DRIVER_AFE_TI_DUMMY_001` |
+| `src/app/driver/can/can.c` | `APP_DRIVER_CAN` | `REQ-APP_DRIVER_CAN_001` |
+
+**编号模式**:
+
 | 模式 | 编号格式 | 示例 |
 |------|---------|------|
-| simple | `REQ-NNN` | `REQ-001` |
-| standard | `REQ-NNN`（全局递增） | `REQ-057` |
-| detailed | `FR-X.Y.Z` / `NFR-X.Y.Z` | `FR-3.2.1`、`NFR-4.3.1` |
+| simple | `REQ-<前缀>_NNN` | `REQ-APP_APPLICATION_BAL_001` |
+| standard | `REQ-<前缀>_NNN`（模块内递增） | `REQ-APP_APPLICATION_BAL_057` |
+| detailed | `REQ-<前缀>_NNN` + `FR-X.Y.Z` / `NFR-X.Y.Z` | `REQ-APP_APPLICATION_BMS_FR-3.2.1` |
 
 ### 需求质量准则
 

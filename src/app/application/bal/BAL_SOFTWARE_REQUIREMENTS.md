@@ -723,10 +723,63 @@ BAL_Trigger() (每 100ms 调用)
 
 ## 8. 追溯矩阵
 
+### 8.1 需求 → 代码位置映射
+
+下表提供每个需求到源代码的快速追溯。代码中也通过 `@req` 注释标记了对应的需求编号。
+
+#### 功能需求（FR）
+
+| 需求编号 | 需求简述 | 实现文件 | 函数 / 定义 |
+|----------|----------|----------|-------------|
+| FR-3.1.1 | 保存上一状态与子状态 | `bal.c` | `BAL_SaveLastStates()` |
+| FR-3.2.1 | 重入检查 | `bal.c` | `BAL_CheckReEntrance()` |
+| FR-3.3.1 | 状态请求转移 | `bal.c` | `BAL_TransferStateRequest()` |
+| FR-3.4.1 | 直接通过类请求校验 | `bal.c` | `BAL_CheckStateRequest()`（前半部分） |
+| FR-3.4.2 | 初始化请求校验 | `bal.c` | `BAL_CheckStateRequest()`（后半部分） |
+| FR-3.5.1 | 均衡模块初始化 | `bal.c` | `BAL_Init()` |
+| FR-3.6.1 | 未初始化状态处理 | `bal.c` | `BAL_ProcessStateUninitialized()` |
+| FR-3.6.2 | 初始化状态处理 | `bal.c` | `BAL_ProcessStateInitialization()` |
+| FR-3.6.3 | 已初始化状态处理 | `bal.c` | `BAL_ProcessStateInitialized()` |
+
+#### 非功能需求（NFR）
+
+| 需求编号 | 需求简述 | 实现文件 | 函数 / 定义 |
+|----------|----------|----------|-------------|
+| NFR-4.1.1 | 状态机触发周期 100ms | `bal_cfg.h` | `BAL_FSM_SHORTTIME_100ms (1u)` |
+| NFR-4.1.2 | 长延时周期 5s | `bal_cfg.h` | `BAL_FSM_LONGTIME_100ms (50u)` |
+| NFR-4.1.3 | 均衡执行时间 1s | `bal_cfg.h` | `BAL_FSM_BALANCING_TIME_100ms (10u)` |
+| NFR-4.2.1 | 状态结构体紧凑 | `bal.h` | `BAL_STATE_s` 结构体（13 字段） |
+| NFR-4.3.1 | 空指针保护 | `bal.c` | 所有 extern 函数的 `FAS_ASSERT(ptr != NULL_PTR)` |
+| NFR-4.3.2 | 重入保护 | `bal.c` | `BAL_CheckReEntrance()` 的 `triggerEntry` 计数 |
+| NFR-4.3.3 | 临界区保护 | `bal.c` / `bal_cfg.c` | `OS_EnterTaskCritical()` / `OS_ExitTaskCritical()` |
+| NFR-4.3.4 | 输入边界限定 | `bal_cfg.c` | `BAL_SetBalancingThreshold()` 的边界检查 |
+| NFR-4.4.1 | 配置参数集中管理 | `bal_cfg.h` | 所有 `#define BAL_*` 宏定义 |
+| NFR-4.5.1 | 单元测试支持 | `bal.h` / `bal.c` | `#ifdef UNITY_UNIT_TEST` 区块 |
+
+#### 数据结构
+
+| 章节 | 内容 | 实现文件 | 定义 |
+|------|------|----------|------|
+| 6.1 | BAL_STATE_s 状态结构体 | `bal.h` | `typedef struct { ... } BAL_STATE_s` |
+| 6.2 | BAL_FSM_e 状态枚举 | `bal.h` | `typedef enum { ... } BAL_FSM_e` |
+| 6.2 | BAL_FSM_SUB_e 子状态枚举 | `bal.h` | `typedef enum { ... } BAL_FSM_SUB_e` |
+| 6.2 | BAL_STATE_REQUEST_e 请求枚举 | `bal.h` | `typedef enum { ... } BAL_STATE_REQUEST_e` |
+| 6.2 | BAL_RETURN_TYPE_e 返回类型枚举 | `bal.h` | `typedef enum { ... } BAL_RETURN_TYPE_e` |
+
+### 8.2 代码 → 需求反向索引
+
+代码中通过 `@req` 注释可快速定位对应需求。主要入口点：
+
+- `bal.h` — 枚举、结构体、API 声明（所有功能需求和数据结构）
+- `bal.c` — 函数实现（FR-3.x.x）和非功能需求落地（NFR-4.3.1/4.3.2/4.3.3）
+- `bal_cfg.h` — 配置宏定义（NFR-4.1.x, NFR-4.4.1）
+- `bal_cfg.c` — 阈值管理实现（NFR-4.3.4, NFR-4.3.3）
+
 详见 [BAL_REQUIREMENT_TRACEABILITY_MAPPING.md](BAL_REQUIREMENT_TRACEABILITY_MAPPING.md)
 
 ---
 
 **文档生成日期**: 2026-06-05
+**文档更新日期**: 2026-06-06（添加代码位置追溯表）
 **生成工具**: Claude Code (write-software-requirements skill)
 **适用范围**: foxBMS 2 v1.11.0

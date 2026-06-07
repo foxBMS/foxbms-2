@@ -51,6 +51,7 @@
  * @brief   Header of the ethernet software
  * @details Here can the application part of the ethernet be placed.
  *          For example a TCP-sever.
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012
  */
 
 #ifndef FOXBMS__ETHERNET_H_
@@ -70,7 +71,7 @@
  * @details This function prepares initializes the diver layer to communicate
  * with the TCP stack. This means initializing the PHY and EMAC driver and
  * making the network parameters as the IP address accessible for the TCP stack.
- *
+ * @req REQ-001, REQ-002
  */
 extern void ETH_Initialize(void);
 

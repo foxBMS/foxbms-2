@@ -50,6 +50,7 @@
  *
  * @brief   Implementation of the tasks and resources used by the system
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005
  */
 
 /*========== Includes =======================================================*/
@@ -81,6 +82,9 @@ uint32_t os_schedulerStartTime = 0u;
 
 /*========== Extern Function Implementations ================================*/
 
+/**
+ * @req REQ-001: 操作系统初始化 → 依次完成调度器/队列/任务初始化
+ */
 void OS_InitializeOperatingSystem(void) {
     /* Initialize the scheduler */
     os_boot = OS_INITIALIZE_SCHEDULER;
@@ -96,6 +100,9 @@ void OS_InitializeOperatingSystem(void) {
 /* AXIVION Disable Style Generic-MaxNesting: The program flow is simple
    although it exceeds the maximum nesting level and changing the
    implementation would not be beneficial for understanding the function. */
+/**
+ * @req REQ-003: 系统运行时间计数器 → 多级进位链 ms→10ms→100ms→s→min→h→d
+ */
 extern void OS_IncrementTimer(void) {
     RTC_IncrementSystemTime();
     if (++os_timer.timer_1ms > 9u) { /* 10ms */
@@ -121,6 +128,9 @@ extern void OS_IncrementTimer(void) {
 /* AXIVION Enable Style Generic-MaxNesting: */
 
 /* AXIVION Next Codeline Style Generic-MissingParameterAssert: The function is designed and tested for full range */
+/**
+ * @req REQ-004: 时间流逝判定 → 支持回绕的带时间戳比较，含零时间/零差值/超时三个分支
+ */
 extern bool OS_CheckTimeHasPassedWithTimestamp(
     uint32_t oldTimeStamp_ms,
     uint32_t currentTimeStamp_ms,
@@ -147,10 +157,16 @@ extern bool OS_CheckTimeHasPassedWithTimestamp(
 }
 
 /* AXIVION Next Codeline Style Generic-MissingParameterAssert: The function is designed and tested for full range */
+/**
+ * @req REQ-004: 时间流逝判定 → 以当前节拍为参考的便捷版本
+ */
 extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_ms) {
     return OS_CheckTimeHasPassedWithTimestamp(oldTimeStamp_ms, OS_GetTickCount(), timeToPass_ms);
 }
 
+/**
+ * @req REQ-005: 时间流逝检查自检 → 5个预定义测试用例验证判定逻辑正确性
+ */
 extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void) {
     STD_RETURN_TYPE_e selfCheckReturnValue = STD_OK;
 
@@ -187,6 +203,9 @@ extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void) {
     return selfCheckReturnValue;
 }
 
+/**
+ * @req REQ-003: 获取系统运行时间计数器 → 返回 os_timer 值拷贝
+ */
 extern OS_TIMER_s OS_GetOsTimer() {
     return os_timer;
 }

@@ -50,6 +50,7 @@
  *
  * @brief   Header for SOX module, responsible for current derating calculation
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-011
  */
 
 #ifndef FOXBMS__SOF_TRAPEZOID_H_

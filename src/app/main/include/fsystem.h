@@ -49,6 +49,7 @@
  * @prefix  FSYS
  *
  * @brief   Function to switch between user mode and privilege mode
+ * @requirements REQ-027, REQ-028, REQ-029
  * @details TODO
  */
 
@@ -77,6 +78,7 @@
  */
 /**
  * @brief   Raise privilege
+ * @req     REQ-027
  * @details This alias is mapped to an ASM function and raises to a privileged
  *          processor state if the system is currently in user mode.
  *          This is done by the following ASM code:
@@ -121,6 +123,7 @@ extern long FSYS_RaisePrivilege(void);
 
 /**
  * @brief   Switch back to user mode
+ * @req     REQ-028
  * @details This macro is used after raising the privileges with
  *          #FSYS_RaisePrivilege(). Failure to call this macro may lead to
  *          unintended system behavior.
@@ -137,6 +140,7 @@ static inline void FSYS_SwitchToUserMode(void) {
 
 /**
  * @brief   Yield from an ISR.
+ * @req     REQ-029
  * @details This macro is used to yield from an ISR when x is != pdFALSE.
  */
 #ifdef UNITY_UNIT_TEST

@@ -49,6 +49,7 @@
  * @prefix  HTSEN
  *
  * @brief   Driver for the Sensirion SHT35-DIS I2C humidity/temperature sensor
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008
  * @details Implements the driver and conversion functions for the Sensirion
  *          SHT35-DIS humidity/temperature sensor
  *

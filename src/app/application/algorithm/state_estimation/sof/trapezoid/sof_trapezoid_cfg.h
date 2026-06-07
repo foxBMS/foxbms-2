@@ -50,6 +50,7 @@
  *
  * @brief   Header for SOF configuration
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006
  */
 
 #ifndef FOXBMS__SOF_TRAPEZOID_CFG_H_

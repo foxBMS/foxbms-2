@@ -50,6 +50,7 @@
  *
  * @brief   Moving average algorithm
  * @details TODO
+ * @requirements REQ-008
  */
 
 #ifndef FOXBMS__MOVING_AVERAGE_H_
@@ -59,16 +60,18 @@
 
 /*========== Macros and Definitions =========================================*/
 
-#define MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms (3000u)
-#define MOVING_AVERAGE_DURATION_POWER_CONFIG_ms   (3000u)
+#define MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms (3000u) /**< REQ-008: 电流移动平均可配置窗口时长 (ms) */
+#define MOVING_AVERAGE_DURATION_POWER_CONFIG_ms   (3000u) /**< REQ-008: 功率移动平均可配置窗口时长 (ms) */
 
-#define ISA_CURRENT_CYCLE_TIME_ms (200u)
-#define ISA_POWER_CYCLE_TIME_ms   (200u)
+#define ISA_CURRENT_CYCLE_TIME_ms (200u) /**< REQ-008: ISA 电流传感器数据周期 (ms) */
+#define ISA_POWER_CYCLE_TIME_ms   (200u) /**< REQ-008: ISA 功率传感器数据周期 (ms) */
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
-/** moving average function for the algorithm module */
+/** moving average function for the algorithm module
+ * @req REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007
+ */
 extern void ALGO_MovingAverage(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/

@@ -50,6 +50,7 @@
  *
  * @brief   Header for SOC configuration
  * @details TODO
+ * @requirements REQ-012
  */
 
 #ifndef FOXBMS__SOC_COUNTING_CFG_H_

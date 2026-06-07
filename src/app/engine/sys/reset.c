@@ -50,6 +50,7 @@
  *
  * @brief   Software reset driver
  * @details Stub for the software reset driver
+ * @requirements REQ-APP_ENGINE_SYS_022
  */
 
 /*========== Includes =======================================================*/

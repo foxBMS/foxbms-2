@@ -49,6 +49,7 @@
  * @prefix  STU
  *
  * @brief   Startup code
+ * @requirements REQ-013, REQ-014
  * @details TODO
  */
 
@@ -76,6 +77,7 @@ extern void __TI_auto_init(void);
     see SPNU151V-January1998-RevisedFebruary2020: 6.10 System Initialization */
 /**
  * @brief   Startup Routine
+ * @req     REQ-013
  * @details The name of the startup routine is defined in the TI ARM CGT
  *          manual.
  */

@@ -49,6 +49,7 @@
  * @prefix  FAS
  *
  * @brief   Assert macro implementation
+ * @requirements REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012
  * @details The default implementation accommodates three behaviors,
  *          based on FAS_ASSERT_LEVEL symbol:
  *
@@ -108,6 +109,7 @@
  */
 /**
  * @brief   Disable interrupts
+ * @req     REQ-012
  * @details This alias is mapped to an ASM function and disables all interrupts
  *          by writing to the SPSR (Saved Program Status Register) register
  *          through the control field mask byte PSR[7:0] (privileged
@@ -122,6 +124,7 @@ extern void FAS_DisableInterrupts(void);
 /**
  * @brief       Define that evaluates to essential boolean false thus tripping
  *              an assert.
+ * @req         REQ-010
  * @details     Call FAS_ASSERT() with this define in order to stop the code
  *              and trip an assertion.
  */
@@ -139,6 +142,7 @@ typedef struct {
 
 /**
  * @brief   Copy the assert location into the assert struct.
+ * @req     REQ-009
  * @details Takes the location of the last assertion and stores it into the
  *          static fas_assertLocation.
  *          This definition has to be at this position in order to be used by
@@ -178,6 +182,7 @@ extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line);
 
 #if FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
 /** Assert macro will trigger a watchdog reset */
+/** @req REQ-008: 级别0 - 禁用中断后进入无限循环 */
 static inline void FAS_InfiniteLoop(void) {
     /* disable IRQ interrupts */
     FAS_DisableInterrupts();
@@ -188,12 +193,14 @@ static inline void FAS_InfiniteLoop(void) {
 }
 #elif FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG
 /** Assert macro will stay in infinite loop */
+/** @req REQ-008: 级别1 - 进入无限循环（调试模式） */
 static inline void FAS_InfiniteLoop(void) {
     while (true) {
         /* Stay here to ease debugging */
     }
 }
 #elif FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_NO_OPERATION
+/** @req REQ-008: 级别2 - 无操作（仅记录断言位置） */
 static inline void FAS_InfiniteLoop(void) {
 }
 #else
@@ -212,6 +219,7 @@ static inline uint32_t __curpc(void) {
 
 /**
  * @brief   Record the assert location
+ * @req     REQ-009
  * @details Retrieves the program counter (with __curpc()) and line-number at
  *          the current location and passes it to #FAS_StoreAssertLocation().
  *
@@ -231,6 +239,7 @@ static inline uint32_t __curpc(void) {
 /**
  * @def     FAS_ASSERT(x)
  * @brief   Assertion macro that asserts that x is true
+ * @req     REQ-007
  * @details This macro asserts the taken argument x. If the assertion fails
  *          it calls #FAS_ASSERT_RECORD() and then #FAS_InfiniteLoop().
  *

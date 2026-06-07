@@ -49,6 +49,7 @@
  * @prefix  ADC
  *
  * @brief   Headers for the driver for the ADC module.
+ * @requirements REQ-001, REQ-002, REQ-006, REQ-007, REQ-011
  * @details TODO
  */
 
@@ -72,7 +73,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** End bit position in ADC GroupX Interrupt Flag Register */
-#define ADC_CONVERSION_ENDBIT (8u)
+#define ADC_CONVERSION_ENDBIT (8u) /**< REQ-002: ADC 转换完成标志位 */
 
 /**
  * State for the ADC conversion
@@ -89,7 +90,7 @@ typedef enum {
 
 /**
  * @brief   controls ADC measurement sequence.
- *
+ * @req     REQ-001
  */
 extern void ADC_Control(void);
 

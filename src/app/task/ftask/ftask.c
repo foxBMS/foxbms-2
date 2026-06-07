@@ -50,6 +50,7 @@
  *
  * @brief   Implementation of OS-independent task creators
  * @details TODO
+ * @requirements REQ-022, REQ-023, REQ-024, REQ-025, REQ-026, REQ-027
  */
 
 /*========== Includes =======================================================*/
@@ -75,6 +76,9 @@
 /*========== Extern Function Implementations ================================*/
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS compiler
  * that this function is a task, context save not necessary */
+/**
+ * @req REQ-022: Engine任务 → 全网最高优先级，初始化数据库和FRAM，循环处理数据库+系统监控
+ */
 #pragma TASK(FTSK_CreateTaskEngine)
 extern void FTSK_CreateTaskEngine(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);
@@ -97,6 +101,9 @@ extern void FTSK_CreateTaskEngine(void *const pvParameters) {
 
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS compiler
  * that this function is a task, context save not necessary */
+/**
+ * @req REQ-023: Cyclic 1ms任务 → 等待Engine就绪后执行预循环初始化，每1ms调用OS_IncrementTimer/DIAG/MEAS/CAN
+ */
 #pragma TASK(FTSK_CreateTaskCyclic1ms)
 extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);
@@ -129,6 +136,9 @@ extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters) {
 
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler that this function is a task, context save not necessary */
+/**
+ * @req REQ-024: Cyclic 10ms任务 → 相位2ms，每10ms调用SYS/ILCK/ADC/CAN/SOF/BMS等核心控制函数
+ */
 #pragma TASK(FTSK_CreateTaskCyclic10ms)
 extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);
@@ -158,6 +168,9 @@ extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters) {
 
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler that this function is a task, context save not necessary */
+/**
+ * @req REQ-025: Cyclic 100ms任务 → 相位56ms，每100ms调用BAL/IMD/LED/MINFO，每1s调用SE_RunStateEstimations
+ */
 #pragma TASK(FTSK_CreateTaskCyclic100ms)
 extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);
@@ -187,6 +200,9 @@ extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters) {
 
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler that this function is a task, context save not necessary */
+/**
+ * @req REQ-026: Cyclic Algorithm 100ms任务 → 相位64ms，每100ms调用ALGO_MainFunction，启动后设置OS_SYSTEM_RUNNING
+ */
 #pragma TASK(FTSK_CreateTaskCyclicAlgorithm100ms)
 extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);

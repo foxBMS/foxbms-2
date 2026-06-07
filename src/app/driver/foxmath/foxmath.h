@@ -49,6 +49,7 @@
  * @prefix  MATH
  *
  * @brief   Math library for often used math functions
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-012
  * @details This header file contains the different math function declarations.
  *          Currently the following functions are supported:
  *          - Slope

@@ -50,6 +50,7 @@
  *
  * @brief   SOF modules responsible for current derating calculation
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011
  */
 
 /*========== Includes =======================================================*/

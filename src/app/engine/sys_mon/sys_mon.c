@@ -50,6 +50,10 @@
  *
  * @brief   System monitoring module
  * @details TODO
+ * @requirements REQ-APP_ENGINE_SYS_MON_001, REQ-APP_ENGINE_SYS_MON_002,
+ *              REQ-APP_ENGINE_SYS_MON_003, REQ-APP_ENGINE_SYS_MON_004,
+ *              REQ-APP_ENGINE_SYS_MON_005, REQ-APP_ENGINE_SYS_MON_006,
+ *              REQ-APP_ENGINE_SYS_MON_007, REQ-APP_ENGINE_SYS_MON_008
  */
 
 /*========== Includes =======================================================*/

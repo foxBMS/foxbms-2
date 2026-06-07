@@ -50,6 +50,7 @@
  *
  * @brief   Sys driver configuration header
  * @details TODO
+ * @requirements REQ-APP_ENGINE_SYS_013
  */
 
 #ifndef FOXBMS__SYS_CFG_H_
@@ -68,7 +69,7 @@
  *
  * This define also sets the minimum time.
  */
-#define SYS_TASK_CYCLE_CONTEXT_MS (10u)
+#define SYS_TASK_CYCLE_CONTEXT_MS (10u) /**< REQ-APP_ENGINE_SYS_NFR_001: 10ms 周期任务上下文 */
 
 /**
  * SYS state machine short time definition in #SYS_Trigger() calls until next
@@ -92,7 +93,7 @@
 #define SYS_STATE_MACHINE_INITIALIZATION_REQUEST_RETRY_COUNTER (3u)
 
 /** SYS state machine initialization timeout */
-#define SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS (200u)
+#define SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS (200u) /**< REQ-APP_ENGINE_SYS_NFR_003: 通用初始化超时 200ms */
 
 /**
  * SYS state machine initialization timeout to wait for the first measurement
@@ -126,7 +127,7 @@
 #define SYS_STATE_MACHINE_BAL_INITIALIZATION_TIMEOUT_MS (500u)
 
 /** SYS state machine SBC initialization timeout */
-#define SYS_STATE_MACHINE_SBC_INIT_TIMEOUT_MS (1000u)
+#define SYS_STATE_MACHINE_SBC_INIT_TIMEOUT_MS (1000u) /**< REQ-APP_ENGINE_SYS_NFR_003: SBC 初始化超时 1000ms */
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -135,7 +136,7 @@
 /**
  * @brief   Function to send out boot message with SW version
  */
-extern void SYS_SendBootMessage(void);
+extern void SYS_SendBootMessage(void); /**< @req REQ-APP_ENGINE_SYS_013 */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

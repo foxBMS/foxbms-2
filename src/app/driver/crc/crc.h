@@ -49,6 +49,7 @@
  * @prefix  CRC
  *
  * @brief   CRC module header
+ * @requirements REQ-002, REQ-003, REQ-010, REQ-011
  * @details Uses the system CRC hardware for data integrity calculation
  */
 
@@ -66,13 +67,13 @@
 /*========== Macros and Definitions =========================================*/
 
 /** High 32 bit part of the seed used for CRC calculation */
-#define CRC_SEED_HIGH (0xBADC0DEDu)
+#define CRC_SEED_HIGH (0xBADC0DEDu)     /**< REQ-002: CRC种子值高32位 */
 /** Low 32 bit part of the seed used for CRC calculation */
-#define CRC_SEED_LOW (0xDEADBEEFu)
+#define CRC_SEED_LOW (0xDEADBEEFu)      /**< REQ-002: CRC种子值低32位 */
 /** Mask used to clear bits in config register to set CRC module to Data Capture Mode */
-#define CRC_DATA_CAPTURE_MODE_CLEAR_MASK (0xFFFFFFFCu)
+#define CRC_DATA_CAPTURE_MODE_CLEAR_MASK (0xFFFFFFFCu) /**< REQ-003: Data Capture Mode 位清除掩码 */
 /** Mask used to set bits in config register to set CRC module to Full-CPU Mode */
-#define CRC_FULL_CPU_MODE_SET_MASK (0x3u)
+#define CRC_FULL_CPU_MODE_SET_MASK (0x3u)              /**< REQ-003: Full-CPU Mode 位设置掩码 */
 
 /* Size in bits of a byte, used for shift operations */
 #define CRC_BYTE_SIZE_IN_BITS (8u)
@@ -109,6 +110,7 @@ extern uint16_t crcCalls;
 
 /**
  * @brief   Computes CRC of data flow
+ * @req     REQ-001
  * @details This function uses the hardware of the MCU.
  *          Data must be given in  byte chunks.
  * @param[in]   pCrc            uint64_t pointer to the calculated CRC

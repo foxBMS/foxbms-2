@@ -52,7 +52,8 @@
  * @details The configuration of the different diagnosis events defined in
  *          diag_cfg.h is set in the array diag_diagnosisIdConfiguration[],
  *          e.g., initialization errors or runtime errors.
- *
+ * @requirements REQ-APP_ENGINE_CONFIG_DIAG_CFG_004
+ */
  *          Every entry of the diag_diagnosisIdConfiguration[] array consists
  *          of
  *           - name of the diagnosis event (defined in diag_cfg.h)

@@ -50,6 +50,7 @@
  *
  * @brief   Headers for the configuration of the algorithm module
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-010, REQ-015
  */
 
 #ifndef FOXBMS__ALGORITHM_CFG_H_
@@ -66,7 +67,7 @@
  * @details task time slot where the ALGO main function is called. Repetition
  *          time of algorithm cycle time must be multiple of this
  */
-#define ALGO_TICK_ms (100u)
+#define ALGO_TICK_ms (100u) /**< REQ-010: 算法调度时间基准 (ms) */
 
 /**
  * function type for the initialization function of an algorithm
@@ -81,24 +82,24 @@ typedef void ALGO_COMPUTATION_FUNCTION_f(void);
 
 /** states that an algorithm can take */
 typedef enum {
-    ALGO_UNINITIALIZED,    /*!< This is the default value indicating that initialization has not run yet */
-    ALGO_READY,            /*!< This indicates that the algorithm is ready to be run on next time slot */
-    ALGO_RUNNING,          /*!< This indicates that the algorithm is currently running.
+    ALGO_UNINITIALIZED,    /*!< REQ-001: 默认值，初始化尚未执行 */
+    ALGO_READY,            /*!< REQ-001: 算法就绪，可在下一 Tick 执行 */
+    ALGO_RUNNING,          /*!< REQ-001: 算法正在执行中。
     Note that it may not spend more than #ALGO_TASKS_s::maxCalculationDuration_ms in this state. */
-    ALGO_BLOCKED,          /*!< This indicates that the algorithm has violated its maximum calculation duration. */
-    ALGO_FAILED_INIT,      /*!< This indicates a failed initialization. */
-    ALGO_REINIT_REQUESTED, /*!< This indicates that a reinitialization of the algorithm has been requested. */
+    ALGO_BLOCKED,          /*!< REQ-001: 算法超出最大执行时长，已阻塞 */
+    ALGO_FAILED_INIT,      /*!< REQ-001: 初始化失败 */
+    ALGO_REINIT_REQUESTED, /*!< REQ-001: 已请求重新初始化 */
 } ALGO_STATE_e;
 
 /** Struct representing the key parameters of an algorithm */
 typedef struct {
-    ALGO_STATE_e state;                               /*!< current execution state */
-    uint32_t cycleTime_ms;                            /*!< cycle time of algorithm */
-    uint32_t maxCalculationDuration_ms;               /*!< maximum allowed calculation duration for task */
-    uint32_t startTime;                               /*!< start time when executing algorithm */
-    ALGO_INITIALIZATION_FUNCTION_f *fpInitialization; /*!< callback function for init;
+    ALGO_STATE_e state;                               /*!< REQ-002: 当前执行状态 */
+    uint32_t cycleTime_ms;                            /*!< REQ-002: 算法执行周期 (ms)，0 表示 ASAP */
+    uint32_t maxCalculationDuration_ms;               /*!< REQ-002: 最大允许执行时长 (ms) */
+    uint32_t startTime;                               /*!< REQ-002: 算法启动执行时的时间戳 */
+    ALGO_INITIALIZATION_FUNCTION_f *fpInitialization; /*!< REQ-002: 初始化回调函数指针;
         set to #NULL_PTR if not needed; return #STD_OK if init successful */
-    ALGO_COMPUTATION_FUNCTION_f *fpAlgorithm;         /*!< callback function */
+    ALGO_COMPUTATION_FUNCTION_f *fpAlgorithm;         /*!< REQ-002: 计算回调函数指针 */
 } ALGO_TASKS_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

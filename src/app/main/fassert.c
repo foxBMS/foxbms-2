@@ -49,6 +49,7 @@
  * @prefix  FAS
  *
  * @brief   Assert macro implementation
+ * @requirements REQ-009
  * @details Implementation for the fassert.h header
  */
 
@@ -68,6 +69,7 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+/* REQ-009: 将断言触发的程序计数器和行号存入 FAS_ASSERT_LOCATION_s 结构体 */
 extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line) {
     /* AXIVION Routine Generic-MissingParameterAssert: pc: asserting does not make sense as we come from an assert */
     /* AXIVION Routine Generic-MissingParameterAssert: line: line creating the assertion can be any line in uint32_t */

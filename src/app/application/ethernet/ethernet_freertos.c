@@ -50,6 +50,7 @@
  *
  * @brief   FreeRTOS abstraction for ethernet application
  * @details As the TCP-Support is build optionally the abstraction is placed here
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005
  */
 
 /*========== Includes =======================================================*/
@@ -65,10 +66,12 @@
 
 /*========== Macros and Definitions =========================================*/
 
+/** REQ-001, REQ-002: 栈大小字节转字数，用于 xTaskCreateStatic 的栈深度参数 */
 #define ETH_BYTES_TO_WORDS(VARIABLE_IN_BYTES) ((VARIABLE_IN_BYTES) / GEN_BYTES_PER_WORD)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
+/** REQ-001, REQ-002: 任务句柄，保存创建后的任务引用 */
 OS_TASK_HANDLE eth_taskHandleListening;
 OS_TASK_HANDLE eth_taskHandleEchoServer;
 
@@ -81,13 +84,15 @@ OS_TASK_HANDLE eth_taskHandleEchoServer;
 /*========== Extern Function Implementations ================================*/
 
 extern ETH_RETURN_TYPE_e ETH_CreateListeningTask(TaskFunction_t taskFunction, NetworkEndPoint_t *pEndPoint) {
-    FAS_ASSERT(taskFunction != NULL_PTR);
-    FAS_ASSERT(pEndPoint != NULL_PTR);
+    FAS_ASSERT(taskFunction != NULL_PTR);  /* NFR-005: 参数非空校验 */
+    FAS_ASSERT(pEndPoint != NULL_PTR);     /* NFR-005: 参数非空校验 */
 
+    /* REQ-001, REQ-003: 静态内存分配 — 栈、TCB 和单例标志 */
     static bool taskAlreadyCreated                                                   = false;
     static StackType_t eth_stackListenforConnection[ETH_LISTENING_TASK_STACK_SIZE_B] = {0};
     static StaticTask_t eth_taskListenforConnection                                  = {0};
 
+    /* REQ-003: 临界区内检查单例标志，防止竞态条件 */
     OS_EnterTaskCritical();
     if (taskAlreadyCreated == true) {
         OS_ExitTaskCritical();
@@ -96,7 +101,7 @@ extern ETH_RETURN_TYPE_e ETH_CreateListeningTask(TaskFunction_t taskFunction, Ne
     taskAlreadyCreated = true;
     OS_ExitTaskCritical();
 
-    /* Spawn listening task */
+    /* REQ-001: 使用 xTaskCreateStatic 创建监听任务 */
     eth_taskHandleListening = xTaskCreateStatic(
         taskFunction,
         "Listening-Task",
@@ -106,18 +111,20 @@ extern ETH_RETURN_TYPE_e ETH_CreateListeningTask(TaskFunction_t taskFunction, Ne
         &eth_stackListenforConnection[0],
         &eth_taskListenforConnection /* Holds the task's data structure. */
     );
-    FAS_ASSERT(eth_taskHandleListening != NULL); /* Trap if initialization failed */
+    FAS_ASSERT(eth_taskHandleListening != NULL); /* NFR-006: 任务创建失败时断言 */
 
     return ETH_OK;
 }
 
 extern ETH_RETURN_TYPE_e ETH_CreateEchoServerTask(TaskFunction_t taskFunction) {
-    FAS_ASSERT(taskFunction != NULL_PTR);
+    FAS_ASSERT(taskFunction != NULL_PTR);  /* NFR-005: 参数非空校验 */
 
+    /* REQ-002, REQ-003: 静态内存分配 — 栈、TCB 和单例标志 */
     static bool taskAlreadyCreated                                            = false;
     static StackType_t eth_stackEchoServer[ETH_ECHO_SERVER_TASK_STACK_SIZE_B] = {0};
     static StaticTask_t eth_taskEchoServer                                    = {0};
 
+    /* REQ-003: 临界区内检查单例标志，防止竞态条件 */
     OS_EnterTaskCritical();
     if (taskAlreadyCreated == true) {
         OS_ExitTaskCritical();
@@ -126,7 +133,7 @@ extern ETH_RETURN_TYPE_e ETH_CreateEchoServerTask(TaskFunction_t taskFunction) {
     taskAlreadyCreated = true;
     OS_ExitTaskCritical();
 
-    /* Spawn a task to handle the connection. */
+    /* REQ-002: 使用 xTaskCreateStatic 创建 Echo 服务器任务 */
     eth_taskHandleEchoServer = xTaskCreateStatic(
         taskFunction,
         "Server-Task",
@@ -135,12 +142,13 @@ extern ETH_RETURN_TYPE_e ETH_CreateEchoServerTask(TaskFunction_t taskFunction) {
         (uint32_t)PRIORITY_BELOW_NORMAL,
         &eth_stackEchoServer[0],
         &eth_taskEchoServer);
-    FAS_ASSERT(eth_taskHandleEchoServer != NULL); /* Trap if initialization failed */
+    FAS_ASSERT(eth_taskHandleEchoServer != NULL); /* NFR-006: 任务创建失败时断言 */
 
     return ETH_OK;
 }
 
 extern void ETH_DeleteCurrentTask(void) {
+    /* REQ-004: 调用 vTaskDelete(NULL) 删除当前任务自身 */
     vTaskDelete(NULL);
 }
 

@@ -49,7 +49,11 @@
  * @prefix  BAL
  *
  * @brief   Implementation for the configuration for the driver for balancing
- * @details TODO
+ * @details 电池均衡模块（BAL）的配置实现。包含均衡阈值的设置与获取函数，
+ *          阈值设置时进行输入边界限定检查。
+ *
+ * @see     BAL_SOFTWARE_REQUIREMENTS.md  软件需求规格说明
+ * @see     BAL_REQUIREMENT_TRACEABILITY_MAPPING.md  需求追溯矩阵
  */
 
 /*========== Includes =======================================================*/
@@ -62,7 +66,8 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-/** balancing voltage threshold in mV */
+/** balancing voltage threshold in mV
+ *  @req NFR-4.4.1 — 默认值 BAL_DEFAULT_THRESHOLD_mV (200mV) */
 static int32_t bal_threshold_mV = BAL_DEFAULT_THRESHOLD_mV;
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -72,23 +77,44 @@ static int32_t bal_threshold_mV = BAL_DEFAULT_THRESHOLD_mV;
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+
+/**
+ * @brief   设置均衡阈值
+ * @req     NFR-4.3.4 — 输入边界限定
+ * @details 对输入阈值进行边界检查，确保其在 [BAL_MINIMUM_THRESHOLD_mV,
+ *          BAL_MAXIMUM_THRESHOLD_mV] 即 [0mV, 5000mV] 范围内。
+ *          超出上限则取上限值，低于下限则取下限值。
+ *          写操作在任务临界区内执行以保证原子性。
+ * @param   threshold_mV 期望的阈值（mV）
+ * @pre     边界检查后，实际写入值 boundedThreshold_mV ∈ [0, 5000]
+ * @note    临界区保护 @req NFR-4.3.3
+ */
 extern void BAL_SetBalancingThreshold(int32_t threshold_mV) {
     int32_t boundedThreshold_mV = threshold_mV;
+    /* @req NFR-4.3.4 — 上限边界限定：不超过 BAL_MAXIMUM_THRESHOLD_mV (5000mV) */
     if (boundedThreshold_mV > BAL_MAXIMUM_THRESHOLD_mV) {
         boundedThreshold_mV = BAL_MAXIMUM_THRESHOLD_mV;
     }
+    /* @req NFR-4.3.4 — 下限边界限定：不低于 BAL_MINIMUM_THRESHOLD_mV (0mV) */
     if (boundedThreshold_mV < BAL_MINIMUM_THRESHOLD_mV) {
         boundedThreshold_mV = BAL_MINIMUM_THRESHOLD_mV;
     }
+    /* @req NFR-4.3.3 — 临界区保护：原子写入 */
     OS_EnterTaskCritical();
     bal_threshold_mV = boundedThreshold_mV;
     OS_ExitTaskCritical();
 }
 
+/**
+ * @brief   获取均衡阈值
+ * @req     NFR-4.3.4 — 返回当前有效均衡阈值
+ * @return  当前均衡阈值（mV）
+ */
 extern int32_t BAL_GetBalancingThreshold_mV(void) {
     return bal_threshold_mV;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+/** @req NFR-4.5.1 — 单元测试支持：通过条件编译暴露内部函数 */
 #ifdef UNITY_UNIT_TEST
 #endif

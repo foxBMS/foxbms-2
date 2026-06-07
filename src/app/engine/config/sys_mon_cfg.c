@@ -52,6 +52,7 @@
  * @details Test functions:
  *          - SYSM_DummyCallback
  *
+ * @requirements REQ-APP_ENGINE_SYS_MON_002, REQ-APP_ENGINE_SYS_MON_003
  */
 
 /*========== Includes =======================================================*/

@@ -49,6 +49,7 @@
  * @prefix  ADC
  *
  * @brief   Driver for the ADC module.
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010
  * @details TODO
  */
 
@@ -66,15 +67,15 @@
 /*========== Macros and Definitions =========================================*/
 
 /** ADC voltage reference, high */
-#define ADC_VREFHIGH_mV (5000.0f)
+#define ADC_VREFHIGH_mV (5000.0f) /**< REQ-006: ADC 高参考电压 (mV) */
 /** ADC voltage reference, low */
-#define ADC_VREFLOW_mV (0.0f)
+#define ADC_VREFLOW_mV (0.0f)    /**< REQ-006: ADC 低参考电压 (mV) */
 /** ADC conversion factor, 12 bit conversion */
-#define ADC_CONVERSION_FACTOR_12BIT (4096.0f)
+#define ADC_CONVERSION_FACTOR_12BIT (4096.0f) /**< REQ-007: 12位转换因子 */
 /** ADC conversion factor, 10 bit conversion */
-#define ADC_CONVERSION_FACTOR_10BIT (1024.0f)
+#define ADC_CONVERSION_FACTOR_10BIT (1024.0f) /**< REQ-007: 10位转换因子 */
 /** ADC conversion offset */
-#define ADC_CONVERSION_OFFSET (0.5f)
+#define ADC_CONVERSION_OFFSET (0.5f) /**< REQ-004: 转换偏移量（四舍五入） */
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -95,6 +96,7 @@ static DATA_BLOCK_ADC_VOLTAGE_s adc_adc1Voltages = {.header.uniqueId = DATA_BLOC
 
 /**
  * @brief   converts reading from ADC to a voltage in mV.
+ * @req     REQ-004
  * @param   adcCounts       digital value read by ADC
  * @return  voltage in mV
  */
@@ -120,11 +122,13 @@ extern void ADC_Control(void) {
 
     switch (adc_conversionState) {
         case ADC_START_CONVERSION:
+            /* REQ-001: 状态机 → 启动ADC转换 */
             adcStartConversion(adcREG1, adcGROUP1);
             adc_conversionState = ADC_WAIT_CONVERSION_FINISHED;
             break;
 
         case ADC_WAIT_CONVERSION_FINISHED:
+            /* REQ-002: 轮询检测ADC转换是否完成 */
             conversionFinished = true;
             if (ADC_CONVERSION_ENDBIT != adcIsConversionComplete(adcREG1, adcGROUP1)) {
                 conversionFinished = false;
@@ -136,21 +140,25 @@ extern void ADC_Control(void) {
 
         /* Start initialization procedure, datasheet figure 106 page 79 */
         case ADC_CONVERSION_FINISHED:
+            /* REQ-003: 读取ADC原始数据 */
             adcGetData(adcREG1, adcGROUP1, &adc_adc1RawVoltages[0]);
             for (uint8_t i = 0u; i < MCU_ADC1_MAX_NR_CHANNELS; i++) {
+                /* REQ-004: 原始值 → 电压值(mV)转换 */
                 adc_adc1Voltages.adc1ConvertedVoltages_mV[i] = ADC_ConvertVoltage(adc_adc1RawVoltages[i].value);
             }
+            /* REQ-005: 电压数据写入数据库 */
             DATA_WRITE_DATA(&adc_adc1Voltages);
             adc_conversionState = ADC_START_CONVERSION;
             break;
 
         default: /* invalid state */ /* LCOV_EXCL_LINE */
-            FAS_ASSERT(FAS_TRAP);    /* LCOV_EXCL_LINE */
+            FAS_ASSERT(FAS_TRAP);    /* REQ-010: 无效状态陷阱保护 */ /* LCOV_EXCL_LINE */
             break;                   /* LCOV_EXCL_LINE */
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+/* REQ-011: 单元测试支持 — 暴露内部函数和变量 */
 #ifdef UNITY_UNIT_TEST
 extern float_t TEST_ADC_ConvertVoltage(uint16_t adcCounts) {
     return ADC_ConvertVoltage(adcCounts);

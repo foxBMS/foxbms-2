@@ -50,6 +50,7 @@
  *
  * @brief   Database configuration
  * @details Configuration of database module
+ * @requirements REQ-APP_ENGINE_DATABASE_NFR_005
  */
 
 /*========== Includes =======================================================*/

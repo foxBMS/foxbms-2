@@ -51,6 +51,7 @@
  * @brief   Implementation of ethernet software
  * @details Here can the application part of the ethernet be placed.
  *          For example a TCP-sever.
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012
  */
 
 /*========== Includes =======================================================*/
@@ -76,21 +77,25 @@
 #include <stdbool.h>
 
 /*========== Macros and Definitions =========================================*/
-#define ETH_SEED                       (53393467)
-#define ETH_DEFAULT_DEBUG_MESSAGE_SIZE (30u)
+#define ETH_SEED                       (53393467)  /**< REQ-001: 随机数种子值 */
+#define ETH_DEFAULT_DEBUG_MESSAGE_SIZE (30u)       /**< REQ-003: 调试消息缓冲区大小 */
 
-/** Server states */
+/** Server states
+ * @req REQ-005
+ */
 typedef enum {
-    ETH_SERVER_RUNNING,
-    ETH_SERVER_FIN_RECEIVED,
-    ETH_SERVER_ERROR,
+    ETH_SERVER_RUNNING,       /**< REQ-005: 正常运行状态 */
+    ETH_SERVER_FIN_RECEIVED,  /**< REQ-005: 收到对端 FIN 状态 */
+    ETH_SERVER_ERROR,         /**< REQ-005: 错误状态 */
 } ETH_SERVER_STATE_e;
 
 /*========== Static Constant and Variable Definitions =======================*/
 
+/* REQ-002: 网络接口和端点描述符数组 */
 NetworkInterface_t xInterfaces[1];
 NetworkEndPoint_t xEndPoints[1];
 
+/* REQ-010: Echo Socket 队列及静态存储 */
 OS_QUEUE eth_echoSocketQueue                                                   = NULL_PTR;
 StaticQueue_t eth_echoSocketQueueStruct                                        = {0};
 uint8_t eth_echoSocketQueueStorage[ETH_ECHO_SERVER_BACKLOG * sizeof(Socket_t)] = {0};
@@ -103,6 +108,7 @@ uint8_t eth_echoSocketQueueStorage[ETH_ECHO_SERVER_BACKLOG * sizeof(Socket_t)] =
  * @brief       Handles the echo server connection instance.
  * @details     If a connection to the echo server is established, the connection is handled by this task.
  *              If the connection gets closed the task deletes itself.
+ * @req         REQ-003, REQ-004, REQ-005, REQ-006, REQ-007
  * @param[in]   pParameters task parameters
  */
 static void ETH_EchoServerInstance(void *pParameters);
@@ -111,6 +117,7 @@ static void ETH_EchoServerInstance(void *pParameters);
  * @brief       Listens for a TCP connection.
  * @details     Initializes a listening socket and waits for a connection.
  *              When a connection is established, a task for the #ETH_EchoServerInstance is created.
+ * @req         REQ-008
  * @param[in]   pParameters task parameters
  */
 static void ETH_ListenForConnection(void *pParameters);
@@ -119,6 +126,7 @@ static void ETH_ListenForConnection(void *pParameters);
  *
  * @brief       Transfers the configuration for sliding windows.
  * @details     Fill in the buffer and window sizes that will be used by the socket.
+ * @req         REQ-009
  * @param[in]   socket tSocket to configure
  */
 static void ETH_ConfigureSlidingWindow(Socket_t socket);
@@ -134,7 +142,7 @@ static void ETH_EchoServerInstance(void *pParameters) {
     /* Run task continuously, but wait for a notification to create a new connection instance */
     while (FOREVER()) {
 
-        /* Get connected socket struct pointer from task notification */
+        /* REQ-003: 从队列获取已连接的 Socket */
         Socket_t connectedSocket = NULL_PTR;
         if (OS_ReceiveFromQueue(eth_echoSocketQueue, &connectedSocket, portMAX_DELAY) != OS_SUCCESS) {
             /* Failed to receive from queue, continue to next iteration */
@@ -156,7 +164,7 @@ static void ETH_EchoServerInstance(void *pParameters) {
          * the same buffer. */
         uint8_t rxBuffer[ipconfigTCP_MSS] = {0};
 
-        /* Set timeouts for send and receive */
+        /* REQ-003: 配置 Socket 发送和接收超时 */
         static const TickType_t xReceiveTimeOut = ETH_ECHO_SERVER_RECEIVE_TIMEOUT;
         static const TickType_t xSendTimeOut    = ETH_ECHO_SERVER_SEND_TIMEOUT;
         BaseType_t optionSet =
@@ -174,7 +182,7 @@ static void ETH_EchoServerInstance(void *pParameters) {
             /* Receive data on the socket. */
             receivedBytes = FreeRTOS_recv(connectedSocket, rxBuffer, ipconfigTCP_MSS, 0);
 
-            /* If data was received, echo it back. */
+            /* REQ-004: 若接收到数据，原样回传（Echo） */
             if (receivedBytes > 0) {
                 /* Reset sent bytes for each loop */
                 sentBytes      = 0;
@@ -197,12 +205,12 @@ static void ETH_EchoServerInstance(void *pParameters) {
                     serverState = ETH_SERVER_ERROR;
                 }
             } else if (receivedBytes == 0) {
-                /* Peer has closed the connection (FIN received). */
+                /* REQ-005: 对端关闭连接（FIN received），转入 FIN_RECEIVED 状态 */
                 FreeRTOS_debug_printf(("FreeRTOS_recv() returned 0 (orderly shutdown)\n"));
                 serverState = ETH_SERVER_FIN_RECEIVED;
 
             } else { /* receivedBytes < 0 */
-                /* Error on socket. */
+                /* REQ-005: Socket 错误，转入 ERROR 状态 */
                 FreeRTOS_debug_printf(("FreeRTOS_recv() error: %ld\n", (long)receivedBytes));
                 serverState = ETH_SERVER_ERROR;
             }
@@ -210,7 +218,7 @@ static void ETH_EchoServerInstance(void *pParameters) {
 
         BaseType_t success = pdFALSE;
         if (serverState == ETH_SERVER_FIN_RECEIVED) {
-            /* Initiate a shutdown in case it has not already been initiated. */
+            /* REQ-006: 发起双向关闭（FREERTOS_SHUT_RDWR） */
             success = FreeRTOS_shutdown(connectedSocket, FREERTOS_SHUT_RDWR);
             if (success < 0) {
                 FreeRTOS_debug_printf(("FreeRTOS_shutdown() error: %ld\n", success));
@@ -231,6 +239,7 @@ static void ETH_EchoServerInstance(void *pParameters) {
             }
         }
 
+        /* REQ-007: 释放 Socket 资源 */
         success = FreeRTOS_closesocket(connectedSocket);
         if (success != 0) {
             FreeRTOS_debug_printf(("FreeRTOS_closesocket() error: %x\n", success));
@@ -247,11 +256,7 @@ static void ETH_ListenForConnection(void *pParameters) {
 
     (void)pParameters; /* pxEndPoint is currently not used */
 
-    /* Attempt to open the socket with the following parameters
-    * xDomain =  FREERTOS_AF_INET - There is nother option
-    * xType = FREERTOS_SOCK_STREAM - TCP Socket
-    * xProtocol = FREERTOS_IPPROTO_TCP - TCP Socket
-    */
+    /* REQ-008: 创建 IPv4 TCP Socket */
     Socket_t listeningSocket = FreeRTOS_socket(FREERTOS_AF_INET, FREERTOS_SOCK_STREAM, FREERTOS_IPPROTO_TCP);
     /* AXIVION Next Codeline IISB-LiteralSuffixesCheck:Content from FreeRTOS file */
     FAS_ASSERT(listeningSocket != FREERTOS_INVALID_SOCKET);
@@ -271,8 +276,7 @@ static void ETH_ListenForConnection(void *pParameters) {
     }
 #endif /* ipconfigUSE_TCP_WIN */
 
-    /* Bind the socket to the port that the client task will send to, then
-     * listen for incoming connections. */
+    /* REQ-008: 绑定 Socket 到 Echo 端口并开始监听 */
     struct freertos_sockaddr bindAddress = {
         .sin_port   = FreeRTOS_htons(ETH_ECHO_SERVER_PORT_NUMBER),
         .sin_family = FREERTOS_AF_INET,
@@ -284,11 +288,12 @@ static void ETH_ListenForConnection(void *pParameters) {
 
     socklen_t clientAddressSize = sizeof(clientAddress);
     while (FOREVER()) {
-        /* Wait for a client to connect. */
+        /* REQ-008: 接受客户端连接 */
         Socket_t connectedSocket = FreeRTOS_accept(listeningSocket, &clientAddress, &clientAddressSize);
         /* AXIVION Next Codeline IISB-LiteralSuffixesCheck:Content from FreeRTOS file */
         FAS_ASSERT(connectedSocket != FREERTOS_INVALID_SOCKET);
 
+        /* REQ-008: 将已连接 Socket 放入队列，供 Echo Server 处理 */
         OS_SendToBackOfQueue(eth_echoSocketQueue, &connectedSocket, 0u);
     }
 }
@@ -312,14 +317,13 @@ static void ETH_ConfigureSlidingWindow(Socket_t socket) {
 /*========== Extern Function Implementations ================================*/
 
 extern void ETH_Initialize(void) {
+    /* REQ-001: 设置伪随机数种子 */
     UTIL_SeedRandomNumber(ETH_SEED);
 
-    /* Fill the struct that holds the driver for the network interface
-    (EMAC + PHY). The TCP Stack accesses via this struct the relevant
-    functions. */
+    /* REQ-001: 填充网络接口描述符（EMAC + PHY 驱动信息） */
     (void)NIC_FillInterfaceDescriptor(0, &(xInterfaces[0]));
 
-    /* Store the needed network parameters */
+    /* REQ-002: 配置网络参数（IP、掩码、网关、DNS、MAC） */
     FreeRTOS_FillEndPoint(
         &(xInterfaces[0]),
         &(xEndPoints[0]),
@@ -329,9 +333,7 @@ extern void ETH_Initialize(void) {
         eth_dnsServerAddress,
         eth_emacAddress);
 
-    /* Initialise the RTOS's TCP/IP stack.  The tasks that use the network
-    are created in the vApplicationIPNetworkEventHook() hook function
-    below.  The hook function is called when the network connects. */
+    /* REQ-001: 启动 FreeRTOS TCP/IP 协议栈 */
     BaseType_t success = FreeRTOS_IPInit_Multi();
     if (success == pdFALSE) {
         FreeRTOS_debug_printf(("FreeRTOS_IPInit_Multi() failed"));
@@ -360,6 +362,7 @@ extern uint32_t ulApplicationGetNextSequenceNumber(
     (void)ulDestinationAddress;
     (void)usDestinationPort;
 
+    /* REQ-011: 返回伪随机数作为 TCP 序列号 */
     return UTIL_GetPseudoRandomNumber();
 }
 
@@ -374,13 +377,13 @@ extern void vApplicationIPNetworkEventHook_Multi(
     FAS_ASSERT((eNetworkEvent == eNetworkUp) || (eNetworkEvent == eNetworkDown));
     FAS_ASSERT(pxEndPoint != NULL_PTR);
 
-    /* If the network has just come up...*/
+    /* REQ-010: 网络已连接，创建 Socket 队列和任务 */
     if (eNetworkEvent == eNetworkUp) {
+        /* REQ-010: 创建 Socket 队列（静态内存分配） */
         eth_echoSocketQueue = xQueueCreateStatic(
             ETH_ECHO_SERVER_BACKLOG, sizeof(Socket_t), eth_echoSocketQueueStorage, &eth_echoSocketQueueStruct);
         FAS_ASSERT(eth_echoSocketQueue != NULL_PTR);
-        /* Create the tasks that use the IP stack if they have not already been
-         * created. */
+        /* REQ-010: 创建监听任务和 Echo 服务器任务 */
         if (ETH_CreateListeningTask(&ETH_ListenForConnection, pxEndPoint) != ETH_OK) {
             FreeRTOS_debug_printf(("Failed to create Listening Task\n"));
         }
@@ -394,7 +397,7 @@ extern void vApplicationIPNetworkEventHook_Multi(
 /* AXIVION Next Codeline CodingStyle-Naming.Parameter: Externalized function from FreeRTOS */
 extern BaseType_t xApplicationGetRandomNumber(uint32_t *pulNumber) {
     FAS_ASSERT(pulNumber != NULL_PTR);
-    /* Pass random number from util functionality */
+    /* REQ-011: 通过指针参数返回伪随机数 */
     *(pulNumber) = UTIL_GetPseudoRandomNumber();
     return pdTRUE;
 }

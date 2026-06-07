@@ -49,6 +49,7 @@
  * @prefix  GEN
  *
  * @brief   Macros for implementing testable infinite loops
+ * @requirements REQ-030
  * @details TODO
  */
 
@@ -59,6 +60,7 @@
 #include <stdbool.h>
 
 /*========== Macros and Definitions =========================================*/
+/** @req REQ-030: 可测试的无限循环辅助宏 */
 #ifdef UNITY_UNIT_TEST
 extern bool FOREVER(void);
 #else

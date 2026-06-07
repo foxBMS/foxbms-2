@@ -50,6 +50,9 @@
  *
  * @brief   Source file for handling redundancy between redundant cell voltage
  *          and cell temperature measurements
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007, REQ-008,
+ *              REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-014, REQ-015, REQ-016,
+ *              REQ-017, REQ-018, REQ-019, REQ-020, REQ-021
  * @details TODO
  */
 
@@ -71,6 +74,7 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** local copies of database tables */
+/** REQ-005, REQ-009, REQ-013, REQ-014: 模块内部数据库表本地副本 */
 /**@{*/
 static DATA_BLOCK_MIN_MAX_s mrc_tableMinimumMaximumValues      = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellVoltages         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
@@ -79,6 +83,7 @@ static DATA_BLOCK_PACK_VALUES_s mrc_tablePackValues            = {.header.unique
 /**@}*/
 
 /** state of the redundancy module */
+/** REQ-002: 冗余模块内部状态变量 */
 static MRC_STATE_s mrc_state = {
     .lastBaseCellVoltageTimestamp            = 0u,
     .lastRedundancy0CellVoltageTimestamp     = 0u,
@@ -92,6 +97,7 @@ static MRC_STATE_s mrc_state = {
 /*========== Static Function Prototypes =====================================*/
 /**
  * @brief   Check timestamp if measurement has been updated at least once.
+ * @req     REQ-003
  * @param[in]  timestamp          timestamp of last measurement update
  * @param[in]  previousTimestamp  timestamp of previously updated measurement
  * @return true if measurement has been updated at least once, otherwise false
@@ -100,6 +106,7 @@ static bool MRC_MeasurementUpdatedAtLeastOnce(uint32_t timestamp, uint32_t previ
 
 /**
  * @brief   Check timestamp if measurement has been updated recently.
+ * @req     REQ-004
  * @param[in]  timestamp          timestamp of last measurement update
  * @param[in]  previousTimestamp  timestamp of previously updated measurement
  * @param[in]  timeInterval       in sys ticks (type: uint32_t)
@@ -112,6 +119,7 @@ static STD_RETURN_TYPE_e MRC_MeasurementUpdatedRecently(
 
 /**
  * @brief Function to validate results of cell voltage measurement
+ * @req     REQ-006
  * @param[in] pCellVoltageBase         base cell voltage measurement
  * @param[in] pCellVoltageRedundancy0  redundant cell voltage measurement
  * @return bool true, if measurement has been validated successfully and
@@ -123,6 +131,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
 
 /**
  * @brief Function to validate results of cell temperature measurement
+ * @req     REQ-010
  * @param[in] pCellTemperatureBase         base cell temperature measurement
  * @param[in] pCellTemperatureRedundancy0  redundant cell temperature measurement
  * @return bool true, if measurement has been validated successfully and
@@ -134,12 +143,14 @@ static bool MRC_ValidateCellTemperatureMeasurement(
 
 /**
  * @brief Function to validate results of current measurement
+ * @req     REQ-015
  * @param[in] pTableCurrent pointer to current measurements
  */
 static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_s *pTableCurrent);
 
 /**
  * @brief Function to validate results of string voltage measurement
+ * @req     REQ-016
  * @param[in] pTableSystemVoltage1   pointer current sensor high voltage measurements
  * @param[in] pTableCellVoltage     pointer to cell voltage measurements
  */
@@ -149,24 +160,28 @@ static void MRC_ValidateStringVoltageMeasurement(
 
 /**
  * @brief Function to validate HV battery voltage measurement
+ * @req     REQ-017
  */
 static void MRC_ValidateBatteryVoltageMeasurement(void);
 
 /**
  * @brief Function to validate results of high voltage measurement and calculate
  *        battery voltage and high voltage bus voltage.
+ * @req     REQ-018
  * @param[in] pTableSystemVoltage3   pointer current sensor high voltage measurements
  */
 static void MRC_ValidateHighVoltageBusMeasurement(DATA_BLOCK_SYSTEM_VOLTAGE_3_s *pTableSystemVoltage3);
 
 /**
  * @brief Function to validate results of power measurement
+ * @req     REQ-019
  * @param[in] pTablePower pointer to power/current measurements
  */
 static void MRC_ValidatePowerMeasurement(DATA_BLOCK_POWER_s *pTablePower);
 
 /**
  * @brief Function calculates minimum, maximum and average cell voltages.
+ * @req     REQ-009
  * @param[in] pValidatedVoltages     validated voltages from base and/or redundant measurements
  * @param[out] pMinMaxAverageValues  calculated cell voltage min/max/average values
  * @return #STD_NOT_OK if all cell voltage are invalid and no minimum, maximum
@@ -178,6 +193,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(
 
 /**
  * @brief Function calculates minimum, maximum and average cell temperatures.
+ * @req     REQ-013
  * @param[in] pValidatedTemperatures validated temperatures from base and/or redundant measurements
  * @param[out] pMinMaxAverageValues  calculated cell temperature min/max/average values
  * @return #STD_NOT_OK if all cell temperatures are invalid and no minimum, maximum
@@ -190,6 +206,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
 /**
  * @brief Function compares cell voltage measurements from base measurement with
  *        one redundant measurement and writes result in pValidatedVoltages.
+ * @req     REQ-007
  * @param[in] pCellVoltageBase         base cell voltage measurement
  * @param[in] pCellVoltageRedundancy0  redundant cell voltage measurement
  * @param[out] pValidatedVoltages      validated voltages from redundant measurement values
@@ -206,6 +223,7 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
  *        single measurement source. This can be the case if no redundancy is
  *        used at all or if one or more of the redundant measurements are not
  *        working properly.
+ * @req     REQ-008
  * @param[in] pCellVoltage         cell voltage measurement
  * @param[out] pValidatedVoltages  validated voltage values
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
@@ -218,6 +236,7 @@ static STD_RETURN_TYPE_e MRC_UpdateCellVoltageValidation(
 /**
  * @brief Function compares cell temperature measurements from base measurement
  *        with one redundant measurement and writes result in pValidatedTemperatures.
+ * @req     REQ-011
  * @param[in] pCellTemperatureBase         base cell temperature measurement
  * @param[in] pCellTemperatureRedundancy0  redundant cell temperature measurement
  * @param[out] pValidatedTemperatures      validated temperatures from redundant measurement values
@@ -234,6 +253,7 @@ static STD_RETURN_TYPE_e MRC_ValidateCellTemperature(
  *        single measurement source. This can be the case if no redundancy is
  *        used at all or if one or more of the redundant measurements are not
  *        working properly.
+ * @req     REQ-012
  * @param[in] pCellTemperature         cell temperature measurement
  * @param[out] pValidatedTemperature   validated temperature values
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
@@ -298,10 +318,12 @@ static bool MRC_ValidateCellVoltageMeasurement(
          measurement has not been updated recently.
      */
 
+    /* REQ-006: 验证策略选择 — 使用冗余测量条件检查 */
     /* -------------- Check if cell voltage redundant measurement is used -- */
     /* Use redundant cell voltage measurements if measurement values have been acquired once */
     useCellVoltageRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellVoltageRedundancy0->header);
 
+    /* REQ-006, REQ-020: 基础测量时间戳检查与超时诊断 */
     /* ----------------- Check timestamp of base measurements--------------- */
     if (DATA_EntryUpdatedWithinInterval(pCellVoltageBase->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
         baseCellVoltageMeasurementTimeoutReached = false;
@@ -319,6 +341,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
         baseCellVoltageUpdated = false;
     }
 
+    /* REQ-006, REQ-020: 冗余测量时间戳检查与超时诊断 */
     /* ----------------- Check timestamp of redundant measurements --------- */
     if ((DATA_EntryUpdatedWithinInterval(pCellVoltageRedundancy0->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
          false) &&
@@ -331,6 +354,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
         (void)DIAG_Handler(DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     }
 
+    /* REQ-006, REQ-007, REQ-008: 单体电压验证策略选择与执行 */
     /* ----------------- Validate cell voltages ---------------------------- */
     if (useCellVoltageRedundancy == true) {
         bool redundancy0CellVoltageUpdated = false;
@@ -388,6 +412,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
         }
     }
 
+    /* REQ-006, REQ-009: 验证完成后计算最小/最大/平均电压并执行电压分布检查 */
     if (updatedValidatedVoltageDatabaseEntry == true) {
         /* Calculate min/max/average cell voltages */
         MRC_CalculateCellVoltageMinMaxAverage(&mrc_tableCellVoltages, &mrc_tableMinimumMaximumValues);
@@ -516,6 +541,7 @@ static bool MRC_ValidateCellTemperatureMeasurement(
         }
     }
 
+    /* REQ-010, REQ-013: 验证完成后计算最小/最大/平均温度并执行温度分布检查 */
     if (updatedValidatedTemperatureDatabaseEntry == true) {
         /* Calculate min/max/average cell temperatures */
         MRC_CalculateCellTemperatureMinMaxAverage(&mrc_tableCellTemperatures, &mrc_tableMinimumMaximumValues);
@@ -531,7 +557,9 @@ static bool MRC_ValidateCellTemperatureMeasurement(
 }
 
 static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_s *pTableCurrent) {
+    /* NFR-006: 入口指针非空断言 */
     FAS_ASSERT(pTableCurrent != NULL_PTR);
+    /* REQ-015: 验证并汇总电池包总电流 */
     int32_t packCurrent_mA = 0;
 
     /* Validate pack current. Will be invalidated if not all current measurement values are valid */
@@ -582,10 +610,12 @@ static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_s *pTableCurrent) 
 static void MRC_ValidateStringVoltageMeasurement(
     DATA_BLOCK_SYSTEM_VOLTAGE_1_s *pTableSystemVoltage1,
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage) {
+    /* NFR-006: 入口指针非空断言 */
     /* Pointer validity check */
     FAS_ASSERT(pTableSystemVoltage1 != NULL_PTR);
     FAS_ASSERT(pTableCellVoltage != NULL_PTR);
 
+    /* REQ-016: 遍历各电芯串，校验电芯串电压 */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Check timeout of current sensor measurement */
         STD_RETURN_TYPE_e updatedMeasurement = MRC_MeasurementUpdatedRecently(
@@ -624,6 +654,7 @@ static void MRC_ValidateStringVoltageMeasurement(
                 mrc_tablePackValues.stringVoltage_mV[s]     = pTableCellVoltage->stringVoltage_mV[s];
                 mrc_tablePackValues.invalidStringVoltage[s] = 0u;
             } else {
+                /* REQ-016, REQ-023: 降级路径 — 使用 AFE 电压+平均电压估算电芯串电压 */
                 /* AFE and current sensor measurement invalid -> try to construct
                  * a valid from the number of valid cell voltages and substitute
                  * invalid cell voltages with the average cell voltage. */
@@ -645,6 +676,7 @@ static void MRC_ValidateStringVoltageMeasurement(
     }
 }
 
+/** REQ-017: 根据电芯串连接状态和电压有效性计算电池包总电压 */
 static void MRC_ValidateBatteryVoltageMeasurement(void) {
     int64_t sumOfStringValues_mV       = 0;
     int8_t numberOfValidStringVoltages = 0;
@@ -687,7 +719,9 @@ static void MRC_ValidateBatteryVoltageMeasurement(void) {
     }
 }
 
+/** REQ-018: 遍历所有电芯串，计算已连接且有效的高压总线电压平均值 */
 static void MRC_ValidateHighVoltageBusMeasurement(DATA_BLOCK_SYSTEM_VOLTAGE_3_s *pTableSystemVoltage3) {
+    /* NFR-006: 入口指针非空断言 */
     FAS_ASSERT(pTableSystemVoltage3 != NULL_PTR);
 
     int32_t sum_mV        = 0;
@@ -756,6 +790,7 @@ static void MRC_ValidatePowerMeasurement(DATA_BLOCK_POWER_s *pTablePower) {
             calculatePower                            = true;
             mrc_tablePackValues.invalidStringPower[s] = 1u;
         }
+        /* REQ-019: 功率测量无效时通过 P = I × V 计算功率作为降级替代值 */
         if ((calculatePower == true) && (mrc_tablePackValues.invalidStringCurrent[s] == 0u) &&
             (mrc_tablePackValues.invalidStringVoltage[s] == 0u)) {
             /* Power measurement is invalid, but current and string voltage measurement are valid */
@@ -826,7 +861,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(
         pMinMaxAverageValues->nrModuleMaximumCellVoltage[s] = moduleNumberMaximum;
         pMinMaxAverageValues->validMeasuredCellVoltages[s]  = nrValidCellVoltages;
 
-        /* Prevent division by 0, if all cell voltages are invalid */
+        /* NFR-008: Prevent division by 0, if all cell voltages are invalid */
         if (nrValidCellVoltages > 0u) {
             pMinMaxAverageValues->averageCellVoltage_mV[s] = (int16_t)(sum / (int32_t)nrValidCellVoltages);
         } else {
@@ -884,7 +919,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
         pMinMaxAverageValues->nrModuleMaximumTemperature[s]    = moduleNumberMaximum;
         pMinMaxAverageValues->validMeasuredCellTemperatures[s] = nrValidCellTemperatures;
 
-        /* Prevent division by 0, if all cell temperatures are invalid */
+        /* NFR-008: Prevent division by 0, if all cell temperatures are invalid */
         if (nrValidCellTemperatures > 0u) {
             pMinMaxAverageValues->averageTemperature_ddegC[s] = (sum_ddegC / (float_t)nrValidCellTemperatures);
         } else {
@@ -947,8 +982,8 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
                     numberValidMeasurements++;
                     sum += pValidatedVoltages->cellVoltage_mV[s][m][cb];
                 } else {
-                    /* Both, base and redundant measurement value are invalid */
-                    /* Save average cell voltage value of base and redundant */
+                    /* NFR-009: Both, base and redundant measurement value are invalid */
+                    /* Save average cell voltage value of base and redundant as fallback */
                     pValidatedVoltages->cellVoltage_mV[s][m][cb] = (pCellVoltageBase->cellVoltage_mV[s][m][cb] +
                                                                     pCellVoltageRedundancy0->cellVoltage_mV[s][m][cb]) /
                                                                    2;
@@ -972,10 +1007,12 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
 static STD_RETURN_TYPE_e MRC_UpdateCellVoltageValidation(
     DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltage,
     DATA_BLOCK_CELL_VOLTAGE_s *pValidatedVoltages) {
+    /* NFR-006: 入口指针非空断言 */
     /* Pointer validity check */
     FAS_ASSERT(pCellVoltage != NULL_PTR);
     FAS_ASSERT(pValidatedVoltages != NULL_PTR);
 
+    /* NFR-007: 保存并恢复目标条目的 header，防止数据库元数据被覆盖 */
     /* Save header struct to copy to correct database entry */
     DATA_BLOCK_HEADER_s tmpHeader = pValidatedVoltages->header;
     /* Copy whole database entry */
@@ -1078,6 +1115,7 @@ static STD_RETURN_TYPE_e MRC_UpdateCellTemperatureValidation(
 }
 
 /*========== Extern Function Implementations ================================*/
+/** REQ-001: 初始化冗余模块，将所有内部测量值标记为无效 */
 extern STD_RETURN_TYPE_e MRC_Initialize(void) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
@@ -1108,10 +1146,11 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void) {
     return retval;
 }
 
+/** REQ-005: AFE 测量综合验证入口 — 读取冗余电压/温度数据，依次执行验证并写回数据库 */
 extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
-    /* Database entries are declared static, so that they are placed in the data segment and not on the stack */
+    /* NFR-004: Database entries are declared static, so that they are placed in the data segment and not on the stack */
     static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellVoltageBase = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
     static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellVoltageRedundancy0 = {
         .header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0};
@@ -1149,6 +1188,7 @@ extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void) {
     return retval;
 }
 
+/** REQ-014: 电池包测量综合验证入口 — 依次校验电流/电压/功率并写回数据库 */
 extern STD_RETURN_TYPE_e MRC_ValidatePackMeasurement(void) {
     STD_RETURN_TYPE_e packMeasurementValidity         = STD_OK;
     DATA_BLOCK_CURRENT_s tableCurrent                 = {.header.uniqueId = DATA_BLOCK_ID_CURRENT};

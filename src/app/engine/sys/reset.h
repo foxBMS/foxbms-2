@@ -50,6 +50,7 @@
  *
  * @brief   Software reset driver header
  * @details Stub for the software reset driver
+ * @requirements REQ-APP_ENGINE_SYS_022
  */
 
 #ifndef FOXBMS__RESET_H_
@@ -68,7 +69,7 @@
  * @brief   Trigger a software reset of the BMS
  * @warning currently a stub
  */
-extern void SYS_TriggerSoftwareReset(void);
+extern void SYS_TriggerSoftwareReset(void); /**< @req REQ-APP_ENGINE_SYS_022 */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

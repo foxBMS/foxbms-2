@@ -50,6 +50,8 @@
  *
  * @brief   Database module header
  * @details Provides helper function to handle database entries
+ * @requirements REQ-APP_ENGINE_DATABASE_008, REQ-APP_ENGINE_DATABASE_009,
+ *              REQ-APP_ENGINE_DATABASE_010, REQ-APP_ENGINE_DATABASE_011
  */
 
 #ifndef FOXBMS__DATABASE_HELPER_H_
@@ -70,7 +72,7 @@
  * @param[in]  dataBlockHeader header of database entry
  * @return true if database entry has been updated at least once, otherwise false
  */
-extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHeader);
+extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHeader); /**< @req REQ-APP_ENGINE_DATABASE_008 */
 
 /**
  * @brief   Checks if passed database entry has been updated within the last
@@ -80,7 +82,7 @@ extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHe
  * @return true if database entry has been updated within the time interval,
  *         otherwise false
  */
-extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval);
+extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval); /**< @req REQ-APP_ENGINE_DATABASE_009 */
 
 /**
  * @brief   Checks if passed database entry has been periodically updated
@@ -93,7 +95,7 @@ extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader,
  * @return true if database entry has been periodically updated within the time
  *         interval, otherwise false
  */
-extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval);
+extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval); /**< @req REQ-APP_ENGINE_DATABASE_010 */
 
 /**
  * @brief   Returns string number of passed cell index

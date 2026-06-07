@@ -50,6 +50,8 @@
  *
  * @brief   Database helper implementation
  * @details Implementation of database helper function
+ * @requirements REQ-APP_ENGINE_DATABASE_008, REQ-APP_ENGINE_DATABASE_009,
+ *              REQ-APP_ENGINE_DATABASE_010, REQ-APP_ENGINE_DATABASE_011
  */
 
 /*========== Includes =======================================================*/

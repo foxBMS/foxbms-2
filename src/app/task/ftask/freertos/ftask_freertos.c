@@ -50,6 +50,7 @@
  *
  * @brief   OS specific, i.e., FreeRTOS specific, creation of the tasks
  * @details TODO
+ * @requirements REQ-019, REQ-020, REQ-021
  */
 
 /*========== Includes =======================================================*/
@@ -184,6 +185,9 @@ OS_QUEUE ftsk_uartRxQueue = NULL_PTR;
 
 /*========== Extern Function Implementations ================================*/
 
+/**
+ * @req REQ-020: 系统队列创建 → 静态分配创建10+个FreeRTOS队列，完成后设置 ftask_allQueuesCreated 标志
+ */
 extern void FTSK_CreateQueues(void) {
     /* usage of 'StaticQueue_t' and 'vQueueAddToRegistry' here is okay (no
        wrapper in 'os.h' needed) as it is only used in the internals of the
@@ -336,6 +340,9 @@ extern void FTSK_CreateQueues(void) {
     OS_ExitTaskCritical();
 }
 
+/**
+ * @req REQ-021: 系统任务创建 → 静态分配创建所有FreeRTOS任务，含Engine/Cyclic1ms/10ms/100ms/Algorithm100ms/I2C及条件任务
+ */
 extern void FTSK_CreateTasks(void) {
     /* usage of the FreeRTOS internals here is okay (no wrapper in 'os.h'
        needed) as it is only used in the internals of the 'ftask_freertos.c'
@@ -482,6 +489,9 @@ extern void FTSK_CreateTasks(void) {
 
 /* AXIVION Next Codeline Style MisraC2012-1.2: Keep FreeRTOS naming */
 /* AXIVION Next Codeline CodingStyle-Naming.Function: Keep FreeRTOS naming */
+/**
+ * @req REQ-019: malloc失败钩子 → 内存分配失败时触发断言陷阱
+ */
 void vApplicationMallocFailedHook(void) {
     /* Trap if malloc failed.
     This is especially relevant for the tcp stack to check the malloc functions there. */

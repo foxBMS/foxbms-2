@@ -50,6 +50,9 @@
  *
  * @brief   Sys driver header
  * @details TODO
+ * @requirements REQ-APP_ENGINE_SYS_001, REQ-APP_ENGINE_SYS_002, REQ-APP_ENGINE_SYS_003,
+ *              REQ-APP_ENGINE_SYS_004, REQ-APP_ENGINE_SYS_005, REQ-APP_ENGINE_SYS_006,
+ *              REQ-APP_ENGINE_SYS_007, REQ-APP_ENGINE_SYS_020, REQ-APP_ENGINE_SYS_021
  */
 
 #ifndef FOXBMS__SYS_H_
@@ -68,11 +71,11 @@
 typedef enum {
     SYS_FSM_STATE_DUMMY,          /*!< dummy state - always the first state             */
     SYS_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state        */
-    SYS_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state                              */
-    SYS_FSM_STATE_INITIALIZATION, /*!< initializing the system state machine            */
-    SYS_FSM_STATE_PRE_RUNNING,    /*!< state to set everything needed for running state */
-    SYS_FSM_STATE_RUNNING,        /*!< operational mode of the state machine            */
-    SYS_FSM_STATE_ERROR,          /*!< error processing                                 */
+    SYS_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state                     @req REQ-APP_ENGINE_SYS_001 @req REQ-APP_ENGINE_SYS_004 */
+    SYS_FSM_STATE_INITIALIZATION, /*!< initializing the system state machine   @req REQ-APP_ENGINE_SYS_008 @req REQ-APP_ENGINE_SYS_009 @req REQ-APP_ENGINE_SYS_010 @req REQ-APP_ENGINE_SYS_011 @req REQ-APP_ENGINE_SYS_012 @req REQ-APP_ENGINE_SYS_013 */
+    SYS_FSM_STATE_PRE_RUNNING,    /*!< state to set everything needed for running state @req REQ-APP_ENGINE_SYS_014 @req REQ-APP_ENGINE_SYS_015 @req REQ-APP_ENGINE_SYS_016 @req REQ-APP_ENGINE_SYS_017 @req REQ-APP_ENGINE_SYS_018 @req REQ-APP_ENGINE_SYS_019 */
+    SYS_FSM_STATE_RUNNING,        /*!< operational mode of the state machine   @req REQ-APP_ENGINE_SYS_020 */
+    SYS_FSM_STATE_ERROR,          /*!< error processing                        @req REQ-APP_ENGINE_SYS_021 */
 } SYS_FSM_STATES_e;
 
 typedef enum {
@@ -107,7 +110,7 @@ typedef enum {
     SYS_FSM_SUBSTATE_BMS_INITIALIZATION_ERROR,        /*!< Substate error of bms state machine initialization */
 } SYS_FSM_SUBSTATES_e;
 
-/** State requests for the SYS state machine */
+/** State requests for the SYS state machine @req REQ-APP_ENGINE_SYS_001 */
 typedef enum {
     SYS_STATE_INITIALIZATION_REQUEST, /*!< initialization request */
     SYS_STATE_ERROR_REQUEST,          /*!< error state requested */
@@ -144,7 +147,7 @@ typedef struct {
     SYS_FSM_SUBSTATES_e previousSubstate; /*!< previous substate of the state machine                               */
     uint32_t illegalRequestsCounter;      /*!< counts the number of illegal requests to the SYS state machine       */
     uint16_t initializationTimeout;       /*!< Timeout to wait for initialization of state machine state machine    */
-    uint8_t triggerEntry;                 /*!< counter for re-entrance protection (function running flag)           */
+    uint8_t triggerEntry;                 /*!< counter for re-entrance protection (function running flag) @req REQ-APP_ENGINE_SYS_006 */
 } SYS_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -165,14 +168,14 @@ extern SYS_STATE_s sys_state;
  * @return  If the request was successfully set, it returns the SYS_OK, else
  *          the current state of requests (type #SYS_STATE_REQUEST_e)
  */
-extern SYS_RETURN_TYPE_e SYS_SetStateRequest(SYS_STATE_REQUEST_e stateRequest);
+extern SYS_RETURN_TYPE_e SYS_SetStateRequest(SYS_STATE_REQUEST_e stateRequest); /**< @req REQ-APP_ENGINE_SYS_001 */
 
 /**
  * @brief   tick function, call this to advance the state machine
  * @details This function contains the sequence of events in the SYS state
  *          machine. It must be called time-triggered, every 10ms.
  */
-extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState);
+extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState); /**< @req REQ-APP_ENGINE_SYS_002 */
 
 /**
  * @brief   getter function for the current system state
@@ -180,7 +183,7 @@ extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState);
  *
  * @return  Returns the current system state
  */
-extern SYS_FSM_STATES_e SYS_GetSystemState(void);
+extern SYS_FSM_STATES_e SYS_GetSystemState(void);     /**< @req REQ-APP_ENGINE_SYS_003 */
 
 /**
  * @brief   getter function for the current system substate
@@ -188,7 +191,7 @@ extern SYS_FSM_STATES_e SYS_GetSystemState(void);
  *
  * @return  Returns the current system substate
  */
-extern SYS_FSM_SUBSTATES_e SYS_GetSystemSubstate(void);
+extern SYS_FSM_SUBSTATES_e SYS_GetSystemSubstate(void); /**< @req REQ-APP_ENGINE_SYS_003 */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

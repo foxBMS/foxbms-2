@@ -50,6 +50,7 @@
  *
  * @brief   Header for SOE configuration
  * @details TODO
+ * @requirements REQ-003
  */
 
 #ifndef FOXBMS__SOE_DEBUG_CFG_H_

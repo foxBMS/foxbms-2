@@ -49,7 +49,14 @@
  * @prefix  BAL
  *
  * @brief   Driver for the Balancing module
- * @details TODO
+ * @details 基于历史电荷差（History-Based Delta Charge）的电池均衡策略实现。
+ *          包含均衡检查与执行两个运行状态（CHECK_BALANCING / BALANCE）的完整子状态机逻辑。
+ *
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007,
+ *              REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-015, REQ-017,
+ *              REQ-018, REQ-019, REQ-021
+ *
+ * @see BAL_STRATEGY_HISTORY_SOFTWARE_REQUIREMENTS.md  软件需求规格说明
  */
 
 /*========== Includes =======================================================*/
@@ -69,12 +76,15 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-/** local storage of the #DATA_BLOCK_BALANCING_CONTROL_s table */
+/** local storage of the #DATA_BLOCK_BALANCING_CONTROL_s table
+ *  @req REQ-016 — 模块本地数据存储：数据库表本地副本 */
 static DATA_BLOCK_BALANCING_CONTROL_s bal_balancing = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
-/** local storage of the #DATA_BLOCK_CELL_VOLTAGE_s table */
+/** local storage of the #DATA_BLOCK_CELL_VOLTAGE_s table
+ *  @req REQ-016 — 模块本地数据存储：数据库表本地副本 */
 static DATA_BLOCK_CELL_VOLTAGE_s bal_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 
-/** contains the state of the contactor state machine */
+/** contains the state of the contactor state machine
+ *  @req REQ-016 — 模块本地数据存储：状态机状态结构体 */
 static BAL_STATE_s bal_state = {
     .timer                  = 0,
     .stateRequest           = BAL_STATE_NO_REQUEST,
@@ -94,11 +104,15 @@ static BAL_STATE_s bal_state = {
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-/** Activates history based balancing */
+/** Activates history based balancing
+ *  @req REQ-006 — 基于电荷差的均衡激活控制
+ *  @req REQ-015 — 电荷量计算精度
+ *  @req REQ-017 — 无符号整数下溢保护 */
 static void BAL_ActivateBalancing(void);
 
 /**
  * @brief   Deactivates history based balancing
+ * @req     REQ-007 — 均衡全局停用
  * @details The balancing state of all cells in all strings set to inactivate
  *          (that is 0) and the delta charge is set to 0 As. The balancing
  *          enable bit is deactivate (that is 0).
@@ -107,18 +121,26 @@ static void BAL_Deactivate(void);
 
 /**
  * @brief   State machine subfunction to check if balancing is allowed
+ * @req     REQ-001 — 均衡检查入口子状态处理
+ * @req     REQ-002 — 不均衡存在性检查
+ * @req     REQ-003 — BMS 静置状态下重新计算不均衡量
  * @details Checks if balancing is allowed. If it is it transfers in the actual
  *          balancing state.
  */
 static void BAL_ProcessStateCheckBalancing(void);
 
-/** State machine subfunction to balance the battery cell */
+/** State machine subfunction to balance the battery cell
+ *  @req REQ-004 — 均衡执行入口子状态处理
+ *  @req REQ-005 — 均衡激活与安全条件检查
+ *  @req REQ-018 — 均衡安全保护条件 */
 static void BAL_ProcessStateBalancing(void);
 
-/** State machine subfunction to check for voltage imbalances */
+/** State machine subfunction to check for voltage imbalances
+ *  @req REQ-008 — 不均衡存在性检测 */
 static bool BAL_CheckImbalances(void);
 
-/** State machine subfunction to compute the imbalance of all cells */
+/** State machine subfunction to compute the imbalance of all cells
+ *  @req REQ-009 — 基于电压差和 SOC 映射的不均衡量计算 */
 static void BAL_ComputeImbalances(void);
 
 /*========== Static Function Implementations ================================*/
@@ -144,7 +166,7 @@ static void BAL_ActivateBalancing(void) {
                         difference       = (BAL_FSM_BALANCING_TIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
                         bal_state.active = true;
                         bal_balancing.enableBalancing = true;
-                        /* we are working with unsigned integers */
+                        /* REQ-017: 无符号整数下溢保护 — 扣除量大于剩余量时直接清零 */
                         if (difference > bal_balancing.deltaCharge_mAs[s][m][cb]) {
                             bal_balancing.deltaCharge_mAs[s][m][cb] = 0u;
                         } else {
@@ -236,7 +258,7 @@ static void BAL_ProcessStateBalancing(void) {
         DATA_BLOCK_MIN_MAX_s bal_minMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
         DATA_READ_DATA(&bal_minMax);
         bal_state.timer = BAL_FSM_BALANCING_TIME_100ms;
-        /* do not balance under a certain voltage level */
+        /* REQ-005/REQ-018: 均衡安全保护条件 — 最低电压、最高温度、不均衡存在性、全局允许 */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             if ((bal_minMax.minimumCellVoltage_mV[s] <= BAL_LOWER_VOLTAGE_LIMIT_mV) ||
                 (bal_minMax.maximumTemperature_ddegC[s] >= BAL_UPPER_TEMPERATURE_LIMIT_ddegC) ||
@@ -324,14 +346,26 @@ static void BAL_ComputeImbalances(void) {
 }
 
 /*========== Extern Function Implementations ================================*/
+/**
+ * @brief   获取初始化状态
+ * @req     REQ-012 — 初始化状态查询
+ * @return  STD_OK: 已完成初始化, STD_NOT_OK: 尚未完成初始化
+ */
 extern STD_RETURN_TYPE_e BAL_GetInitializationState(void) {
     return bal_state.initializationFinished;
 }
 
+/**
+ * @brief   设置状态机请求
+ * @req     REQ-011 — 状态请求设置
+ * @req     REQ-019 — 临界区保护
+ * @param   stateRequest 期望设置的状态请求
+ * @return  请求校验结果（BAL_OK / BAL_REQUEST_PENDING / BAL_ALREADY_INITIALIZED / BAL_ILLEGAL_REQUEST）
+ */
 extern BAL_RETURN_TYPE_e BAL_SetStateRequest(BAL_STATE_REQUEST_e stateRequest) {
     BAL_RETURN_TYPE_e returnValue = BAL_OK;
 
-    OS_EnterTaskCritical();
+    OS_EnterTaskCritical(); /* REQ-019: 临界区保护 — 原子校验与写入 */
     returnValue = BAL_CheckStateRequest(&bal_state, stateRequest);
 
     if (returnValue == BAL_OK) {
@@ -342,6 +376,12 @@ extern BAL_RETURN_TYPE_e BAL_SetStateRequest(BAL_STATE_REQUEST_e stateRequest) {
     return returnValue;
 }
 
+/**
+ * @brief   BAL 状态机触发函数
+ * @req     REQ-010 — BAL 状态机顶层触发
+ * @details 包含 BAL 状态机的完整事件序列，每 100ms 定时调用一次。
+ *          处理流程：重入检查 → 定时器管理 → 状态分发。
+ */
 extern void BAL_Trigger(void) {
     BAL_STATE_REQUEST_e stateRequest = BAL_STATE_NO_REQUEST;
 
@@ -389,6 +429,7 @@ extern void BAL_Trigger(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+/** @req REQ-021 — 单元测试支持：通过条件编译暴露内部函数和静态变量 */
 #ifdef UNITY_UNIT_TEST
 extern BAL_FSM_e BAL_GetState(void) {
     return bal_state.state;

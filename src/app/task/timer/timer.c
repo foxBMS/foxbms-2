@@ -50,6 +50,7 @@
  *
  * @brief   Wrapper for timer implementation
  * @details Our own wrapper for the timer implementation of FreeRTOS
+ * @requirements REQ-029, REQ-030
  *
  */
 
@@ -73,6 +74,9 @@
 
 /*========== Extern Function Implementations ================================*/
 
+/**
+ * @req REQ-029: 定时器创建 → 封装xTimerCreateStatic，参数非空断言
+ */
 TimerHandle_t TIMER_Create(
     const char *cpxTimerName,
     uint32_t uxTimerPeriodInMS,
@@ -91,6 +95,9 @@ TimerHandle_t TIMER_Create(
     return timerHandle;
 }
 
+/**
+ * @req REQ-030: 定时器删除 → 句柄非空时调用xTimerDelete
+ */
 STD_RETURN_TYPE_e TIMER_Delete(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     /* AXIVION Routine Generic-MissingParameterAssert: ticks2wait: parameter accept whole range */
     STD_RETURN_TYPE_e ret = STD_NOT_OK;
@@ -102,6 +109,9 @@ STD_RETURN_TYPE_e TIMER_Delete(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     return ret;
 }
 
+/**
+ * @req REQ-030: 定时器启动 → 句柄非空时调用xTimerStart
+ */
 STD_RETURN_TYPE_e TIMER_Start(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     /* AXIVION Routine Generic-MissingParameterAssert: ticks2wait: parameter accept whole range */
     STD_RETURN_TYPE_e ret = STD_NOT_OK;
@@ -113,6 +123,9 @@ STD_RETURN_TYPE_e TIMER_Start(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     return ret;
 }
 
+/**
+ * @req REQ-030: 定时器停止 → 句柄非空时调用xTimerStop
+ */
 STD_RETURN_TYPE_e TIMER_Stop(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     /* AXIVION Routine Generic-MissingParameterAssert: ticks2wait: parameter accept whole range */
     STD_RETURN_TYPE_e ret = STD_NOT_OK;
@@ -124,6 +137,9 @@ STD_RETURN_TYPE_e TIMER_Stop(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     return ret;
 }
 
+/**
+ * @req REQ-030: 定时器重置 → 句柄非空时调用xTimerReset
+ */
 STD_RETURN_TYPE_e TIMER_Reset(TimerHandle_t timerHandle, uint32_t ticks2wait) {
     /* AXIVION Routine Generic-MissingParameterAssert: ticks2wait: parameter accept whole range */
     STD_RETURN_TYPE_e ret = STD_NOT_OK;

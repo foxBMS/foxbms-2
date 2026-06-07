@@ -50,6 +50,7 @@
  *
  * @brief   SOF module configuration file
  * @details TODO
+ * @requirements REQ-007
  */
 
 /*========== Includes =======================================================*/

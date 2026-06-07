@@ -61,6 +61,10 @@
  *          checks that the first entry is not a NULL_PTR and asserts if it
  *          is not the case. If subsequent entries are found in the database
  *          queue, they are simply ignored if they are NULL_PTR.
+ * @requirements REQ-APP_ENGINE_DATABASE_001, REQ-APP_ENGINE_DATABASE_002,
+ *              REQ-APP_ENGINE_DATABASE_003, REQ-APP_ENGINE_DATABASE_004,
+ *              REQ-APP_ENGINE_DATABASE_005, REQ-APP_ENGINE_DATABASE_006,
+ *              REQ-APP_ENGINE_DATABASE_007
  */
 
 /*========== Includes =======================================================*/

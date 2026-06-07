@@ -49,6 +49,7 @@
  * @prefix  STD
  *
  * @brief   Definition of foxBMS standard types
+ * @requirements REQ-024, REQ-025, REQ-026
  * @details TODO
  */
 
@@ -60,6 +61,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** @def    NULL
+ * @req     REQ-026
  * @brief   NULL definition
  * @details This define describes a null. Use it to compare against null.
  */
@@ -69,6 +71,7 @@
 
 /**
  * @def     NULL_PTR
+ * @req     REQ-026
  * @brief   Null pointer
  * @details This define describes a null pointer. Use it to compare for null
  *          pointer access.
@@ -78,13 +81,13 @@
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
-/** enum for standard return type */
+/** @req REQ-024: 标准返回类型枚举 */
 typedef enum {
     STD_OK,     /**< ok     */
     STD_NOT_OK, /**< not ok */
 } STD_RETURN_TYPE_e;
 
-/** enum for pin state */
+/** @req REQ-025: 数字引脚状态枚举 */
 typedef enum {
     STD_PIN_LOW,       /*!< electrical pin state: low */
     STD_PIN_HIGH,      /*!< electrical pin state: high */

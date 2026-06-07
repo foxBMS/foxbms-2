@@ -50,6 +50,7 @@
  *
  * @brief   SOC module responsible for calculation of state-of-charge (SOC)
  * @details TODO
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004
  */
 
 /*========== Includes =======================================================*/

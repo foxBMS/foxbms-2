@@ -52,6 +52,8 @@
  * @details In this header filer are the different diagnosis channel defines
  *          assigned to different diagnosis IDs. Furthermore are the diagnosis
  *          error log settings be configured here.
+ * @requirements REQ-APP_ENGINE_CONFIG_DIAG_CFG_001, REQ-APP_ENGINE_CONFIG_DIAG_CFG_002,
+ *              REQ-APP_ENGINE_CONFIG_DIAG_CFG_003
  */
 
 #ifndef FOXBMS__DIAG_CFG_H_

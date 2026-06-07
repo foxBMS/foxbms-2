@@ -49,6 +49,7 @@
  * @prefix  NONE
  *
  * @brief   Main function header
+ * @requirements REQ-006
  * @details Declares the main function
  *          For the target build this header declares the standard main
  *          function.
@@ -69,6 +70,7 @@
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief   Main function of foxBMS
+ * @req     REQ-006
  * @details Entry point to the application
  */
 #ifndef UNITY_UNIT_TEST

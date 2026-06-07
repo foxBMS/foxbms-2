@@ -41,6 +41,7 @@
  * @prefix  STU
  *
  * @brief   Startup Source File
+ * @requirements REQ-013, REQ-014, REQ-015, REQ-016, REQ-017, REQ-018
  * @details This file is created by TI HALCoGen 04.07.01 and adapted to foxBMS
  *          specific needs.
  *          This file contains the VIM RAM setup and the startup routine.
@@ -87,6 +88,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** number of retries for the PLL to come up */
+/** @req NFR-001: PLL 锁定最大重试次数 */
 #define STU_PLL_RETRIES (5u)
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -98,6 +100,7 @@
 #ifndef UNITY_UNIT_TEST
 /**
  * @brief   Get reset flag
+ * @req     REQ-014
  * @details Get reset source without reseting respective the flag in SYSESR
  *          register
  * @return  returns reset reason
@@ -110,6 +113,7 @@ extern resetSource_t STU_GetResetSourceWithoutFlagReset(void);
 /*========== Static Function Implementations ================================*/
 #ifndef UNITY_UNIT_TEST
 static resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
+    /* REQ-014: 从 SYSESR 读取复位源，按优先级链检测 */
     register resetSource_t rst_source;
 
     if ((SYS_EXCEPTION & (uint32)POWERON_RESET) != 0U) {
@@ -155,6 +159,7 @@ static resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
 /* SourceId : STARTUP_SourceId_001 */
 /* DesignId : STARTUP_DesignId_001 */
 /* Requirements : HL_CONQ_STARTUP_SR1 */
+/** @req REQ-013: CPU 复位向量入口，执行分级初始化并调用 main() */
 void _c_int00(void) {
     register resetSource_t rstSrc;
 
@@ -168,10 +173,12 @@ void _c_int00(void) {
      * to identify the cause of the CPU reset.
      */
     /* Changed in comparison to TI _c_int00 implementation. Readout flags but do NOT clear them! */
+    /* REQ-014: 读取复位源但不清除标志位 */
     rstSrc = STU_GetResetSourceWithoutFlagReset();
 
     switch (rstSrc) {
         case POWERON_RESET:
+            /* REQ-015: 上电复位 → 完整初始化流程 */
             /* Initialize L2RAM to avoid ECC errors right after power on */
             _memInit_();
             /*SAFETYMCUSW 62 S MR:15.2, 15.5 <APPROVED> "Need to continue to handle POWERON Reset" */
@@ -183,12 +190,14 @@ void _c_int00(void) {
                 _memInit_();
             }
 
+            /* REQ-017: 使能 CPU 事件总线导出（EXT/DEBUG 复位分支） */
             /* Enable CPU Event Export */
             /* This allows the CPU to signal any single-bit or double-bit errors detected
              * by its ECC logic for accesses to program flash or data RAM.
              */
             _coreEnableEventBusExport_();
 
+            /* REQ-016: 检查 ESM 组3上电错误（系统时钟配置前） */
             /* Check if there were ESM group3 errors during power-up.
              * These could occur during eFuse auto-load or during reads from flash OTP
              * during power-up. Device operation is not reliable and not recommended
@@ -197,15 +206,18 @@ void _c_int00(void) {
                 esmGroup3Notification(esmREG, esmREG->SR1[2]);
             }
 
+            /* REQ-015: 系统时钟初始化（含 eFuse 自检） */
             /* Initialize System - Clock, Flash settings with Efuse self check */
             systemInit();
 
             /* Enable IRQ offset via Vic controller */
             _coreEnableIrqVicOffset_();
 
+            /* REQ-018: 初始化向量中断管理器 */
             /* Initialize VIM table */
             vimInit();
 
+            /* REQ-016: VIM 初始化后再次检查 ESM 组3错误 */
             /* Check if there were ESM group3 errors during power-up.
              * These could occur during eFuse auto-load or during reads from flash OTP
              * during power-up. Device operation is not reliable and not recommended
@@ -221,6 +233,7 @@ void _c_int00(void) {
             break;
 
         case CPU0_RESET:
+            /* REQ-017: 使能 CPU 事件总线导出（CPU0 复位分支） */
             /* Enable CPU Event Export */
             /* This allows the CPU to signal any single-bit or double-bit errors detected
              * by its ECC logic for accesses to program flash or data RAM.
@@ -235,6 +248,7 @@ void _c_int00(void) {
             break;
     }
 
+    /* REQ-018: 初始化内存保护单元 */
     _mpuInit_();
 
     /* initialize global variable and constructors */

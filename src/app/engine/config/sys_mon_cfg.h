@@ -50,6 +50,7 @@
  *
  * @brief   Configuration of the system monitoring module
  * @details TODO
+ * @requirements REQ-APP_ENGINE_SYS_MON_002, REQ-APP_ENGINE_SYS_MON_003
  */
 
 #ifndef FOXBMS__SYS_MON_CFG_H_

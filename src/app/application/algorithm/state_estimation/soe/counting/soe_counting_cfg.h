@@ -50,6 +50,7 @@
  *
  * @brief   Header for SOE configuration
  * @details TODO
+ * @requirements REQ-009
  */
 
 #ifndef FOXBMS__SOE_COUNTING_CFG_H_

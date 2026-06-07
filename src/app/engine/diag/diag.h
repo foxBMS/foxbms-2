@@ -50,6 +50,9 @@
  *
  * @brief   Diagnosis driver header
  * @details TODO
+ * @requirements REQ-APP_ENGINE_DIAG_001, REQ-APP_ENGINE_DIAG_002, REQ-APP_ENGINE_DIAG_003,
+ *              REQ-APP_ENGINE_DIAG_004, REQ-APP_ENGINE_DIAG_008, REQ-APP_ENGINE_DIAG_009,
+ *              REQ-APP_ENGINE_DIAG_010
  */
 
 #ifndef FOXBMS__DIAG_H_
@@ -118,7 +121,7 @@ typedef struct {
  * @return  #DIAG_HANDLER_RETURN_UNKNOWN if invalid #DIAG_EVENT_e, otherwise
  *          return value of #DIAG_RETURNTYPE_e
  */
-extern DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data);
+extern DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data); /**< @req REQ-APP_ENGINE_DIAG_002 */
 
 /**
  * @brief   DIAG_CheckEvent provides a simple interface to check an event for
@@ -138,7 +141,7 @@ extern STD_RETURN_TYPE_e DIAG_CheckEvent(
     STD_RETURN_TYPE_e cond,
     DIAG_ID_e diagId,
     DIAG_IMPACT_LEVEL_e impact,
-    uint32_t data);
+    uint32_t data); /**< @req REQ-APP_ENGINE_DIAG_003 */
 
 /**
  * @brief   DIAG_Init initializes all needed structures/buffers.
@@ -148,14 +151,14 @@ extern STD_RETURN_TYPE_e DIAG_CheckEvent(
  * @param   diag_dev_pointer
  * @return  #STD_OK if ok, #STD_NOT_OK if not ok
  */
-extern STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer);
+extern STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer); /**< @req REQ-APP_ENGINE_DIAG_001 */
 
 /**
  * @brief   Checks if passed diagnosis entry has been triggered or not
  * @param   diagnosisEntry event ID of diagnosis entry
  * @return  #STD_OK if diagnosis entry has not surpassed error threshold, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DIAG_GetDiagnosisEntryState(DIAG_ID_e diagnosisEntry);
+extern STD_RETURN_TYPE_e DIAG_GetDiagnosisEntryState(DIAG_ID_e diagnosisEntry); /**< @req REQ-APP_ENGINE_DIAG_008 */
 
 /**
  * @brief   Prints contents of the error buffer on user request.
@@ -167,14 +170,14 @@ extern void DIAG_PrintErrors(void);
  * @param   diagnosisEntry event ID of diagnosis entry
  * @return  configured delay in ms
  */
-extern uint32_t DIAG_GetDelay(DIAG_ID_e diagnosisEntry);
+extern uint32_t DIAG_GetDelay(DIAG_ID_e diagnosisEntry); /**< @req REQ-APP_ENGINE_DIAG_010 */
 
 /**
  * @brief   Check if any fatal error is set
  * @return  true, if a diagnosis entry with severity #DIAG_FATAL_ERROR is set,
  *          otherwise false
  */
-extern bool DIAG_IsAnyFatalErrorSet(void);
+extern bool DIAG_IsAnyFatalErrorSet(void); /**< @req REQ-APP_ENGINE_DIAG_009 */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

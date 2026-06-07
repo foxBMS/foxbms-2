@@ -1,0 +1,8 @@
+- [项目概览](project-overview.md) — foxBMS 2 是 Fraunhofer 开源 BMS 平台，v1.11.0，C/FreeRTOS + TI C2000
+- [代码规范](code-conventions.md) — C 代码文件头、命名约定、模块前缀、clang-format、Doxygen 文档规范
+- [架构与模块](architecture-modules.md) — 分层架构 (app/driver/os/bootloader)、策略模式设计、模块组织
+- [构建系统](build-system-tools.md) — TI CCS 编译器、wscript/waf 构建、Python CLI 工具链、测试和文档工具
+- [需求文档规范](software-requirements-docs.md) — SOFTWARE_REQUIREMENTS.md 格式、REQ-<路径前缀>_NNN 编号 (如 REQ-APP_APPLICATION_BAL_001)、Doxygen @requirements 关联
+- [MISRA C 检查清单](misra-c-checklist.md) — 代码生成后必须对照的 MISRA C:2012 规范检查清单（143 规则 + 16 指令），涵盖变量/条件/循环/函数等六大章节
+- [CERT C 检查清单](cert-c-checklist.md) — 代码生成后必须对照的 CERT C 安全编码检查清单（13 大类），涵盖预处理器/声明/表达式/整数/浮点/数组/字符串/内存/IO/信号等
+- [代码审查结果报告](code-review-report.md) — MISRA C / CERT C 检查后必须生成审查报告，存放在源码所在目录的 code-review-results/ 文件夹中

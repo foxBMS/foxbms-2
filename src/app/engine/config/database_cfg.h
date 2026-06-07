@@ -50,6 +50,8 @@
  *
  * @brief   Database configuration header
  * @details Provides interfaces to database configuration
+ * @requirements REQ-APP_ENGINE_DATABASE_NFR_004, REQ-APP_ENGINE_DATABASE_NFR_005,
+ *              REQ-APP_ENGINE_DATABASE_NFR_006
  */
 
 #ifndef FOXBMS__DATABASE_CFG_H_

@@ -49,6 +49,7 @@
  * @prefix  FRAM
  *
  * @brief   Driver for the FRAM module
+ * @requirements REQ-001, REQ-002, REQ-003, REQ-004, REQ-005, REQ-006, REQ-007
  * @details TODO
  *
  *

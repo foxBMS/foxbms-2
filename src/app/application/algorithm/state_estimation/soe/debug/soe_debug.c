@@ -50,6 +50,7 @@
  *
  * @brief   SOE module responsible for calculation of state-of-energy (SOE)
  * @details TODO
+ * @requirements REQ-001, REQ-002
  */
 
 /*========== Includes =======================================================*/

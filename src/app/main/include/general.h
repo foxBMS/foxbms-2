@@ -49,6 +49,7 @@
  * @prefix  GEN
  *
  * @brief   General macros and definitions for the whole platform.
+ * @requirements REQ-019, REQ-020, REQ-021, REQ-022, REQ-023
  * @details TODO
  */
 
@@ -66,12 +67,14 @@
 
 /**
  * @brief   sets a bit to 1u
+ * @req     REQ-019
  * @param[in,out]   register    register on which to set the bit
  * @param[in]       bit         number of the bit that should be set to 1u
  */
 #define GEN_SET_BIT(register, bit) ((register) |= (uint32)((uint32)1u << (bit)))
 /**
  * @brief   clears a bit to 0u
+ * @req     REQ-019
  * @param[in,out]   register    register on which to clear the bit
  * @param[in]       bit         number of the bit that should be cleared to 0u
  */
@@ -91,6 +94,7 @@
 #define GEN_ALWAYS_INLINE __attribute__((always_inline))
 
 /* assert that the basic datatypes in fstd_types.h are intact */
+/* REQ-022: 编译时验证基础数据类型正确性 */
 /* AXIVION Disable Style MisraC2012-10.4: These assertions have to check the actual values of the enums and defines. */
 FAS_STATIC_ASSERT(false == 0, "false seems to have been modified.");
 FAS_STATIC_ASSERT(true != false, "true seems to have been modified.");
@@ -214,10 +218,11 @@ FAS_STATIC_ASSERT(STD_NOT_OK == 1, "STD_NOT_OK seems to have been modified.");
 /* AXIVION Enable Style Generic-NoUnsafeMacro MisraC2012Directive-4.9 MisraC2012-20.10: */
 /**@}*/
 
-/** Maximum number of supported repetitions in #GEN_REPEAT_U(). Adapt if you change implementation.*/
+/** @req REQ-020: 最大支持 99 次令牌重复 */
 #define GEN_REPEAT_MAXIMUM_REPETITIONS (99u)
 
 /**
+ * @req     REQ-020
  * @brief   Macro that helps to generate a series of literals (for array initializers).
  * @details This macro generates a series of literals for array initializers.
  *          This can be used for initializing arrays to arbitrary non-null values
@@ -251,9 +256,11 @@ FAS_STATIC_ASSERT(STD_NOT_OK == 1, "STD_NOT_OK seems to have been modified.");
 #define GEN_STRIP_PARENS(x) x
 /**@}*/
 /** Strips a token of its surrounding parenthesis. */
+/** @req REQ-021: 剥离宏参数外层括号 */
 #define GEN_STRIP(x) GEN_STRIP_PARENS(GEN_GET_ARGS x)
 /* AXIVION Enable Style MisraC2012Directive-4.9 MisraC2012-20.7 Generic-NoUnsafeMacro: */
 
+/** @req REQ-023: 定义平台每字的字节数 */
 /** Defines the word size in bytes of the platform */
 #if defined(__TI_COMPILER_VERSION__) && defined(__ARM_32BIT_STATE) && defined(__TMS470__)
 #define GEN_BYTES_PER_WORD (4u)
