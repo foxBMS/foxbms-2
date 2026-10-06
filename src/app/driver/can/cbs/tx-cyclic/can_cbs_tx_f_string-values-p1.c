@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_string-values-p1.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -74,6 +74,8 @@
 /*========== Static Function Prototypes =====================================*/
 /**
  * @brief sets multiplexer of StringP1 message to string number
+ * @param   pMessageData message data of the CAN message
+ * @param   signalData   string number to be set in the multiplexer
  */
 static void CANTX_SetStringP1Mux(uint64_t *pMessageData, uint64_t signalData);
 

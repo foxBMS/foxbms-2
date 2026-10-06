@@ -35,8 +35,8 @@
 /**
  * @file    app-hl_notification.c
  * @date    11-Dec-2018
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  IGNOR
  *
@@ -54,7 +54,7 @@
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_debug.h"
 
 /* clang-format off */
 #include "HL_esm.h"
@@ -92,72 +92,110 @@
 /*========== Extern Function Implementations ================================*/
 
 void esmGroup1Notification(esmBASE_t *esm, uint32 channel) {
+    (void)esm;
+    (void)channel;
 }
 
 void esmGroup2Notification(esmBASE_t *esm, uint32 channel) {
+    (void)esm;
+    (void)channel;
 }
 
 void esmGroup3Notification(esmBASE_t *esm, uint32 channel) {
+    (void)esm;
+    (void)channel;
     while (FOREVER()) { /* Wait */
     }
 }
 
 void adcNotification(adcBASE_t *adc, uint32 group) {
+    (void)adc;
+    (void)group;
 }
 
 void canErrorNotification(canBASE_t *node, uint32 notification) {
+    (void)node;
+    (void)notification;
 }
 
 void canStatusChangeNotification(canBASE_t *node, uint32 notification) {
+    (void)node;
+    (void)notification;
 }
 
 void dccNotification(dccBASE_t *dcc, uint32 flags) {
+    (void)dcc;
+    (void)flags;
 }
 
 void gioNotification(gioPORT_t *port, uint32 bit) {
+    (void)port;
+    (void)bit;
 }
 
 void i2cNotification(i2cBASE_t *i2c, uint32 flags) {
+    (void)i2c;
+    (void)flags;
 }
 
 void linNotification(linBASE_t *lin, uint32 flags) {
+    (void)lin;
+    (void)flags;
 }
 
 #if !defined(FOXBMS_UART_SUPPORT)
 /* In case the application uses the UART debug interface, the sciNotification
  * is implemented in src/app/driver/uart/uart. */
 void sciNotification(sciBASE_t *sci, uint32 flags) {
+    (void)sci;
+    (void)flags;
 }
 #endif
 
 void spiEndNotification(spiBASE_t *spi) {
+    (void)spi;
 }
 
 void pwmNotification(hetBASE_t *hetREG, uint32 pwm, uint32 notification) {
+    (void)hetREG;
+    (void)pwm;
+    (void)notification;
 }
 
 void edgeNotification(hetBASE_t *hetREG, uint32 edge) {
+    (void)hetREG;
+    (void)edge;
 }
 
 void hetNotification(hetBASE_t *het, uint32 offset) {
+    (void)het;
+    (void)offset;
 }
 
 void crcNotification(crcBASE_t *crc, uint32 flags) {
+    (void)crc;
+    (void)flags;
 }
 
 void etpwmNotification(etpwmBASE_t *node) {
+    (void)node;
 }
 
 void etpwmTripNotification(etpwmBASE_t *node, uint16 flags) {
+    (void)node;
+    (void)flags;
 }
 
 void eqepNotification(eqepBASE_t *eqep, uint16 flags) {
+    (void)eqep;
+    (void)flags;
 }
 
 void epcCAMFullNotification(void) {
 }
 
 void epcFIFOFullNotification(uint32 epcFIFOStatus) {
+    (void)epcFIFOStatus;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

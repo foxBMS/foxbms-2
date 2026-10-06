@@ -24,8 +24,7 @@ This example implements a simple state machine with the following states:
 An error in this example is an unrecoverable error.
 This gives the state flow diagram in :numref:`state-diagram`.
 
-.. drawio-figure:: state-machine-example/example_state-machine_main-states.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/developer-manual/style-guide/state-machine-example/example_state-machine_main-states.svg
    :alt: States and their transitions
    :name: state-diagram
    :width: 400px
@@ -54,8 +53,7 @@ If this is the case, the state machine transitions from the substate to the
 state |state_error|.
 The full state machine graph is shown in :numref:`complete-state-diagram`.
 
-.. drawio-figure:: state-machine-example/example_state-machine_states-and-substates.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/developer-manual/style-guide/state-machine-example/example_state-machine_states-and-substates.svg
    :alt: States and substates and their transitions
    :name: complete-state-diagram
    :width: 400px
@@ -106,7 +104,7 @@ the state machine (a dummy state called ``DUMMY`` and a state indicating that
 the state machine has never run called ``HAS_NEVER_RUN``).
 The enum entries **MUST** use ``FSM_STATE`` as infix after the module prefix.
 Taking all these rules into account, the enum for the states used in this
-example look like this:
+example looks like this:
 
 .. code-block:: c
    :linenos:
@@ -122,13 +120,13 @@ example look like this:
         EG_FSM_STATE_ERROR,          /*!< state for error processing  */
     } EG_FSM_STATES_e;
 
-A similar pattern has to be applied for the substates.
+A similar pattern applies to the substates.
 For the boilerplate, a dummy substate called ``Dummy`` (as in the state) and an
 additional substate called ``Entry``  have to be defined.
 The enum entries **MUST** use ``FSM_SUBSTATE`` as infix after the module
 prefix.
 Taking all these rules into account, the enum for the substates used in this
-example look like this:
+example looks like this:
 
 .. code-block:: c
    :linenos:
@@ -138,10 +136,10 @@ example look like this:
     typedef enum {
         EG_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
         EG_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
-        EG_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
+        EG_FSM_SUBSTATE_INITIALIZATION_0,    /*!< first initialization substate */
         EG_FSM_SUBSTATE_INITIALIZATION_1,    /*!< second initialization substate */
         EG_FSM_SUBSTATE_INITIALIZATION_EXIT, /*!< last initialization substate */
-        EG_FSM_SUBSTATE_RUNNING_0,           /*!< fist running substate */
+        EG_FSM_SUBSTATE_RUNNING_0,           /*!< first running substate */
         EG_FSM_SUBSTATE_RUNNING_1,           /*!< second running substate */
         EG_FSM_SUBSTATE_RUNNING_2,           /*!< third running substate */
     } EG_FSM_SUBSTATES_e;
@@ -249,7 +247,7 @@ Two cases can happen:
 
 - If it has the value zero, it stays at zero and the content of the state
   machine is processed further.
-- If is has a non-zero value, it is decremented and the trigger function
+- If it has a non-zero value, it is decremented and the trigger function
   exits without processing the state machine.
 
 To wait a definite amount of time, the ``time`` variable must only be assigned
@@ -356,7 +354,8 @@ At next the implementations of all cases are explained in detail.
 ``EG_FSM_STATE_HAS_NEVER_RUN``
 """"""""""""""""""""""""""""""
 
-If the state machine has never run, it needs to be transferred to known state,
+If the state machine has never run, it needs to be transferred to a known
+state,
 the uninitialized state (``EG_FSM_STATE_UNINITIALIZED``).
 
 .. note::
@@ -418,15 +417,15 @@ and how they work.
 For now it is sufficient to know that state processing functions need to exist.
 
 If an error occurs in any of the substates of the state |state_initialization|
-the state machine needs to transfer to the state |state_error|.
+the state machine needs to transition to the state |state_error|.
 The transitions based on the states and substates would not be clearly visible
-in such a implementation.
+in such an implementation.
 Therefore this logic is transferred into a state processing function
 ``EG_ProcessInitializationState()``.
 State processing functions **MUST** use the naming pattern
 ``{MODULE_PREFIX}_Process{StateName}State`` where ``{StateName}`` is the state
 to be processed, e.g., for the state |state_initialization| ``{StateName}``
-needs to be replaced by ``Initialization``.
+needs to be replaced with ``Initialization``.
 
 The state processing function (in this example
 ``EG_ProcessInitializationState()``) returns the state the state machine has
@@ -559,10 +558,10 @@ The following describes the purpose of this *pseudo* state.
 There are two reasons one additional state is needed.
 
 The first reason is that ``EG_SetState()`` and ``EG_SetSubstate()``
-needed some state to set the ``nextState`` and ``nextSubstate`` members
+need some state to set the ``nextState`` and ``nextSubstate`` members
 of the struct to some valid value after the ``nextState`` is transferred to
 ``currentState`` and ``currentSubstate`` member.
-This must be some value that is not a real state the state machine could
+This must be some value that is not a real state that the state machine could
 transfer to, but something to indicate that ``nextState`` and ``nextSubstate``
 were cleared.
 ``EG_FSM_STATE_DUMMY`` is used for that purpose.
@@ -593,9 +592,9 @@ initialize it with zero.
 In order to prevent **not** thinking about the initialization of the state
 members, the first state is the second enum entry (in this example
 ``EG_FSM_STATE_HAS_NEVER_RUN``).
-This equals integer value `1`, not `0`.
+This equals integer value ``1``, not ``0``.
 This forces the developer to think about initialization and think how the state
-variable (here ``eg_state``) needs to be initialized.
+variable (here ``eg_state``) needs to be initialized explicitly.
 In combination with the implementation pattern of the ``EG_RunStateMachine()``
 the state machine only starts if the initialization is correctly done.
 
@@ -610,7 +609,7 @@ Functions that *process* a specific state are referred to as
 State processing functions **MUST** use
 the naming pattern ``{MODULE_PREFIX}_Process{StateName}State`` where
 ``StateName`` is the state to be processed, e.g., for the state
-|state_initialization| ``StateName`` needs to be replaced by
+|state_initialization| ``StateName`` needs to be replaced with
 ``Initialization``.
 
 State processing functions always return the next state to transition to.
@@ -620,7 +619,7 @@ processing function implements.
 
 Generally the ``nextState`` variables definition follows the following pattern
 ``EG_FSM_STATES_e nextState = EG_FSM_STATE_{SOME_STATE}`` where ``{SOME_STATE}``
-needs to be replaced with the state this function is processing.
+needs to be replaced with the state this function processes.
 For example, as the function ``EG_ProcessInitializationState()`` process the
 state |state_initialization| the correct state to initialize ``nextState`` with
 is ``EG_FSM_STATE_INITIALIZATION``.
@@ -680,7 +679,7 @@ In the first substate |substate_initialization_0| some work needs to be done
 This work is implemented in a function ``EG_SomeInitializationFunction0()``
 that returns either ``true`` (if successful) or ``false`` (if unsuccessful).
 If it was unsuccessful, the substate |substate_initialization_0| failed and the
-state machine needs to transfer into the state |state_error|.
+state machine needs to transition to the state |state_error|.
 If this substate was successful the |state_initialization| state should precede
 with the second substate
 |substate_initialization_1|.
@@ -780,7 +779,7 @@ The state |state_running| consists of three substates that are looped in order
 If an error occurs in any |state_running| state's substates the next state is
 the state |state_error|.
 
-In all of the |state_running| state's substates some work needs to be done
+In all substates of the |state_running| state, some work needs to be done
 (again, hypothetically for this example).
 This work is implemented in the functions
 ``EG_SomeRunningFunction0()`` for substate |substate_running_0|,
@@ -879,14 +878,14 @@ If the state has changed, the state **and** the substate need to change.
 The state is set to the next state and the substate is set to the entry state
 for substates (``EG_FSM_SUBSTATE_ENTRY``).
 After that the ``nextState`` and ``nextSubstate`` of state and substate can be
-cleared (set  to ``EG_FSM_STATE_DUMMY`` and ``EG_FSM_SUBSTATE_DUMMY``
+cleared (set to ``EG_FSM_STATE_DUMMY`` and ``EG_FSM_SUBSTATE_DUMMY``
 respectively).
 If the state has not changed, and only the substate has, the next substate
 is set by ``EG_SetSubstate()``.
 
 This implementation requires that every state has a defined entry for all
 states and all states need to implement that entry.
-This also ensure no state transitions from e.g.,
+This also ensures that no state transitions from e.g.,
 
 - ``State A`` and ``third substate`` into
 - ``State C`` and ``second substate``
@@ -898,7 +897,8 @@ are made, but a strict chain needs to be followed:
 - ``State C`` and ``second substate``.
 
 **What if there is no substate in a case?**: There might be states that do not
-need substate, even this example has three states with no substates (
+need substates.
+Even this example has three states with no substates (
 ``EG_FSM_STATE_HAS_NEVER_RUN``, ``EG_FSM_STATE_UNINITIALIZED`` and
 ``EG_FSM_STATE_ERROR``).
 In this case just the transition(s) in the next state(s) need to be implemented
@@ -928,8 +928,7 @@ There are cases where an error during the processing of the state machine can
 occur and there are strategies to recover from them.
 The example from :numref:`state-diagram` is extended as follows:
 
-.. drawio-figure:: state-machine-example/example_state-machine_recoverable-error.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/developer-manual/style-guide/state-machine-example/example_state-machine_recoverable-error.svg
    :alt: Example with recoverable error
    :name: state-diagram-recoverable
    :width: 400px

@@ -35,8 +35,8 @@
 /**
  * @file    emac.c
  * @date    2024-09-23 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  EMAC
  *
@@ -62,7 +62,8 @@
 /* cspell:ignore GMII TXHDP MIDO */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
 
 #include "emac.h"
 
@@ -284,8 +285,16 @@ extern EMAC_RETURN_TYPE_e EMAC_InitializeHardware(uint8_t const *pEmacAddress) {
         (uint32_t)EMAC_CHANNELNUMBER);
 
     /* Write to the RX HDP for channel 0 */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     EMAC_WriteRxHeaderDescriptorPointer(
         pHdkif->emacBaseAddress, (uint32_t)pRxChannel->pActiveHead, (uint32_t)EMAC_CHANNELNUMBER);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
+
     if (PHY_Initialize(pHdkif->mdioBaseAddress) == STD_NOT_OK) {
         returnValue = EMAC_ERROR_PHY_INITIALIZATION;
     }
@@ -321,19 +330,44 @@ extern void EMAC_InitializeDma(void) {
     numberBufferDescriptors = (EMAC_SIZE_CTRL_RAM >> 1u) / sizeof(EMAC_TX_BUFFER_DESCRIPTOR_s);
     while (numberBufferDescriptors != 0u) {
         /* Next buffer descriptor is incremented struct pointer. */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
         pCurrentTxBufferDescriptor->next =
             (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)(pCurrentTxBufferDescriptor + 1u));
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
+
         pCurrentTxBufferDescriptor->flagsAndPacketLength  = 0u; /* Set Status flags and Packet Length to 0 */
         pCurrentTxBufferDescriptor->pBuffer               = 0u;
         pCurrentTxBufferDescriptor->bufferOffsetAndLength = 0u;
         pLastTxBufferDescriptor                           = pCurrentTxBufferDescriptor;
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
         pCurrentTxBufferDescriptor =
             (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)pCurrentTxBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         numberBufferDescriptors--;
     }
 
     /* Link last buffer descriptor to first one*/
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
     pLastTxBufferDescriptor->next = (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)txChannelDma->pFreeHead);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
     /*------------- Initialize the Descriptor Memory For RX -------------------------------*/
     /* Save pointer to pHdkif */
@@ -352,8 +386,15 @@ extern void EMAC_InitializeDma(void) {
 
     for (uint8_t indexNetworkBuffer = 0; indexNetworkBuffer < EMAC_MAX_RX_PBUF_ALLOC; indexNetworkBuffer++) {
         /* AXIVION Next Codeline IISB-LiteralSuffixesCheck:Content from FreeRTOS file */
-        pBuffer                                           = &emac_rxBuffers[indexNetworkBuffer][ipBUFFER_PADDING];
-        pCurrentRxBufferDescriptor->pBuffer               = (uint32_t)MATH_SwapBytesUint32((uint32_t)pBuffer);
+        pBuffer = &emac_rxBuffers[indexNetworkBuffer][ipBUFFER_PADDING];
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
+        pCurrentRxBufferDescriptor->pBuffer = (uint32_t)MATH_SwapBytesUint32((uint32_t)pBuffer);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         pCurrentRxBufferDescriptor->bufferOffsetAndLength = bufferLength;
         pCurrentRxBufferDescriptor->flagsAndPacketLength  = status;
 
@@ -362,8 +403,16 @@ extern void EMAC_InitializeDma(void) {
             pCurrentRxBufferDescriptor->next = NULL;
             pLastRxBufferDescriptor          = pCurrentRxBufferDescriptor;
         } else {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
             pCurrentRxBufferDescriptor->next =
                 (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)(pCurrentRxBufferDescriptor + 1u));
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             pCurrentRxBufferDescriptor++;
             pLastRxBufferDescriptor = pCurrentRxBufferDescriptor;
         }
@@ -398,13 +447,30 @@ extern bool EMAC_Transmit(EMAC_PACKET_BUFFER_s *pDmaDescriptor) {
 
         while (pTxBufferDescriptor != NULL) {
             /* Initialize the buffer pointer and length. Chain buffer descriptors if necessary */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
             pCurrentTxBufferDescriptor->pBuffer = MATH_SwapBytesUint32((uint32_t)(pTxBufferDescriptor->pPayload));
-            txBufferDescriptorLength            = (uint16_t)(pTxBufferDescriptor->length);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
+
+            txBufferDescriptorLength = (uint16_t)(pTxBufferDescriptor->length);
             pCurrentTxBufferDescriptor->bufferOffsetAndLength =
                 (uint32_t)MATH_SwapBytesUint32(((uint32_t)(txBufferDescriptorLength)&EMAC_BUFFER_LENGTH_MASK));
             pLastBufferDescriptor = pCurrentTxBufferDescriptor;
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
             pCurrentTxBufferDescriptor =
                 (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)pCurrentTxBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
+
             pTxBufferDescriptor = pTxBufferDescriptor->next;
         }
 
@@ -441,8 +507,15 @@ extern bool EMAC_Transmit(EMAC_PACKET_BUFFER_s *pDmaDescriptor) {
             while (sendCompleted == false) {
                 sendCompleted = ((uint32_t)0u == *((uint32_t *)EMAC_TX0HDP));
             }
-
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
             pCurrentTxBufferDescriptor->next = (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)pActiveHead);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
             endOfQueue = EMAC_BUF_DESC_EOQ ==
                          (MATH_SwapBytesUint32(pCurrentTxBufferDescriptor->flagsAndPacketLength) & EMAC_BUF_DESC_EOQ);
@@ -500,15 +573,30 @@ extern bool EMAC_StartOfPacket(volatile EMAC_RX_BUFFER_DESCRIPTOR_s *const pBuff
 extern void EMAC_AcknowledgePacket(volatile EMAC_RX_BUFFER_DESCRIPTOR_s *pBufferDescriptor) {
     FAS_ASSERT(pBufferDescriptor != NULL_PTR);
     EMAC_HDKIF_s const *pHdkif = &emac_hdkifData[0u];
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     EMAC_WriteRxCompletionPointer(pHdkif->emacBaseAddress, (uint32_t)EMAC_CHANNELNUMBER, (uint32_t)pBufferDescriptor);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 }
 
 extern void EMAC_UpdateRxChannel(volatile EMAC_RX_BUFFER_DESCRIPTOR_s *pBufferDescriptor) {
     FAS_ASSERT(pBufferDescriptor != NULL_PTR);
     EMAC_HDKIF_s *pHdkif          = &emac_hdkifData[0u];
     EMAC_RX_CHANNEL_s *pRxChannel = &(pHdkif->pRxChannel);
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
     pRxChannel->pFreeHead   = (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)pBufferDescriptor->next);
     pRxChannel->pActiveHead = (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)pBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     pRxChannel->pActiveTail = pBufferDescriptor;
 }
 
@@ -523,12 +611,27 @@ extern void EMAC_EndOfReception(volatile EMAC_RX_BUFFER_DESCRIPTOR_s *pBufferDes
      */
     if ((MATH_SwapBytesUint32(pRxChannel->pActiveTail->flagsAndPacketLength) & EMAC_BUF_DESC_EOQ) ==
         EMAC_BUF_DESC_EOQ) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         EMAC_WriteRxHeaderDescriptorPointer(
             pHdkif->emacBaseAddress, (uint32_t)(pRxChannel->pFreeHead), (uint32_t)EMAC_CHANNELNUMBER);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     }
 
     /* If the packet was discarded, this has no effect. */
-    pRxChannel->pFreeHead   = (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)pBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
+    pRxChannel->pFreeHead = (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)pBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     pRxChannel->pActiveTail = pBufferDescriptor;
 }
 
@@ -542,7 +645,15 @@ extern void EMAC_UpdateLinkedList(volatile EMAC_RX_BUFFER_DESCRIPTOR_s *pBufferD
     pBufferDescriptor->bufferOffsetAndLength = MATH_SwapBytesUint32((uint32_t)BUFFER_SIZE_ROUNDED);
 
     /* Increment buffer descriptor once to point to the next free one */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
     pBufferDescriptor = (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)pBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
     /* The next buffer descriptor is the new head of the linked list. */
     pRxChannel->pActiveHead = pBufferDescriptor;
@@ -629,8 +740,16 @@ extern void EMAC_TxInterruptHandler(EMAC_HDKIF_s *pHdkif) {
         bool endOfPacket = (MATH_SwapBytesUint32(pCurrentBufferDescriptor->flagsAndPacketLength) & EMAC_BUF_DESC_EOP) ==
                            EMAC_BUF_DESC_EOP;
         while (endOfPacket == false) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
             pCurrentBufferDescriptor =
                 (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)pCurrentBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             endOfPacket = (MATH_SwapBytesUint32(pCurrentBufferDescriptor->flagsAndPacketLength) & EMAC_BUF_DESC_EOP) ==
                           EMAC_BUF_DESC_EOP;
         }
@@ -644,8 +763,16 @@ extern void EMAC_TxInterruptHandler(EMAC_HDKIF_s *pHdkif) {
         if (pCurrentBufferDescriptor->next == NULL_PTR) {
             pTxChannel->pNextBufferDescriptorToProcess = pTxChannel->pFreeHead;
         } else {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
             pTxChannel->pNextBufferDescriptorToProcess =
                 (pEmacTxBufferDescriptor)MATH_SwapBytesUint32((uint32_t)pCurrentBufferDescriptor->next);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         }
 
         /* Acknowledge the EMAC and free the corresponding pbuf */
@@ -670,13 +797,28 @@ extern void EMAC_SetNextPointerOfCurrentTail(volatile EMAC_RX_BUFFER_DESCRIPTOR_
     /* The processed descriptor is now the tail of the linked list.
              * Link it to the previous head. */
     volatile EMAC_RX_BUFFER_DESCRIPTOR_s *currentTail = EMAC_GetRxActiveTail();
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
     currentTail->next = (EMAC_RX_BUFFER_DESCRIPTOR_s *)MATH_SwapBytesUint32((uint32_t)pFirstBufferDescriptor);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 }
 
 extern uint8_t *EMAC_GetEthernetBuffer(volatile EMAC_RX_BUFFER_DESCRIPTOR_s const *pCurrentBufferDescriptor) {
     FAS_ASSERT(pCurrentBufferDescriptor != NULL_PTR);
     /* Just extract the buffer pointer and manage the byte order */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
     return (uint8_t *)MATH_SwapBytesUint32((uint32_t)pCurrentBufferDescriptor->pBuffer);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 }
 
 extern void EMAC_AcknowledgeRxInterrupt(void) {

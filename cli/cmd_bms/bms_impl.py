@@ -39,10 +39,6 @@
 
 """Implementation of the functionalities behind the 'bms' command"""
 
-# we need this as long as we are on Python3.12 due to the annotation parsing
-# of Queue[Message]
-from __future__ import annotations
-
 from dataclasses import asdict
 from datetime import UTC, datetime
 from multiprocessing import Process, Queue, managers, synchronize
@@ -58,7 +54,7 @@ from cantools.database.can.database import Database
 
 from ..helpers.click_helpers import recho, secho
 from ..helpers.fcan import CanBusConfig
-from ..helpers.misc import PROJECT_BUILD_ROOT
+from ..helpers.project_context import PROJECT_BUILD_ROOT
 
 MAX_CAN_OPERATION_ERRORS_PER_HOUR = 10
 MUX_NAME = "f_Debug_Mux"
@@ -83,7 +79,7 @@ def log_can_message(
     logger: SizedRotatingLogger,
     prompt: str,
 ) -> None:
-    """Prints the message if needed."""
+    """Print the message if needed."""
     if msg.arbitration_id not in msg_arr[0]:
         return
     idx = msg_arr[0].index(msg.arbitration_id)
@@ -95,7 +91,7 @@ def log_can_message(
             logger(msg)
         else:
             raw_msg = app_dbc.get_message_by_frame_id(msg_arr[0][idx])
-            decoded_msg = raw_msg.decode(msg.data)
+            decoded_msg = raw_msg.decode(bytes(msg.data))
             if isinstance(decoded_msg, dict):
                 for key in decoded_msg:
                     if (
@@ -134,7 +130,7 @@ def receive_send_can_message(
     bus_cfg: CanBusConfig,
     network_ok: synchronize.Event,
 ) -> None:
-    """Receives and sends the CAN messages from and to the bus."""
+    """Receive and send the CAN messages from and to the bus."""
     signal(SIGINT, SIG_IGN)
     try:
         with Bus(**asdict(bus_cfg)) as bus:
@@ -176,7 +172,7 @@ def read_can_message(
     network_ok: synchronize.Event,
     msg_arr: managers.ListProxy,
 ) -> None:
-    """Reads the CAN message and prints it if needed."""
+    """Read the CAN message and print it if needed."""
     signal(SIGINT, SIG_IGN)
     try:
         logger = initialize_logger()
@@ -229,7 +225,7 @@ def read_can_message(
 
 
 def initialize_logger() -> SizedRotatingLogger:
-    """Creates a SizedRotatingLogger object."""
+    """Create a SizedRotatingLogger object."""
     output: Path = PROJECT_BUILD_ROOT / Path("logs")
     output.mkdir(parents=True, exist_ok=True)
     return SizedRotatingLogger(
@@ -249,7 +245,7 @@ def initialization(  # noqa: PLR0913
     network_ok: synchronize.Event,
     msg_arr: managers.ListProxy,
 ) -> bool | tuple[Process, Process]:
-    """Initializes the process."""
+    """Initialize the process."""
     p_recv = Process(
         target=receive_send_can_message,
         args=(rec_q, send_q, bus_cfg, network_ok),
@@ -308,7 +304,7 @@ def shutdown(p_recv: Process, p_read: Process, network_ok: synchronize.Event) ->
 def set_debug_message(
     msg_data: dict[str, int], message: database.can.message.Message
 ) -> Message:
-    """Sets the debug message"""
+    """Set the debug message"""
     data = message.encode(msg_data, padding=True)
     return Message(arbitration_id=message.frame_id, data=data, is_extended_id=False)
 
@@ -318,7 +314,7 @@ def reinitialize_fram(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to reinitialize FRAM"""
+    """Create message to reinitialize FRAM"""
     msg_data = {MUX_NAME: MUX_VALUES["FramInitialization"], "InitializeFram": 1}
     send_q.put(set_debug_message(msg_data, message))
 
@@ -328,7 +324,7 @@ def set_rtc_time(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to set the rtc to the current time"""
+    """Create message to set the RTC to the current time"""
     date = datetime.now(tz=UTC)
     msg_data = {
         MUX_NAME: MUX_VALUES["Rtc"],
@@ -349,7 +345,7 @@ def get_rtc_time(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get rtc time"""
+    """Create message to get RTC time"""
     msg_data = {
         MUX_NAME: MUX_VALUES["TimeInfo"],
         "RequestRtcTime": 1,
@@ -363,7 +359,7 @@ def get_boot_timestamp(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get Boot Timestamp"""
+    """Create message to get Boot Timestamp"""
     msg_data = {
         MUX_NAME: MUX_VALUES["TimeInfo"],
         "RequestRtcTime": 0,
@@ -377,14 +373,14 @@ def reset_software(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to reset the software"""
+    """Create message to reset the software"""
     msg_data = {MUX_NAME: MUX_VALUES["SoftwareReset"], "TriggerSoftwareReset": 1}
     send_q.put(set_debug_message(msg_data, message))
 
 
 # pylint: disable-next=unsubscriptable-object
 def get_uptime(send_q: Queue[Message], message: database.can.message.Message) -> None:
-    """Creates message to get uptime"""
+    """Create message to get uptime"""
     msg_data = {MUX_NAME: MUX_VALUES["UptimeInfo"], "RequestUptime": 1}
     send_q.put(set_debug_message(msg_data, message))
 
@@ -394,7 +390,7 @@ def get_build_configuration(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get build configuration"""
+    """Create message to get build configuration"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 1,
@@ -412,7 +408,7 @@ def get_commit_hash(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get commit hash"""
+    """Create message to get commit hash"""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 0,
@@ -430,7 +426,7 @@ def get_mcu_wafer_info(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get MCU Wafer information"""
+    """Create message to get MCU Wafer information."""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 0,
@@ -448,7 +444,7 @@ def get_mcu_lot_number(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get MCU lot number"""
+    """Create the message to get MCU lot number."""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 0,
@@ -463,7 +459,7 @@ def get_mcu_lot_number(
 
 # pylint: disable-next=unsubscriptable-object
 def get_mcu_id(send_q: Queue[Message], message: database.can.message.Message) -> None:
-    """Creates message to get MCU ID"""
+    """Create the message to get MCU ID."""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 0,
@@ -481,7 +477,7 @@ def get_software_version(
     send_q: Queue[Message],
     message: database.can.message.Message,
 ) -> None:
-    """Creates message to get BMS software version"""
+    """Create message to get BMS software version."""
     msg_data = {
         MUX_NAME: MUX_VALUES["VersionInfo"],
         "GetBuildConfiguration": 0,

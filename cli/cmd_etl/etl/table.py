@@ -81,10 +81,6 @@ class Table:
         join_on: str | None = None,
         **kwargs: Unpack[TableKwargs],
     ) -> None:
-        # try:
-        #     pa.set_timezone_db_path(str(Path(tzdata.__file__).parents[0]))
-        # except OSError:
-        #     pass
         self._start_date = start_date
         self._output_format = output_format
         self._join_on = join_on
@@ -93,9 +89,8 @@ class Table:
         self._separator = kwargs.get("separator", ",")
 
     def join(self, tables: list[pa.Table]) -> pa.Table:
-        """The method join takes a list of tables and joins these tables based
-        on the Date column of the table containing the specified join_on
-        column.
+        """Join a list of tables based on the Date column of the table
+        containing the specified join_on column.
 
         Args:
             tables: A list of tables containing each a Date column.
@@ -129,8 +124,7 @@ class Table:
         sys.exit(1)
 
     def can_to_table(self, data: Path) -> pa.Table:
-        """The can_to_table method converts CAN messages stored as json object
-        to a pyarrow table
+        """Convert CAN messages stored as json object to a pyarrow table.
 
         Args:
             data: Path to the .json file with the CAN messages.
@@ -150,8 +144,7 @@ class Table:
             sys.exit(1)
 
     def save_data(self, tables: dict[Path, pa.table]) -> None:
-        """The save_data method saves all passed tables with respect
-        to the configuration.
+        """Save all passed tables with respect to the configuration.
 
         Args:
             tables: A dictionary with the key as save path for the table
@@ -184,9 +177,9 @@ class Table:
             else:
                 if len(tables) > 1:
                     recho(
-                        "Save more than one table without an output format is not "
-                        "possible or did you forget to specify a file name for the "
-                        "output parameter."
+                        "Save more than one table without an output format is "
+                        "not possible or did you forget to specify a file "
+                        "name for the output parameter."
                     )
                     sys.exit(1)
                 file_path = list(tables.keys())[0]
@@ -208,8 +201,7 @@ class Table:
     def _search_for_table(
         self, tables: list[pa.table]
     ) -> tuple[pa.table, list[pa.table]]:
-        """The method _search_for_table searches in a list of tables the first
-        table containing the join_on column.
+        """Search in a list of tables for the first table containing the join_on column.
 
         Args:
             tables: A list of tables where should be searched
@@ -225,20 +217,21 @@ class Table:
         sys.exit(1)
 
     def _add_date(self, table: pa.Table) -> pa.Table:
-        """The method _add_date adds a Date column based
-        on the Timestamp column and the passed start date.
+        """Add a Date column based on the Timestamp column and the passed start date.
 
         Args:
             table: The table where the Date column should be added.
 
         Returns:
             New table with Date column
-
         """
         duration = (
             # The timestamps in a CAN log are converted to a duration in
             # microseconds, therefore the factor 1000000.
-            pc.multiply(table.column("Timestamp"), self._timestamp_factor)
+            pc.multiply(  # type: ignore[attr-defined]
+                table.column("Timestamp"),
+                self._timestamp_factor,
+            )
             .cast(
                 options=pc.CastOptions(
                     target_type=pa.int64(), allow_float_truncate=True
@@ -246,7 +239,7 @@ class Table:
             )
             .cast(pa.duration("us"))
         )
-        date_column = pc.add(self._start_date, duration)
+        date_column = pc.add(self._start_date, duration)  # type: ignore[attr-defined]
         return table.add_column(0, "Date", date_column)
 
     def _sort_table(self, table: pa.Table) -> pa.Table:
@@ -275,20 +268,22 @@ class Table:
             # Ensures the correct position in a column sorted table
             position = table.column_names[1:].index(column[0]) + 1
             table = table.set_column(
-                position, column[0], pc.fill_null_forward(column[1])
+                position,
+                column[0],
+                pc.fill_null_forward(column[1]),  # type: ignore[attr-defined]
             )
         return table
 
     @staticmethod
     def _cast_columns(table: pa.Table) -> pa.Table:
-        """The _cast_columns method converts all columns with units at the end of the column name
+        """Convert all columns with units at the end of the column name
         to float32.
 
         Args:
             table: The table with columns to be casted
 
         Returns:
-            The new table with teh casted columns
+            The new table with the casted columns
         """
         for i, column in enumerate(table.column_names):
             if "Date" in column or "None" in column:
@@ -302,8 +297,11 @@ class Table:
                 table = table.set_column(
                     i,
                     column,
-                    pc.if_else(
-                        pc.greater_equal(pc.abs(table.column(column)), 2e24),
+                    pc.if_else(  # type: ignore[attr-defined]
+                        pc.greater_equal(  # type: ignore[attr-defined]
+                            pc.abs(table.column(column)),  # type: ignore[attr-defined]
+                            2e24,
+                        ),
                         None,
                         table.column(column),
                     ),

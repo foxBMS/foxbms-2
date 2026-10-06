@@ -43,8 +43,8 @@
  * @file    test_bootloader-hl_notification.c
  * @author  foxBMS Team
  * @date    2025-08-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,7 +70,6 @@
 #include "Mockinfinite-loop-helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("bootloader-hl_notification.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

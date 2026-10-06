@@ -1,0 +1,16 @@
+[
+  {
+    "source": "src/app/driver/led/led.c",
+    "test": "test_led.c",
+    "includes": [
+      "src/app/driver/io",
+      "src/app/driver/led",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "HL_reg_het.h",
+      "src/app/driver/io/io.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

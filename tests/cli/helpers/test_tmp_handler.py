@@ -76,7 +76,7 @@ class TestTmpHandlerInit(unittest.TestCase):
 class TestTmpHandlerCheckForTmpFile(unittest.TestCase):
     """Class to test the TmpHandler check_for_tmp_file"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setups the TmpHandler object for later tests"""
         self.tmp_handler_obj = Mock()
         self.tmp_handler_obj.tmp_dir = Path("test_dir")
@@ -112,7 +112,7 @@ class TestTmpHandlerCheckForTmpFile(unittest.TestCase):
 class TestTmpHandlerCheckForTmpDirectory(unittest.TestCase):
     """Class to test the TmpHandler check_for_tmp_directory"""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.tmp_handler_obj = Mock()
         self.tmp_handler_obj._tmp_dir_parent = Path("Test")  # pylint: disable=protected-access
         self.tmp_handler_obj._tmp_directory_prefix = "temp_data_fox_cli_"  # pylint: disable=protected-access
@@ -146,7 +146,7 @@ class TestTmpHandlerCheckForTmpDirectory(unittest.TestCase):
 class TestTmpHandlerCreateTmpDirectory(unittest.TestCase):
     """Class to test the TmpHandler check_for_tmp_directory"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Creates the TmpHandler object"""
         self.tmp_handler_obj = Mock()
         self.tmp_handler_obj._tmp_dir_parent = Path("Test")  # pylint: disable=protected-access

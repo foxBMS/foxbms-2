@@ -10,11 +10,11 @@ Operating System
 Directory Structure
 -------------------
 
-The two available operating systems are placed in the `os` directory.
+The two available operating systems are placed in the ``os`` directory.
 As |freertos| is the most common one, this will be described further.
 |freertos| can have several addons.
-They are located in the `freertos-plus` directory while the plain OS is located
-in the `freertos` directory.
+They are located in the ``freertos-plus`` directory while the plain OS is
+located in the ``freertos`` directory.
 
 .. code-block::
 
@@ -46,8 +46,8 @@ However, |foxbms| ships its own |freertos| source tree (in
 code generator are not needed and consequently removed.
 Only the CPU clock frequency configured with |ti-halcogen| is extracted from
 the generated |freertos| sources and written into
-``config_cpu_clock_hz.h``, which is included in |foxbms|'s own
-``FreeRTOSConfig.h``.
+``config_cpu_clock_hz.h`` as ``HALCOGEN_CPU_CLOCK_HZ``, which is included in
+|foxbms|'s own ``FreeRTOSConfig.h``.
 
 |tcp-ip-stack|
 --------------
@@ -59,15 +59,14 @@ Controller (EMAC) to communicate with the ethernet Physical Layer Transceiver
 In simplified form, the communication over the Physical and Data Link layers
 flows as illustrated in :numref:`block-diagram-ethernet-communication`.
 
-.. drawio-figure:: img/ethernet-communication.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/ethernet-communication.svg
    :alt: Block diagram of the ethernet communication
    :name: block-diagram-ethernet-communication
    :width: 130px
 
    Block diagram of the ethernet communication
 
-In the case of foxBMS, the EMAC is embedded in the MCU and has two connections
+In the case of |foxbms|, the EMAC is embedded in the MCU and has two connections
 to the PHY.
 MDIO (Management Data Input/Output) is responsible for everything that is not
 directly related to the data transfer such as configuring the PHY or
@@ -79,8 +78,7 @@ pass the data to the MCU where it is processed further.
 To reference this, the |tcp-ip| communication is structured as shown in the
 figure below.
 
-.. drawio-figure:: img/os-tcp-structure.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/os-tcp-structure.svg
    :alt: Software structure of the ethernet communication
    :name: tcp-structure
    :width: 130px

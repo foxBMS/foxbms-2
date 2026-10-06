@@ -43,8 +43,8 @@
  * @file    mxm_cfg.h
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -57,11 +57,11 @@
 
 /*========== Includes =======================================================*/
 
-#include "battery_system_cfg.h"
 #include "spi_cfg.h"
 
 #include "HL_reg_het.h"
 
+#include "battery_system_cfg_types.h"
 #include "spi.h"
 
 #include <stdint.h>

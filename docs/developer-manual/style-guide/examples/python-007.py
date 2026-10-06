@@ -39,12 +39,25 @@
 
 """Example for platform independent code"""
 
-# ruff: noqa: D103,F841
+# ruff: noqa: D103,E402,F841
 # pylint: disable=unused-argument,unused-variable
+import sys
+from pathlib import Path
+
+# we need this here to set up the WAF directory before importing waflib;
+# DO NOT USE THIS SNIPPET SOMEWHERE ELSE
+_WAF_VERSION = "2.1.9-beba77c244731800bf15a003232e7040"
+_WAF_DIR_NAME = f"waf3-{_WAF_VERSION}"
+if sys.platform.lower() != "win32":
+    _WAF_DIR_NAME = f".{_WAF_DIR_NAME}"
+_WAF_DIR_REL = f"tools/{_WAF_DIR_NAME}"
+_WAF_DIR = Path(__file__).parents[4].resolve() / _WAF_DIR_REL
+sys.path.append(str(_WAF_DIR))
+from waflib.Build import BuildContext  # pylint: disable=wrong-import-position
 
 
 # start-include-in-docs
-def build(bld):
+def build(bld: BuildContext) -> None:
     # fmt: off
     includes = [
         # ...

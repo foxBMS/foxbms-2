@@ -55,14 +55,14 @@ except ModuleNotFoundError:
 class TestListPrefixes(unittest.TestCase):
     """Test @prefix extraction for misc command."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self._tmpdir = tempfile.mkdtemp()
         self.root = Path(self._tmpdir)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         shutil.rmtree(self._tmpdir)
 
-    def test_collect_prefixes(self):
+    def test_collect_prefixes(self) -> None:
         """Collect prefixes from C files and return sorted result."""
         (self.root / "src" / "app").mkdir(parents=True)
         (self.root / "src" / "bootloader").mkdir(parents=True)
@@ -77,7 +77,7 @@ class TestListPrefixes(unittest.TestCase):
         prefixes = get_prefixes(self.root)
         self.assertEqual(["ABC", "DEF"], prefixes)
 
-    def test_ignore_files_outside_fixed_roots(self):
+    def test_ignore_files_outside_fixed_roots(self) -> None:
         """Ignore files outside src/app and src/bootloader."""
         (self.root / "src" / "app").mkdir(parents=True)
         (self.root / "src" / "other").mkdir(parents=True)
@@ -96,11 +96,11 @@ class TestListPrefixes(unittest.TestCase):
         prefixes = get_prefixes(self.root)
         self.assertEqual(["MAIN"], prefixes)
 
-    def test_missing_roots_return_empty(self):
+    def test_missing_roots_return_empty(self) -> None:
         """Return an empty list if fixed roots do not exist."""
         self.assertEqual([], get_prefixes(self.root))
 
-    def test_ignore_non_c_h_and_lines_without_prefix(self):
+    def test_ignore_non_c_h_and_lines_without_prefix(self) -> None:
         """Ignore unsupported suffixes and files without @prefix marker."""
         (self.root / "src" / "app").mkdir(parents=True)
 

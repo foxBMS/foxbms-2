@@ -43,8 +43,8 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,8 +69,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/pwm")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -87,12 +85,15 @@ void ecapInit(void) { /* dummy implementation required for linking */
 }
 
 uint32_t ecapGetCAP1(ecapBASE_t *ecap) {
+    (void)ecap;
     return cap1ReturnValue;
 }
 uint32_t ecapGetCAP2(ecapBASE_t *ecap) {
+    (void)ecap;
     return cap2ReturnValue;
 }
 uint32_t ecapGetCAP3(ecapBASE_t *ecap) {
+    (void)ecap;
     return cap3ReturnValue;
 }
 /** wraps the duty cycle function for test
@@ -104,6 +105,8 @@ uint32_t ecapGetCAP3(ecapBASE_t *ecap) {
  * @param[in]   dutyCycleOut    The expected output duty cycle (in counts)
  */
 void PWM_SetDutyCycle_Test(uint16_t timeBasePeriod, uint16_t dutyCycleIn, uint16_t dutyCycleOut) {
+    (void)timeBasePeriod;
+    (void)dutyCycleOut;
     etpwm_config_reg_t etPwmConfig = {0};
     etpwm1GetConfigValue_Expect(&etPwmConfig, CurrentValue);
 

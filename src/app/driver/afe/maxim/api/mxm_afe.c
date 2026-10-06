@@ -43,8 +43,8 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -122,7 +122,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
     .selfCheck.extractValueFromRegister = STD_NOT_OK,
     .selfCheck.parseVoltageReadall      = STD_NOT_OK,
     .selfCheck.addressSpaceChecker      = STD_NOT_OK,
-    .serialId                           = {0},
+    .serialId                           = {{0}},
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/

@@ -43,8 +43,8 @@
  * @file    test_fake_functions.c
  * @author  foxBMS Team
  * @date    2024-08-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,9 +61,15 @@
 /*========== Unit Testing Framework Directives ==============================*/
 
 void *FAKE_Memset(void *dest, int ch, size_t count) {
+    (void)dest;
+    (void)ch;
+    (void)count;
     return ((void *)0u);
 }
 void *FAKE_Memcpy(void *dest, const void *src, size_t count) {
+    (void)dest;
+    (void)src;
+    (void)count;
     return ((void *)0u);
 }
 

@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _PORT_EXPANDER_MODULE:
+.. _PORT_EXPANDER_DRIVER:
 
-Port Expander Module
-====================
+Port Expander
+=============
 
 Module Files
 ------------
@@ -29,7 +29,8 @@ Unit Test
 Detailed Description
 --------------------
 
-The driver addresses the port expander devices through getter and setter functions.
+The |pex| (Port Expander) driver addresses the port expander devices through
+getter and setter functions.
 
 The driver works with the NXP PCA9539 port expander IC, which has 16 GPIOs.
 It is also compatible with the TI TCA9539.

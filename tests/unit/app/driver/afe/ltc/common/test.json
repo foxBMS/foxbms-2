@@ -1,0 +1,36 @@
+[
+  {
+    "source": "src/app/driver/afe/ltc/common/ltc_afe_dma.c",
+    "test": "test_ltc_afe_dma.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ltc/common",
+      "src/app/driver/afe/ltc/common/config",
+      "src/app/driver/config",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_sys_dma.h",
+      "src/app/driver/afe/ltc/common/ltc.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/main/include/fassert.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/ltc/common/ltc_pec.c",
+    "test": "test_ltc_pec.c",
+    "includes": [
+      "src/app/driver/afe/ltc/common"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

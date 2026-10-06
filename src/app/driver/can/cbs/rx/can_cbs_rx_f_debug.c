@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_f_debug.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -55,6 +55,8 @@
 /*========== Includes =======================================================*/
 /* AXIVION Next Codeline Generic-LocalInclude: 'can_cbs_rx.h' declares the
  * prototype for the callback 'CANRX_Debug' */
+#include "fram_cfg.h"
+
 #include "can_cbs_rx.h"
 #include "can_cbs_tx_f_debug-build-configuration.h"
 #include "can_cbs_tx_f_debug-identify-hardware.h"
@@ -90,6 +92,11 @@
 #define CANRX_DEBUG_MESSAGE_MUX_VALUE_UPTIME_INFO             (0x05u)
 #define CANRX_DEBUG_MESSAGE_MUX_VALUE_BOOT_TIMESTAMP          (0x06u)
 #define CANRX_DEBUG_MESSAGE_MUX_VALUE_HARDWARE_IDENTIFICATION (0x07u)
+#define CANRX_DEBUG_MESSAGE_MUX_GET_CALIBRATION_VALUE         (0x08u)
+#define CANRX_DEBUG_MESSAGE_MUX_GET_RAW_VALUE                 (0x09u)
+#define CANRX_DEBUG_MESSAGE_MUX_SET_OFFSET_CALIBRATION_VALUE  (0x0Au)
+#define CANRX_DEBUG_MESSAGE_MUX_SET_SLOPE_CALIBRATION_VALUE   (0x0Bu)
+
 /** @} */
 
 /** @{
@@ -194,6 +201,34 @@
 #define CANRX_MUX_HARDWARE_IDENTIFICATION_SIGNAL_TRIGGER_REQUEST_UPTIME_START_BIT (15u)
 #define CANRX_MUX_HARDWARE_IDENTIFICATION_SIGNAL_TRIGGER_REQUEST_UPTIME_LENGTH    (CAN_BIT)
 /** @} */
+
+/** @{
+ * configuration of the time info signals for multiplexer 'StackVoltageCalibration'
+ * in the 'Debug' message
+ */
+#define CANRX_MUX_ADC_CALIBRATION_CHANNEL_START_BIT (15u)
+#define CANRX_MUX_ADC_CALIBRATION_CHANNEL_LENGTH    (8u)
+#define CANRX_MUX_ADC_CALIBRATION_VALUE_START_BIT   (39u)
+#define CANRX_MUX_ADC_CALIBRATION_VALUE_LENGTH      (32u)
+/** @} */
+
+/** @{
+ * configuration of the request for ADC raw value signals for multiplexer 'RequestAdcRawValues'
+ * in the 'Debug' message
+ */
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_ADC_RAW_VALUE_START_BIT (15u)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_ADC_RAW_VALUE_LENGTH    (8)
+/** @} */
+
+/** @{
+ * configuration of the request for ADC calibration value signals for multiplexer 'RequestAdcRawValues'
+ * in the 'Debug' message
+ */
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_ADC_CALIBRATION_VALUES_START_BIT (15u)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_ADC_CALIBRATION_VALUES_LENGTH    (8)
+/** @} */
+
+#define CANRX_CALIBRATION_CONVERSION_FACTOR (0.0001f)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -461,6 +496,49 @@ static bool CANRX_CheckIfIdentifyHardwareIsRequested(uint64_t messageData, CAN_E
  * @brief   Triggers sending of the hardware identification message
  */
 static void CANRX_TriggerIdentifyHardwareMessage(void);
+
+/**
+ * @brief   Set offset calibration Data for ADC
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ */
+static void CANRX_SetOffsetCalibrationData(uint64 messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Set slope calibration Data for ADC
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ */
+static void CANRX_SetSlopeCalibrationData(uint64 messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Parses request message for ADC raw values
+ */
+static void CANRX_ProcessRawValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Parses request message for ADC calibration values
+ */
+static void CANRX_ProcessCalibrationValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/** @brief   get the requested channel from the message
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ * @return channel the request is meant for
+ */
+static FRAM_CALIBRATION_VALUE_CHANNELS_e GetRequestedCalibrationChannel(
+    uint64_t messageData,
+    CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Triggers sending of the currently configured ADC calibration values
+ */
+static void CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
+
+/**
+ * @brief   Triggers sending of the ADC raw calibration values
+ */
+static void CANRX_TriggerAdcRawValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
 
 /*========== Static Function Implementations ================================*/
 
@@ -915,6 +993,114 @@ static bool CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNES
     return isRequested;
 }
 
+static void CANRX_SetSlopeCalibrationData(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    uint64_t signalDataChannel = 0u;
+    uint64_t signalDataValue   = 0u;
+
+    /* get calibration value type from the CAN message */
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_ADC_CALIBRATION_CHANNEL_START_BIT,
+        CANRX_MUX_ADC_CALIBRATION_CHANNEL_LENGTH,
+        &signalDataChannel,
+        endianness);
+
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_ADC_CALIBRATION_VALUE_START_BIT,
+        CANRX_MUX_ADC_CALIBRATION_VALUE_LENGTH,
+        &signalDataValue,
+        endianness);
+
+    const int32_t slopeData                       = (int32_t)signalDataValue;
+    fram_CalibrationData.slope[signalDataChannel] = (float_t)slopeData * CANRX_CALIBRATION_CONVERSION_FACTOR;
+
+    FRAM_WriteData(FRAM_BLOCK_ID_FRAM_CALIBRATION);
+    return;
+}
+static void CANRX_SetOffsetCalibrationData(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    uint64_t signalDataChannel = 0u;
+    uint64_t signalDataValue   = 0u;
+
+    /* get calibration value type from the CAN message */
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_ADC_CALIBRATION_CHANNEL_START_BIT,
+        CANRX_MUX_ADC_CALIBRATION_CHANNEL_LENGTH,
+        &signalDataChannel,
+        endianness);
+
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_ADC_CALIBRATION_VALUE_START_BIT,
+        CANRX_MUX_ADC_CALIBRATION_VALUE_LENGTH,
+        &signalDataValue,
+        endianness);
+
+    const int32_t offsetData                       = (int32_t)signalDataValue;
+    fram_CalibrationData.offset[signalDataChannel] = (float_t)offsetData * CANRX_CALIBRATION_CONVERSION_FACTOR;
+
+    FRAM_WriteData(FRAM_BLOCK_ID_FRAM_CALIBRATION);
+    return;
+}
+
+static void CANRX_ProcessRawValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+    FRAM_CALIBRATION_VALUE_CHANNELS_e requestedChannel = GetRequestedCalibrationChannel(messageData, endianness);
+    CANRX_TriggerAdcRawValueMessage(requestedChannel);
+}
+
+static void CANRX_ProcessCalibrationValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+    FRAM_CALIBRATION_VALUE_CHANNELS_e requestedChannel = GetRequestedCalibrationChannel(messageData, endianness);
+    CANRX_TriggerAdcCalibrationValueMessage(requestedChannel);
+}
+
+static FRAM_CALIBRATION_VALUE_CHANNELS_e GetRequestedCalibrationChannel(
+    uint64_t messageData,
+    CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    uint64_t signalData = 0u;
+
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_ADC_CALIBRATION_VALUES_START_BIT,
+        CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_ADC_CALIBRATION_VALUES_LENGTH,
+        &signalData,
+        endianness);
+
+    return (FRAM_CALIBRATION_VALUE_CHANNELS_e)signalData;
+}
+
+static void CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+
+    /* send the debug message containing the RTC time information and trap if this does not work */
+    if (CANTX_TransmitAdcSlopeValue(calibrationChannel) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_TransmitAdcOffsetValue(calibrationChannel) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+}
+
+static void CANRX_TriggerAdcRawValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+
+    /* send the debug message containing the RTC time information and trap if this does not work */
+    if (CANTX_TransmitAdcRawValue(calibrationChannel) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+}
+
 static void CANRX_TriggerTimeInfoMessage(void) {
     /* send the debug message containing the RTC time information and trap if this does not work */
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME) != STD_OK) {
@@ -1053,6 +1239,18 @@ extern uint32_t CANRX_Debug(
             case CANRX_DEBUG_MESSAGE_MUX_VALUE_HARDWARE_IDENTIFICATION:
                 CANRX_ProcessIdentifyHardwareMux(messageData, message.endianness);
                 break;
+            case CANRX_DEBUG_MESSAGE_MUX_SET_OFFSET_CALIBRATION_VALUE:
+                CANRX_SetOffsetCalibrationData(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_SET_SLOPE_CALIBRATION_VALUE:
+                CANRX_SetSlopeCalibrationData(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_GET_RAW_VALUE:
+                CANRX_ProcessRawValueRequest(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_GET_CALIBRATION_VALUE:
+                CANRX_ProcessCalibrationValueRequest(messageData, message.endianness);
+                break;
             default:
                 CANTX_DebugUnsupportedMultiplexerVal(message.id, (uint32_t)muxValue);
                 break;
@@ -1182,6 +1380,30 @@ extern void TEST_CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS
 }
 extern void TEST_CANRX_ProcessIdentifyHardwareMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     CANRX_ProcessIdentifyHardwareMux(messageData, endianness);
+}
+
+/* export adc calibration functions */
+extern void TEST_CANRX_ProcessCalibrationValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    CANRX_ProcessCalibrationValueRequest(messageData, endianness);
+}
+extern void TEST_CANRX_ProcessRawValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    CANRX_ProcessRawValueRequest(messageData, endianness);
+}
+
+extern void TEST_GetRequestedCalibrationChannel(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    GetRequestedCalibrationChannel(messageData, endianness);
+}
+extern void TEST_CANRX_SetOffsetCalibrationData(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    CANRX_SetOffsetCalibrationData(messageData, endianness);
+}
+extern void TEST_CANRX_SetSlopeCalibrationData(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    CANRX_SetSlopeCalibrationData(messageData, endianness);
+}
+extern void TEST_CANRX_TriggerAdcRawValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+    CANRX_TriggerAdcRawValueMessage(calibrationChannel);
+}
+extern void TEST_CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+    CANRX_TriggerAdcCalibrationValueMessage(calibrationChannel);
 }
 
 #endif

@@ -1,0 +1,113 @@
+[
+  {
+    "source": "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_alarm.c",
+    "test": "test_nxp_mc33775a_alarm.c",
+    "includes": [
+      "src/app/driver/afe/nxp/common/mc3377x",
+      "src/app/driver/afe/nxp/common/mc3377x/vendor",
+      "src/app/driver/afe/nxp/mc33775a",
+      "src/app/driver/afe/nxp/mc33775a/config",
+      "src/app/driver/afe/nxp/mc33775a/vendor",
+      "src/app/driver/config",
+      "src/app/driver/spi",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_NXP=1u",
+      "FOXBMS_AFE_DRIVER_NXP_MC33775A",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+      "TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c",
+    "test": "test_nxp_mc33775a_balancing.c",
+    "includes": [
+      "src/app/driver/afe/nxp/common/mc3377x",
+      "src/app/driver/afe/nxp/common/mc3377x/vendor",
+      "src/app/driver/afe/nxp/mc33775a",
+      "src/app/driver/afe/nxp/mc33775a/config",
+      "src/app/driver/afe/nxp/mc33775a/vendor",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.h",
+      "src/app/engine/database/database.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_NXP=1u",
+      "FOXBMS_AFE_DRIVER_NXP_MC33775A",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+      "TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c",
+    "test": "test_nxp_mc33775a_i2c.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/nxp/common/mc3377x",
+      "src/app/driver/afe/nxp/common/mc3377x/vendor",
+      "src/app/driver/afe/nxp/mc33775a",
+      "src/app/driver/afe/nxp/mc33775a/config",
+      "src/app/driver/afe/nxp/mc33775a/vendor",
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.h",
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x_cfg.h",
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x_helpers.h",
+      "src/app/engine/database/database.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_NXP=1u",
+      "FOXBMS_AFE_DRIVER_NXP_MC33775A",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+      "TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_measurement.c",
+    "test": "test_nxp_mc33775a_measurement.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/nxp/common/mc3377x",
+      "src/app/driver/afe/nxp/common/mc3377x/vendor",
+      "src/app/driver/afe/nxp/mc33775a",
+      "src/app/driver/afe/nxp/mc33775a/config",
+      "src/app/driver/afe/nxp/mc33775a/vendor",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll.h",
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x_cfg.h",
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x_helpers.h",
+      "src/app/engine/database/database.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_NXP=1u",
+      "FOXBMS_AFE_DRIVER_NXP_MC33775A",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+      "TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE=16u"
+    ],
+    "use": "M"
+  }
+]

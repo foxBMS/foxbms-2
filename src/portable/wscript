@@ -37,16 +37,19 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore asmstlib
+
 
 def build(bld):
+    op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
 
-    source = ["cortex-r5/processor_modes.asm"]
-    includes = ["cortex-r5"]
+    bld.recurse("cortex-r5")
+
     bld(
-        features="c cstlib",
-        source=source,
-        includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        # waf 2.1.9 requires explicitly 'use' when creating an asmstlib
+        features="use asm asmstlib",
+        use=[f"{op}processor_modes"],
+        uselib="FOXBMS",
         target=f"{lp}portable",
     )

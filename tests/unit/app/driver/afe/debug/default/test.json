@@ -1,0 +1,21 @@
+[
+  {
+    "source": [
+      "src/app/driver/afe/debug/default/debug_default.c",
+      "tests/unit/app/application/config/battery_cell_cfg.c"
+    ],
+    "test": "test_debug_default.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/debug/default",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_DEBUG=1u"
+    ]
+  }
+]

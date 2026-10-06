@@ -43,8 +43,8 @@
  * @file    test_i2c.c
  * @author  foxBMS Team
  * @date    2021-07-23 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,10 +63,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/i2c")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -160,7 +156,7 @@ void testI2C_WaitForTxCompletedNotification(void) {
 
     /* ======= RT1/1: Test implementation */
     OS_WaitForNotificationIndexed_ExpectAndReturn(
-        I2C_NOTIFICATION_TX_INDEX, &notifiedValueTx, I2C_NOTIFICATION_TIMEOUT_ms, STD_OK);
+        I2C_NOTIFICATION_TX_INDEX, &notifiedValueTx, I2C_NOTIFICATION_TIMEOUT_ms, OS_SUCCESS);
     TEST_I2C_WaitForTxCompletedNotification();
 }
 
@@ -173,15 +169,15 @@ void testI2C_WaitForRxCompletedNotification(void) {
 
     /* ======= RT1/1: Test implementation */
     OS_WaitForNotificationIndexed_ExpectAndReturn(
-        I2C_NOTIFICATION_RX_INDEX, &notifiedValueRx, I2C_NOTIFICATION_TIMEOUT_ms, STD_OK);
+        I2C_NOTIFICATION_RX_INDEX, &notifiedValueRx, I2C_NOTIFICATION_TIMEOUT_ms, OS_SUCCESS);
     TEST_I2C_WaitForRxCompletedNotification();
 }
 
 void testI2C_ClearNotifications(void) {
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    OS_ClearNotificationIndexed_ExpectAndReturn(I2C_NOTIFICATION_TX_INDEX, STD_OK);
-    OS_ClearNotificationIndexed_ExpectAndReturn(I2C_NOTIFICATION_RX_INDEX, STD_OK);
+    OS_ClearNotificationIndexed_ExpectAndReturn(I2C_NOTIFICATION_TX_INDEX, OS_SUCCESS);
+    OS_ClearNotificationIndexed_ExpectAndReturn(I2C_NOTIFICATION_RX_INDEX, OS_SUCCESS);
     TEST_I2C_ClearNotifications();
 }
 

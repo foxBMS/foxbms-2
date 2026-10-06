@@ -43,8 +43,8 @@
  * @file    diag_cbs_can.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -78,7 +78,7 @@ extern void DIAG_ErrorCanTiming(
     FAS_ASSERT(diagId == DIAG_ID_CAN_TIMING);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
-
+    (void)data;
     if (event == DIAG_EVENT_RESET) {
         kpkDiagShim->pTableError->stateRequestTimingViolationError = false;
     }
@@ -95,6 +95,7 @@ extern void DIAG_ErrorCanRxQueueFull(
     FAS_ASSERT(diagId == DIAG_ID_CAN_RX_QUEUE_FULL);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
+    (void)data;
 
     if (diagId == DIAG_ID_CAN_RX_QUEUE_FULL) {
         if (event == DIAG_EVENT_RESET) {
@@ -116,7 +117,7 @@ extern void DIAG_ErrorCanTxQueueFull(
     FAS_ASSERT(diagId == DIAG_ID_CAN_TX_QUEUE_FULL);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
-
+    (void)data;
     if (event == DIAG_EVENT_RESET) {
         kpkDiagShim->pTableError->canTxQueueFullError = false;
     }

@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_debug-identify-hardware.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -98,12 +98,14 @@ static void CANTX_DebugIdentifyHardwareMux(uint64_t *pMessageData, uint8_t muxVa
 
 /**
  * @brief   Sends the master identification message
+ * @return  STD_OK if message was queued successfully, STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e CANTX_SendMasterIdentification(void);
 
 /**
  * @brief   Sends the slave identification message
  * @param   afeNumber number of afe slave message to send
+ * @return  STD_OK if message was queued successfully, STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e CANTX_SendSlaveIdentification(uint16_t afeNumber);
 
@@ -196,6 +198,10 @@ extern STD_RETURN_TYPE_e CANTX_DebugIdentifyHardware(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_CANTX_SetSlaveSerialIdMessageData(uint64_t *pMessageData, uint16_t afeNumber) {
+    CANTX_SetSlaveSerialIdMessageData(pMessageData, afeNumber);
+}
+
 extern void TEST_CANTX_DebugIdentifyHardwareMux(uint64_t *pMessageData, uint8_t muxValue) {
     CANTX_DebugIdentifyHardwareMux(pMessageData, muxValue);
 }

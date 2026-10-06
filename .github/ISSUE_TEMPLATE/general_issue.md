@@ -16,8 +16,9 @@
 
 ## Steps to Reproduce
 
-1.
-2.
+1. step 1
+2. step 2
+3. ...
 
 ## Expected Behavior
 

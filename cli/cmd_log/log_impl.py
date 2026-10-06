@@ -39,10 +39,6 @@
 
 """Implements the functionalities behind the 'log' command"""
 
-# we need this as long as we are on Python3.12 due to the annotation parsing
-# of Queue[Message]
-from __future__ import annotations
-
 from dataclasses import asdict
 from enum import Enum
 from multiprocessing import Event, Process, Queue, synchronize
@@ -119,7 +115,7 @@ def log_can_message(
     network_ok: synchronize.Event,
     logger: SizedRotatingLogger,
 ) -> None:
-    """Logs the CAN message to a file."""
+    """Log the CAN message to a file."""
     first_timestamp: float = 0
     try:
         secho("Start Logging", fg="green")
@@ -144,11 +140,23 @@ def log_can_message(
 
 
 def log(bus_cfg: CanBusConfig, output: Path, log_file_size: int = 200000) -> int:
-    """Logs received CAN messages to file(s)."""
+    """Log received CAN messages to file(s)."""
     network_ok = Event()
     # pylint is not correct
     # pylint: disable-next=unsubscriptable-object
     data_q: Queue[Message] = Queue()
+
+    def _close_data_queue() -> None:
+        """Close queue resources deterministically to avoid GC-time warnings."""
+        try:  # noqa: SIM105
+            data_q.close()
+        except (AttributeError, OSError, ValueError):
+            pass
+        try:  # noqa: SIM105
+            data_q.join_thread()
+        except (AttributeError, RuntimeError, OSError, ValueError):
+            pass
+
     p_recv = Process(
         target=receive_can_message,
         args=(data_q, bus_cfg, network_ok),
@@ -159,9 +167,11 @@ def log(bus_cfg: CanBusConfig, output: Path, log_file_size: int = 200000) -> int
         p_recv.start()
     except (OSError, RuntimeError, ValueError):
         recho("Could not start receive process.\nExiting...")
+        _close_data_queue()
         return LoggerExitCodes.RECEIVE_PROCESS_NOT_STARTED.value
     if not network_ok.wait(3):  # Wait for bus setup process
         recho("Could not initialize CAN bus. Timeout\nShutdown...")
+        _close_data_queue()
         return LoggerExitCodes.CAN_BUS_INITIALIZATION_FAILED.value
 
     output.mkdir(parents=True, exist_ok=True)
@@ -182,6 +192,7 @@ def log(bus_cfg: CanBusConfig, output: Path, log_file_size: int = 200000) -> int
             recho("Terminating...")
             p_recv.terminate()
         recho("Shutdown...")
+        _close_data_queue()
         return LoggerExitCodes.LOGGER_NOT_STARTED.value
 
     try:
@@ -195,5 +206,6 @@ def log(bus_cfg: CanBusConfig, output: Path, log_file_size: int = 200000) -> int
             recho("Could could not cancel the receive process gracefully.")
             recho("Terminating...")
             p_recv.terminate()
+        _close_data_queue()
     secho("Shutdown...", fg="green")
     return LoggerExitCodes.NO_ERROR.value

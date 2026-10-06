@@ -43,8 +43,8 @@
  * @file    test_boot_helper.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,16 +68,6 @@
 #include <string.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("boot_helper.c")
-
-TEST_INCLUDE_PATH("../../src/bootloader/driver/can")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/config")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/flash")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/bootloader/engine/boot")
-TEST_INCLUDE_PATH("../../src/bootloader/main")
-TEST_INCLUDE_PATH("../../src/bootloader/main/include")
-TEST_INCLUDE_PATH("C:/ti/Hercules/F021 Flash API/02.01.01/include")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** Global variable to safely reserve a memory space for program info sector in

@@ -43,8 +43,8 @@
  * @file    test_mxm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -67,12 +67,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/afe/maxim/common/config")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos/include")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* SPI interface configuration for MXM communication */
@@ -125,7 +119,7 @@ void testMXM_SendData(void) {
     uint16_t bufferLength = 1;
 
     SPI_TransmitData_ExpectAndReturn(&spi_mxmInterface, &buffer, bufferLength, STD_OK);
-    DIAG_CheckEvent_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
+    DIAG_ReportResultToHandler_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_SendData(&buffer, bufferLength));
 }
 
@@ -135,6 +129,6 @@ void testMXM_ReceiveData(void) {
     uint16_t bufferLength = 1;
 
     SPI_TransmitReceiveData_ExpectAndReturn(&spi_mxmInterface, &buffer, &buffer, bufferLength, STD_OK);
-    DIAG_CheckEvent_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
+    DIAG_ReportResultToHandler_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_ReceiveData(&buffer, &buffer, bufferLength));
 }

@@ -43,13 +43,16 @@
  * @file    plausibility_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  PL
  *
- * @brief   Plausibility checks for cell voltage and cell temperatures
- * @details TODO
+ * @brief   Configuration of plausibility tolerances
+ * @details Define the tolerances for the plausibility checks for
+ *          - string voltage,
+ *          - cell voltage, and
+ *          - cell temperatures
  */
 
 #ifndef FOXBMS__PLAUSIBILITY_CFG_H_
@@ -69,23 +72,6 @@
 #define PL_STRING_VOLTAGE_TOLERANCE_mV (3000)
 
 /**
- * @brief   Maximum difference between redundant cell voltage measurement
- * @ptype   int
- * \par Range:
- * [0, 10000]
- */
-#define PL_CELL_VOLTAGE_TOLERANCE_mV (10)
-
-/**
- * @brief   Maximum difference between redundant cell temperature measurements
- *          in deci kelvin
- * @ptype   int
- * \par Range:
- * [0, 100]
- */
-#define PL_CELL_TEMPERATURE_TOLERANCE_dK (50)
-
-/**
  * @brief   Maximum deviation between a single cell voltage measurement and the
  *          average cell voltage
  * @ptype   int
@@ -102,6 +88,40 @@
  * [0, 100]
  */
 #define PL_CELL_TEMPERATURE_SPREAD_TOLERANCE_dK (100)
+
+/**
+ * Maximum time between measurements before the
+ * redundancy module raises an error because a
+ * measurement is not updated anymore.
+ *
+ * The redundancy module will wait a maximum of this time for new current
+ * values. If no new values are updated within this time frame it
+ * will invalidate the measurement values.
+ */
+#define PL_CURRENT_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
+
+/**
+ * Maximum time between current sensor high voltage, current
+ * and power measurements before the redundancy module raises
+ * an error because a measurement is not updated anymore.
+ *
+ * The redundancy module will wait a maximum of this
+ * time for new values from the current sensor. If no
+ * new values are updated within this time frame it will
+ * validate the measurement values it has up to this point
+ * if possible.
+ */
+#define PL_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms (300u)
+
+/**
+ * If both, the current sensor and the AFE measurement have no valid values
+ * we try to construct the string voltage by replacing invalid cell voltage
+ * measurements with the average cell voltage in this string. The result of
+ * this estimation will be flagged as invalid if more than the number of
+ * allowed invalid cell voltages are detected. The result will be marked as
+ * valid if less then this number of cells are detected as invalid.
+ */
+#define PL_ALLOWED_NUMBER_OF_INVALID_CELL_VOLTAGES (5u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

@@ -1,0 +1,14 @@
+[
+  {
+    "source": "src/app/driver/adc/adc.c",
+    "test": "test_adc.c",
+    "includes": [
+      "src/app/driver/adc"
+    ],
+    "mocks": [
+      "HL_adc.h",
+      "src/app/engine/database/database.h",
+      "src/app/main/include/fassert.h"
+    ]
+  }
+]

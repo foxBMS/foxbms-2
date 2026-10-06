@@ -43,8 +43,8 @@
  * @file    pwm.c
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -176,6 +176,7 @@ extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm) {
 extern void ecapNotification(ecapBASE_t *ecap, uint16 flags) {
     FAS_ASSERT(ecap != NULL_PTR);
     /* AXIVION Routine Generic-MissingParameterAssert: flags: parameter accept whole range */
+    (void)flags;
 
     /* Counter value of rising edge */
     uint32_t capture1 = ecapGetCAP1(ecapREG1);

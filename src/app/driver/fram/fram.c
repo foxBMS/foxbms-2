@@ -43,8 +43,8 @@
  * @file    fram.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -125,11 +125,61 @@ extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void) {
     fram_version.minor   = ver_versionInformation.minor;
     fram_version.patch   = ver_versionInformation.patch;
 
+    /* reset FRAM SOC struct information */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        fram_soc.minimumSoc_perc[s]        = 0.0f;
+        fram_soc.maximumSoc_perc[s]        = 0.0f;
+        fram_soc.maximumSoc_perc[s]        = 0.0f;
+        fram_soc.chargeThroughput_As[s]    = 0.0f;
+        fram_soc.dischargeThroughput_As[s] = 0.0f;
+    }
+
+    /* reset FRAM SOE struct information */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        fram_soe.minimumSoe_perc[s]              = 0.0f;
+        fram_soe.maximumSoe_perc[s]              = 0.0f;
+        fram_soe.averageSoe_perc[s]              = 0.0f;
+        fram_soe.chargeEnergyThroughput_Wh[s]    = 0.0f;
+        fram_soe.dischargeEnergyThroughput_Wh[s] = 0.0f;
+    }
+
+    /* reset FRAM sbcInit struct information */
+    fram_sbcInit.phase    = 0u;
+    fram_sbcInit.finState = STD_NOT_OK;
+
+    /* reset FRAM deepDisChargeFlags struct information */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        fram_deepDischargeFlags.deepDischargeFlag[s] = false;
+    }
+
+    /* reset FRAM sysMonViolationRecord struct information */
+    fram_sysMonViolationRecord.anyTimingIssueOccurred              = false;
+    fram_sysMonViolationRecord.taskEngineViolatingDuration         = 0u;
+    fram_sysMonViolationRecord.taskEngineEnterTimestamp            = 0u;
+    fram_sysMonViolationRecord.task1msViolatingDuration            = 0u;
+    fram_sysMonViolationRecord.task1msEnterTimestamp               = 0u;
+    fram_sysMonViolationRecord.task10msViolatingDuration           = 0u;
+    fram_sysMonViolationRecord.task10msEnterTimestamp              = 0u;
+    fram_sysMonViolationRecord.task100msViolatingDuration          = 0u;
+    fram_sysMonViolationRecord.task100msEnterTimestamp             = 0u;
+    fram_sysMonViolationRecord.task100msAlgorithmViolatingDuration = 0u;
+    fram_sysMonViolationRecord.task100msAlgorithmEnterTimestamp    = 0u;
+
+    /* reset FRAM insulationFlags struct information */
+    fram_insulationFlags.groundErrorDetected = false;
+
+    /* reset ADC calibration functionality */
+    for (size_t i = 0; i < FRAM_CALIBRATION_CHANNEL_MAX; i++) {
+        fram_CalibrationData.offset[i] = 0.0f;
+        fram_CalibrationData.slope[i]  = 1.0f;
+    }
+
     for (uint8_t i = 0u; i < (uint8_t)FRAM_BLOCK_MAX; i++) {
         if (FRAM_WriteData((FRAM_BLOCK_ID_e)i) != FRAM_ACCESS_OK) {
             retVal = STD_NOT_OK;
         }
     }
+
     return retVal;
 }
 

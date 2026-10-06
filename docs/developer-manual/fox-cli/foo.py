@@ -40,11 +40,12 @@
 """The foo module"""
 
 # pylint: disable=disallowed-name
+# ruff: noqa: T201
 
 
 # start-include-in-docs
 class Foo:
-    """This is the Foo class"""
+    """Represent the Foo class."""
 
     def __init__(self, attr: int) -> None:
         if attr == 0:

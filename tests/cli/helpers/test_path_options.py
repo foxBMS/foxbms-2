@@ -45,7 +45,7 @@ import unittest
 class TestPathOptions(unittest.TestCase):
     """Test of 'path_options.py'"""
 
-    def test_dummy(self):
+    def test_dummy(self) -> None:
         """Dummy test"""
         # this test is necessary because otherwise the exit code is non-zero
 

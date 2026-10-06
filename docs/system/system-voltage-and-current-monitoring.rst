@@ -7,19 +7,20 @@
 System Voltage And Current Monitoring
 #####################################
 
-Several different voltages inside a battery system need to be measured.
-The exact number of voltages is dependent on the system topology and the
-configuration of the battery system.
+Several different voltages and currents inside a battery system need to be
+measured.
+The exact number of voltages and currents is dependent on the system topology
+and the configuration of the battery system.
 
-:numref:`measurements-in-multi-string-system` shows the voltages that need to
-measured in a multi-string system, here for example for a 3-string system.
+:numref:`measurements-in-multi-string-system` shows the voltages and currents
+that need to measured in a multi-string system, here for example for a 3-string
+system.
 
 The left side of the image shows the *Battery Pack*.
 The *Battery Junction Box* is depicted in the center of the figure with an
-indicated connected application shown on the right side the of the picture.
+indicated connected *Application* shown on the right side the of the picture.
 
-.. drawio-figure:: img/battery-system-setup-multi-string.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/system/img/battery-system-setup-multi-string.svg
    :alt: Voltages and currents to be measured in a multi-string system
    :name: measurements-in-multi-string-system
    :width: 800px
@@ -43,8 +44,7 @@ battery pack.
 Measurements Inside the Battery Pack
 ====================================
 
-.. drawio-figure:: img/battery-system-setup-pack-measurements.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/system/img/battery-system-setup-pack-measurements.svg
    :alt: Voltages and currents to be measured in a multi-string system in the pack
    :name: measurements-in-multi-string-system-in-pack
    :width: 500px
@@ -60,12 +60,12 @@ Each string features a current sensor, a string fuse and one or two string
 contactors.
 Thus, the following voltages need to be measured in each string:
 
-- *String voltage*, short V\ :sub:`Sm`, where ``m`` indicates the number of
+- |string-voltage-m-abbr-full| where ``m`` indicates the number of
   the string.
-- *Fused string voltage*, short V\ :sub:`FSm`, where ``m`` indicates the number
+- |fused-string-voltage-m-abbr-full| where ``m`` indicates the number
   of the string.
   It is measured between the lowest module and after the string fuse.
-- *Pack voltage*, short V\ :sub:`Pm`, where ``m`` indicates the number
+- |pack-voltage-m-abbr-full| where ``m`` indicates the number
   of the string.
   It is measured between the negative pole of the lowest module and behind the
   positive string contactor.
@@ -92,8 +92,7 @@ measurements.
 :numref:`measurements-in-single-string-system` shows the single-string
 topology.
 
-.. drawio-figure:: img/battery-system-setup-single-string.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/system/img/battery-system-setup-single-string.svg
    :alt: Voltages and current to be measured in a single-string system
    :name: measurements-in-single-string-system
    :width: 800px
@@ -115,8 +114,7 @@ inside the string are required.
 Measurements Inside the Battery Junction Box
 ********************************************
 
-.. drawio-figure:: img/battery-system-setup-bjb-measurements.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/system/img/battery-system-setup-bjb-measurements.svg
    :alt: Voltages to be measured in a multi string system in the BJB
    :name: voltages-in-multi-string-system-in-bjb
    :width: 500px
@@ -137,3 +135,32 @@ Comprehension of measured voltages and current in the battery junction box:
    :header-rows: 1
    :delim: ;
    :file: ./bjb-measurements.csv
+
+.. _MAPPING_OF_DOCUMENTED_SYSTEM_TERMS_TO_CODE_NAMES:
+
+************************************************
+Mapping Of Documented System Terms To Code Names
+************************************************
+
+The voltage and current names in this chapter are system-level documentation
+terms.
+In the implementation, measured and validated values are represented by
+database entries and fields.
+
+The following table maps the documented voltage and current terms to the
+currently used implementation symbols.
+
+When reading this mapping, distinguish between measurement source and
+application value:
+
+- Measurement source refers to a direct sensor channel value, for example
+   ``DATA_BLOCK_SYSTEM_VOLTAGE_x_s.highVoltage_mV[m]``.
+- Application value refers to the value that is used by application logic
+   after plausibility checking and fallback handling, for example
+   ``DATA_BLOCK_PACK_VALUES_s.*`` fields written in redundancy validation.
+
+.. csv-table:: Mapping of documented voltage terms to implementation symbols
+   :name: voltage-term-to-code-mapping
+   :header-rows: 1
+   :delim: ;
+   :file: ./voltage-term-to-code-mapping.csv

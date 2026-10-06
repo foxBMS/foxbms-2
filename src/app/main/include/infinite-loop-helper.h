@@ -43,13 +43,16 @@
  * @file    infinite-loop-helper.h
  * @author  foxBMS Team
  * @date    2022-12-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  GEN
  *
  * @brief   Macros for implementing testable infinite loops
- * @details TODO
+ * @details This header provides the #FOREVER() abstraction used for infinite
+ *          loops in production code.
+ *          In unit tests the macro is replaced by a function so endless loops
+ *          can be controlled and exited deterministically.
  */
 
 #ifndef FOXBMS__INFINITE_LOOP_HELPER_H_

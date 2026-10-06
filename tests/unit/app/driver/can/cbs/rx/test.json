@@ -1,0 +1,314 @@
+[
+  {
+    "source": "src/app/driver/can/cbs/rx/can_cbs_rx_afe_cell-temperatures.c",
+    "test": "test_can_cbs_rx_afe_cell-temperatures.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_DEBUG_CAN=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/can/cbs/rx/can_cbs_rx_afe_cell-voltages.c",
+    "test": "test_can_cbs_rx_afe_cell-voltages.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_DEBUG_CAN=1u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/can_helper.c",
+      "src/app/driver/can/cbs/rx/can_cbs_rx_as_honeywell-bas6c-x00.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cbs_rx_as_honeywell-bas6c-x00.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AS_HONEYWELL_BAS6C_X00=1"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/rx/can_cbs_rx_cs_isabellenhuette-ivt-s.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cbs_rx_cs_isabellenhuette-ivt-s.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_CS_ISABELLENHUETTE_IVT_S=1"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/rx/can_cbs_rx_cs_lem-cab500.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cbs_rx_cs_lem-cab500.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_CS_LEM_CAB500=1"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/rx/can_cbs_rx_f_bms-state-request.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cbs_rx_f_bms-state-request.c",
+    "includes": [
+      "src/app/application/bal",
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/engine/diag",
+      "src/app/engine/sys_mon",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bal/bal.h",
+      "src/app/application/config/bal_cfg.h",
+      "src/app/application/config/bms_cfg.h",
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/engine/sys_mon/sys_mon.h",
+      "src/app/task/os/os.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/can_helper.c",
+      "src/app/driver/can/cbs/rx/can_cbs_rx_f_debug.c",
+      "src/app/driver/config/fram_cfg.c",
+      "src/app/engine/config/database_cfg.c",
+      "src/app/engine/sys/sys.c"
+    ],
+    "test": "test_can_cbs_rx_f_debug.c",
+    "includes": [
+      "src/app/application/algorithm",
+      "src/app/application/algorithm/config",
+      "src/app/application/algorithm/state_estimation",
+      "src/app/application/algorithm/state_estimation/sof/trapezoid",
+      "src/app/application/bal",
+      "src/app/application/bms",
+      "src/app/driver/afe/api",
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/dma",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/i2c",
+      "src/app/driver/imd",
+      "src/app/driver/interlock",
+      "src/app/driver/mcu",
+      "src/app/driver/meas",
+      "src/app/driver/rtc",
+      "src/app/driver/sbc",
+      "src/app/driver/sbc/fs8x_driver",
+      "src/app/driver/spi",
+      "src/app/driver/sps",
+      "src/app/engine/diag",
+      "src/app/engine/sys",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/application/algorithm/algorithm.h",
+      "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid.h",
+      "src/app/application/algorithm/state_estimation/state_estimation.h",
+      "src/app/application/bal/bal.h",
+      "src/app/application/bms/bms.h",
+      "src/app/driver/afe/api/afe.h",
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-build-configuration.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-identify-hardware.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-unsupported-multiplexer-values.h",
+      "src/app/driver/contactor/contactor.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/driver/interlock/interlock.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/meas/meas.h",
+      "src/app/driver/rtc/rtc.h",
+      "src/app/driver/sbc/sbc.h",
+      "src/app/engine/config/sys_cfg.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/engine/sys/reset.h",
+      "src/app/task/os/os.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/can_helper.c",
+      "src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-info.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cbs_rx_imd_bender-iso165c-info.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/imd/bender/iso165c/config",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_IMD_BENDER_ISO165C=1"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-response.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cbs_rx_imd_bender-iso165c-response.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/imd/bender/iso165c/config",
+      "src/app/engine/diag",
+      "src/app/engine/sys_mon",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_IMD_BENDER_ISO165C=1"
+    ],
+    "use": "M"
+  }
+]

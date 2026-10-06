@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_f_debug-response.c
  * @author  foxBMS Team
  * @date    2022-08-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,8 @@
 #include "Mockcan.h"
 #include "Mockcan_helper.h"
 #include "Mockfoxmath.h"
+#include "Mockfram_cfg.h"
+#include "Mockmaster_info.h"
 #include "Mockmcu.h"
 #include "Mockos.h"
 #include "Mockrtc.h"
@@ -66,21 +68,13 @@
 
 #include "can_cbs_tx_f_debug-response.h"
 #include "can_cfg_tx-async-message-definitions.h"
+#include "fram_helper.h"
 #include "test_assert_helper.h"
 #include "version.h"
 
 #include <stdbool.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_tx_f_debug-response.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint64_t testMessageData[10] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
@@ -110,6 +104,7 @@ VER_VERSION_s ver_versionInformation = {
     .commitHash              = "Test12deadbeef",
     .remote                  = "onTheDarkSideOfTheMoon.git",
 };
+FRAM_ADC_CALIBRATION_s fram_CalibrationData = {0};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -608,6 +603,116 @@ void testCANTX_DebugResponseSendMessage(void) {
     STD_RETURN_TYPE_e testResult = TEST_CANTX_DebugResponseSendMessage(0x0123456789ABCDEF);
     /* ======= RT1/1: Test output verification */
     TEST_ASSERT_EQUAL(STD_OK, testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitAdcRawValue
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - check of calibration channel is valid
+ *          - Routine validation:
+ *            - sends message as expected
+ */
+void testCANTX_TransmitAdcRawValue(void) {
+    TEST_ASSERT_FAIL_ASSERT(CANTX_TransmitAdcRawValue(FRAM_CALIBRATION_CHANNEL_MAX));
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 0x7u, 8u, 0x08, CAN_BIG_ENDIAN);
+    TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(3);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 32u, 3, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, 3, CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[0u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    STD_RETURN_TYPE_e testResult = CANTX_TransmitAdcRawValue(3);
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+}
+/**
+ * @brief   Testing CANTX_GetMeasurementRawValueForFramCalibrationChannel
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - none
+ *          - Routine validation:
+ *            - return corresponding raw value
+ */
+void testCANTX_GetMeasurementRawValueForFramCalibrationChannel(void) {
+    MINFO_GetClamp30cSupplyVoltage_ExpectAndReturn(200);
+    TEST_ASSERT_EQUAL(200, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(0));
+    TEST_ASSERT_EQUAL(1, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(1));
+    TEST_ASSERT_EQUAL(2, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(2));
+    TEST_ASSERT_EQUAL(3, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(3));
+    TEST_ASSERT_EQUAL(4, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(4));
+    TEST_ASSERT_EQUAL(5, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(5));
+    TEST_ASSERT_EQUAL(6, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(6));
+    TEST_ASSERT_EQUAL(7, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(7));
+    TEST_ASSERT_EQUAL(8, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(8));
+    TEST_ASSERT_EQUAL(9, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(9));
+
+    TEST_ASSERT_EQUAL(-1, TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(-23));
+}
+
+/**
+ * @brief   Testing CANTX_TransmitAdcCalibrationValue
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - check of calibration channel is valid
+ *          - Routine validation:
+ *            - sends message as expected
+ */
+void testCANTX_TransmitAdcOffsetValue(void) {
+    /*test success*/
+    TEST_ASSERT_FAIL_ASSERT(CANTX_TransmitAdcOffsetValue(FRAM_CALIBRATION_CHANNEL_MAX));
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 0x7u, 8u, 0x0A, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 32u, 0, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, 3, CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[0u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    STD_RETURN_TYPE_e testResult = CANTX_TransmitAdcOffsetValue(3);
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /*test failure*/
+
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 0x7u, 8u, 0x0A, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 32u, 0, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, 3, CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[0u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_NOT_OK);
+    testResult = CANTX_TransmitAdcOffsetValue(3);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
+}
+
+void testCANTX_TransmitAdcSlopeValue(void) {
+    /*test success*/
+    TEST_ASSERT_FAIL_ASSERT(CANTX_TransmitAdcOffsetValue(FRAM_CALIBRATION_CHANNEL_MAX));
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 0x7u, 8u, 0x09, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 32u, 0, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, 3, CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[0u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    STD_RETURN_TYPE_e testResult = CANTX_TransmitAdcSlopeValue(3);
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /*test failure*/
+
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 0x7u, 8u, 0x09, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 32u, 0, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, 3, CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[0u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_NOT_OK);
+    testResult = CANTX_TransmitAdcSlopeValue(3);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 }
 
 /**

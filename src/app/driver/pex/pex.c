@@ -43,8 +43,8 @@
  * @file    pex.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  PEX
  *
@@ -312,16 +312,16 @@ extern void PEX_Initialize(void) {
 
 extern void PEX_Trigger(void) {
     PEX_CopyToLocalVariable();
-    uint32_t current_time = OS_GetTickCount();
+    uint32_t currentTime = OS_GetTickCount();
 
     STD_RETURN_TYPE_e writeConfigDirectionReturn = PEX_WriteConfigDirection();
-    OS_DelayTaskUntil(&current_time, 2u);
+    OS_DelayTaskUntil(&currentTime, 2u);
     STD_RETURN_TYPE_e writeConfigPolarityReturn = PEX_WriteConfigPolarity();
-    OS_DelayTaskUntil(&current_time, 2u);
+    OS_DelayTaskUntil(&currentTime, 2u);
     STD_RETURN_TYPE_e readInputsReturn = PEX_ReadInputs();
-    OS_DelayTaskUntil(&current_time, 2u);
+    OS_DelayTaskUntil(&currentTime, 2u);
     STD_RETURN_TYPE_e writeOutputsReturn = PEX_WriteOutputs();
-    OS_DelayTaskUntil(&current_time, 2u);
+    OS_DelayTaskUntil(&currentTime, 2u);
 
     /* notify diag if one of these functions failed, but continue normally */
     if ((writeConfigDirectionReturn == STD_NOT_OK) || (writeConfigPolarityReturn == STD_NOT_OK) ||

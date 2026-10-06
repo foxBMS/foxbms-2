@@ -57,7 +57,7 @@ except ModuleNotFoundError:
 class TestCmdList(unittest.TestCase):
     """Tests for cmd_list command."""
 
-    def test_invokes_db_list_and_exits_zero(self):
+    def test_invokes_db_list_and_exits_zero(self) -> None:
         """Should call db_list with provided Path and exit with code 0."""
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmp:
@@ -75,7 +75,7 @@ class TestCmdList(unittest.TestCase):
 class TestCmdShow(unittest.TestCase):
     """Tests for cmd_show command."""
 
-    def test_invokes_db_show_and_exits_zero(self):
+    def test_invokes_db_show_and_exits_zero(self) -> None:
         """Should call db_show with provided Path and cell-id, then exit 0."""
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmp:
@@ -96,7 +96,7 @@ class TestCmdShow(unittest.TestCase):
 class TestDbGroup(unittest.TestCase):
     """Tests for db group registration and behavior."""
 
-    def test_help_lists_subcommands(self):
+    def test_help_lists_subcommands(self) -> None:
         """Should show 'list' and 'show' in group help."""
         runner = CliRunner()
         result = runner.invoke(c_db.db, ["--help"])
@@ -105,7 +105,7 @@ class TestDbGroup(unittest.TestCase):
         self.assertIn("list", result.output)
         self.assertIn("show", result.output)
 
-    def test_run_list_via_group(self):
+    def test_run_list_via_group(self) -> None:
         """Should run 'db list' and call db_list with provided path."""
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmp:
@@ -116,7 +116,7 @@ class TestDbGroup(unittest.TestCase):
                 mock_db_list.assert_called_once()
                 self.assertEqual(mock_db_list.call_args.args[0], root)
 
-    def test_run_show_via_group(self):
+    def test_run_show_via_group(self) -> None:
         """Should run 'db show' and call db_show with provided path and cell-id."""
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmp:

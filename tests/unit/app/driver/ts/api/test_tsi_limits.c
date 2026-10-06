@@ -43,8 +43,8 @@
  * @file    test_tsi_limits.c
  * @author  foxBMS Team
  * @date    2021-01-15 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TSI
  *
@@ -62,10 +62,6 @@
 #include "tsi.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("tsi_limits.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

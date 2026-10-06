@@ -44,7 +44,8 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
-from unittest.mock import patch
+from typing import ClassVar
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.pre_commit_scripts import check_encoding
@@ -56,11 +57,13 @@ except ModuleNotFoundError:
 class TestCheckEncoding(unittest.TestCase):
     """Test of the main function"""
 
+    tests_dir: ClassVar[Path]
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:  # noqa: D102
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
 
-    def test_main_ascii(self):
+    def test_main_ascii(self) -> None:
         """Testing ASCII"""
         test = "ascii.txt"
         result = check_encoding.main([str(self.tests_dir / test)])
@@ -82,7 +85,7 @@ class TestCheckEncoding(unittest.TestCase):
             f"{(self.tests_dir / test).as_posix()}: Could not open file in 'utf-8' mode.\n",
         )
 
-    def test_main_utf_8(self):
+    def test_main_utf_8(self) -> None:
         """Testing UTF-8"""
         test = "ascii.txt"
         result = check_encoding.main([str(self.tests_dir / test)])
@@ -104,13 +107,15 @@ class TestCheckEncoding(unittest.TestCase):
             f"{(self.tests_dir / test).as_posix()}: Could not open file in 'utf-8' mode.\n",
         )
 
-    def test_main_utf_16self_test(self):
+    def test_main_utf_16self_test(self) -> None:
         """Self test"""
         fox = (self.tests_dir / "utf-16.txt").read_text(encoding="utf-16")
         self.assertEqual(fox, "🦊 foxBMS\n")
 
     @patch("pathlib.Path.read_text")
-    def test_main_uses_encoding_map_by_extension(self, mock_read_text):
+    def test_main_uses_encoding_map_by_extension(
+        self, mock_read_text: MagicMock
+    ) -> None:
         """Known suffixes should use ENCODING_MAP values."""
         mock_read_text.return_value = "ok"
         file_c = self.tests_dir / "file.c"
@@ -119,7 +124,9 @@ class TestCheckEncoding(unittest.TestCase):
         mock_read_text.assert_called_once_with(encoding="ascii")
 
     @patch("pathlib.Path.read_text")
-    def test_main_uses_utf8_fallback_for_unknown_suffix(self, mock_read_text):
+    def test_main_uses_utf8_fallback_for_unknown_suffix(
+        self, mock_read_text: MagicMock
+    ) -> None:
         """Unknown suffixes should fall back to UTF-8."""
         mock_read_text.return_value = "ok"
         file_txt = self.tests_dir / "file.txt"

@@ -59,22 +59,6 @@ def get_config_file_options(
         if config_file in (DEFAULT_CONFIG_FILE_DECODE, DEFAULT_CONFIG_FILE_FILTER):
             secho(f"Default configuration file {config_file} is used.")
         options = read_config(config_file)
-    # search for config file in cwd and directory of the config file
-    dbc = options.get("dbc", None)
-    dbc_path = Path("foxbms.dbc") if dbc is None else Path(dbc)
-    # check direct path
-    if not dbc_path.is_file():
-        # check cwd
-        cwd_dbc_path = Path.cwd() / dbc_path
-        if not cwd_dbc_path.is_file():
-            # check in config directory
-            config_dbc_path = config_file.parent / dbc_path
-            if config_dbc_path.is_file():
-                options["dbc"] = config_dbc_path
-        else:
-            options["dbc"] = cwd_dbc_path
-    else:
-        options["dbc"] = dbc_path
     # we need to fix parsing the 'filter:sampling' setup
     if sampling := options.get("sampling", None):
         options["sampling"] = sampling.items()

@@ -37,6 +37,30 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    bld.recurse(["can", "crc", "flash", "foxmath", "rti", "io"])
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    bld.recurse(["can", "config", "crc", "flash", "foxmath", "io", "rti"])
+
+    # flash and flash_cfg objects are not defined to be used here, as they are
+    # referenced to be used in the linker script directly.
+    use = [
+        f"{op}can_bootloader-version-info",
+        f"{op}can_helper",
+        f"{op}can",
+        f"{op}can_cfg",
+        f"{op}crc64_calc",
+        f"{op}crc",
+        f"{op}foxmath",
+        f"{op}utils",
+        f"{op}io",
+        f"{op}rti",
+    ]
+    bld(
+        features="c cstlib",
+        use=use,
+        target=f"{lp}driver",
+    )

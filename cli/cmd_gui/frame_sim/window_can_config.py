@@ -44,13 +44,12 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from ...helpers import fcan
-from ...helpers.misc import APP_DBC_FILE
+from ...helpers.project_context import APP_DBC_FILE
 
 if TYPE_CHECKING:
     from .sim_gui import SimulateBmsFrame
 
 
-# pylint: disable-next=too-many-ancestors
 class CanConfigWindow(tk.Toplevel):
     """CAN Configuration Window"""
 
@@ -175,7 +174,10 @@ class CanConfigWindow(tk.Toplevel):
         can_bus_unit_config["channel"].grid(
             in_=can_bus_unit_frame, column=1, row=1, pady=5, sticky="news"
         )
-        can_bus_unit_config["channel"].current(0)
+        if len(fcan.SUPPORTED_CHANNELS[can_bus_unit_config["interface"].get()]) >= 2:
+            can_bus_unit_config["channel"].current(1)
+        else:
+            can_bus_unit_config["channel"].current(0)
 
         ttk.Label(self, text="Bitrate", width=10).grid(
             in_=can_bus_unit_frame, column=0, row=2, pady=5, sticky="news"

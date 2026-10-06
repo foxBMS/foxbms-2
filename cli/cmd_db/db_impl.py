@@ -39,7 +39,7 @@
 
 """Implementations backing the ``db`` command.
 
-This module provides thin wrappers around :class:`foxbms.db.FoxDB` for listing
+This module provides thin wrappers around :class:`cli.db.FoxDB` for listing
 and displaying cells via console output.
 
 Functions:
@@ -47,7 +47,6 @@ Functions:
         List all cells in the database and print their identifiers.
     db_show(root, cell_id)
         Print the dataclass representation of the selected cell, if present.
-
 """
 
 from collections.abc import Callable

@@ -6,7 +6,7 @@
 Extending |fox-cli|
 ===================
 
-|fox-cli| is primary a tool to interact with the |foxbms| repository through
+|fox-cli| is the primary tool to interact with the |foxbms| repository through
 the command line.
 All commands must therefore be implemented as a part of it.
 The |fox-cli| implementation is found in the ``cli/``-directory at the root
@@ -37,8 +37,8 @@ Files
 How to implement a new command?
 *******************************
 
-When a new tool, i.e., a command needs to be implemented the following steps
-need to be done (exemplary new command ``my-command``):
+When a new tool, i.e., a command, needs to be implemented, the following steps
+need to be performed (for the exemplary new command ``my-command``):
 
 - Add a new file ``cli/cmd_my_command/__init__.py``
 - Add a new file ``cli/cmd_my_command/my_command_impl.py`` which implements the
@@ -94,7 +94,7 @@ Adhere to the following rules when using ``click``:
 How to add a command to the GUI?
 ********************************
 
-The command that shall be added is `my-command` from the example above.
+The command that shall be added is ``my-command`` from the example above.
 
 - Add a new file ``cmd_gui/frame_my_command/__init__.py``
 - Add a new file ``cmd_gui/frame_my_command/my_command_gui.py``
@@ -126,7 +126,7 @@ The command that shall be added is `my-command` from the example above.
      self.notebook = ttk.Notebook(self)
 
      # other frames are already added here
-     # add the new one at the appropiate position
+     # add the new one at the appropriate position
      tab_my_command = MyCommandFrame(self.notebook)
      self.notebook.add(tab_my_command, text="My Command")
 
@@ -137,15 +137,15 @@ Unit Tests
 - Unit tests for the |fox-cli| shall be implemented in ``tests/cli``.
 - Functions called by the function under test should be mocked.
 - The command line interface for each command shall be tested in
-  ``tests/cli/commands/*``, where each command uses its own file to tests its
+  ``tests/cli/commands/*``, where each command uses its own file to test its
   interface.
-- Each tool shall then be tested in the appropiate subdirectory, e.g.,
+- Each tool shall then be tested in the appropriate subdirectory, e.g.,
   ``cli/cmd_etl/etl/can_decode.py``
   is then tested in
   ``tests/cli/cmd_etl/etl/test_can_decode.py``.
 - Every test case shall only test one test, i.e., if a function has an
   ``if...else`` branch, two test functions shall be used.
-- Foreach test appropriate
+- For each test, appropriate
   `assert methods <https://docs.python.org/3/library/unittest.html
   #unittest.TestCase.assertEqual>`_ shall be used to provide a verbose error
   message in case a test fails.
@@ -156,7 +156,8 @@ Unit Tests
   To mock such method, ``_ClassName_connect`` (`name mangling
   <https://docs.python.org/3/reference/expressions.html#private-name-mangling>`_)
   must be used which will always raise a pylint ``invalid-name`` error.
-  This error can not be disable and hence private methods **must** not be used.
+  This error cannot be disabled and hence private methods **MUST** not be
+  used.
 
 .. csv-table:: Assert Usage
    :file: ./assert_usage.csv
@@ -179,7 +180,7 @@ Unit Tests
 |fox-cli| Unit Test Example
 ---------------------------
 
-Consider the the file ``foo.py``, which implements a class ``Foo`` and two
+Consider the file ``foo.py``, which implements a class ``Foo`` and two
 methods.
 
 .. literalinclude:: ./foo.py
@@ -197,9 +198,9 @@ The include section should look something like this:
    :linenos:
    :caption: ``test_foo.py``
 
-Each method, include the dunder methods, shall have a separate test case
+Each method, including the dunder methods, shall have a separate test case
 implemented through a ``unittest.TestCase`` class.
-In this example, there are then three test cases
+In this example, there are three test cases:
 
 - function ``__init__`` implements its tests in class ``TestFooInstantiation``
 - function ``add_two`` implements its tests in class ``TestFooAddTwo``

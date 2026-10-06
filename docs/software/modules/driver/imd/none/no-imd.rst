@@ -1,10 +1,10 @@
 .. include:: ./../../../../../macros.txt
 .. include:: ./../../../../../units.txt
 
-.. _DUMMY_INSULATION_MEASUREMENT_DEVICE:
+.. _NO_IMD_DRIVER:
 
-Dummy Insulation Measurement Device
-===================================
+No IMD
+======
 
 Module Files
 ------------

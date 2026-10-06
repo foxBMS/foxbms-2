@@ -1,0 +1,423 @@
+[
+  {
+    "source": "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+    "test": "test_adi_ades183x_buffers.c",
+    "includes": [
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c",
+    "test": "test_adi_ades183x_commands_voltages.c",
+    "includes": [
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+    "test": "test_adi_ades183x_commands.c",
+    "includes": [
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic_w.c",
+    "test": "test_adi_ades183x_diagnostic_w.c",
+    "includes": [
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x/",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/config",
+      "src/app/driver/spi",
+      "src/app/engine/config",
+      "src/app/engine/diag",
+      "src/app/task/os"
+    ],
+    "mocks": [
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c",
+      "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c",
+      "tests/unit/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers_test-data-rdb.c",
+      "tests/unit/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers_test-data-wdb.c"
+    ],
+    "test": "test_adi_ades183x_helpers.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "tests/unit/app/driver/afe/adi/common/ades183x/include"
+    ],
+    "mocks": [
+      "src/app/driver/spi/spi.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_initialization.c"
+    ],
+    "test": "test_adi_ades183x_initialization.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_mux.c"
+    ],
+    "test": "test_adi_ades183x_mux.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h",
+      "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_mux.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c"
+    ],
+    "test": "test_adi_ades183x_temperatures_inputs_unused.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h",
+      "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_mux.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c"
+    ],
+    "test": "test_adi_ades183x_temperatures_mux.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h",
+      "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u",
+      "TEST_SLV_USE_MUX_FOR_TEMP=true"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_mux.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c"
+    ],
+    "test": "test_adi_ades183x_temperatures.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h",
+      "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.c",
+      "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c"
+    ],
+    "test": "test_adi_ades183x_voltages.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h",
+      "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c"
+    ],
+    "test": "test_adi_ades183x.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/ades1830/adi_ades1830_defs.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_balancing.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_defs.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_gpio_voltages.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_initialization.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_mux.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.h",
+      "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.h",
+      "src/app/driver/afe/api/afe_plausibility.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/driver/ts/api/tsi.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h",
+      "src/app/main/include/infinite-loop-helper.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/queue.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  }
+]

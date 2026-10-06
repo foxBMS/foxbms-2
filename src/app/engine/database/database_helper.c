@@ -43,8 +43,8 @@
  * @file    database_helper.c
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -55,10 +55,10 @@
 /*========== Includes =======================================================*/
 #include "database_helper.h"
 
-#include "battery_system_cfg.h"
-
+#include "battery_system_cfg_types.h"
 #include "os.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -72,31 +72,70 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHeader) {
-    bool retval = false;
-    if (!((dataBlockHeader.timestamp == 0u) && (dataBlockHeader.previousTimestamp == 0u))) {
+extern bool DATA_DatabaseBlockUpdatedAtLeastOnce(
+    const uint32_t *const kpkTimestamp,
+    const uint32_t *const kpkPreviousTimestamp,
+    uint8_t stringNumber) {
+    FAS_ASSERT(kpkTimestamp != NULL_PTR);
+    FAS_ASSERT(kpkPreviousTimestamp != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    bool retval                        = false;
+    const bool initialTimestampIsZero  = kpkTimestamp[stringNumber] == 0u;
+    const bool previousTimestampIsZero = kpkPreviousTimestamp[stringNumber] == 0u;
+    if (!(initialTimestampIsZero && previousTimestampIsZero)) {
         /* Only possibility for timestamp AND previous timestamp to be 0 is, if
-           the database entry has never been updated. Thus if this is not the
-           case the database entry must have been updated */
+           the database entry has never been updated. */
         retval = true;
     }
     return retval;
 }
 
+extern bool DATA_DatabaseBlockUpdatedWithinInterval(
+    const uint32_t *const kpkTimestamp,
+    const uint32_t *const kpkPreviousTimestamp,
+    uint8_t stringNumber,
+    uint32_t timeInterval) {
+    FAS_ASSERT(kpkTimestamp != NULL_PTR);
+    FAS_ASSERT(kpkPreviousTimestamp != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    bool retval                     = false;
+    const uint32_t currentTimestamp = OS_GetTickCount();
+
+    /* Unsigned integer arithmetic also works correctly on timer overflow,
+       thus no need to use abs() */
+    const uint32_t timeDifferenceLastCall = currentTimestamp - kpkTimestamp[stringNumber];
+    const bool updatedWithinInterval      = timeDifferenceLastCall <= timeInterval;
+    const bool updatedAtLeastOnce =
+        DATA_DatabaseBlockUpdatedAtLeastOnce(kpkTimestamp, kpkPreviousTimestamp, stringNumber);
+    if (updatedWithinInterval && updatedAtLeastOnce) {
+        retval = true;
+    }
+    return retval;
+}
+
+extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHeader) {
+    bool retval                        = true;
+    const bool initialTimestampIsZero  = dataBlockHeader.timestamp == 0u;
+    const bool previousTimestampIsZero = dataBlockHeader.previousTimestamp == 0u;
+    /* The only possibility for initial timestamp AND previous timestamp to be
+       0 is, if the database entry has never been updated. */
+    const bool neverUpdated = initialTimestampIsZero && previousTimestampIsZero;
+    if (neverUpdated) {
+        retval = false;
+    }
+    return retval;
+}
+
 extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval) {
-    bool retval               = false;
     uint32_t currentTimestamp = OS_GetTickCount();
 
     /* Unsigned integer arithmetic also works correctly if currentTimestamp is
        larger than pHeader->timestamp (timer overflow), thus no need to use abs() */
     const uint32_t timeDifferenceLastCall = currentTimestamp - dataBlockHeader.timestamp;
+    const bool updatedWithinInterval      = timeDifferenceLastCall <= timeInterval;
     const bool updatedAtLeastOnce         = DATA_DatabaseEntryUpdatedAtLeastOnce(dataBlockHeader);
-    if ((timeDifferenceLastCall <= timeInterval) && (updatedAtLeastOnce == true)) {
-        /* Difference between current timestamp and last update timestamp is
-           smaller than passed time interval */
-        retval = true;
-    }
-    return retval;
+
+    return updatedWithinInterval && updatedAtLeastOnce;
 }
 
 extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval) {
@@ -108,8 +147,11 @@ extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s data
     const uint32_t timeDifferenceLastCall     = currentTimestamp - dataBlockHeader.timestamp;
     const uint32_t timeDifferenceBetweenCalls = dataBlockHeader.timestamp - dataBlockHeader.previousTimestamp;
 
-    if ((timeDifferenceLastCall <= timeInterval) && (timeDifferenceBetweenCalls <= timeInterval) &&
-        (DATA_DatabaseEntryUpdatedAtLeastOnce(dataBlockHeader) == true)) {
+    const bool updatedWithinInterval = timeDifferenceLastCall <= timeInterval;
+    const bool updatedPeriodically   = timeDifferenceBetweenCalls <= timeInterval;
+    const bool updatedAtLeastOnce    = DATA_DatabaseEntryUpdatedAtLeastOnce(dataBlockHeader);
+
+    if (updatedWithinInterval && updatedPeriodically && updatedAtLeastOnce) {
         /* Difference between timestamps is smaller than passed time interval */
         retval = true;
     }

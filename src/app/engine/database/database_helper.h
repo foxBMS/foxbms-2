@@ -43,8 +43,8 @@
  * @file    database_helper.h
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -66,14 +66,43 @@
 
 /*========== Extern Function Prototypes =====================================*/
 /**
- * @brief   Checks if passed database entry has been updated at least once.
+ * @brief   Check if a database block has been updated at least once.
+ * @param[in]  kpkTimestamp          current timestamp of the database block
+ * @param[in]  kpkPreviousTimestamp  previous timestamp of the database block
+ * @param[in]  stringNumber          string number of the database block
+ * @return  true if the database block has been updated at least once,
+ *          otherwise false
+ */
+extern bool DATA_DatabaseBlockUpdatedAtLeastOnce(
+    const uint32_t *const kpkTimestamp,
+    const uint32_t *const kpkPreviousTimestamp,
+    uint8_t stringNumber);
+
+/**
+ * @brief   Check if a database block has been updated within a specified time
+ *          interval.
+ * @param[in]  kpkTimestamp          current timestamp of the database block
+ * @param[in]  kpkPreviousTimestamp  previous timestamp of the database block
+ * @param[in]  stringNumber          string number of the database block
+ * @param[in]  timeInterval          time interval in systicks (type: uint32_t)
+ * @return  true if the database block has been updated within the time
+ *          interval, otherwise false
+ */
+extern bool DATA_DatabaseBlockUpdatedWithinInterval(
+    const uint32_t *const kpkTimestamp,
+    const uint32_t *const kpkPreviousTimestamp,
+    uint8_t stringNumber,
+    uint32_t timeInterval);
+
+/**
+ * @brief   Check if passed database entry has been updated at least once.
  * @param[in]  dataBlockHeader header of database entry
  * @return true if database entry has been updated at least once, otherwise false
  */
 extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHeader);
 
 /**
- * @brief   Checks if passed database entry has been updated within the last
+ * @brief   Check if passed database entry has been updated within the last
  *          time interval
  * @param[in]  dataBlockHeader header of database entry
  * @param[in]  timeInterval in systicks (type: uint32_t)
@@ -83,7 +112,7 @@ extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(DATA_BLOCK_HEADER_s dataBlockHe
 extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval);
 
 /**
- * @brief   Checks if passed database entry has been periodically updated
+ * @brief   Check if passed database entry has been periodically updated
  *          within the time interval
  * @details Checks if the last update timestamp is not older than time interval
  *          and if the difference between previous timestamp and timestamp is
@@ -96,42 +125,42 @@ extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader,
 extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader, uint32_t timeInterval);
 
 /**
- * @brief   Returns string number of passed cell index
+ * @brief   Return the string number of passed cell index
  * @param[in]  cellIndex   index of cell starting by 0
  * @return  string number of passed cell index
  */
 extern uint8_t DATA_GetStringNumberFromVoltageIndex(uint16_t cellIndex);
 
 /**
- * @brief   Returns module number of passed cell index
+ * @brief   Return the module number of passed cell index
  * @param[in]  cellIndex   index of cell starting by 0
  * @return  module number of passed cell index
  */
 extern uint8_t DATA_GetModuleNumberFromVoltageIndex(uint16_t cellIndex);
 
 /**
- * @brief   Returns cell number of passed cell index
+ * @brief   Return the cell number of passed cell index
  * @param[in]  cellIndex   index of cell in starting by 0
  * @return  cell number of passed cell index
  */
 extern uint8_t DATA_GetCellNumberFromVoltageIndex(uint16_t cellIndex);
 
 /**
- * @brief   Returns string number of passed temperature sensor index
+ * @brief   Return the string number of passed temperature sensor index
  * @param[in]  sensorIndex   index of sensor starting by 0
  * @return  string number of passed temperature sensor index
  */
 extern uint8_t DATA_GetStringNumberFromTemperatureIndex(uint16_t sensorIndex);
 
 /**
- * @brief   Returns module number of passed temperature sensor index
+ * @brief   Return the module number of passed temperature sensor index
  * @param[in]  sensorIndex   index of sensor starting by 0
  * @return  module number of passed temperature sensor index
  */
 extern uint8_t DATA_GetModuleNumberFromTemperatureIndex(uint16_t sensorIndex);
 
 /**
- * @brief   Returns sensor number of passed temperature sensor index
+ * @brief   Return the sensor number of passed temperature sensor index
  * @param[in]  sensorIndex   index of sensor starting by 0
  * @return  temperature sensor number of passed sensor index
  */

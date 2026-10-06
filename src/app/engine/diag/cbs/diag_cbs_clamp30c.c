@@ -43,8 +43,8 @@
  * @file    diag_cbs_clamp30c.c
  * @author  foxBMS Team
  * @date    2024-05-21 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *

@@ -46,7 +46,7 @@ import click
 from ..cmd_plot.execution import Executor
 from ..helpers.click_helpers import HELP_NAMES
 from ..helpers.file_tracker import FileTracker
-from ..helpers.misc import PROJECT_BUILD_ROOT
+from ..helpers.project_context import PROJECT_BUILD_ROOT
 
 
 @click.command(

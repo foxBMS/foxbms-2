@@ -1,0 +1,11 @@
+[
+  {
+    "source": "src/app/driver/ts/beta.c",
+    "test": "test_beta.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts"
+    ],
+    "use": "M"
+  }
+]

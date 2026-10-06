@@ -1,0 +1,42 @@
+[
+  {
+    "source": "src/app/driver/emac/emac.c",
+    "test": "test_emac.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/emac",
+      "src/app/driver/foxmath",
+      "src/app/driver/phy",
+      "src/app/driver/rtc",
+      "src/app/driver/uart",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS"
+    ],
+    "mocks": [
+      "HL_mdio.h",
+      "src/app/driver/emac/emac-low-level.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/phy/dp83869.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/NetworkInterface.h"
+    ],
+    "defines": [
+      "FOXBMS_TCP_SUPPORT=1",
+      "FOXBMS_UART_SUPPORT=1"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/driver/emac/emac-low-level.c",
+    "test": "test_emac-low-level.c"
+  }
+]

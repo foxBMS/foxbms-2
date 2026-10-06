@@ -1,0 +1,34 @@
+[
+  {
+    "source": [
+      "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid.c",
+      "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid_cfg.c"
+    ],
+    "test": "test_sof_trapezoid.c",
+    "includes": [
+      "src/app/application/algorithm/state_estimation",
+      "src/app/application/algorithm/state_estimation/sof/trapezoid",
+      "src/app/application/bms",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/sps",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/engine/database/database.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid_cfg.c",
+    "test": "test_sof_trapezoid_cfg.c",
+    "includes": [
+      "src/app/application/algorithm/state_estimation/sof/trapezoid"
+    ]
+  }
+]

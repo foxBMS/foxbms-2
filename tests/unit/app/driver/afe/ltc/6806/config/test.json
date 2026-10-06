@@ -1,0 +1,18 @@
+[
+  {
+    "source": "src/app/driver/afe/ltc/6806/config/ltc_6806_cfg.c",
+    "test": "test_ltc_6806_cfg.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ltc/6806/config",
+      "src/app/driver/afe/ltc/common",
+      "src/app/driver/afe/ltc/common/config",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

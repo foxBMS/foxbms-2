@@ -43,8 +43,8 @@
  * @file    ltc_6806_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -61,8 +61,8 @@
 /* clang-format on */
 
 #include "ltc_defs.h"
-#include "battery_system_cfg.h"
 
+#include "battery_system_cfg_types.h"
 #include "ltc_afe_dma.h"
 #include "spi.h"
 

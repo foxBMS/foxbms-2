@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_imd_bender-iso165c-info.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,17 +71,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_rx_imd_bender-iso165c-info.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/driver/imd/bender/iso165c/config")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* dummy data array filled with zero */

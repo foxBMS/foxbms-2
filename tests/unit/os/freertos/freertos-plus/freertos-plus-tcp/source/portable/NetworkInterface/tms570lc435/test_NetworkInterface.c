@@ -43,8 +43,8 @@
  * @file    test_NetworkInterface.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,7 @@
 #include "Mockfoxmath.h"
 #include "Mockinfinite-loop-helper.h"
 #include "Mockos.h"
+#include "Mockportmacro.h"
 
 #include "NetworkInterface.h"
 #include "NetworkInterface_custom.h"
@@ -70,17 +71,11 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("NetworkInterface.c")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/include")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/NetworkInterface/tms570lc435")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/emac")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/uart")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 BaseType_t xSendEventStructToIPTask(const IPStackEvent_t *pxEvent, TickType_t uxTimeout) {
+    (void)pxEvent;
+    (void)uxTimeout;
     return 1u;
 }
 
@@ -93,15 +88,19 @@ NetworkInterface_t *nic_pInterface = &xInterfaces[0];
 uint8_t emac_rxBuffers[10u][1536u] = {0};
 /* static EMAC_PACKET_BUFFER_s emacTxBuffer = {0}; */
 
-static NetworkBufferDescriptor_t xNetworkBuffers[10];
+static NetworkBufferDescriptor_t xNetworkBuffers[ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS];
 volatile EMAC_RX_BUFFER_DESCRIPTOR_s testBufferDescriptor =
     {.pBuffer = 0, .next = NULL_PTR, .bufferOffsetAndLength = 0, .flagsAndPacketLength = 0};
 
-static DATA_BLOCK_PHY_s testTablePhy = {.header.uniqueId = DATA_BLOCK_ID_PHY};
+static DATA_BLOCK_PHY_s *testTablePhy = NULL_PTR;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     testBufferDescriptor.pBuffer = (uint32_t)&(emac_rxBuffers[0u][0u]);
+#pragma GCC diagnostic pop
+    testTablePhy = TEST_NIC_GetTablePhy();
 }
 
 void tearDown(void) {
@@ -258,12 +257,12 @@ void testNetworkInterfaceAllocateRAMToBuffers(void) {
  *
  */
 void testGetPhyLinkStatus(void) {
-    testTablePhy.linkStatus = true;
+    testTablePhy->linkStatus = true;
     /* ======= Assertion tests ============================================= */
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    DATA_Read1DataBlock_ExpectAndReturn(&testTablePhy, STD_OK);
-    DATA_Read1DataBlock_ReturnThruPtr_pDataToReceiver0(&testTablePhy);
+    DATA_Read1DataBlock_ExpectAndReturn(testTablePhy, STD_OK);
+    DATA_Read1DataBlock_ReturnThruPtr_pDataToReceiver0(testTablePhy);
     EMAC_GetPhyLinkStatus_ExpectAndReturn(STD_OK);
     /* ======= RT1/1: Call function under test */
     BaseType_t linkStatus = xGetPhyLinkStatus(xInterfaces);
@@ -363,8 +362,8 @@ void testNIC_Receive(void) {
     /* ======= RT1/2: Test implementation */
     FOREVER_ExpectAndReturn(1u);
     OS_NotifyTake_ExpectAndReturn(false, (TickType_t)1000u, 0u);
-    DATA_Read1DataBlock_ExpectAndReturn(&testTablePhy, STD_OK);
-    DATA_Read1DataBlock_ReturnThruPtr_pDataToReceiver0(&testTablePhy);
+    DATA_Read1DataBlock_ExpectAndReturn(testTablePhy, STD_OK);
+    DATA_Read1DataBlock_ReturnThruPtr_pDataToReceiver0(testTablePhy);
     EMAC_GetPhyLinkStatus_ExpectAndReturn(STD_OK);
     FOREVER_ExpectAndReturn(0u);
     /* ======= RT1/2: Call function under test */

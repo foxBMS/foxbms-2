@@ -1,0 +1,140 @@
+[
+  {
+    "source": "src/app/driver/can/can.c",
+    "test": "test_can.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/imd",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/version"
+    ],
+    "mocks": [
+      "HL_can.h",
+      "HL_reg_het.h",
+      "src/app/driver/config/can_cfg.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/queue.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h",
+      "tests/unit/support/test_can_mpu_prototype_queue_create_stub.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/driver/can/can.c",
+    "test": "test_can_1.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/imd",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/version"
+    ],
+    "mocks": [
+      "HL_can.h",
+      "src/app/driver/config/can_cfg.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/queue.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h",
+      "tests/unit/support/test_can_mpu_prototype_queue_create_stub.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/driver/can/can.c",
+    "test": "test_can_can_message_notification.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/config",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/engine/config",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_het.h",
+      "HL_reg_can.h",
+      "HL_reg_system.h",
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ],
+    "defines": [
+      "COMPILE_FOR_UNIT_TEST=1"
+    ]
+  },
+  {
+    "source": "src/app/driver/can/can.c",
+    "test": "test_can_2.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/imd",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/version"
+    ],
+    "mocks": [
+      "HL_can.h",
+      "src/app/driver/config/can_cfg.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/queue.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h",
+      "tests/unit/support/test_can_mpu_prototype_queue_create_stub.h"
+    ],
+    "use": "M"
+  }
+]

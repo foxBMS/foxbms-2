@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _HUMIDITY_TEMPERATURE_SENSOR_MODULE:
+.. _HUMIDITY_TEMPERATURE_SENSOR_DRIVER:
 
-Humidity/Temperature Sensor Module
-==================================
+Humidity/Temperature Sensor
+===========================
 
 Module Files
 ------------

@@ -43,8 +43,8 @@
  * @file    test_ethernet_freertos.c
  * @author  foxBMS Team
  * @date    2026-01-23 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,10 +64,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ethernet_freertos.c")
-TEST_INCLUDE_PATH("../../src/app/application/ethernet")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/include")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* Mock handles */

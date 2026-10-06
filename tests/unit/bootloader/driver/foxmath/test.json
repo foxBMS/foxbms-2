@@ -1,0 +1,18 @@
+[
+  {
+    "source": "src/bootloader/driver/foxmath/foxmath.c",
+    "test": "test_foxmath.c",
+    "includes": [
+      "src/app/driver/foxmath"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/bootloader/driver/foxmath/utils.c",
+    "test": "test_utils.c",
+    "includes": [
+      "src/app/driver/foxmath"
+    ],
+    "use": "M"
+  }
+]

@@ -1,7 +1,7 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _HOW_TO_USE_THE_DATABASE_MODULE:
+.. _HOW_TO_USE_THE_DATABASE_ENGINE:
 
 How to Use the Database Module
 ==============================
@@ -174,4 +174,4 @@ Up to four database entries can be written on the same time with one call of
 Further Reading
 ---------------
 
-Implementation details of the database module are found in :ref:`DATABASE_MODULE`.
+Implementation details of the database module are found in :ref:`DATABASE_ENGINE`.

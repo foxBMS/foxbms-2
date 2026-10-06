@@ -103,7 +103,7 @@ Daisy Chain Connection
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The data transmission between the slaves and between the slaves and the basic
-board takes place using the TPL interface.
+board takes place using the |tpl| interface.
 
 |tbc|
 

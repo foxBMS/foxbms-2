@@ -60,7 +60,6 @@ class CANDecode:  # pylint: disable=too-few-public-methods
         output: Path to the output directory
     """
 
-    # pylint: disable-next=R0913:too-many-arguments,too-many-positional-arguments
     def __init__(
         self,
         dbc: Database,
@@ -76,7 +75,7 @@ class CANDecode:  # pylint: disable=too-few-public-methods
         self.output_directory = output
 
     def decode_msg(self, msg: str) -> tuple[str, str] | tuple[None, None]:
-        """Method to the decoded passed CAN messages.
+        """Decode the passed CAN messages.
 
         Args:
             msg: CAN message as string
@@ -107,7 +106,7 @@ class CANDecode:  # pylint: disable=too-few-public-methods
             return None, None
 
     def _handle_decoding(self, msg: str) -> tuple[str, str]:
-        """Handles the decoding of the CAN message without exception handling
+        """Handle the decoding of the CAN message without exception handling
 
         Args:
             msg: CAN message as string
@@ -155,7 +154,7 @@ class CANDecode:  # pylint: disable=too-few-public-methods
     def _data_format(
         msg_id: str, signals: list[Signal], decoded_data: dict[str, float]
     ) -> str:
-        """Returns the decoded CAN data as comma separated string compatible
+        """Return the decoded CAN data as comma separated string compatible
         to json object notation
 
         Args:

@@ -37,11 +37,23 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    source = [
-        "io.c",
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    includes = [
+        bld.path,
+        bld.srcnode.find_node("src/bootloader/driver/mcu"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
     ]
-    includes = [".", "../mcu", "../../main/include"]
-    target = f"{bld.env.APPNAME.lower()}-bootloader-driver-io-objects"
-    bld.objects(source=source, includes=includes, target=target)
+    use = [f"{lp}hal", "_L2FMC"]
+    source = "io"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )

@@ -229,7 +229,6 @@ linked sources, or duplicate cell identifiers.
 Architecture
 ------------
 
-.. drawio-figure:: fox-cli-db-architecture.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/tools/fox/db/fox-cli-db-architecture.svg
    :alt: Class diagram of db module
    :align: center

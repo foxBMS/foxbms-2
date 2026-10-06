@@ -43,8 +43,8 @@
  * @file    redundancy.h
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -58,125 +58,46 @@
 #define FOXBMS__REDUNDANCY_H_
 
 /*========== Includes =======================================================*/
+#include "database_cfg.h"
 
-#include "database.h"
+#include "fstd_types.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-/**
- * Maximum time between measurements before the
- * redundancy module raises an error because a
- * measurement is not updated anymore.
- *
- * The redundancy module will wait a maximum of this time for new current
- * values. If no new values are updated within this time frame it
- * will invalidate the measurement values.
- */
-#define MRC_CURRENT_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
 
-/**
- * Maximum time between AFE measurements before the
- * redundancy module raises an error because a
- * measurement is not updated anymore.
- *
- * The redundancy module will wait a maximum of this
- * time for new values from the base AFE measurement and
- * AFE redundant measurements. If no new values are updated
- * from both measurement sources within this time frame
- * it will validate the measurement values it has up to
- * this point if possible.
- */
-#define MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
-
-/**
- * Maximum time between current sensor high voltage, current
- * and power measurements before the redundancy module raises
- * an error because a measurement is not updated anymore.
- *
- * The redundancy module will wait a maximum of this
- * time for new values from the current sensor. If no
- * new values are updated within this time frame it will
- * validate the measurement values it has up to this point
- * if possible.
- */
-#define MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms (300u)
-
-/**
- * If both, the current sensor and the AFE measurement have no valid values
- * we try to construct the string voltage by replacing invalid cell voltage
- * measurements with the average cell voltage in this string. The result of
- * this estimation will be flagged as invalid if more than the number of
- * allowed invalid cell voltages are detected. The result will be marked as
- * valid if less then this number of cells are detected as invalid.
- */
-#define MRC_ALLOWED_NUMBER_OF_INVALID_CELL_VOLTAGES (5u)
+typedef struct {
+    bool updatedCellVoltageDatabaseEntry; /*!< true if validated cell voltage database entry shall be updated */
+    bool updatedTemperatureDatabaseEntry; /*!< true if validated cell temperature database entry shall be updated */
+} MRC_REQUIRED_UPDATES_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
-/**
- * This structure contains all the variables relevant for the redundancy state machine.
- */
-typedef struct {
-    uint32_t lastBaseCellVoltageTimestamp;
-    uint32_t lastRedundancy0CellVoltageTimestamp;
-    uint32_t lastBaseCellTemperatureTimestamp;
-    uint32_t lastRedundancy0CellTemperatureTimestamp;
-    uint32_t lastStringCurrentTimestamp[BS_NR_OF_STRINGS];
-    uint32_t lastStringPowerTimestamp[BS_NR_OF_STRINGS];
-} MRC_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/
-/**
- * @brief Function to initialize redundancy module
- *
- * @return #STD_OK if module has been initialized successfully, otherwise #STD_NOT_OK
- */
-extern STD_RETURN_TYPE_e MRC_Initialize(void);
 
 /**
- * @brief Function to validate the measurement between redundant measurement
- *        values for cell voltage and cell temperature
- *
- * @return #STD_OK if measurement has been validated successfully, otherwise i.e.
- *         if no new values have been measured since the last call #STD_NOT_OK
+ * @brief   Validate the measurement between redundant measurement
+ *          values for cell voltage and cell temperature
+ * @param[in] pTableCellVoltages     cell voltage database entry
+ * @param[in] pTableCellTemperatures cell temperature database entry
+ * @return  #MRC_REQUIRED_UPDATES_s structure with information about which
+ *          database entries need to be updated
  */
-extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void);
-
-/**
- * @brief Function to validate the measurements of pack values (string values,
- *        pack values)
- *
- * @return #STD_OK if measurement has been validated successfully, otherwise i.e.
- *         if no new values have been measured since the last call #STD_NOT_OK
- */
-extern STD_RETURN_TYPE_e MRC_ValidatePackMeasurement(void);
+extern MRC_REQUIRED_UPDATES_s MRC_ValidateAfeMeasurement(
+    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltages,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperatures);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern bool TEST_MRC_MeasurementUpdatedAtLeastOnce(uint32_t timestamp, uint32_t previousTimestamp);
-extern STD_RETURN_TYPE_e TEST_MRC_MeasurementUpdatedRecently(
-    uint32_t timestamp,
-    uint32_t previousTimestamp,
-    uint32_t timeInterval);
 extern bool TEST_MRC_ValidateCellVoltageMeasurement(
+    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltages,
     DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltageBase,
     DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltageRedundancy0);
 extern bool TEST_MRC_ValidateCellTemperatureMeasurement(
+    DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperatures,
     DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureBase,
     DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureRedundancy0);
-extern void TEST_MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_s *pTableCurrent);
-extern void TEST_MRC_ValidatePowerMeasurement(DATA_BLOCK_POWER_s *pTablePower);
-extern void TEST_MRC_ValidateStringVoltageMeasurement(
-    DATA_BLOCK_SYSTEM_VOLTAGE_1_s *pTableSystemVoltage1,
-    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage);
-extern void TEST_MRC_ValidateBatteryVoltageMeasurement(void);
-extern void TEST_MRC_ValidateHighVoltageMeasurement(DATA_BLOCK_SYSTEM_VOLTAGE_3_s *pTableSystemVoltage3);
-extern STD_RETURN_TYPE_e TEST_MRC_CalculateCellVoltageMinMaxAverage(
-    DATA_BLOCK_CELL_VOLTAGE_s *pValidatedVoltages,
-    DATA_BLOCK_MIN_MAX_s *pMinMaxAverageValues);
-extern STD_RETURN_TYPE_e TEST_MRC_CalculateCellTemperatureMinMaxAverage(
-    DATA_BLOCK_CELL_TEMPERATURE_s *pValidatedTemperatures,
-    DATA_BLOCK_MIN_MAX_s *pMinMaxAverageValues);
 extern STD_RETURN_TYPE_e TEST_MRC_ValidateCellVoltage(
     DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltageBase,
     DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltageRedundancy0,
@@ -191,6 +112,12 @@ extern STD_RETURN_TYPE_e TEST_MRC_ValidateCellTemperature(
 extern STD_RETURN_TYPE_e TEST_MRC_UpdateCellTemperatureValidation(
     DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperature,
     DATA_BLOCK_CELL_TEMPERATURE_s *pValidatedTemperature);
-#endif
+extern void TEST_MRC_SetMrcState(
+    uint32_t lastBaseCellVoltageTimestamp,
+    uint32_t lastRedundancy0CellVoltageTimestamp,
+    uint32_t lastBaseCellTemperatureTimestamp,
+    uint32_t lastRedundancy0CellTemperatureTimestamp);
+
+#endif /* UNITY_UNIT_TEST */
 
 #endif /* FOXBMS__REDUNDANCY_H_ */

@@ -43,8 +43,8 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -348,7 +348,7 @@ extern void DIAG_Sbc(
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where current sensor event occurred
  */
-extern void DIAG_ErrorPlausibility(
+extern void DIAG_ErrorBmsValuesPackVoltage(
     DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,

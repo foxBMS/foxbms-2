@@ -37,44 +37,46 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
 
-    includes = (
-        [
-            "../config",
-            "../../driver/foxmath",
-            "../../driver/phy",
-            "../../main/include",
-            "../../task/os",
-        ]
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL_ADDONS
-    )
+    use = [
+        f"{lp}hal",
+        f"{ip}rtos-kernel",
+        "foxbms_config",
+    ]
+    if bld.env.FOXBMS_TCP_SUPPORT:
+        use.append(f"{ip}rtos-tcp")
 
+    includes = [
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/foxmath"),
+        bld.srcnode.find_node("src/app/driver/phy"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     if bld.env.FOXBMS_UART_SUPPORT:
-        includes.extend(
-            [
-                "../../task/os",
-                "../../driver/uart",
-            ]
-        )
+        includes.append(bld.srcnode.find_node("src/app/driver/uart"))
 
     source = "ethernet"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     source = f"ethernet_{bld.env.FOXBMS_RTOS_NAME}"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )

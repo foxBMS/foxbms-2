@@ -43,8 +43,8 @@
  * @file    soc_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -73,13 +73,18 @@
 extern void SE_InitializeStateOfCharge(DATA_BLOCK_SOC_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    (void)pSocValues;
+    (void)ccPresent;
+    (void)stringNumber;
 }
 
 extern void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
     FAS_ASSERT(pSocValues != NULL_PTR);
+    (void)pSocValues;
 }
 
 extern float_t SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
+    (void)voltage_mV;
     return 0.50f;
 }
 

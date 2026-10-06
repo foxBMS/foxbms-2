@@ -37,37 +37,47 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
+
+    use = [
+        f"{lp}hal",
+        f"{cp}battery_system_cfg",
+    ]
+
     includes = [
-        ".",
-        "../../spi",
-        "../../config",
-        "../../../application/config",
-        "../../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     source = "sbc_fs8x_communication"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../../spi",
-        "../../config",
-        "../../../application/config",
-        "../../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     source = "sbc_fs8x"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )

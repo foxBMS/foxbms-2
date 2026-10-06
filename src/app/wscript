@@ -37,6 +37,53 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+
     bld.recurse(["application", "driver", "engine", "hal", "main", "task"])
+
+    use = [
+        f"{ip}rtos-kernel",
+        f"{ip}rtos-tcp",
+        f"{ip}afe",
+    ]
+
+    if bld.env.VS_CODE_SHELL:
+        bld(
+            features="vscode",
+            target="app",
+            vscode_dir=bld.path.make_node(".vscode"),
+            use_compiler_defines=True,
+            use_dynamic_includes=True,
+            include_dirs=[
+                f"build/{bld.variant}",
+                f"build/{bld.variant}/src/app/application/config",
+                f"build/{bld.variant}/src/app/hal/include",
+                "src/version",
+            ],
+            glob_patterns=[
+                "src/app/**",
+            ],
+            glob_patterns_excl=[
+                "src/app/application/algorithm/state_estimation/**",
+                "src/app/application/bal/**",
+                "src/app/application/ethernet",
+                "src/app/driver/afe/**",
+                "src/app/driver/emac",
+                "src/app/driver/imd/**",
+                "src/app/driver/phy",
+                "src/app/driver/uart",
+                "src/app/task/ftask/**",
+                "src/app/task/os/**",
+            ],
+            use_compiler_includes=True,
+            pylint=True,
+            python_extra_paths=True,
+            files_exclude={".vscode/**": True},
+            build_tasks=True,
+            environment="ti_arm_cgt",
+            use=use,
+        )

@@ -43,8 +43,8 @@
  * @file    soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -56,9 +56,9 @@
 #include "general.h"
 
 #include "battery_cell_cfg.h"
-#include "battery_system_cfg.h"
 #include "soc_counting_cfg.h"
 
+#include "battery_system_cfg_types.h"
 #include "bms.h"
 #include "database.h"
 #include "foxmath.h"
@@ -70,19 +70,6 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-/** This structure contains all the variables relevant for the SOX */
-typedef struct {
-    bool socInitialized;                 /*!< true if the initialization has passed, false otherwise */
-    bool sensorCcUsed[BS_NR_OF_STRINGS]; /*!< bool if coulomb counting functionality from current sensor is used */
-    float_t ccScalingAverage[BS_NR_OF_STRINGS];       /*!< current sensor offset scaling for average SOC */
-    float_t ccScalingMinimum[BS_NR_OF_STRINGS];       /*!< current sensor offset scaling value for minimum SOC */
-    float_t ccScalingMaximum[BS_NR_OF_STRINGS];       /*!< current sensor offset scaling value for maximum SOC */
-    float_t chargeThroughput_As[BS_NR_OF_STRINGS];    /*!< Charge throughput */
-    float_t dischargeThroughput_As[BS_NR_OF_STRINGS]; /*!< Discharge throughput */
-    float_t previousCurrentCountingValue_As[BS_NR_OF_STRINGS]; /*!< Charge throughput */
-    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< timestamp buffer to check if current/CC data has been updated */
-} SOC_STATE_s;
-
 /** Maximum SOC in percentage */
 #define SOC_MAXIMUM_SOC_perc (100.0f)
 /** Minimum SOC in percentage */
@@ -115,9 +102,10 @@ static DATA_BLOCK_CURRENT_COUNTER_s soc_tableCurrentCounter = {.header.uniqueId 
 /**
  * @brief   calculates string SOC in percentage from passed string charge in As
  * @param[in] charge_As   charge in As
- * @return returns corresponding string SOC in percentage [0.0, 100.0]
+ * @return returns corresponding string SOC in percentage [-100.0, 100.0]
+ * the possible values are much higher but are usually limited to this range after function call
  */
-static float_t SOC_GetStringSocPercentageFromCharge(uint32_t charge_As);
+static float_t SOC_GetStringSocPercentageFromCharge(int32_t charge_As);
 
 /**
  * @brief   initializes database and FRAM SOC values via lookup table (average,
@@ -160,7 +148,7 @@ static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOC_s *pTableSoc, ui
 static void SOC_UpdateNvmValues(DATA_BLOCK_SOC_s *pTableSoc, uint8_t stringNumber);
 
 /*========== Static Function Implementations ================================*/
-static float_t SOC_GetStringSocPercentageFromCharge(uint32_t charge_As) {
+static float_t SOC_GetStringSocPercentageFromCharge(int32_t charge_As) {
     const float_t charge_mAs = (float_t)charge_As * UNIT_CONVERSION_FACTOR_1000_FLOAT;
     return UNIT_CONVERSION_FACTOR_100_FLOAT * (charge_mAs / SOC_STRING_CAPACITY_mAs);
 }
@@ -197,8 +185,9 @@ static void SOC_SetValue(
 
     if (soc_state.sensorCcUsed[stringNumber] == true) {
         /* Current sensor database entry is read before the call of SOC_SetValue */
-        float_t ccOffset_perc = SOC_GetStringSocPercentageFromCharge(
-            (uint32_t)abs(soc_tableCurrentCounter.currentCounter_As[stringNumber]));
+        float_t ccOffset_perc =
+            SOC_GetStringSocPercentageFromCharge(soc_tableCurrentCounter.currentCounter_As[stringNumber]);
+
         ccOffset_perc *= BS_CURRENT_DIRECTION_FLOAT;
 
         /* Recalibrate scaling values */
@@ -264,12 +253,8 @@ void SE_InitializeStateOfCharge(DATA_BLOCK_SOC_s *pSocValues, bool ccPresent, ui
         soc_state.previousCurrentCountingValue_As[stringNumber] =
             soc_tableCurrentCounter.currentCounter_As[stringNumber];
 
-        float_t scalingOffset_perc = SOC_GetStringSocPercentageFromCharge(
-            (uint32_t)abs(soc_tableCurrentCounter.currentCounter_As[stringNumber]));
-
-        if (soc_tableCurrentCounter.currentCounter_As[stringNumber] < 0) {
-            scalingOffset_perc *= (-1.0f);
-        }
+        float_t scalingOffset_perc =
+            SOC_GetStringSocPercentageFromCharge(soc_tableCurrentCounter.currentCounter_As[stringNumber]);
 
         scalingOffset_perc *= BS_CURRENT_DIRECTION_FLOAT;
 
@@ -426,10 +411,31 @@ extern float_t SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+
 extern void TEST_SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOC_s *TableSoc, uint8_t stringNumber) {
     SOC_CheckDatabaseSocPercentageLimits(TableSoc, stringNumber);
 }
 extern void TEST_SOC_UpdateNvmValues(DATA_BLOCK_SOC_s *TableSoc, uint8_t stringNumber) {
     SOC_UpdateNvmValues(TableSoc, stringNumber);
 }
+extern void TEST_SetSocStateValues(SOC_STATE_s *stateValues) {
+    soc_state = *stateValues;
+}
+extern SOC_STATE_s *TEST_GetSocStateValues(void) {
+    return &soc_state;
+}
+
+extern void TEST_SOC_SetValue(
+    DATA_BLOCK_SOC_s *pTableSoc,
+    float_t socMinimumValue_perc,
+    float_t socMaximumValue_perc,
+    float_t socAverageValue_perc,
+    uint8_t stringNumber) {
+    SOC_SetValue(pTableSoc, socMinimumValue_perc, socMaximumValue_perc, socAverageValue_perc, stringNumber);
+}
+
+extern float_t TEST_SOC_GetStringSocPercentageFromCharge(int32_t charge_As) {
+    return SOC_GetStringSocPercentageFromCharge(charge_As);
+}
+
 #endif

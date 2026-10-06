@@ -45,3 +45,19 @@ How to reinitialize NVRAM
 The NVRAM (e.g., FRAM) can be reinitialized with the ``f_Debug`` CAN message
 by setting the value for ``InitializeFram`` to one.
 (See :ref:`COMMUNICATION` under the ``Debug`` section)
+
+
+.. _HOW_TO_RESET_DEEP_DISCHARGE_FLAG:
+
+How to reset deep-discharge flag
+================================
+
+The deep-discharge flag is a non-volatile flag that is stored in the FRAM to
+prevent the battery system from engaging after a deep-discharge event has been
+detected. The BMS will not allow a closing of the contactors until this cell is
+replaced. To reset the flag, signal ``ResetPersistentFlags`` in CAN message
+``f_BmsStateRequest`` must be sent to the BMS.
+
+.. warning::
+   Resetting the flag carelessly without replacing the discharged cell poses a
+   significant safety risk!

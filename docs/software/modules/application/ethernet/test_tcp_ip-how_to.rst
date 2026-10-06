@@ -26,7 +26,7 @@ Now |foxbms| can be pinged or the echo server can be used.
 
 .. hint::
 
-   It can be usefull to deactivate during testing other network connections as
+   It can be useful to deactivate during testing other network connections as
    WiFi.
 
 Debug the Network connection
@@ -137,8 +137,8 @@ On closing the TCP connection another handshake is performed as shown in
 See Also
 --------
 
-- :ref:`PHY_MODULE`
+- :ref:`PHY_DRIVER`
 - :ref:`NETWORK_INTERFACE`
 - :ref:`EMAC`
 - :ref:`HOW_TO_IMPLEMENT_ETHERNET_PORT`
-- :ref:`ETHERNET_MODULE`
+- :ref:`ETHERNET_APPLICATION`

@@ -42,7 +42,7 @@
 import re
 from pathlib import Path
 
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 
 _PREFIX_RE = re.compile(r"@prefix\s+(\S+)")
 

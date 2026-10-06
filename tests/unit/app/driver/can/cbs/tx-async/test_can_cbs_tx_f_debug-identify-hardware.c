@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_f_debug-identify-hardware.c
  * @author  foxBMS Team
  * @date    2025-07-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,7 @@
 #include "Mockafe.h"
 #include "Mockcan.h"
 #include "Mockcan_helper.h"
+#include "Mockos.h"
 
 #include "can_cfg.h"
 
@@ -66,18 +67,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_tx_f_debug-identify-hardware.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -96,6 +85,34 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+
+/**
+ * @brief   Testing CANTX_SetSlaveSerialIdMessageData
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for pMessageData -> assert
+ *          - Routine validation:
+ *            - RT1/1: Function sets expected values in the message data
+ */
+void testCANTX_SetSlaveSerialIdMessageData(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint64_t messageData = 0u;
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_SetSlaveSerialIdMessageData(NULL_PTR, 0u));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    uint64_t *oldValue = serialIds;
+    uint64_t newValue  = 123u;
+    serialIds          = &newValue;
+
+    CAN_TxSetMessageDataWithSignalData_Expect(&messageData, 23u, 48u, 0x7Bu, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&messageData);
+    /* ======= RT1/1: Call function under test */
+    TEST_CANTX_SetSlaveSerialIdMessageData(&messageData, 0u);
+    /* restore serialIds */
+    serialIds = oldValue;
+}
 
 /**
  * @brief   Testing CANTX_DebugIdentifyHardwareMux

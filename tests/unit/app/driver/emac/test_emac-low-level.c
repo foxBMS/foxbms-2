@@ -43,8 +43,8 @@
  * @file    test_emac-low-level.c
  * @author  foxBMS Team
  * @date    2025-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,7 +57,6 @@
 #include "unity.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("emac-low-level.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -72,7 +71,8 @@ void tearDown(void) {
 
 /*
  * Dummy test file as emac-low-level.c only implements functions that are not
- * testable on the host system. See
- * - conf/unit/app_project_win32.yml
- * - conf/unit/app_project_posix.yml
+ * testable on the host system.
  */
+
+void testDummy(void) {
+}

@@ -44,7 +44,8 @@ manufacturer, geometry, chemistry, mass, temperature limits and voltage
 limits of a lithium-ion cell. Input validation is performed in `__post_init__`.
 """
 
-from dataclasses import dataclass
+from pydantic import Field, PositiveFloat
+from pydantic.dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -62,68 +63,37 @@ class CellSpec:  # pylint: disable=R0902
         weight: Mass of the cell in kilograms.
         temperature_max: Maximum allowed cell temperature in degrees Celsius.
         temperature_min: Minimum allowed cell temperature in degrees Celsius.
-        voltage_min: Minimum allowed cell voltage in volts.
-        voltage_max: Maximum allowed cell voltage in volts.
         voltage_nom: Nominal cell voltage in volts.
+        voltage_min: Minimum allowed cell voltage in volts, must be greater than 2.4.
+        voltage_max: Maximum allowed cell voltage in volts, must be smaller than 4.3.
     """
 
     name: str
     manufacturer: str
     shape: str
     chemistry: str
-    height: float
-    length: float
-    width: float
-    weight: float
+    height: PositiveFloat
+    length: PositiveFloat
+    width: PositiveFloat
+    weight: PositiveFloat
     temperature_max: float
     temperature_min: float
-    voltage_min: float
-    voltage_max: float
-    voltage_nom: float
+    voltage_nom: PositiveFloat
+    voltage_min: PositiveFloat = Field(gt=2.4)
+    voltage_max: PositiveFloat = Field(lt=4.3)
 
     def __post_init__(self) -> None:
         """Validate attributes and enforce basic consistency rules.
 
-        - String fields must be instances of ``str``.
-        - Numeric fields must be instances of ``float``.
         - For ``shape == 'cylindrical'``, ``width`` must equal ``length``.
-        - ``temperature_max`` must be >= ``temperature_min``.
-        - ``voltage_max`` must be >= ``voltage_min``.
+        - ``temperature_max`` must be >= ``temperature_min and > 2.4``.
+        - ``voltage_max`` must be >= ``voltage_min`` and < 4.3.
         - ``voltage_nom`` must be within the voltage limits.
 
         Raises:
-            TypeError
-                If any string field is not a ``str`` or any numeric field is not a ``float``.
-            ValueError
+            ValueError:
                 If geometric, temperature or voltage consistency checks fail.
         """
-        str_attributes = [
-            self.name,
-            self.manufacturer,
-            self.shape,
-            self.chemistry,
-        ]
-        if not all(isinstance(x, str) for x in str_attributes):
-            err_txt = (
-                "At least one parameter in the cell specifications is "
-                "not a str but should be."
-            )
-            raise TypeError(err_txt)
-        float_attributes = [
-            self.height,
-            self.length,
-            self.weight,
-            self.temperature_max,
-            self.temperature_min,
-            self.voltage_max,
-            self.voltage_min,
-        ]
-        if not all(isinstance(x, float) for x in float_attributes):
-            err_txt = (
-                "At least one parameter in the cell specifications is "
-                "not a float but should be."
-            )
-            raise TypeError(err_txt)
         if self.shape == "cylindrical" and self.width != self.length:
             err_msg = "For a cylindrical cell both width and length should be the same."
             raise ValueError(err_msg)

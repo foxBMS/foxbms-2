@@ -1,0 +1,30 @@
+[
+  {
+    "source": "src/app/driver/afe/debug/can/debug_can.c",
+    "test": "test_debug_can.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/debug/can",
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/engine/config",
+      "src/app/engine/database",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/cbs/can_helper.h",
+      "src/app/engine/config/database_cfg.h",
+      "src/app/engine/database/database.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "TEST_BS_NR_OF_STRINGS=2u",
+      "TEST_BS_NR_OF_MODULES_PER_STRING=4u",
+      "FOXBMS_AFE_DRIVER_DEBUG_CAN=1u"
+    ]
+  }
+]

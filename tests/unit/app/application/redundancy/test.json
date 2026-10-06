@@ -1,0 +1,42 @@
+[
+  {
+    "source": [
+      "src/app/application/redundancy/redundancy.c",
+      "src/app/driver/foxmath/foxmath.c"
+    ],
+    "test": "test_redundancy.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/application/redundancy",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/foxmath",
+      "src/app/driver/sps",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "src/app/application/plausibility/plausibility.h",
+      "src/app/application/redundancy/redundancy-validation.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/database/database_helper.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/application/redundancy/redundancy-validation.c"
+    ],
+    "test": "test_redundancy-validation.c",
+    "includes": [
+      "src/app/application/redundancy"
+    ],
+    "mocks": [],
+    "use": "M"
+  }
+]

@@ -42,6 +42,7 @@
 # documentation and running various checks on the source files.
 
 
+from waflib import Utils
 from waflib.Build import BuildContext
 
 
@@ -50,8 +51,24 @@ def build(bld: BuildContext) -> None:
     bld.env.append_unique("HAL_DIR", f"tests/unit/{var}/hal/include")
     bld.recurse(var)
 
+    bld.load_test_configs()
+    bld.validate_test_configuration()
+    for i, cfg in enumerate(bld.test_configs):
+        bld(
+            features=cfg["features"],
+            target=cfg["target"],
+            source=cfg["source"],
+            includes=cfg["includes"],
+            mocks=cfg["mocks"],
+            use=cfg["use"] + ["test-framework", f"{var}-c-test-constants"],
+            uselib=["COVERAGE"],
+            defines=cfg["defines"],
+            cflags=cfg["cflags"],
+            path=cfg["path"],
+            idx=i,
+        )
+
     bld.objects(
-        features="c",
         source=[
             bld.srcnode.find_node("tools/cmock/vendor/unity/src/unity.c"),
             bld.srcnode.find_node("tools/cmock/src/cmock.c"),
@@ -69,6 +86,15 @@ def build(bld: BuildContext) -> None:
             bld.srcnode.find_node("tools/cmock/vendor/unity/src"),
             bld.srcnode.find_node("tools/cmock/vendor/c_exception/lib"),
         ],
-        use=f"foxbms-{var}-hal",
+        defines=[
+            "UNITY_UNIT_TEST",
+            "FAS_ASSERT_LEVEL=2",
+            "UNITY_INCLUDE_EXEC_TIME",
+            "UNITY_USE_FLUSH_STDOUT",
+        ],
+        use=f"{bld.env.APPNAME.lower()}-hal",
         target="test-framework",
     )
+    if not Utils.is_win32:
+        t = bld.get_tgen_by_name("test-framework")  # cspell:ignore tgen
+        t.defines.append("_POSIX_C_SOURCE=200809L")

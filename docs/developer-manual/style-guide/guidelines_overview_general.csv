@@ -5,3 +5,4 @@ GENERAL:003 ; :ref:`rule_general_text_file_encoding`        ; Yes
 GENERAL:004 ; :ref:`rule_general_eof`                       ; Yes
 GENERAL:005 ; :ref:`rule_general_no_trailing_whitespace`    ; Yes
 GENERAL:006 ; :ref:`rule_general_indentation`               ; Yes
+GENERAL:007 ; :ref:`rule_general_physical_units`            ; Yes

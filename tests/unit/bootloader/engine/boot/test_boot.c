@@ -43,8 +43,8 @@
  * @file    test_boot.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,18 +68,6 @@
 #include "boot.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("boot.c")
-
-TEST_INCLUDE_PATH("../../src/bootloader/driver/can")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/config")
-TEST_INCLUDE_PATH("../../src/bootloader/main")
-TEST_INCLUDE_PATH("../../src/bootloader/main/include")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/crc")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/flash")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/bootloader/engine/boot")
-TEST_INCLUDE_PATH("../../src/bootloader/engine/can")
-TEST_INCLUDE_PATH("C:/ti/Hercules/F021 Flash API/02.01.01/include")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** The global variable can_stateOfCanCommunication and can_infoOfDataTransfer
@@ -257,8 +245,11 @@ void testBOOT_GetBootStateDuringError(void) {
 void testBOOT_GetBootStateDuringLoad(void) {
     /* ======= Routine tests =============================================== */
     FLASH_FLASH_SECTOR_s currentSector = flash_kFlashSectorsInvalid;
-    uint32_t lenOfCurrentSector        = (uint32_t)currentSector.pU8SectorAddressEnd -
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+    uint32_t lenOfCurrentSector = (uint32_t)currentSector.pU8SectorAddressEnd -
                                   (uint32_t)currentSector.pU32SectorAddressStart + 1u;
+#pragma GCC diagnostic pop
     uint64_t crc_root = can_infoOfDataTransfer.programCrc8BytesOnBoard;
 
     /* ======= RT1/16: CAN_FSM_STATE_NO_COMMUNICATION */
@@ -323,14 +314,23 @@ void testBOOT_GetBootStateDuringLoad(void) {
     _disable_IRQ_interrupt__Expect();
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     lenOfCurrentSector = (uint32_t)flashSector.pU8SectorAddressEnd - (uint32_t)flashSector.pU32SectorAddressStart + 1u;
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         lenOfCurrentSector,
         1u);
+#pragma GCC diagnostic pop
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     CRC_SemiAutoCrcCalculation_ExpectAndReturn(
         (uint32_t)can_infoOfDataTransfer.programCurrentSectorAddressU8,
@@ -374,13 +374,19 @@ void testBOOT_GetBootStateDuringLoad(void) {
     /* Flash sector that is going to be written and validated */
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         (uint32_t)0x40000,
         0u);
+#pragma GCC diagnostic pop
 
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     CRC_SemiAutoCrcCalculation_ExpectAndReturn(
@@ -766,8 +772,11 @@ void testBOOT_ResetBootloader(void) {
 void testBOOT_WriteAndValidateCurrentSector(void) {
     /* ======= Routine tests =============================================== */
     FLASH_FLASH_SECTOR_s currentSector = flash_kFlashSectorsInvalid;
-    uint32_t lenOfCurrentSector        = (uint32_t)currentSector.pU8SectorAddressEnd -
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+    uint32_t lenOfCurrentSector = (uint32_t)currentSector.pU8SectorAddressEnd -
                                   (uint32_t)currentSector.pU32SectorAddressStart + 1u;
+#pragma GCC diagnostic pop
     uint64_t crc_root = can_infoOfDataTransfer.programCrc8BytesOnBoard;
 
     /* Flash sector that is going to be written and validated */
@@ -793,8 +802,11 @@ void testBOOT_WriteAndValidateCurrentSector(void) {
     _disable_IRQ_interrupt__Expect();
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flash_kFlashSectorsInvalid);
+#pragma GCC diagnostic pop
 
     retVal = TEST_BOOT_WriteAndValidateCurrentSector();
     TEST_ASSERT_EQUAL(CAN_FSM_STATE_RECEIVED_8_BYTES_CRC, can_stateOfCanCommunication);
@@ -812,13 +824,19 @@ void testBOOT_WriteAndValidateCurrentSector(void) {
     /* Flash sector that is going to be written and validated */
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         (uint32_t)0x40000,
         0u);
+#pragma GCC diagnostic pop
 
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_USER_MODE);
     FSYS_RaisePrivilegeToSystemModeSWI_Expect();
@@ -836,14 +854,23 @@ void testBOOT_WriteAndValidateCurrentSector(void) {
     _disable_IRQ_interrupt__Expect();
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     lenOfCurrentSector = (uint32_t)flashSector.pU8SectorAddressEnd - (uint32_t)flashSector.pU32SectorAddressStart + 1u;
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         (uint32_t)0x40000u,
         1u);
+#pragma GCC diagnostic pop
 
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     CRC_SemiAutoCrcCalculation_ExpectAndReturn(
@@ -873,13 +900,19 @@ void testBOOT_WriteAndValidateCurrentSector(void) {
     /* Flash sector that is going to be written and validated */
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         (uint32_t)0x40000,
         0u);
+#pragma GCC diagnostic pop
 
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     CRC_SemiAutoCrcCalculation_ExpectAndReturn(
@@ -907,13 +940,19 @@ void testBOOT_WriteAndValidateCurrentSector(void) {
     /* Flash sector that is going to be written and validated */
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         (uint32_t)0x40000,
         0u);
+#pragma GCC diagnostic pop
 
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     CRC_SemiAutoCrcCalculation_ExpectAndReturn(
@@ -940,13 +979,19 @@ void testBOOT_WriteAndValidateCurrentSector(void) {
     /* Flash sector that is going to be written and validated */
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, flashSector);
+#pragma GCC diagnostic pop
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_WriteFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
         (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
         (uint32_t)0x40000,
         0u);
+#pragma GCC diagnostic pop
 
     DetectOperationMode_ExpectAndReturn(FSYS_M_BITS_SYSTEM_MODE);
     CRC_SemiAutoCrcCalculation_ExpectAndReturn(

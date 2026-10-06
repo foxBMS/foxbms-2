@@ -39,6 +39,7 @@
 
 """Implements the functionalities behind the 'cli-unittest' command"""
 
+import importlib
 import os
 import sys
 from pathlib import Path
@@ -46,19 +47,20 @@ from time import time
 
 from ..helpers.click_helpers import recho, secho
 from ..helpers.logger import logger
-from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT, terminal_link_print
-from ..helpers.spr import SubprocessResult, run_process
+from ..helpers.misc import terminal_link_print
+from ..helpers.project_context import PROJECT_BUILD_ROOT, PROJECT_ROOT
+from ..helpers.spr import DEVNULL, SubprocessResult, run_process
 from .cli_unittest_constants import UNIT_TEST_BUILD_DIR_CLI
 
 UNIT_TEST_MODULE_BASE_COMMAND: list[Path | str] = [sys.executable, "-m", "unittest"]
 COVERAGE_MODULE_BASE_COMMAND: list[Path | str] = [sys.executable, "-m", "coverage"]
 
 
-def run_unittest_module(args: list[str]) -> SubprocessResult:
-    """Run the unittest module with the provided arguments."""
-    logger.debug(" ".join(args))
-    cmd = UNIT_TEST_MODULE_BASE_COMMAND + args
-    return run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+def _ensure_unpacked_waf() -> None:
+    """Ensure that the waf tool is unpacked and available for use in tests."""
+    if not importlib.util.find_spec("waflib"):  # type: ignore[attr-defined]
+        cmd = [sys.executable, str(PROJECT_ROOT / "tools/waf"), "-h"]
+        run_process(cmd, stdout=DEVNULL, stderr=DEVNULL)
 
 
 def _add_verbosity_to_cmd_list(
@@ -70,12 +72,21 @@ def _add_verbosity_to_cmd_list(
     return cmd + ["-" + "v" * verbosity]
 
 
+def run_unittest_module(args: list[str]) -> SubprocessResult:
+    """Run the unittest module with the provided arguments."""
+    _ensure_unpacked_waf()
+    logger.debug(" ".join(args))
+    cmd = UNIT_TEST_MODULE_BASE_COMMAND + args
+    return run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+
+
 def run_script_tests(
     coverage_report: bool = False,
     verbosity: int = 0,
     out_dir: Path = UNIT_TEST_BUILD_DIR_CLI,
 ) -> SubprocessResult:
     """Run unit tests on Python modules and files in the repository."""
+    _ensure_unpacked_waf()
     test_start = time()
     if coverage_report:
         # just delete the files
@@ -100,15 +111,9 @@ def run_script_tests(
         ret = run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
 
         # other files
-        files = [
-            PROJECT_ROOT / "tests/waf-tools/test_c_template.py",
-            PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
-            PROJECT_ROOT / "tests/waf-tools/test_create_app_build_cfg.py",
-            PROJECT_ROOT / "tests/waf-tools/test_create_version.py",
-            PROJECT_ROOT / "tests/waf-tools/test_misc_helpers.py",
-            PROJECT_ROOT / "tests/waf-tools/test_vcs_git.py",
-            PROJECT_ROOT / "tests/waf-tools/test_vcs.py",
+        files = sorted((PROJECT_ROOT / "tests/waf_tools/").glob("test_*.py")) + [
             PROJECT_ROOT / "tests/pkg/test_hatch_build.py",
+            PROJECT_ROOT / "tests/can/test_check_ids.py",
         ]
         for i in files:
             cmd = COVERAGE_MODULE_BASE_COMMAND + ["run", "--parallel-mode", i]

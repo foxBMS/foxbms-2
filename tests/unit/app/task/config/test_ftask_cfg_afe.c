@@ -43,8 +43,8 @@
  * @file    test_ftask_cfg_afe.c
  * @author  foxBMS Team
  * @date    2020-11-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,7 @@
 #include "Mockafe.h"
 #include "Mockalgorithm.h"
 #include "Mockbal.h"
+#include "Mockbms-values.h"
 #include "Mockbms.h"
 #include "Mockcan.h"
 #include "Mockcontactor.h"
@@ -79,7 +80,6 @@
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 #include "Mockpex.h"
-#include "Mockredundancy.h"
 #include "Mockrtc.h"
 #include "Mocksbc.h"
 #include "Mocksof_trapezoid.h"
@@ -98,39 +98,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/application/algorithm")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
-TEST_INCLUDE_PATH("../../src/app/application/bal")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/application/redundancy")
-TEST_INCLUDE_PATH("../../src/app/driver/adc")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/htsensor")
-TEST_INCLUDE_PATH("../../src/app/driver/i2c")
-TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/driver/interlock")
-TEST_INCLUDE_PATH("../../src/app/driver/led")
-TEST_INCLUDE_PATH("../../src/app/driver/meas")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/driver/phy")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/sbc")
-TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
-TEST_INCLUDE_PATH("../../src/app/engine/sys")
-TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 OS_TASK_HANDLE ftsk_taskHandleAfe;

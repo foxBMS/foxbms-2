@@ -43,8 +43,8 @@
  * @file    test_adi_ades183x_afe.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,13 +54,73 @@
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+#include "MockHL_sys_dma.h"
+#include "Mockadi_ades183x.h"
+#include "Mockadi_ades183x_cfg.h"
+
+#include "afe.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+ADI_STATE_s adi_stateBase = {0};
+
+const uint8_t testStringId = 1u;
 
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+
+void testAFE_TriggerIc(void) {
+    ADI_MeasurementCycle_Expect(&adi_stateBase);
+    TEST_ASSERT_EQUAL(STD_OK, AFE_TriggerIc());
+}
+
+void testAFE_Initialize(void) {
+    ADI_ActivateInterfaceBoard_Expect();
+    TEST_ASSERT_EQUAL(STD_OK, AFE_Initialize());
+}
+
+void testAFE_RequestEepromRead(void) {
+    TEST_ASSERT_EQUAL(STD_OK, AFE_RequestEepromRead(testStringId));
+}
+
+void testAFE_RequestEepromWrite(void) {
+    TEST_ASSERT_EQUAL(STD_OK, AFE_RequestEepromWrite(testStringId));
+}
+
+void testAFE_RequestTemperatureRead(void) {
+    TEST_ASSERT_EQUAL(STD_OK, AFE_RequestTemperatureRead(testStringId));
+}
+
+void testAFE_RequestBalancingFeedbackRead(void) {
+    TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_RequestBalancingFeedbackRead(testStringId));
+}
+
+void testAFE_RequestOpenWireCheck(void) {
+    TEST_ASSERT_EQUAL(STD_OK, AFE_RequestOpenWireCheck(testStringId));
+}
+
+void testAFE_StartMeasurement(void) {
+    ADI_MakeRequest_ExpectAndReturn(AFE_START_REQUEST, STD_OK);
+    TEST_ASSERT_EQUAL(STD_OK, AFE_StartMeasurement());
+}
+
+void testAFE_IsFirstMeasurementCycleFinished(void) {
+    ADI_IsFirstMeasurementCycleFinished_ExpectAndReturn(&adi_stateBase, true);
+    TEST_ASSERT_TRUE(AFE_IsFirstMeasurementCycleFinished());
+}
+
+void testAFE_IdentifyAfes(void) {
+    ADI_IdentifyAfes_ExpectAndReturn(&adi_stateBase.serialId[0][0]);
+    AFE_IdentifyAfes();
+}

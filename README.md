@@ -39,6 +39,17 @@ The project changelog is found in
 
 See [INSTALL.md](./INSTALL.md) for installation instructions.
 
+## Graphical User Interface
+
+**The GUI requires a successful installation as described in [INSTALL.md](./INSTALL.md).**
+
+foxBMS 2 contains a basic GUI to support BMS development tasks (e.g., building
+binaries, updating the BMS through the bootloader).
+
+The GUI can either be opened by running ``./fox.ps1 gui`` or if PowerShell is
+installed available at ``C:\Program Files\PowerShell\7\pwsh.exe`` it can also
+be run by double-clicking ``gui.lnk`` in the root of the repository.
+
 ## Repository Structure
 
 The repository is structured as follows:
@@ -51,7 +62,7 @@ The repository is structured as follows:
 | [`docs`](./docs)          | Documentation source files                                                                                                      |
 | [`hardware`](./hardware)  | Hardware schematic and layout information                                                                                       |
 | [`src`](./src)            | Parent directory for all source files for the BMS embedded software                                                             |
-| [`tests`](./tests)        | Tests for embedded sources, the tool chain, and scripts                                                                         |
+| [`tests`](./tests)        | Tests for embedded sources, the toolchain, and scripts                                                                         |
 | [`tools`](./tools)        | Tools needed to build foxBMS binaries and additional tools to work with foxBMS                                                  |
 
 These directories each have a `README.md` that explain the content of the

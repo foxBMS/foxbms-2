@@ -44,7 +44,7 @@ from pathlib import Path
 from typing import IO, Any
 
 from ..helpers.click_helpers import echo
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 
@@ -63,7 +63,7 @@ def run_python_script(
         stdout: Optional stream configuration for standard output.
 
     Returns:
-        A :class:`SubprocessResult` with execution details. If
+        A :class:`cli.helpers.spr.SubprocessResult` with execution details. If
         ``python_args`` is empty, an empty result is returned and a user-facing
         message is emitted.
     """

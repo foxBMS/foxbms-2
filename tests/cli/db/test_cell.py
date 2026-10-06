@@ -50,16 +50,21 @@ except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.db.cell import Cell
 
+from cli.db.cell_spec import CellSpec
+from cli.db.model_parameter import BaseModel
+
 
 class TestCell(unittest.TestCase):
     """Test suite for the Cell dataclass."""
 
-    def test_initialization_and_attributes(self):
+    def test_initialization_and_attributes(self) -> None:
         """It should store the provided spec and model_parameters as-is."""
         # Arrange: create mock instances for spec and model parameters
         spec = Mock(name="CellSpecMock")
-        model_param1 = Mock(name="BaseModelMock1")
-        model_param2 = Mock(name="BaseModelMock2")
+        spec.__class__ = CellSpec
+
+        model_param1 = Mock(spec=BaseModel)
+        model_param2 = Mock(spec=BaseModel)
         params = [model_param1, model_param2]
 
         # Act: instantiate Cell
@@ -67,9 +72,7 @@ class TestCell(unittest.TestCase):
 
         # Assert: attributes are stored as given
         self.assertIs(cell.spec, spec)
-        self.assertIs(cell.model_parameters, params)
         self.assertEqual(len(cell.model_parameters), 2)
-        self.assertIn(model_param1, cell.model_parameters)
 
 
 if __name__ == "__main__":

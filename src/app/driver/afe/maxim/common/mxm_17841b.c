@@ -43,8 +43,8 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -704,7 +704,14 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
             }
         }
     } else if (pInstance->substate == MXM_41B_UART_READ_BACK_RECEIVE_BUFFER_SAVE) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress"
+#endif /* __GNUC__ */
         if ((pInstance->spiRxBuffer != NULL_PTR) && (pInstance->pRxBuffer != NULL_PTR)) {
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             for (uint16_t i = 0; i < ((uint16_t)pInstance->payloadLength + pInstance->extendMessageBytes); i++) {
                 if (i < pInstance->rxBufferLength) {
                     pInstance->pRxBuffer[i] = pInstance->spiRxBuffer[i + 1u];

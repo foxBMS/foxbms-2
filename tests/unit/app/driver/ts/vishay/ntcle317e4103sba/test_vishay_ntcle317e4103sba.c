@@ -43,8 +43,8 @@
  * @file    test_vishay_ntcle317e4103sba.c
  * @author  foxBMS Team
  * @date    2021-11-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,9 +61,6 @@
 #include "vishay_ntcle317e4103sba.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/ts")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/vishay/ntcle317e4103sba")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -76,15 +73,15 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testTS_Vis01GetTemperatureFromLutFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Vis01GetTemperatureFromLut(4000u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis01GetTemperatureFromLut(0u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Vis01GetTemperatureFromLut(3000u));
-    TEST_ASSERT_EQUAL_INT16(-548, TS_Vis01GetTemperatureFromLut(2967u));
-    TEST_ASSERT_EQUAL_INT16(1232, TS_Vis01GetTemperatureFromLut(100u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis01GetTemperatureFromLut(10u));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Vis01GetTemperatureFromLut(4000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis01GetTemperatureFromLut(0u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Vis01GetTemperatureFromLut(3000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(-548, TS_Vis01GetTemperatureFromLut(2967u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(1232, TS_Vis01GetTemperatureFromLut(100u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis01GetTemperatureFromLut(10u, 3.0f));
 }
 
 /** Polynomial is not implemented for this sensor */
 void testTS_Vis01GetTemperatureFromPolynomialFixedValues(void) {
-    TEST_ASSERT_FAIL_ASSERT(TS_Vis01GetTemperatureFromPolynomial(1u));
+    TEST_ASSERT_FAIL_ASSERT(TS_Vis01GetTemperatureFromPolynomial(1u, 3.0f));
 }

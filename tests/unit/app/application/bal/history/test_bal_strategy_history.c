@@ -43,8 +43,8 @@
  * @file    test_bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,19 +71,10 @@
 
 #include "bal.h"
 
-/*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("bal_strategy_history.c")
+#include <math.h>
+#include <string.h>
 
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
-TEST_INCLUDE_PATH("../../src/app/application/bal")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/task/config")
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -120,4 +111,49 @@ void testBalancingFinished(void) {
     TEST_ASSERT_EQUAL(STD_NOT_OK, BAL_GetInitializationState());
     balancingState->initializationFinished = STD_OK;
     TEST_ASSERT_EQUAL(STD_OK, BAL_GetInitializationState());
+}
+
+/**
+ * @brief   Test of history-based balancing imbalance calculation
+ * @details Cases:
+ *          - Routine validation:
+ *            - RT1/1: 3202 mV maps to 10% SOC and 3636 mV maps to 50% SOC;
+ *              verify the mV input contract and the resulting charge difference
+ */
+void testBalancingComputeImbalancesUsesStateEstimationUnits(void) {
+    DATA_BLOCK_BALANCING_CONTROL_s *pBalancing = TEST_BAL_GetBalancingControl();
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltage    = TEST_BAL_GetCellVoltage();
+    const uint8_t stringIndex                  = 0u;
+    const uint8_t moduleIndex                  = 0u;
+    const uint8_t minimumVoltageCellIndex      = 0u;
+    const uint8_t higherVoltageCellIndex       = 1u;
+    const int16_t minimumCellVoltage_mV        = 3202;
+    const int16_t higherCellVoltage_mV         = 3636;
+    const float_t minimumStateOfCharge_perc    = 10.0f;
+    const float_t higherStateOfCharge_perc     = 50.0f;
+    const int32_t balancingThreshold_mV        = 0;
+    /* DOD difference: (3500 mAh * 0.90 * 3600 s/h) - (3500 mAh * 0.50 * 3600 s/h). */
+    const uint32_t expectedChargeDifference_mAs = 5040000u;
+
+    (void)memset(pBalancing, 0, sizeof(*pBalancing));
+    (void)memset(pCellVoltage, 0, sizeof(*pCellVoltage));
+    pBalancing->header.uniqueId   = DATA_BLOCK_ID_BALANCING_CONTROL;
+    pCellVoltage->header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE;
+
+    for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+        pCellVoltage->cellVoltage_mV[stringIndex][moduleIndex][cb] = minimumCellVoltage_mV;
+    }
+    pCellVoltage->cellVoltage_mV[stringIndex][moduleIndex][higherVoltageCellIndex] = higherCellVoltage_mV;
+
+    DATA_Read2DataBlocks_ExpectAndReturn(pBalancing, pCellVoltage, STD_OK);
+    SE_GetStateOfChargeFromVoltage_ExpectAndReturn(minimumCellVoltage_mV, minimumStateOfCharge_perc);
+    BAL_GetBalancingThreshold_mV_ExpectAndReturn(balancingThreshold_mV);
+    SE_GetStateOfChargeFromVoltage_ExpectAndReturn(higherCellVoltage_mV, higherStateOfCharge_perc);
+    DATA_Write1DataBlock_ExpectAndReturn(pBalancing, STD_OK);
+
+    TEST_BAL_ComputeImbalances();
+
+    TEST_ASSERT_EQUAL_UINT32(0u, pBalancing->deltaCharge_mAs[stringIndex][moduleIndex][minimumVoltageCellIndex]);
+    TEST_ASSERT_EQUAL_UINT32(
+        expectedChargeDifference_mAs, pBalancing->deltaCharge_mAs[stringIndex][moduleIndex][higherVoltageCellIndex]);
 }

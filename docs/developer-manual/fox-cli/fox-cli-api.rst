@@ -9,7 +9,7 @@ In the following the automatically generated documentation of the source three
 of ``cli`` is shown.
 
 .. autosummary::
-   :toctree: _autosummary
+   :toctree: cli_autosummary
    :template: fox-cli-module-template.rst
    :recursive:
 

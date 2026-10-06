@@ -43,8 +43,8 @@
  * @file    adi_ades183x_temperatures.h
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -77,6 +77,11 @@ extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern uint16_t TEST_ADI_GetMappedGpioIndex(uint16_t registerGpioIndex);
+#if (SLV_USE_MUX_FOR_TEMP == true)
+extern void TEST_ADI_GetTemperaturesFromMultiplexedGpios(ADI_STATE_s *pAdiState);
+#elif (SLV_USE_MUX_FOR_TEMP == false)
+extern void TEST_ADI_GetTemperaturesFromGpios(ADI_STATE_s *pAdiState);
+#endif
 #endif
 
 #endif /* FOXBMS__ADI_ADES183X_TEMPERATURES_H_ */

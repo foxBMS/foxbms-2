@@ -1,0 +1,36 @@
+[
+  {
+    "source": "src/bootloader/driver/crc/crc.c",
+    "test": "test_crc.c",
+    "includes": [
+      "src/bootloader/driver/crc",
+      "src/bootloader/driver/crc/vendor",
+      "src/bootloader/driver/rti"
+    ],
+    "mocks": [
+      "HL_crc.h",
+      "HL_rti.h",
+      "HL_sys_core.h",
+      "HL_sys_dma.h",
+      "src/bootloader/driver/crc/vendor/crc64_calc.h",
+      "src/bootloader/driver/rti/rti.h"
+    ]
+  },
+  {
+    "source": "src/bootloader/driver/crc/crc.c",
+    "test": "test_crc_semi_auto_crc_calculation.c",
+    "includes": [
+      "src/bootloader/driver/crc",
+      "src/bootloader/driver/crc/vendor",
+      "src/bootloader/driver/rti"
+    ],
+    "mocks": [
+      "HL_crc.h",
+      "HL_rti.h",
+      "HL_sys_core.h",
+      "HL_sys_dma.h",
+      "src/bootloader/driver/crc/vendor/crc64_calc.h",
+      "src/bootloader/driver/rti/rti.h"
+    ]
+  }
+]

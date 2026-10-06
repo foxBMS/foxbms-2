@@ -43,8 +43,8 @@
  * @file    test_soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,11 +61,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("soc_debug.c")
-TEST_SOURCE_FILE("soe_debug.c")
-TEST_SOURCE_FILE("soh_debug.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -87,6 +82,11 @@ void testSE_InitializeStateOfHealth(void) {
     TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.averageSoh_perc[0]);
     TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.minimumSoh_perc[0]);
     TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.maximumSoh_perc[0]);
+    for (uint8_t moduleNumber = 0u; moduleNumber < BS_NR_OF_MODULES_PER_STRING; moduleNumber++) {
+        for (uint16_t cellBlockNumber = 0u; cellBlockNumber < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cellBlockNumber++) {
+            TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.soh_perc[0][moduleNumber][cellBlockNumber]);
+        }
+    }
 }
 
 void testSE_CalculateStateOfHealth(void) {

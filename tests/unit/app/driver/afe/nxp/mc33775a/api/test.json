@@ -1,0 +1,36 @@
+[
+  {
+    "source": [
+      "src/app/driver/afe/nxp/api/nxp_afe.c",
+      "src/app/driver/afe/nxp/mc33775a/api/nxp_mc33775a_afe.c"
+    ],
+    "test": "test_nxp_mc33775a_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/nxp/api",
+      "src/app/driver/afe/nxp/common/mc3377x",
+      "src/app/driver/afe/nxp/common/mc3377x/vendor",
+      "src/app/driver/afe/nxp/mc33775a",
+      "src/app/driver/afe/nxp/mc33775a/config",
+      "src/app/driver/afe/nxp/mc33775a/vendor",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/pex",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "src/app/driver/afe/api/afe_dma.h",
+      "src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x.h",
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_NXP=1u",
+      "FOXBMS_AFE_DRIVER_NXP_MC33775A",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u",
+      "TEST_BS_NR_OF_TEMP_SENSORS_PER_MODULE=16u"
+    ]
+  }
+]

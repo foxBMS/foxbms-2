@@ -43,8 +43,8 @@
  * @file    murata_ncxxxxh103.c
  * @author  foxBMS Team
  * @date    2022-10-12 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -120,7 +120,7 @@ static const uint16_t ts_ncxxxxh103LutSize = sizeof(ts_ncxxxxh103Lut) / sizeof(T
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
+extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     int16_t temperature_ddegC = INT16_MIN;
     float_t adcVoltage_V      = (float_t)adcVoltage_mV / TS_SCALING_FACTOR_1V_IN_MV_FLOAT; /* Convert mV to V */
 
@@ -137,12 +137,11 @@ extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     (TS_MURATA_NCXXXXH103_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         const float_t resistance_Ohm = TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                                       ((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
+                                       ((supplyVoltage_V / adcVoltage_V) - 1.0f);
 #else  /* TS_MURATA_NCXXXXH103_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
         /* formula: R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
-        const float_t resistance_Ohm =
-            TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-            (adcVoltage_V / (TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
+        const float_t resistance_Ohm = TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
+                                       (adcVoltage_V / (supplyVoltage_V - adcVoltage_V));
 #endif /* TS_MURATA_NCXXXXH103_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
@@ -171,8 +170,9 @@ extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     return temperature_ddegC;
 }
 
-extern int16_t TS_Mur00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+extern int16_t TS_Mur00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     (void)adcVoltage_mV;
+    (void)supplyVoltage_V;
     FAS_ASSERT(FAS_TRAP);
     int16_t temperature_ddegC = 0;
     /* TODO this is not implemented */

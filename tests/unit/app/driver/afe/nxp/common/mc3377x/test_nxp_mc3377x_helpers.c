@@ -43,24 +43,114 @@
  * @file    test_nxp_mc3377x_helpers.c
  * @author  foxBMS Team
  * @date    2025-07-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
- * @details Dummy description
+ * @brief   Test of nxp_mc3377x_helpers.c
+ * @details TODO
  *
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+#include "Mockos.h"
+#include "Mocktsi.h"
+
+#include "nxp_mc3377x_helpers.h"
+
+/* clang-format off */
+#include "test_assert_helper.h"
+/* clang-format on */
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/nxp/common/mc3377x/README.md */
+void testN77x_ErrorHandling(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N77x_ErrorHandling(NULL_PTR, N77X_COMMUNICATION_OK, 0u));
+
+    /* ======= Routine tests =============================================== */
+    N77X_ERROR_TABLE_s n77x_errorTable = {0};
+
+    N77X_STATE_s n77xTestState = {
+        .currentString       = 0u,
+        .n77xData.errorTable = &n77x_errorTable,
+    };
+
+    /* ======= RT1/4: Test implementation */
+    uint8_t currentModule = 0u;
+
+    n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]        = false;
+    n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule] = false;
+    n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]             = false;
+    /* ======= RT1/4: call function under test */
+    TEST_ASSERT_PASS_ASSERT(N77x_ErrorHandling(&n77xTestState, N77X_COMMUNICATION_OK, 0u));
+    /* ======= RT1/4: test output verification */
+    TEST_ASSERT_TRUE(n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(
+        n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]);
+
+    /* ======= RT2/4: Test implementation */
+    n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]        = true;
+    n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule] = true;
+    n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]             = true;
+    /* ======= RT2/4: call function under test */
+    TEST_ASSERT_PASS_ASSERT(N77x_ErrorHandling(&n77xTestState, N77X_COMMUNICATION_ERROR_SHORT_MESSAGE, 0u));
+    /* ======= RT2/4: test output verification */
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(
+        n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]);
+
+    /* ======= RT3/4: Test implementation */
+    n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]        = true;
+    n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule] = true;
+    n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]             = true;
+    /* ======= RT3/4: call function under test */
+    TEST_ASSERT_PASS_ASSERT(N77x_ErrorHandling(&n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT, 0u));
+    /* ======= RT3/4: test output verification */
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_FALSE(
+        n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]);
+
+    /* ======= RT4/4: Test implementation */
+    n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]        = true;
+    n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule] = true;
+    n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]             = true;
+    /* ======= RT4/4: call function under test */
+    TEST_ASSERT_PASS_ASSERT(N77x_ErrorHandling(&n77xTestState, N77X_COMMUNICATION_ERROR_WRONG_CRC, 0u));
+    /* ======= RT4/4: test output verification */
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->communicationOk[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(
+        n77xTestState.n77xData.errorTable->noCommunicationTimeout[n77xTestState.currentString][currentModule]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->crcIsValid[n77xTestState.currentString][currentModule]);
+}
+
+void testN77x_Wait(void) {
+    const uint32_t waitTime = 1u;
+    uint32_t currentTime    = 2u;
+    OS_GetTickCount_ExpectAndReturn(currentTime);
+    OS_DelayTaskUntil_Expect(&currentTime, waitTime);
+    TEST_ASSERT_PASS_ASSERT(N77x_Wait(waitTime));
+}
+
+void testN77x_ConvertVoltagesToTemperatures(void) {
+    uint16_t testValue  = 1234u;
+    uint16_t testResult = 5678u;
+    TSI_GetTemperature_ExpectAndReturn(testValue, SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V, testResult);
+    TEST_ASSERT_EQUAL(testResult, N77x_ConvertVoltagesToTemperatures(testValue));
+}

@@ -43,8 +43,8 @@
  * @file    diag_cbs_afe.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -74,6 +74,7 @@ extern void DIAG_ErrorAfe(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
+    /* AXIVION Disable Style Generic-MaxConditions: Full assertion range required */
     FAS_ASSERT(
         (diagId == DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR) || (diagId == DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR) ||
         (diagId == DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) ||

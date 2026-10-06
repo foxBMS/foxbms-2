@@ -1,0 +1,60 @@
+[
+  {
+    "source": "src/bootloader/main/fstartup.c",
+    "test": "test_fstartup.c",
+    "includes": [
+      "tests/unit/bootloader/main/helper"
+    ],
+    "mocks": [
+      "HL_errata_SSWF021_45.h",
+      "HL_esm.h",
+      "HL_hal_stdtypes.h",
+      "HL_reg_esm.h",
+      "HL_sys_common.h",
+      "HL_sys_core.h",
+      "HL_sys_mpu.h",
+      "HL_sys_vim.h",
+      "HL_system.h"
+    ],
+    "defines": [
+      "__REG_ESM_H__"
+    ],
+    "cflags": [
+      "-include",
+      "HL_hal_stdtypes.h",
+      "-include",
+      "HL_sys_common.h",
+      "-include",
+      "m_esm.h"
+    ]
+  },
+  {
+    "source": [
+      "src/bootloader/engine/config/boot_cfg.c",
+      "src/bootloader/main/main.c"
+    ],
+    "test": "test_main.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/rti",
+      "src/bootloader/engine/boot",
+      "src/bootloader/engine/config",
+      "src/bootloader/main"
+    ],
+    "mocks": [
+      "HL_gio.h",
+      "HL_pinmux.h",
+      "HL_rti.h",
+      "HL_sys_core.h",
+      "src/bootloader/driver/can/can.h",
+      "src/bootloader/driver/rti/rti.h",
+      "src/bootloader/engine/boot/boot.h",
+      "src/bootloader/main/include/infinite-loop-helper.h"
+    ]
+  },
+  {
+    "source": "src/bootloader/main/fassert.c",
+    "test": "test_fassert.c"
+  }
+]

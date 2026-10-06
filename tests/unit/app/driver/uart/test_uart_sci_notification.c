@@ -43,8 +43,8 @@
  * @file    test_uart_sci_notification.c
  * @author  foxBMS Team
  * @date    2025-09-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -75,16 +75,6 @@
 #include "uart.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("uart.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/uart")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/include")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -104,10 +94,17 @@ long FSYS_RaisePrivilege(void) {
 void sciInit(void) {
 }
 void sciSendByte(sciBASE_t *sci, uint8 byte) {
+    (void)sci;
+    (void)byte;
 }
 void sciReceive(sciBASE_t *sci, uint32 length, uint8 *data) {
+    (void)sci;
+    (void)length;
+    (void)data;
 }
 void sciEnableNotification(sciBASE_t *sci, uint32 flags) {
+    (void)sci;
+    (void)flags;
 }
 
 /*========== Setup and Teardown =============================================*/

@@ -37,6 +37,27 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+
     bld.recurse([bld.env.FOXBMS_BMS_SLAVE_AFE_MANUFACTURER, "api"])
+
+    use = [
+        f"{ip}afe-adi_ades1830",
+        f"{ip}afe-adi_no_diag",
+        f"{ip}afe-debug_can",
+        f"{ip}afe-debug_default",
+        f"{ip}afe-ltc_6806",
+        f"{ip}afe-ltc_6813-1",
+        f"{ip}afe-maxim_max17852",
+        f"{ip}afe-nxp_mc33775a",
+        f"{ip}afe-ti_dummy",
+    ]
+
+    bld(
+        use=use,
+        target=f"{ip}afe",
+    )

@@ -47,485 +47,636 @@ import tkinter as tk
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 
 try:
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_build import build_gui
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_build import build_gui
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 
-RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+RUN_TESTS = os.environ.get("DISPLAY", None) or sys.platform.startswith("win32")
 PATH_GUI = PROJECT_BUILD_ROOT / "build_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
-class TestBuildFrame(unittest.TestCase):
-    """Test of the BuildFrame class"""
+@patch("cli.cmd_gui.frame_build.build_gui.BaseFrame.write_text")
+class TestCheckThread(unittest.TestCase):
+    """Test of the 'check_thread' function of the BuildFrame class"""
 
-    @classmethod
-    def setUpClass(cls):
-        importlib.reload(build_gui)
-
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
-        build_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
-        self.frame = build_gui.BuildFrame(self.root, text)
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+            self.frame = build_gui.BuildFrame(self.root, text)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.root.update()
         self.root.destroy()
-        build_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
         remove_data(self.start_time)
 
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.touch()
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("New content.\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(12, self.frame.text_index)
-
-    def test_write_text_not_selected(self):
-        """Test 'write_text' function when BuildFrame is not selected"""
-        mock_select = MagicMock()
-        mock_select.return_value = ""
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
 
     @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.after")
-    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
     def test_check_thread_alive(
-        self, mock_write_text: MagicMock, mock_after: MagicMock
-    ):
-        """Test 'check_thread' function when the Thread is still alive"""
+        self, mock_after: MagicMock, mock_write_text: MagicMock
+    ) -> None:
+        """Test 'check_thread' function when the Thread is alive"""
+        self.frame.current_command = "command"
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = True
-        self.frame.current_command = "command"
         self.frame.check_thread()
 
         mock_after.assert_called_once_with(50, self.frame.check_thread)
         self.frame.build_process.is_alive.assert_called_once()
         mock_write_text.assert_called_once()
 
-    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
-    def test_check_thread_dead_empty(self, mock_write_text: MagicMock):
+    def test_check_thread_dead_empty(self, mock_write_text: MagicMock) -> None:
         """Test 'check_thread' function
-        when the Thread is not alive and there is no object in the queue
+        when the Thread is not alive and result_queue is empty
         """
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
+        self.frame.current_command = "command"
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
-        self.frame.queue = MagicMock()
-        mock_empty = MagicMock()
-        self.frame.queue.empty = mock_empty
-        mock_empty.return_value = True
         self.frame.file_stream = MagicMock()
-        self.frame.current_command = "command"
+        self.frame.result_queue = MagicMock()
+        self.frame.result_queue.empty.return_value = True
         self.frame.check_thread()
 
-        self.frame.build_process.is_alive.assert_called_once()
-        mock_empty.assert_called_once()
         mock_write_text.assert_called_once()
+        self.frame.build_process.is_alive.assert_called_once()
+        self.assertEqual(self.frame.save_log_button.state(), ())
+        self.assertEqual(self.frame.command_list_button.state(), ())
+        self.assertEqual(self.frame.run_button.state(), ())
+        self.frame.file_stream.close.assert_called_once()
+        self.frame.result_queue.empty.assert_called_once()
 
-    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
-    def test_check_thread_dead_success(self, mock_write_text: MagicMock):
+    def test_check_thread_dead_success(self, mock_write_text: MagicMock) -> None:
         """Test 'check_thread' function
-        when the Thread is not alive and the build was successful
+        when the Thread is not alive and the command was successful
         """
+        self.frame.current_command = "command"
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
-        self.frame.queue = MagicMock()
-        mock_empty = MagicMock()
-        self.frame.queue.empty = mock_empty
-        mock_empty.return_value = False
-        queue_return_value = MagicMock()
-        queue_return_value.returncode = 0
-        self.frame.queue.get.return_value = queue_return_value
         self.frame.file_stream = MagicMock()
-        self.frame.current_command = "command"
+        self.frame.result_queue = MagicMock()
+        self.frame.result_queue.empty.return_value = False
+        mock_queue_element = MagicMock()
+        mock_queue_element.returncode = 0
+        self.frame.result_queue.get.return_value = mock_queue_element
         self.frame.check_thread()
 
-        self.frame.build_process.is_alive.assert_called_once()
-        mock_empty.assert_called_once()
-        self.assertEqual(
-            self.frame.canvas.itemcget(self.frame.oval, option="fill"), "green"
-        )
-        self.assertEqual(
-            self.frame.status_text.cget("text"), "Command 'command' was successful."
-        )
         mock_write_text.assert_called_once()
+        self.frame.build_process.is_alive.assert_called_once()
+        self.assertEqual(self.frame.save_log_button.state(), ())
+        self.assertEqual(self.frame.command_list_button.state(), ())
+        self.assertEqual(self.frame.run_button.state(), ())
+        self.frame.file_stream.close.assert_called_once()
+        self.frame.result_queue.empty.assert_called_once()
+        self.frame.result_queue.get.assert_called_once()
+        self.assertEqual(
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"),
+            "green",
+        )
+        self.assertEqual(
+            self.frame.status_label.cget("text"), "Command 'command' was successful."
+        )
 
-    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
-    def test_check_thread_dead_failure(self, mock_write_text: MagicMock):
+    def test_check_thread_dead_failure(self, mock_write_text: MagicMock) -> None:
         """Test 'check_thread' function
-        when the Thread is not alive and the build was not successful
+        when the Thread is not alive and the command failed
         """
+        self.frame.current_command = "command"
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
-        self.frame.queue = MagicMock()
-        mock_empty = MagicMock()
-        self.frame.queue.empty = mock_empty
-        mock_empty.return_value = False
-        queue_return_value = MagicMock()
-        queue_return_value.returncode = 1
-        self.frame.queue.get.return_value = queue_return_value
         self.frame.file_stream = MagicMock()
-        self.frame.current_command = "command"
+        self.frame.result_queue = MagicMock()
+        self.frame.result_queue.empty.return_value = False
+        mock_queue_element = MagicMock()
+        mock_queue_element.returncode = 1
+        self.frame.result_queue.get.return_value = mock_queue_element
         self.frame.check_thread()
 
-        self.frame.build_process.is_alive.assert_called_once()
-        mock_empty.assert_called_once()
-        self.assertEqual(
-            self.frame.canvas.itemcget(self.frame.oval, option="fill"), "red"
-        )
-        self.assertEqual(
-            self.frame.status_text.cget("text"), "Command 'command' was not successful."
-        )
         mock_write_text.assert_called_once()
+        self.frame.build_process.is_alive.assert_called_once()
+        self.assertEqual(self.frame.save_log_button.state(), ())
+        self.assertEqual(self.frame.command_list_button.state(), ())
+        self.assertEqual(self.frame.run_button.state(), ())
+        self.frame.file_stream.close.assert_called_once()
+        self.frame.result_queue.empty.assert_called_once()
+        self.frame.result_queue.get.assert_called_once()
+        self.assertEqual(
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"), "red"
+        )
+        self.assertEqual(
+            self.frame.status_label.cget("text"), "Command 'command' failed."
+        )
 
-    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.write_text")
     @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.generate_command_list")
     def test_check_thread_command_list(
         self, mock_generate_list: MagicMock, mock_write_text: MagicMock
-    ):
-        """Test 'check_thread' function
-        when generating the command list
-        """
+    ) -> None:
+        """Test 'check_thread' function when generating the command list"""
         self.frame.current_command = "Generate Command List"
         self.frame.build_process = MagicMock()
         self.frame.build_process.is_alive.return_value = False
-        self.frame.queue = MagicMock()
-        mock_empty = MagicMock()
-        self.frame.queue.empty = mock_empty
-        mock_empty.return_value = False
-        queue_return_value = MagicMock()
-        queue_return_value.returncode = 0
-        self.frame.queue.get.return_value = queue_return_value
         self.frame.file_stream = MagicMock()
+        self.frame.result_queue = MagicMock()
+        self.frame.result_queue.empty.return_value = False
+        mock_queue_element = MagicMock()
+        mock_queue_element.returncode = 0
+        self.frame.result_queue.get.return_value = mock_queue_element
         self.frame.check_thread()
+
+        mock_write_text.assert_not_called()
+        self.frame.build_process.is_alive.assert_called_once()
+        mock_generate_list.assert_called_once()
+        self.assertEqual(self.frame.save_log_button.state(), (tk.DISABLED,))
+        self.assertEqual(self.frame.command_list_button.state(), ())
+        self.assertEqual(self.frame.run_button.state(), ())
+        self.frame.file_stream.close.assert_called_once()
+        self.frame.result_queue.empty.assert_called_once()
+        self.frame.result_queue.get.assert_called_once()
         self.assertEqual(
-            self.frame.canvas.itemcget(self.frame.oval, option="fill"), "green"
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"),
+            "green",
         )
         self.assertEqual(
-            self.frame.status_text.cget("text"),
+            self.frame.status_label.cget("text"),
             "Command 'Generate Command List' was successful.",
         )
-        mock_write_text.assert_not_called()
-        mock_generate_list.assert_called_once()
+
+
+class TestCheckThreadNoUiTestableMethods(unittest.TestCase):
+    """Test of the 'check_thread' function of the BuildFrame class"""
+
+    def test_check_thread_alive(self) -> None:
+        """Test 'check_thread' function when the Thread is alive"""
+        mock_build_frame = MagicMock()
+        mock_build_frame.current_command = "command"
+        mock_is_alive = MagicMock(return_value=True)
+        mock_build_frame.build_process.is_alive = mock_is_alive
+        build_gui.BuildFrame.check_thread(mock_build_frame)
+
+        mock_build_frame.write_text.assert_called_once()
+        mock_is_alive.assert_called_once()
+        mock_build_frame.after.assert_called_once_with(
+            50, mock_build_frame.check_thread
+        )
+
+    def test_check_thread_dead_empty(self) -> None:
+        """Test 'check_thread' function
+        when the Thread is not alive and result_queue is empty
+        """
+        mock_build_frame = MagicMock()
+        mock_build_frame.current_command = "command"
+        mock_is_alive = MagicMock(return_value=False)
+        mock_build_frame.build_process.is_alive = mock_is_alive
+        mock_empty = MagicMock(return_value=True)
+        mock_build_frame.result_queue.empty = mock_empty
+        build_gui.BuildFrame.check_thread(mock_build_frame)
+
+        mock_build_frame.write_text.assert_called_once()
+        mock_is_alive.assert_called_once()
+        mock_build_frame.save_log_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.command_list_button.state.assert_called_once_with(
+            ["!disabled"]
+        )
+        mock_build_frame.run_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.file_stream.close.assert_called_once()
         mock_empty.assert_called_once()
 
-    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.check_thread")
-    @patch("cli.cmd_gui.frame_build.build_gui.Thread")
-    @patch("cli.cmd_build.build_impl.run_top_level_waf")
-    def test_run_command_cb(
-        self, mock_waf: MagicMock, mock_thread: MagicMock, mock_check_thread: MagicMock
-    ):
-        """Test 'run_command_cb' function"""
-        mock_thread.return_value = MagicMock()
-        self.frame.listbox.curselection = MagicMock()
-        self.frame.listbox.curselection.return_value = (0,)
-        self.frame.reduced_commands = [build_gui.Command("command", "help")]
+    def test_check_thread_dead_success(self) -> None:
+        """Test 'check_thread' function
+        when the Thread is not alive and the command was successful
+        """
+        mock_build_frame = MagicMock()
+        mock_build_frame.current_command = "command"
+        mock_is_alive = MagicMock(return_value=False)
+        mock_build_frame.build_process.is_alive = mock_is_alive
+        mock_empty = MagicMock(return_value=False)
+        mock_build_frame.result_queue.empty = mock_empty
+        mock_get = MagicMock(return_value=MagicMock(returncode=0))
+        mock_build_frame.result_queue.get = mock_get
+        build_gui.BuildFrame.check_thread(mock_build_frame)
+
+        mock_build_frame.write_text.assert_called_once()
+        mock_is_alive.assert_called_once()
+        mock_build_frame.save_log_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.command_list_button.state.assert_called_once_with(
+            ["!disabled"]
+        )
+        mock_build_frame.run_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.file_stream.close.assert_called_once()
+        mock_empty.assert_called_once()
+        mock_get.assert_called_once()
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="green"
+        )
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Command 'command' was successful."
+        )
+
+    def test_check_thread_dead_failure(self) -> None:
+        """Test 'check_thread' function
+        when the Thread is not alive and the command failed
+        """
+        mock_build_frame = MagicMock()
+        mock_build_frame.current_command = "command"
+        mock_is_alive = MagicMock(return_value=False)
+        mock_build_frame.build_process.is_alive = mock_is_alive
+        mock_empty = MagicMock(return_value=False)
+        mock_build_frame.result_queue.empty = mock_empty
+        mock_get = MagicMock(return_value=MagicMock(returncode=1))
+        mock_build_frame.result_queue.get = mock_get
+        build_gui.BuildFrame.check_thread(mock_build_frame)
+
+        mock_build_frame.write_text.assert_called_once()
+        mock_is_alive.assert_called_once()
+        mock_build_frame.save_log_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.command_list_button.state.assert_called_once_with(
+            ["!disabled"]
+        )
+        mock_build_frame.run_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.file_stream.close.assert_called_once()
+        mock_empty.assert_called_once()
+        mock_get.assert_called_once()
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="red"
+        )
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Command 'command' failed."
+        )
+
+    def test_check_thread_command_list(self) -> None:
+        """Test 'check_thread' function when generating the command list"""
+        mock_build_frame = MagicMock()
+        mock_build_frame.current_command = "Generate Command List"
+        mock_is_alive = MagicMock(return_value=False)
+        mock_build_frame.build_process.is_alive = mock_is_alive
+        mock_empty = MagicMock(return_value=False)
+        mock_build_frame.result_queue.empty = mock_empty
+        mock_get = MagicMock(return_value=MagicMock(returncode=0))
+        mock_build_frame.result_queue.get = mock_get
+        build_gui.BuildFrame.check_thread(mock_build_frame)
+
+        mock_build_frame.write_text.assert_not_called()
+        mock_is_alive.assert_called_once()
+        mock_build_frame.generate_command_list.assert_called_once()
+        mock_build_frame.save_log_button.state.assert_not_called()
+        mock_build_frame.command_list_button.state.assert_called_once_with(
+            ["!disabled"]
+        )
+        mock_build_frame.run_button.state.assert_called_once_with(["!disabled"])
+        mock_build_frame.file_stream.close.assert_called_once()
+        mock_empty.assert_called_once()
+        mock_get.assert_called_once()
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="green"
+        )
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Command 'Generate Command List' was successful."
+        )
+
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+class TestCallback(unittest.TestCase):
+    """Test of all callback functions of the BuildFrame class"""
+
+    def setUp(self) -> None:  # noqa: D102
+        self.start_time = datetime.now(tz=UTC)
+        self.root = tk.Tk()
+        self.root.withdraw()
+        text = tk.Text()
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+            self.frame = build_gui.BuildFrame(self.root, text)
+
+    def tearDown(self) -> None:  # noqa: D102
+        self.root.update()
+        self.root.destroy()
+        remove_data(self.start_time)
+
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
+
+    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.reset_text")
+    def test_run_command_no_selection(self, mock_reset: MagicMock) -> None:
+        """Test 'run_command_cb' function when no command is selected"""
+        self.frame.commands_listbox.curselection = MagicMock(return_value=None)
         self.frame.run_command_cb()
-        self.frame.file_stream.close()
 
-        mock_thread.return_value.start.assert_called_once()
-        mock_check_thread.assert_called_once()
+        mock_reset.assert_not_called()
         self.assertEqual(
-            self.frame.status_text.cget("text"), "Running command: command"
+            self.frame.status_label.cget("text"), "Please select a command."
         )
         self.assertEqual(
-            self.frame.canvas.itemcget(self.frame.oval, option="fill"), "darkgrey"
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"),
+            "lightgrey",
         )
-        self.assertEqual("command", self.frame.current_command)
-
-    @patch("cli.cmd_gui.frame_build.build_gui.file_name_from_current_time")
-    def test_save_command(self, mock_time: MagicMock):
-        """Test 'save_command' function"""
-        mock_time.return_value = "new"
-        self.frame.current_command = "command"
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.save_command_cb()
-        with open(
-            Path(PATH_GUI / "gui" / "command_new.txt"),
-            encoding="utf-8",
-        ) as f:
-            self.assertEqual("New content.", f.read())
-        with open(self.frame.file_path, encoding="utf-8") as f:
-            self.assertEqual("New content.", f.read())
-
-    def test_generate_command_list(self):
-        """Test 'generate_command_list' function"""
-        with open(self.frame.file_path, mode="w", encoding="utf-8") as f:
-            f.write("Main commands \ncommand :\ncommand : 1\ncommand 2\noptions:")
-        self.frame.listbox = MagicMock()
-        mock_insert = MagicMock()
-        self.frame.listbox.insert = mock_insert
-        self.frame.generate_command_list()
-        calls = [
-            call(tk.END, "command  ()"),
-            call(tk.END, "command  (1)"),
-        ]
-        mock_insert.assert_has_calls(calls)
-        self.assertEqual(2, len(self.frame.commands))
 
     @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.check_thread")
     @patch("cli.cmd_gui.frame_build.build_gui.Thread")
-    @patch("cli.cmd_build.build_impl.run_top_level_waf")
-    def test_generate_command_list_command_cb(
+    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.reset_text")
+    def test_run_command(
         self,
-        mock_run_waf: MagicMock,
+        mock_reset: MagicMock,
         mock_thread: MagicMock,
         mock_check_thread: MagicMock,
-    ):
-        """Test 'generate_command_list_command_cb' function"""
-        mock_thread.return_value = MagicMock()
-        self.frame.generate_command_list_command_cb()
-        self.frame.file_stream.close()
-        mock_check_thread.assert_called_once()
-        mock_thread.return_value.start.assert_called_once()
+    ) -> None:
+        """Test 'run_command_cb' function"""
+        self.frame.commands_listbox.curselection = MagicMock(return_value=(0,))
+        self.frame.reduced_commands = [build_gui.Command("command", "help")]
+        mock_open_file = mock_open()
+        with patch("builtins.open", mock_open_file):
+            self.frame.run_command_cb()
+
+        mock_reset.assert_called_once()
+        self.assertEqual(self.frame.run_button.state(), (tk.DISABLED,))
+        self.assertEqual(self.frame.command_list_button.state(), (tk.DISABLED,))
         self.assertEqual(
-            self.frame.status_text.cget("text"),
-            "Running command: Generate Command List",
+            self.frame.status_label.cget("text"), "Running command 'command'."
         )
         self.assertEqual(
-            self.frame.canvas.itemcget(self.frame.oval, option="fill"), "darkgrey"
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"),
+            "darkgrey",
+        )
+        mock_open_file.assert_called_once_with(
+            self.frame.file_path, mode="w", encoding="utf-8"
+        )
+        self.assertEqual("command", self.frame.current_command)
+        mock_thread.return_value.start.assert_called_once()
+        mock_check_thread.assert_called_once()
+
+    def test_generate_command_list(self) -> None:
+        """Test 'generate_command_list' function"""
+        mock_open_file = mock_open(
+            read_data="Main commands \ncommand :\ncommand : 1\n : command 2\ncommand 3\noptions:"
+        )
+        self.frame.commands_listbox.insert(tk.END, "Old Command", "Another old Command")
+        self.frame.commands = ["First Command", "Second Command"]
+        self.frame.reduced_commands = ["first command"]
+        new_commands = [
+            build_gui.Command(name="command", help=""),
+            build_gui.Command(name="command", help="1"),
+        ]
+        with patch("builtins.open", mock_open_file):
+            self.frame.generate_command_list()
+        self.assertListEqual(self.frame.commands, new_commands)
+        self.assertListEqual(self.frame.reduced_commands, new_commands)
+        self.assertEqual(
+            self.frame.commands_listbox.get(0, tk.END), ("command  ()", "command  (1)")
+        )
+        mock_open_file.assert_any_call(self.frame.file_path, encoding="utf-8")
+        mock_open_file.assert_has_calls(
+            [call(self.frame.file_path, mode="w", encoding="utf-8"), call().close()]
+        )
+        self.assertEqual(
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"),
+            "lightgrey",
+        )
+        self.assertEqual(
+            self.frame.status_label.cget("text"), "Select a command to run."
         )
 
-    def test_select_command_cb(self):
+    def test_generate_command_list_invalid_file(self) -> None:
+        """Test 'generate_command_list' function when file contains no commands"""
+        mock_open_file = mock_open(
+            read_data="command :\ncommand : 1\n : command 2\ncommand 3\n"
+        )
+        self.frame.commands_listbox.insert(tk.END, "Old Command", "Another old Command")
+        self.frame.commands = ["First Command", "Second Command"]
+        self.frame.reduced_commands = ["first command"]
+        new_commands = []
+        with patch("builtins.open", mock_open_file):
+            self.frame.generate_command_list()
+        self.assertListEqual(self.frame.commands, new_commands)
+        self.assertListEqual(self.frame.reduced_commands, new_commands)
+        self.assertEqual(self.frame.commands_listbox.get(0, tk.END), ())
+        mock_open_file.assert_any_call(self.frame.file_path, encoding="utf-8")
+        mock_open_file.assert_has_calls(
+            [call(self.frame.file_path, mode="w", encoding="utf-8"), call().close()]
+        )
+        self.assertEqual(
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"), "red"
+        )
+        self.assertEqual(
+            self.frame.status_label.cget("text"),
+            "Could not parse command list from 'waf --help' output.",
+        )
+
+    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.check_thread")
+    @patch("cli.cmd_gui.frame_build.build_gui.Thread")
+    @patch("cli.cmd_gui.frame_build.build_gui.BuildFrame.reset_text")
+    def test_generate_command_list_cb(
+        self,
+        mock_reset: MagicMock,
+        mock_thread: MagicMock,
+        mock_check_thread: MagicMock,
+    ) -> None:
+        """Test 'generate_command_list_command_cb' function"""
+        mock_open_file = mock_open()
+        with patch("builtins.open", mock_open_file):
+            self.frame.generate_command_list_cb()
+
+        self.assertEqual(self.frame.current_command, "Generate Command List")
+        mock_reset.assert_called_once()
+        self.assertEqual(self.frame.run_button.state(), (tk.DISABLED,))
+        self.assertEqual(self.frame.command_list_button.state(), (tk.DISABLED,))
+        self.assertEqual(
+            self.frame.status_label.cget("text"),
+            "Running command 'Generate Command List'.",
+        )
+        self.assertEqual(
+            self.frame.indicator_canvas.itemcget(self.frame.oval, option="fill"),
+            "darkgrey",
+        )
+        mock_open_file.assert_called_once_with(
+            self.frame.file_path, mode="w", encoding="utf-8"
+        )
+        mock_thread.assert_called_once()
+        mock_thread.return_value.start.assert_called_once()
+        mock_check_thread.assert_called_once()
+
+    def test_select_command(self) -> None:
         """Test 'select_command_cb' function"""
-        mock_entry_get = MagicMock()
-        mock_entry_get.return_value = "command"
+        self.frame.search_command_entry.delete(0, tk.END)
+        self.frame.search_command_entry.insert(tk.END, "command")
         command_1 = build_gui.Command("command_1", "")
         command_2 = build_gui.Command("command_2", "")
         command_3 = build_gui.Command("Command_3", "")
         command_4 = build_gui.Command(name="not_relevant", help="")
         self.frame.commands = [command_1, command_2, command_3, command_4]
         self.frame.reduced_commands = [command_4]
-        self.frame.search_command_entry.get = mock_entry_get
+        self.frame.commands_listbox.insert(tk.END, "old command  (help text)")
         self.frame.select_command_cb("<KeyRelease>")
-        self.assertEqual(3, len(self.frame.reduced_commands))
-        self.assertEqual(3, len(self.frame.listbox.get(0, tk.END)))
-
-
-class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
-    """Test of the BuildFrame class"""
-
-    @classmethod
-    def setUpClass(cls):
-        importlib.reload(build_gui)
-
-    def setUp(self):
-        self.start_time = datetime.now(tz=UTC)
-        build_gui.PROJECT_BUILD_ROOT = PATH_GUI
-        PATH_GUI.mkdir(parents=True, exist_ok=True)
-
-    def tearDown(self):
-        build_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
-        remove_data(self.start_time)
-
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(
-            PATH_GUI / "output_build_write_text_empty.txt"
+        self.assertListEqual(
+            self.frame.reduced_commands, [command_1, command_2, command_3]
         )
-        mock_build_frame.text = MagicMock()
-        mock_build_frame.text_index = MagicMock()
-        mock_build_frame.current_command = "command"
-        mock_build_frame.file_path.touch()
-        build_gui.BuildFrame.write_text(mock_build_frame)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(PATH_GUI / "output_build_write_text.txt")
-        mock_build_frame.text = MagicMock()
-        mock_build_frame.text_index = MagicMock()
-        mock_build_frame.current_command = "command"
-        mock_build_frame.file_path.write_text("New content.", encoding="utf-8")
-        build_gui.BuildFrame.write_text(mock_build_frame)
-
-    def test_check_thread_alive(self):
-        """Test 'check_thread' function when the Thread is still alive"""
-        mock_build_frame = MagicMock()
-        mock_build_frame.build_process = MagicMock()
-        mock_build_frame.build_process.is_alive.return_value = True
-        mock_build_frame.current_command = "command"
-        build_gui.BuildFrame.check_thread(mock_build_frame)
-
-        mock_build_frame.after.assert_called_once_with(
-            50, mock_build_frame.check_thread
+        self.assertEqual(
+            self.frame.commands_listbox.get(0, tk.END),
+            ("command_1  ()", "command_2  ()", "Command_3  ()"),
         )
-        mock_build_frame.build_process.is_alive.assert_called_once()
-        mock_build_frame.write_text.assert_called_once()
 
-    def test_check_thread_dead_empty(self):
-        """Test 'check_thread' function
-        when the Thread is not alive and there is no object in the queue
-        """
-        mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(
-            PATH_GUI / "output_build_check_thread_empty.txt"
-        )
-        mock_build_frame.file_path.write_text("New content.", encoding="utf-8")
-        mock_build_frame.build_process = MagicMock()
-        mock_build_frame.build_process.is_alive.return_value = False
-        mock_build_frame.queue = MagicMock()
-        mock_build_frame.queue.empty.return_value = True
-        mock_build_frame.current_command = "command"
-        build_gui.BuildFrame.check_thread(mock_build_frame)
 
-        mock_build_frame.build_process.is_alive.assert_called_once()
-        mock_build_frame.queue.empty.assert_called_once()
-        mock_build_frame.write_text.assert_called_once()
-
-    def test_check_thread_dead_success(self):
-        """Test 'check_thread' function
-        when the Thread is not alive and the build was successful
-        """
-        mock_build_frame = MagicMock()
-        mock_build_frame.build_process = MagicMock()
-        mock_build_frame.build_process.is_alive.return_value = False
-        mock_build_frame.queue = MagicMock()
-        mock_build_frame.queue.empty.return_value = False
-        queue_return_value = MagicMock()
-        queue_return_value.returncode = 0
-        mock_build_frame.queue.get.return_value = queue_return_value
-        mock_build_frame.current_command = "command"
-        build_gui.BuildFrame.check_thread(mock_build_frame)
-
-        mock_build_frame.build_process.is_alive.assert_called_once()
-        mock_build_frame.queue.empty.assert_called_once()
-        mock_build_frame.write_text.assert_called_once()
-
-    def test_check_thread_dead_failure(self):
-        """Test 'check_thread' function
-        when the Thread is not alive and the build was not successful
-        """
-        mock_build_frame = MagicMock()
-        mock_build_frame.build_process = MagicMock()
-        mock_build_frame.build_process.is_alive.return_value = False
-        mock_build_frame.queue = MagicMock()
-        mock_build_frame.queue.empty.return_value = False
-        queue_return_value = MagicMock()
-        queue_return_value.returncode = 1
-        mock_build_frame.queue.get.return_value = queue_return_value
-        mock_build_frame.current_command = "command"
-        build_gui.BuildFrame.check_thread(mock_build_frame)
-
-        mock_build_frame.build_process.is_alive.assert_called_once()
-        mock_build_frame.queue.empty.assert_called_once()
-        mock_build_frame.write_text.assert_called_once()
-
-    def test_check_thread_command_list(self):
-        """Test 'check_thread' function
-        when generating the command list
-        """
-        mock_build_frame = MagicMock()
-        mock_build_frame.build_process = MagicMock()
-        mock_build_frame.build_process.is_alive.return_value = False
-        mock_build_frame.current_command = "Generate Command List"
-        mock_build_frame.build_process = MagicMock()
-        mock_build_frame.build_process.is_alive.return_value = False
-        mock_build_frame.queue = MagicMock()
-        mock_build_frame.queue.empty.return_value = False
-        queue_return_value = MagicMock()
-        queue_return_value.returncode = 0
-        mock_build_frame.queue.get.return_value = queue_return_value
-        mock_build_frame.file_stream = MagicMock()
-        build_gui.BuildFrame.check_thread(mock_build_frame)
-        mock_build_frame.write_text.assert_not_called()
-        mock_build_frame.generate_command_list.assert_called_once()
+class TestCallbackNoUiTestableMethods(unittest.TestCase):
+    """Test of all callback functions of the BuildFrame class"""
 
     @patch("cli.cmd_gui.frame_build.build_gui.Thread")
-    @patch("cli.cmd_build.build_impl.run_top_level_waf")
-    def test_run_command_cb(self, mock_waf: MagicMock, mock_thread: MagicMock):
+    def test_run_command_no_selection(self, mock_thread: MagicMock) -> None:
+        """Test 'run_command_cb' function when no command is selected"""
+        mock_build_frame = MagicMock()
+        mock_build_frame.commands_listbox.curselection = MagicMock(return_value=None)
+        build_gui.BuildFrame.run_command_cb(mock_build_frame)
+
+        mock_build_frame.commands_listbox.curselection.assert_called_once()
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Please select a command."
+        )
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="lightgrey"
+        )
+        mock_thread.assert_not_called()
+
+    @patch("cli.cmd_gui.frame_build.build_gui.Thread")
+    def test_run_command(self, mock_thread: MagicMock) -> None:
         """Test 'run_command_cb' function"""
         mock_build_frame = MagicMock()
-        mock_thread.return_value = MagicMock()
-        mock_build_frame.listbox.curselection = MagicMock()
-        mock_build_frame.listbox.curselection.return_value = (0,)
+        mock_build_frame.commands_listbox.curselection = MagicMock(return_value=(0,))
         mock_build_frame.reduced_commands = [build_gui.Command("command", "help")]
-        build_gui.BuildFrame.run_command_cb(mock_build_frame)
-        mock_build_frame.file_stream.close()
+        mock_open_file = mock_open()
+        with patch("builtins.open", mock_open_file):
+            build_gui.BuildFrame.run_command_cb(mock_build_frame)
 
+        mock_build_frame.reset_text.assert_called_once()
+        mock_build_frame.run_button.state.assert_called_once_with([tk.DISABLED])
+        mock_build_frame.command_list_button.state.assert_called_once_with(
+            [tk.DISABLED]
+        )
+        self.assertEqual(mock_build_frame.current_command, "command")
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Running command 'command'."
+        )
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="darkgrey"
+        )
+        mock_open_file.assert_called_once_with(
+            mock_build_frame.file_path, mode="w", encoding="utf-8"
+        )
+        mock_thread.assert_called_once()
         mock_thread.return_value.start.assert_called_once()
         mock_build_frame.check_thread.assert_called_once()
-        self.assertEqual("command", mock_build_frame.current_command)
 
     @patch("cli.cmd_gui.frame_build.build_gui.file_name_from_current_time")
-    def test_save_command(self, mock_time: MagicMock):
-        """Test 'save_command' function"""
+    def test_save_log(self, mock_time: MagicMock) -> None:
+        """Test 'save_log_cb' function"""
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(PATH_GUI / "output_build_save_command.txt")
-        mock_time.return_value = "new"
         mock_build_frame.current_command = "command"
-        mock_build_frame.file_path.write_text("New content.", encoding="utf-8")
-        build_gui.BuildFrame.save_command_cb(mock_build_frame)
-        with open(
-            Path(PATH_GUI / "gui" / "command_new.txt"),
-            encoding="utf-8",
-        ) as f:
-            self.assertEqual("New content.", f.read())
-        with open(mock_build_frame.file_path, encoding="utf-8") as f:
-            self.assertEqual("New content.", f.read())
+        mock_time.return_value = "new"
+        file_name = PROJECT_BUILD_ROOT / "gui" / "command_new.txt"
+        mock_open_file = mock_open(read_data="log")
+        with patch("builtins.open", mock_open_file):
+            build_gui.BuildFrame.save_log_cb(mock_build_frame)
+        mock_time.assert_called_once()
+        mock_open_file.assert_any_call(
+            mock_build_frame.file_path, encoding="utf-8", errors="ignore"
+        )
+        mock_open_file.assert_any_call(
+            file_name, mode="w", encoding="utf-8", errors="ignore"
+        )
+        mock_open_stream = mock_open_file()
+        mock_open_stream.write.assert_called_once_with("log")
 
-    def test_generate_command_list(self):
+    def test_generate_command_list(self) -> None:
         """Test 'generate_command_list' function"""
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(PATH_GUI / "output_build_command_list.txt")
         mock_build_frame.commands = []
-        with open(mock_build_frame.file_path, mode="w", encoding="utf-8") as f:
-            f.write("Main commands \ncommand :\ncommand : 1:\ncommand 2\noptions:")
-        build_gui.BuildFrame.generate_command_list(mock_build_frame)
-        calls = [
-            call(tk.END, "command  ()"),
-            call(tk.END, "command  (1)"),
-        ]
-        mock_build_frame.listbox.insert.assert_has_calls(calls)
-        self.assertEqual(2, len(mock_build_frame.commands))
+        mock_open_file = mock_open(
+            read_data="Main commands \ncommand :\ncommand : 1\n : command 2\ncommand 3\noptions:"
+        )
+        with patch("builtins.open", mock_open_file):
+            build_gui.BuildFrame.generate_command_list(mock_build_frame)
+        mock_open_file.assert_any_call(mock_build_frame.file_path, encoding="utf-8")
+        mock_open_file.assert_has_calls(
+            [
+                call(mock_build_frame.file_path, mode="w", encoding="utf-8"),
+                call().close(),
+            ]
+        )
+        mock_build_frame.commands_listbox.insert.assert_has_calls(
+            [call(tk.END, "command  ()"), call(tk.END, "command  (1)")]
+        )
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Select a command to run."
+        )
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="lightgrey"
+        )
+
+    def test_generate_command_list_invalid_file(self) -> None:
+        """Test 'generate_command_list' function when file contains no commands"""
+        mock_build_frame = MagicMock()
+        mock_build_frame.commands = []
+        mock_open_file = mock_open(
+            read_data="command :\ncommand : 1\n : command 2\ncommand 3\noptions:"
+        )
+        with patch("builtins.open", mock_open_file):
+            build_gui.BuildFrame.generate_command_list(mock_build_frame)
+        mock_open_file.assert_any_call(mock_build_frame.file_path, encoding="utf-8")
+        mock_open_file.assert_has_calls(
+            [
+                call(mock_build_frame.file_path, mode="w", encoding="utf-8"),
+                call().close(),
+            ]
+        )
+        mock_build_frame.commands_listbox.insert.assert_not_called()
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Could not parse command list from 'waf --help' output."
+        )
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="red"
+        )
 
     @patch("cli.cmd_gui.frame_build.build_gui.Thread")
-    @patch("cli.cmd_build.build_impl.run_top_level_waf")
-    def test_generate_command_list_command_cb(
-        self, mock_run_waf: MagicMock, mock_thread: MagicMock
-    ):
+    def test_generate_command_list_cb(self, mock_thread: MagicMock) -> None:
         """Test 'generate_command_list_command_cb' function"""
-        mock_thread.return_value = MagicMock()
         mock_build_frame = MagicMock()
-        mock_build_frame.file_path = Path(PATH_GUI / "output_build_list_cb.txt")
-        build_gui.BuildFrame.generate_command_list_command_cb(mock_build_frame)
-        mock_build_frame.file_stream.close()
-        mock_build_frame.check_thread.assert_called_once()
+        mock_open_file = mock_open()
+        with patch("builtins.open", mock_open_file):
+            build_gui.BuildFrame.generate_command_list_cb(mock_build_frame)
+        self.assertEqual(mock_build_frame.current_command, "Generate Command List")
+        mock_build_frame.reset_text.assert_called_once()
+        mock_build_frame.run_button.state.assert_called_once_with([tk.DISABLED])
+        mock_build_frame.command_list_button.state.assert_called_once_with(
+            [tk.DISABLED]
+        )
+        mock_build_frame.status_label.config.assert_called_once_with(
+            text="Running command 'Generate Command List'."
+        )
+        mock_build_frame.indicator_canvas.itemconfig.assert_called_once_with(
+            mock_build_frame.oval, fill="darkgrey"
+        )
+        mock_open_file.assert_called_once_with(
+            mock_build_frame.file_path, mode="w", encoding="utf-8"
+        )
+        mock_thread.assert_called_once()
         mock_thread.return_value.start.assert_called_once()
+        mock_build_frame.check_thread.assert_called_once()
 
-    def test_select_command_cb(self):
+    def test_select_command(self) -> None:
         """Test 'select_command_cb' function"""
         mock_build_frame = MagicMock()
-        mock_entry = MagicMock()
-        mock_entry.get.return_value = "command"
-        mock_build_frame.search_command_entry = mock_entry
+        mock_build_frame.search_command_entry.get.return_value = "command"
         command_1 = build_gui.Command("command_1", "")
         command_2 = build_gui.Command("command_2", "")
         command_3 = build_gui.Command("Command_3", "")
@@ -533,8 +684,12 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
         mock_build_frame.commands = [command_1, command_2, command_3, command_4]
         mock_build_frame.reduced_commands = [command_4]
         build_gui.BuildFrame.select_command_cb(mock_build_frame, "<KeyRelease>")
-        self.assertEqual(3, len(mock_build_frame.reduced_commands))
-        mock_build_frame.listbox.insert.assert_has_calls(
+        mock_build_frame.search_command_entry.get.assert_called_once()
+        mock_build_frame.commands_listbox.delete.assert_called_once_with(0, tk.END)
+        self.assertListEqual(
+            mock_build_frame.reduced_commands, [command_1, command_2, command_3]
+        )
+        mock_build_frame.commands_listbox.insert.assert_has_calls(
             [
                 call(tk.END, "command_1  ()"),
                 call(tk.END, "command_2  ()"),
@@ -547,14 +702,22 @@ class TestBuildFrameNoUiTestableMethods(unittest.TestCase):
 class TestBuildImport(unittest.TestCase):
     """Test import of build_gui"""
 
-    @patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False)
-    def test_no_project(self):
-        """Test import when ROOT_IS_PROJECT is False"""
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
         importlib.reload(build_gui)
 
-    @patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True)
-    def test_project(self):
+    @patch("cli.helpers.project_context.ROOT_IS_PROJECT", new=False)
+    def test_no_project(self) -> None:
+        """Test import when ROOT_IS_PROJECT is False"""
+        importlib.reload(frame_base)
+        importlib.reload(build_gui)
+        self.assertEqual(build_gui.dummy(None).returncode, 0)
+
+    @patch("cli.helpers.project_context.ROOT_IS_PROJECT", new=True)
+    def test_project(self) -> None:
         """Test import when ROOT_IS_PROJECT is True"""
+        importlib.reload(frame_base)
         importlib.reload(build_gui)
 
 

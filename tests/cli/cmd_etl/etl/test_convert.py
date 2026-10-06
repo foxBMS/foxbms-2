@@ -37,10 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore skipfooter
+
 """Testing file 'cli/cmd_etl/etl/convert.py'."""
-
-
-# test_convert.py
 
 import sys
 import unittest
@@ -71,7 +70,7 @@ except ModuleNotFoundError:
 class TestConverterInit(unittest.TestCase):
     """Tests for Converter.__init__."""
 
-    def test_init_sets_attributes(self):
+    def test_init_sets_attributes(self) -> None:
         """Ensure __init__ correctly assigns provided arguments to instance attributes."""
         settings = ConversionSettings(
             input_format=InputFormats.GAMRY,
@@ -93,7 +92,7 @@ class TestConverterInit(unittest.TestCase):
 class TestConvert(unittest.TestCase):
     """Tests for Converter.convert"""
 
-    def test_nonexistent_path_exits(self):
+    def test_nonexistent_path_exits(self) -> None:
         """If the provided path does not exist, convert should exit with status 1."""
         bogus = Path("this_path_should_not_exist_12345")
         settings = ConversionSettings(
@@ -110,7 +109,7 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(cm.exception.code, 1)
         mock_recho.assert_called_once_with("Provided data path does not exist!")
 
-    def test_directory_dta_calls_read_and_write(self):
+    def test_directory_dta_calls_read_and_write(self) -> None:
         """For DTA format, convert should discover .dta files, read them and call _write."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -140,7 +139,7 @@ class TestConvert(unittest.TestCase):
             self.assertIn(f1, called_paths)
             self.assertIn(f2, called_paths)
 
-    def test_directory_dta_is_none(self):
+    def test_directory_dta_is_none(self) -> None:
         """Test convert dta with empty dataframe."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -160,7 +159,7 @@ class TestConvert(unittest.TestCase):
                 # _write should be called for each discovered file
             mock_write.assert_not_called()
 
-    def test_directory_graphtec_calls_read_and_write_with_renamed_target(self):
+    def test_directory_graphtec_calls_read_and_write_with_renamed_target(self) -> None:
         """For Graphtec format, convert should discover .csv and use renamed
         target base before writing.
         """
@@ -192,7 +191,7 @@ class TestConvert(unittest.TestCase):
             self.assertIn(expected1, called_paths)
             self.assertIn(expected2, called_paths)
 
-    def test_directory_graphtec_is_none(self):
+    def test_directory_graphtec_is_none(self) -> None:
         """Test convert graphtec with empty dataframe."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -212,7 +211,7 @@ class TestConvert(unittest.TestCase):
                 # _write should be called for each discovered file
             mock_write.assert_not_called()
 
-    def test_unkown_format(self):
+    def test_unkown_format(self) -> None:
         """Test convert with unkown Inputformat"""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -234,7 +233,7 @@ class TestConvert(unittest.TestCase):
             self.assertEqual(cm.exception.code, 1)
             mock_recho.assert_called_once()
 
-    def test_permission_error(self):
+    def test_permission_error(self) -> None:
         """For DTA format, convert should discover .dta files, read them and call _write."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -260,7 +259,7 @@ class TestConvert(unittest.TestCase):
 class TestGetDataFiles(unittest.TestCase):
     """Tests for Converter._get_data_files"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Minimal settings needed for instantiation"""
         self.settings = ConversionSettings(
             input_format=InputFormats.GAMRY,
@@ -268,7 +267,7 @@ class TestGetDataFiles(unittest.TestCase):
             additional={"skip_footer": 0},
         )
 
-    def test_find_single_file(self):
+    def test_find_single_file(self) -> None:
         """Ensure a single file is handle correctly."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -281,7 +280,7 @@ class TestGetDataFiles(unittest.TestCase):
             files = conv._get_data_files("dta")  # pylint: disable=protected-access
             self.assertIn(file_path, files)
 
-    def test_non_recursive_finds_only_top_level(self):
+    def test_non_recursive_finds_only_top_level(self) -> None:
         """Ensure non-recursive search returns only files in the top directory."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -289,7 +288,7 @@ class TestGetDataFiles(unittest.TestCase):
             (base / "a.dta").write_text("dummy")
             (base / "b.dta").write_text("dummy")
             (base / "c.csv").write_text("dummy")
-            # Create subdir with matching files
+            # Create subdirectory with matching files
             sub = base / "sub"
             sub.mkdir()
             (sub / "d.dta").write_text("dummy")
@@ -298,7 +297,7 @@ class TestGetDataFiles(unittest.TestCase):
             files = conv._get_data_files("dta")  # pylint: disable=protected-access
             self.assertEqual({p.name for p in files}, {"a.dta", "b.dta"})
 
-    def test_recursive_finds_nested(self):
+    def test_recursive_finds_nested(self) -> None:
         """Ensure recursive search returns files from all subdirectories."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -318,7 +317,7 @@ class TestGetDataFiles(unittest.TestCase):
 class TestWrite(unittest.TestCase):
     """Tests for Converter._write"""
 
-    def test_write_csv_creates_file(self):
+    def test_write_csv_creates_file(self) -> None:
         """Writing CSV should produce a .csv file next to target base path."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -334,7 +333,7 @@ class TestWrite(unittest.TestCase):
             conv._write(df, new_base)  # pylint: disable=protected-access
             self.assertTrue((base / "out.csv").exists())
 
-    def test_write_parquet_uses_to_parquet(self):
+    def test_write_parquet_uses_to_parquet(self) -> None:
         """Writing Parquet should call DataFrame.to_parquet with a .parquet suffix."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -358,7 +357,7 @@ class TestWrite(unittest.TestCase):
                 called_path = mock_parquet.call_args[0][1]
                 self.assertTrue(str(called_path).endswith(".parquet"))
 
-    def test_write_unknown_output_format_exits(self):
+    def test_write_unknown_output_format_exits(self) -> None:
         """Unknown output format should print an error and exit with status 1."""
         with TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -386,7 +385,7 @@ class TestWrite(unittest.TestCase):
 class TestConverterReadGamry(unittest.TestCase):
     """Tests for Converter.read_gamry."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Prepare default settings with skip_footer=0 for read_gamry tests."""
         self.settings = ConversionSettings(
             input_format=InputFormats.GAMRY,
@@ -394,7 +393,7 @@ class TestConverterReadGamry(unittest.TestCase):
             additional={"skip_footer": 0},
         )
 
-    def test_returns_none_when_no_table_line(self):
+    def test_returns_none_when_no_table_line(self) -> None:
         """Return None and log a message if the 'TABLE' marker cannot be found."""
         conv = Converter(Path("dummy"), False, self.settings)
         m = mock_open(read_data="HEADER\nNO_table_HERE\n")
@@ -410,7 +409,7 @@ class TestConverterReadGamry(unittest.TestCase):
                 "header offset could not be found", mock_secho.call_args[0][0]
             )
 
-    def test_reads_with_skip_footer_and_drops_columns(self):
+    def test_reads_with_skip_footer_and_drops_columns(self) -> None:
         """Read with non-zero skip_footer, then drop the second header level
         and the first column.
         """
@@ -450,7 +449,7 @@ class TestConverterReadGamry(unittest.TestCase):
 
             assert_frame_equal(result, expected)
 
-    def test_reads_with_skip_footer_zero(self):
+    def test_reads_with_skip_footer_zero(self) -> None:
         """Ensure explicit skip_footer=0 is passed through to pandas.read_csv."""
         conv = Converter(Path("dummy"), False, self.settings)
         file_content = "A\nB\nTABLE\nX\n"
@@ -474,7 +473,7 @@ class TestConverterReadGamry(unittest.TestCase):
 class TestConverterReadGraphtec(unittest.TestCase):
     """Tests for Converter.read_graphtec."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Setup conversion settings"""
         self.settings = ConversionSettings(
             input_format=InputFormats.GRAPHTEC,
@@ -482,7 +481,7 @@ class TestConverterReadGraphtec(unittest.TestCase):
             additional={"skip": 32},
         )
 
-    def _write_graphtec_csv(self, path: Path, with_ms: bool = True):
+    def _write_graphtec_csv(self, path: Path, with_ms: bool = True) -> None:
         preamble = "\n".join([f"# header line {i}" for i in range(32)])
         if with_ms:
             header1 = "Index,Date&Time,ms,Ch1,Ch2"
@@ -495,7 +494,7 @@ class TestConverterReadGraphtec(unittest.TestCase):
         content = f"{preamble}\n{header1}\n{header2}\n{data}\n"
         path.write_text(content, encoding="utf-8")
 
-    def test_read_graphtec_happy_path(self):
+    def test_read_graphtec_happy_path(self) -> None:
         """Read graphtec .csv and convert the file."""
         with TemporaryDirectory() as tmpdir:
             file_path = Path(tmpdir) / "graphtec.csv"
@@ -503,7 +502,7 @@ class TestConverterReadGraphtec(unittest.TestCase):
             conv = Converter(file_path, False, self.settings)
             df = conv.read_graphtec(file_path)
             self.assertListEqual(df.columns.tolist(), ["Date&Time", "Ch1", "Ch2"])
-            self.assertTrue(pd.api.types.is_datetime64_ns_dtype(df["Date&Time"].dtype))
+            self.assertTrue(pd.api.types.is_datetime64_any_dtype(df["Date&Time"].dtype))
             expected_ts = pd.Timestamp("2023-01-02 03:04:05") + pd.to_timedelta(
                 123, unit="ms"
             )
@@ -511,7 +510,7 @@ class TestConverterReadGraphtec(unittest.TestCase):
             self.assertAlmostEqual(df.loc[df.index[0], "Ch1"], 1.1)
             self.assertAlmostEqual(df.loc[df.index[0], "Ch2"], 2.2)
 
-    def test_read_graphtec_key_error(self):
+    def test_read_graphtec_key_error(self) -> None:
         """Read graphtec .csv and convert the file."""
         with TemporaryDirectory() as tmpdir:
             file_path = Path(tmpdir) / "graphtec.csv"
@@ -522,7 +521,7 @@ class TestConverterReadGraphtec(unittest.TestCase):
             self.assertIsNone(result)
             mock_recho.assert_called_once()
 
-    def test_read_graphtec_without_skip(self):
+    def test_read_graphtec_without_skip(self) -> None:
         """Read graphtec .csv and convert the file."""
         with TemporaryDirectory() as tmpdir:
             file_path = Path(tmpdir) / "graphtec.csv"

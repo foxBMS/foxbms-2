@@ -43,8 +43,8 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,11 +69,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("debug_default.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/debug/default")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define FAKE_CELL_VOLTAGE_mV (BC_VOLTAGE_NOMINAL_mV)
@@ -185,22 +180,22 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
         .header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
     static DATA_BLOCK_OPEN_WIRE_s test_fake_openWire = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
     FAKE_STATE_s test_fake_state                     = {
-                            .timer                    = 0,
-                            .firstMeasurementFinished = false,
-                            .triggerEntry             = 0,
-                            .nextState                = FAKE_FSM_STATE_HAS_NEVER_RUN,
-                            .currentState             = FAKE_FSM_STATE_HAS_NEVER_RUN,
-                            .previousState            = FAKE_FSM_STATE_HAS_NEVER_RUN,
-                            .nextSubstate             = FAKE_FSM_SUBSTATE_DUMMY,
-                            .currentSubstate          = FAKE_FSM_SUBSTATE_DUMMY,
-                            .previousSubstate         = FAKE_FSM_SUBSTATE_DUMMY,
-                            .data.allGpioVoltages     = &test_fake_allGpioVoltage,
-                            .data.balancingControl    = &test_fake_balancingControl,
-                            .data.balancingFeedback   = &test_fake_balancingFeedback,
-                            .data.cellTemperature     = &test_fake_cellTemperature,
-                            .data.cellVoltage         = &test_fake_cellVoltage,
-                            .data.openWire            = &test_fake_openWire,
-                            .data.slaveControl        = &test_fake_slaveControl,
+        .timer                    = 0,
+        .firstMeasurementFinished = false,
+        .triggerEntry             = 0,
+        .nextState                = FAKE_FSM_STATE_HAS_NEVER_RUN,
+        .currentState             = FAKE_FSM_STATE_HAS_NEVER_RUN,
+        .previousState            = FAKE_FSM_STATE_HAS_NEVER_RUN,
+        .nextSubstate             = FAKE_FSM_SUBSTATE_DUMMY,
+        .currentSubstate          = FAKE_FSM_SUBSTATE_DUMMY,
+        .previousSubstate         = FAKE_FSM_SUBSTATE_DUMMY,
+        .data.allGpioVoltages     = &test_fake_allGpioVoltage,
+        .data.balancingControl    = &test_fake_balancingControl,
+        .data.balancingFeedback   = &test_fake_balancingFeedback,
+        .data.cellTemperature     = &test_fake_cellTemperature,
+        .data.cellVoltage         = &test_fake_cellVoltage,
+        .data.openWire            = &test_fake_openWire,
+        .data.slaveControl        = &test_fake_slaveControl,
     };
 
     static DATA_BLOCK_CELL_VOLTAGE_s test_fake_cellVoltageCompare = {
@@ -283,7 +278,7 @@ void testFAKE_SaveFakeVoltageMeasurementData(void) {
     /* ======= Routine tests =============================================== */
     static DATA_BLOCK_CELL_VOLTAGE_s test_fake_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
     FAKE_STATE_s test_fake_state                           = {
-                                  .data.cellVoltage = &test_fake_cellVoltage,
+        .data.cellVoltage = &test_fake_cellVoltage,
     };
     /* ======= RT1/1: Test implementation */
     DATA_Write1DataBlock_ExpectAndReturn(test_fake_state.data.cellVoltage, STD_OK);

@@ -45,7 +45,15 @@ from pathlib import Path
 
 
 def extract_version(txt: str, pattern: re.Pattern[str]) -> str:
-    """Extract a version string from text using the supplied regex pattern."""
+    """Extract a version string from text using the supplied regex pattern.
+
+    Args:
+        txt: Text to search for the version string.
+        pattern: Regex pattern to use for extracting the version string.
+
+    Returns:
+        The extracted version string.
+    """
     version = ""
     for line in txt.splitlines():
         m = pattern.search(line)
@@ -57,7 +65,12 @@ def extract_version(txt: str, pattern: re.Pattern[str]) -> str:
 
 
 def get_version() -> str:
-    """Read the foxBMS version from the build file."""
+    """Read the foxBMS version from the build file.
+
+    Returns:
+        The foxBMS version string from the build file or version file if the
+        build file is not found.
+    """
     try:
         txt = (Path(__file__).parent.parent / "wscript").read_text(encoding="utf-8")
     except FileNotFoundError:
@@ -67,7 +80,11 @@ def get_version() -> str:
 
 
 def get_numeric_version() -> str:
-    """Convert the foxBMS version into a dot-separated numeric string."""
+    """Convert the foxBMS version into a dot-separated numeric string.
+
+    Returns:
+        The numeric version string.
+    """
     numeric_version = get_version().split(".")
     for index, part in enumerate(numeric_version):
         if not part.isnumeric():

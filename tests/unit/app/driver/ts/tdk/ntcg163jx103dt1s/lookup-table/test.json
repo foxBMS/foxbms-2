@@ -1,0 +1,18 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/tdk/ntcg163jx103dt1s/lookup-table/tdk_ntcg163jx103dt1s_lookup-table.c"
+    ],
+    "test": "test_tdk_ntcg163jx103dt1s_lookup-table.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/tdk/ntcg163jx103dt1s"
+    ],
+    "mocks": [
+      "src/app/driver/ts/tdk/ntcg163jx103dt1s/tdk_ntcg163jx103dt1s.h"
+    ],
+    "use": "M"
+  }
+]

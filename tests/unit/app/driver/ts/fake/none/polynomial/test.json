@@ -1,0 +1,13 @@
+[
+  {
+    "source": [
+      "src/app/driver/ts/fake/none/fake_none.c",
+      "src/app/driver/ts/fake/none/polynomial/fake_none_polynomial.c"
+    ],
+    "test": "test_fake_none_polynomial.c",
+    "includes": [
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/fake/none"
+    ]
+  }
+]

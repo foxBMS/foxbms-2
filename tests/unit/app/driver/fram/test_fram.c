@@ -43,8 +43,8 @@
  * @file    test_fram.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -73,14 +73,6 @@
 #include <stdbool.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/crc")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 VER_VERSION_s ver_versionInformation VER_VERSION_INFORMATION = {
@@ -123,7 +115,7 @@ void testFRAM_Initialize(void) {
     uint16_t read = 0u;
 
     /* ======= RT1/1: Test implementation */
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     SPI_GetSpiIndex_ExpectAndReturn(spi_framInterface.pNode, SPI_SPI1_INDEX);
     SPI_Lock_ExpectAndReturn(0u, STD_OK);
 

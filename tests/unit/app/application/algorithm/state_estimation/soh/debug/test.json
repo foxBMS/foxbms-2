@@ -1,0 +1,17 @@
+[
+  {
+    "source": [
+      "src/app/application/algorithm/state_estimation/soc/debug/soc_debug.c",
+      "src/app/application/algorithm/state_estimation/soe/debug/soe_debug.c",
+      "src/app/application/algorithm/state_estimation/soh/debug/soh_debug.c",
+      "src/app/application/algorithm/state_estimation/state_estimation.c"
+    ],
+    "test": "test_soh_debug.c",
+    "includes": [
+      "src/app/application/algorithm/state_estimation"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h"
+    ]
+  }
+]

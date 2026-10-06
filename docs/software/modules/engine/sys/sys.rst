@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _SYSTEM_MODULE:
+.. _SYSTEM_ENGINE:
 
-System Module
-=============
+System
+======
 
 Module Files
 ------------
@@ -37,8 +37,7 @@ in initialization operation mode.
 
 The state machine is shown in :numref:`state-machine-system-module`.
 
-.. drawio-figure:: sys_state-machine.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/software/modules/engine/sys/sys_state-machine.svg
    :alt: State machine of the System Module
    :name: state-machine-system-module
    :width: 512px

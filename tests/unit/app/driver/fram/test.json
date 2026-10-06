@@ -1,0 +1,40 @@
+[
+  {
+    "source": [
+      "src/app/driver/config/fram_cfg.c",
+      "src/app/driver/config/spi_cfg.c",
+      "src/app/driver/fram/fram.c",
+      "src/app/main/fassert.c"
+    ],
+    "test": "test_fram.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/crc",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/io",
+      "src/app/driver/spi",
+      "src/app/engine/diag",
+      "src/version"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "src/app/driver/crc/crc.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/engine/config/diag_cfg.h",
+      "src/app/engine/diag/diag.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/driver/fram/fram_helper.c",
+    "test": "test_fram_helper.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram"
+    ],
+    "mocks": []
+  }
+]

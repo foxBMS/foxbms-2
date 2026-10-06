@@ -43,8 +43,8 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -57,7 +57,9 @@
 #define FOXBMS__FTASK_H_
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
 
 #include "can_cfg.h"
 #include "ftask_cfg.h"
@@ -105,8 +107,8 @@
 
 #if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 /** Length of queue that is used for data transmission from CAN to AFE slave */
-#define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH (5u)
-#define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH     (5u)
+#define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH (8u)
+#define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH     (8u)
 #endif
 
 #if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
@@ -115,7 +117,7 @@
 #define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES     (sizeof(CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s))
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /** Length of queue that is used in the UART module for receiving messages */
 #define FTSK_UART_RX_QUEUE_LENGTH (1024u)
 /** Size of queue item that is used in the UART driver */
@@ -152,7 +154,7 @@ extern OS_QUEUE ftsk_canToAfeCellVoltagesQueue;
 extern OS_QUEUE ftsk_canToAfeCellTemperaturesQueue;
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /** UART driver data queue for RX messages */
 extern OS_QUEUE ftsk_uartRxQueue;
 #endif
@@ -191,7 +193,7 @@ extern void FTSK_CreateTaskEngine(void *const pvParameters);
  * @details Then the Task is delayed by a phase as defined in
  *          ftsk_taskDefinitionCyclic1ms.phase (in milliseconds). After the
  *          phase delay, the cyclic execution starts, the entry time is saved
- *          in current_time. After one cycle, the Task is set to sleep until
+ *          in currentTime. After one cycle, the Task is set to sleep until
  *          entry time + ftsk_taskDefinitionCyclic1ms.cycleTime (in
  *          milliseconds).
  * @param   pvParameters parameter for the to task
@@ -203,7 +205,7 @@ extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters);
  * @details Task is delayed by a phase as defined in
  *          ftsk_taskDefinitionCyclic10ms.phase (in milliseconds). After
  *          the phase delay, the cyclic execution starts, the entry time is
- *          saved in current_time. After one cycle, the Task is set to sleep
+ *          saved in currentTime. After one cycle, the Task is set to sleep
  *          until entry time + ftsk_taskDefinitionCyclic10ms.cycleTime (in
  *          milliseconds).
  * @param   pvParameters parameter for the to task
@@ -215,7 +217,7 @@ extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters);
  * @details Task is delayed by a phase as defined in
  *          ftsk_taskDefinitionCyclic100ms.phase (in milliseconds). After the
  *          phase delay, the cyclic execution starts, the entry time is saved
- *          in current_time. After one cycle, the Task is set to sleep until
+ *          in currentTime. After one cycle, the Task is set to sleep until
  *          entry time + ftsk_taskDefinitionCyclic100ms.cycleTime (in
  *          milliseconds).
  * @param   pvParameters parameter for the to task
@@ -227,7 +229,7 @@ extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters);
  * @details Task is delayed by a phase as defined in
  *          ftsk_taskDefinitionCyclicAlgorithm100ms.Phase (in milliseconds).
  *          After the phase delay, the cyclic execution starts, the entry time
- *          is saved in current_time. After one cycle, the Task is set to sleep
+ *          is saved in currentTime. After one cycle, the Task is set to sleep
  *          until entry
  *          time + ftsk_taskDefinitionCyclicAlgorithm100ms.CycleTime (in
  *          milliseconds).
@@ -240,7 +242,7 @@ extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters);
  */
 extern void FTSK_CreateTaskI2c(void *const pvParameters);
 
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /**
  * @brief   Creation of continuously running task for AFEs
  * @param   pvParameters parameter for the to task
@@ -248,9 +250,9 @@ extern void FTSK_CreateTaskI2c(void *const pvParameters);
 extern void FTSK_CreateTaskAfe(void *const pvParameters);
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /**
- * @brief   Creation of continuously running task for Uart
+ * @brief   Creation of continuously running task for UART
  * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskUart(void *const pvParameters);

@@ -53,7 +53,7 @@ from typing import cast
 from can import BusABC
 
 from ..helpers.logger import logger
-from ..helpers.misc import APP_DBC_FILE, BOOTLOADER_DBC_FILE
+from ..helpers.project_context import APP_DBC_FILE, BOOTLOADER_DBC_FILE
 from .bootloader import BootloaderInterface
 from .bootloader_can_basics import BootloaderCanBasics
 from .bootloader_can_messages import (
@@ -85,7 +85,9 @@ class BootloaderInterfaceCan(BootloaderInterface):
         """Init function.
 
         Args:
-            can_bus: CAN bus object
+            can_bus: CAN bus object.
+            app_dbc: path to the application DBC file.
+            bootloader_dbc: path to the bootloader DBC file.
         """
         self.app_dbc = app_dbc
         self.can = BootloaderCanBasics(can_bus=can_bus, dbc_file=bootloader_dbc)
@@ -106,11 +108,11 @@ class BootloaderInterfaceCan(BootloaderInterface):
                 table, False if it belongs to a regular data sector.
 
         Returns:
-            A tuple (is_ack_received, is_crc_valid) where:
-                - is_ack_received is True if an ACK message has been received,
-                  False otherwise.
-                - is_crc_valid is True if the ACK indicates a valid CRC
-                  (YesNoFlag == "Yes"), False otherwise.
+            tuple[bool, bool]:
+                                ``(is_ack_received, is_crc_valid)``.
+                                ``is_ack_received`` is True if an ACK message was received.
+                                ``is_crc_valid`` is True if the ACK indicates a valid CRC
+                                (``YesNoFlag == "Yes"``).
         """
         self.can.send_crc_to_bootloader(crc_8_bytes)
         if is_crc_of_vector_table:
@@ -257,6 +259,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
 
         Args:
             time_to_wait: time to wait for bootloader to reset itself.
+            num_of_repeat: number of retries while polling for bootloader state.
 
         Returns:
             True if the bootloader has been successfully reset, False

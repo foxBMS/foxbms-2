@@ -1,0 +1,9 @@
+[
+  {
+    "source": "src/app/driver/ts/fake/none/fake_none.c",
+    "test": "test_fake_none.c",
+    "includes": [
+      "src/app/driver/ts/fake/none"
+    ]
+  }
+]

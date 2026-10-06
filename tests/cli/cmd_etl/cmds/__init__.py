@@ -46,7 +46,8 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
-# TODO: Why is this pylint suppression needed?!
+# Pylint resolves this test module as the imported package module because both
+# files are named '__init__', so the import-self warning is a false positive.
 try:
     # pylint: disable-next=import-self
     from cli.cmd_etl.cmds import (
@@ -146,63 +147,6 @@ class TestGetConfigFileOptions(unittest.TestCase):
         with redirect_stdout(buf):
             get_config_file_options(ctx, MagicMock(), config_file)
         self.assertIn("Default configuration file filter.yml is used.", buf.getvalue())
-
-    @patch("cli.cmd_etl.cmds.Path.is_file")
-    @patch("cli.cmd_etl.cmds.Path.cwd")
-    def test_get_config_file_options_dbc_not_found(
-        self, m_cwd: MagicMock, m_is_file: MagicMock, m_read_config: MagicMock
-    ) -> None:
-        """Test when the dbc file cant be found"""
-        ctx = MagicMock()
-
-        m_cwd.return_value = Path("/foo")
-        m_is_file.return_value = False
-        m_read_config.return_value = {"dbc": "test.dbc"}
-        config_file = MagicMock()
-        config_file.parent = Path()
-        get_config_file_options(ctx, MagicMock(), config_file)
-        self.assertEqual(ctx.default_map, {"dbc": "test.dbc"})
-
-    @patch("cli.cmd_etl.cmds.Path.is_file")
-    def test_get_config_file_options_dbc_in_cfg_path(
-        self, m_is_file: MagicMock, m_read_config: MagicMock
-    ) -> None:
-        """Test when dbc file is found in path of config"""
-        ctx = MagicMock()
-        config_file = MagicMock()
-
-        m_read_config.return_value = {"dbc": "bar"}
-        m_is_file.side_effect = [False, False, True]
-        config_file.is_file.return_value = True
-        config_file.parent = Path("foo")
-
-        buf = io.StringIO()
-        with redirect_stdout(buf):
-            get_config_file_options(ctx, MagicMock(), config_file)
-
-        self.assertEqual("", buf.getvalue())
-        self.assertDictEqual(ctx.default_map, {"dbc": Path("foo/bar")})
-
-    @patch("cli.cmd_etl.cmds.Path.is_file")
-    @patch("cli.cmd_etl.cmds.Path.cwd")
-    def test_get_config_file_options_in_cwd(
-        self, m_cwd: MagicMock, m_is_file: MagicMock, m_read_config: MagicMock
-    ) -> None:
-        """Test when dbc file is found in path of cwd"""
-        ctx = MagicMock()
-        config_file = MagicMock()
-
-        m_read_config.return_value = {"dbc": "bar"}
-        m_is_file.side_effect = [False, True]
-        m_cwd.return_value = Path("foo")
-        config_file.is_file.return_value = True
-
-        buf = io.StringIO()
-        with redirect_stdout(buf):
-            get_config_file_options(ctx, MagicMock(), config_file)
-
-        self.assertEqual("", buf.getvalue())
-        self.assertDictEqual(ctx.default_map, {"dbc": Path("foo/bar")})
 
 
 if __name__ == "__main__":

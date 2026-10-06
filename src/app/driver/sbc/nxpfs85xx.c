@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
@@ -973,15 +973,15 @@ extern STD_RETURN_TYPE_e FS85_InitializeNumberOfRequiredWatchdogRefreshes(
         FS8x_BO_GET_REG_VALUE(
             pInstance->fsRegister.iWatchdogConfiguration, FS8X_FS_I_WD_RFR_LIMIT_MASK, FS8X_FS_I_WD_RFR_LIMIT_SHIFT)) {
         watchdogRefreshLimit = 6u;
-    } else if (
-        FS8X_FS_I_WD_RFR_LIMIT_4 ==
-        FS8x_BO_GET_REG_VALUE(
-            pInstance->fsRegister.iWatchdogConfiguration, FS8X_FS_I_WD_RFR_LIMIT_MASK, FS8X_FS_I_WD_RFR_LIMIT_SHIFT)) {
+    } else if (FS8X_FS_I_WD_RFR_LIMIT_4 == FS8x_BO_GET_REG_VALUE(
+                                               pInstance->fsRegister.iWatchdogConfiguration,
+                                               FS8X_FS_I_WD_RFR_LIMIT_MASK,
+                                               FS8X_FS_I_WD_RFR_LIMIT_SHIFT)) {
         watchdogRefreshLimit = 4u;
-    } else if (
-        FS8X_FS_I_WD_RFR_LIMIT_2 ==
-        FS8x_BO_GET_REG_VALUE(
-            pInstance->fsRegister.iWatchdogConfiguration, FS8X_FS_I_WD_RFR_LIMIT_MASK, FS8X_FS_I_WD_RFR_LIMIT_SHIFT)) {
+    } else if (FS8X_FS_I_WD_RFR_LIMIT_2 == FS8x_BO_GET_REG_VALUE(
+                                               pInstance->fsRegister.iWatchdogConfiguration,
+                                               FS8X_FS_I_WD_RFR_LIMIT_MASK,
+                                               FS8X_FS_I_WD_RFR_LIMIT_SHIFT)) {
         watchdogRefreshLimit = 2u;
     } else {
         watchdogRefreshLimit = 1u;

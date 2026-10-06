@@ -1,0 +1,18 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/semitec/103jt/lookup-table/semitec_103jt_lookup-table.c"
+    ],
+    "test": "test_semitec_103jt_lookup-table.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/semitec/103jt"
+    ],
+    "mocks": [
+      "src/app/driver/ts/semitec/103jt/semitec_103jt.h"
+    ],
+    "use": "M"
+  }
+]

@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2025-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -84,8 +84,8 @@ extern STD_RETURN_TYPE_e NXP_Initialize(void) {
     PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
     PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
     /* Leave time for the PEX to be triggered in the 10ms task */
-    uint32_t current_time = OS_GetTickCount();
-    OS_DelayTaskUntil(&current_time, 10u);
+    uint32_t currentTime = OS_GetTickCount();
+    OS_DelayTaskUntil(&currentTime, 10u);
     return STD_OK;
 }
 
@@ -100,26 +100,31 @@ extern bool NXP_IsFirstMeasurementCycleFinished(void) {
 
 extern STD_RETURN_TYPE_e NXP_RequestTemperatureRead(uint8_t string) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e NXP_RequestBalancingFeedbackRead(uint8_t string) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e NXP_RequestEepromRead(uint8_t string) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e NXP_RequestEepromWrite(uint8_t string) {
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    (void)string;
     return retVal;
 }
 
 extern STD_RETURN_TYPE_e NXP_RequestOpenWireCheck(uint8_t string) {
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    (void)string;
     return retVal;
 }
 

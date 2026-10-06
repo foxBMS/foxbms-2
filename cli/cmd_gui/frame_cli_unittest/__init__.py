@@ -37,4 +37,4 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements the 'fox CLI Unit Tests'"""
+"""Implements the 'cli_unittest' frame"""

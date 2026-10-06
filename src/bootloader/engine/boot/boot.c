@@ -43,14 +43,18 @@
  * @file    boot.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  BOOT
  *
  * @brief   File that contains all functions that are relevant into the
  *          workflow of bootloader and will be directly called in main.c.
- * @details TODO
+ * @details Implements the main bootloader control flow on top of the CAN
+ *          transfer protocol and flash helper layer. It validates received
+ *          sectors and vector tables, writes program data to flash, determines
+ *          boot states, starts valid applications, and performs reset or erase
+ *          recovery paths.
  */
 
 /*========== Includes =======================================================*/
@@ -143,7 +147,14 @@ static STD_RETURN_TYPE_e BOOT_WriteAndValidateCurrentSector(void) {
         /* Disable IRQ interrupt before every function that will be run from
          * RAM */
         _disable_IRQ_interrupt_();
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
         currentSector = FLASH_GetFlashSector((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         if (currentSector.isThisSectorValid == false) {
             gotoNext = false;
         }
@@ -153,16 +164,30 @@ static STD_RETURN_TYPE_e BOOT_WriteAndValidateCurrentSector(void) {
     uint64_t crc_root           = 0u;
     uint32_t lenOfCurrentSector = 0u;
     if (gotoNext) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         lenOfCurrentSector = (uint32_t)currentSector.pU8SectorAddressEnd -
                              (uint32_t)currentSector.pU32SectorAddressStart + 1u;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
         /* Disable IRQ interrupt before every function that will be run from
          * RAM */
         _disable_IRQ_interrupt_();
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
         retValWriteFlash = FLASH_WriteFlashSector(
             (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8,
             (uint8_t *)BOOT_SECTOR_BUFFER_START_ADDRESS,
             lenOfCurrentSector);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         FSYS_SwitchToUserMode();
 
         /* Calculate the CRC signature for this sector using the CRC signature

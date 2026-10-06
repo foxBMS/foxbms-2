@@ -43,8 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -70,9 +70,9 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** local storage of the #DATA_BLOCK_BALANCING_CONTROL_s table */
-static DATA_BLOCK_BALANCING_CONTROL_s bal_balancing = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+static DATA_BLOCK_BALANCING_CONTROL_s bal_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 /** local storage of the #DATA_BLOCK_CELL_VOLTAGE_s table */
-static DATA_BLOCK_CELL_VOLTAGE_s bal_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+static DATA_BLOCK_CELL_VOLTAGE_s bal_tableCellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 
 /** contains the state of the contactor state machine */
 static BAL_STATE_s bal_state = {
@@ -94,31 +94,59 @@ static BAL_STATE_s bal_state = {
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-/** Activates history based balancing */
+/**
+ * @brief   Activate history-based balancing for eligible cells
+ * @details Decrease the charge difference of each cell that is currently
+ *          being balanced.
+ */
 static void BAL_ActivateBalancing(void);
 
 /**
- * @brief   Deactivates history based balancing
- * @details The balancing state of all cells in all strings set to inactivate
- *          (that is 0) and the delta charge is set to 0 As. The balancing
- *          enable bit is deactivate (that is 0).
+ * @brief   Deactivate history-based balancing
+ * @details Deactivate balancing for all cells, clear their charge
+ *          differences, and clear the balancing enable state.
  */
 static void BAL_Deactivate(void);
 
 /**
- * @brief   State machine subfunction to check if balancing is allowed
- * @details Checks if balancing is allowed. If it is it transfers in the actual
- *          balancing state.
+ * @brief   Process the balancing permission state
+ * @details Handle global balancing permission and transfer the state
+ *          machine to imbalance checking or deactivate balancing.
  */
 static void BAL_ProcessStateCheckBalancing(void);
 
-/** State machine subfunction to balance the battery cell */
+/**
+ * @brief   Process the history-based balancing state
+ * @details Check safety conditions and activate balancing for eligible
+ *          cells.
+ */
 static void BAL_ProcessStateBalancing(void);
 
-/** State machine subfunction to check for voltage imbalances */
+/**
+ * @brief   Check for existing balancing imbalances
+ * @details The balancing calculation stores the remaining charge to remove
+ *          from each eligible cell in
+ *          #DATA_BLOCK_BALANCING_CONTROL_s::deltaCharge_mAs.
+ *          Scan all cells in all strings and return true when at least one
+ *          cell has a positive remaining charge difference.
+ *          This allows the state machine to continue balancing without
+ *          recalculating imbalances. The table is not modified by this
+ *          check.
+ */
 static bool BAL_CheckImbalances(void);
 
-/** State machine subfunction to compute the imbalance of all cells */
+/**
+ * @brief   Compute charge differences for history-based balancing
+ * @details The cell with the lowest relaxed voltage is used as the reference
+ *          because it represents the most discharged cell in the string. The
+ *          relaxed voltage of every cell is converted to a state-of-charge
+ *          value. The difference between the reference cell's estimated
+ *          depth of discharge and each eligible cell's depth of discharge is
+ *          stored in mAs, which gives the balancing state machine the amount
+ *          of charge that has to be removed from that cell. The balancing
+ *          threshold and hysteresis prevent cells with insignificant voltage
+ *          differences from being balanced.
+ */
 static void BAL_ComputeImbalances(void);
 
 /*========== Static Function Implementations ================================*/
@@ -127,55 +155,56 @@ static void BAL_ActivateBalancing(void) {
     float_t cellBalancingCurrent = 0.0f;
     uint32_t difference          = 0;
 
-    DATA_READ_DATA(&bal_balancing, &bal_cellVoltage);
+    DATA_READ_DATA(&bal_tableCellVoltage, &bal_tableBalancingControl);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         uint16_t nrBalancedCells = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 if (bal_state.balancingAllowed == false) {
-                    bal_balancing.activateBalancing[s][m][cb] = false;
+                    bal_tableBalancingControl.activateBalancing[s][m][cb] = false;
                 } else {
-                    if (bal_balancing.deltaCharge_mAs[s][m][cb] > 0u) {
-                        bal_balancing.activateBalancing[s][m][cb] = true;
+                    const bool mustBalance = bal_tableBalancingControl.deltaCharge_mAs[s][m][cb] > 0u;
+                    if (mustBalance) {
+                        bal_tableBalancingControl.activateBalancing[s][m][cb] = true;
                         nrBalancedCells++;
-                        cellBalancingCurrent = ((float_t)(bal_cellVoltage.cellVoltage_mV[s][m][cb])) /
+                        cellBalancingCurrent = ((float_t)(bal_tableCellVoltage.cellVoltage_mV[s][m][cb])) /
                                                SLV_BALANCING_RESISTANCE_ohm;
-                        difference       = (BAL_FSM_BALANCING_TIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
-                        bal_state.active = true;
-                        bal_balancing.enableBalancing = true;
+                        difference           = (BAL_FSM_BALANCING_TIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
+                        bal_state.active     = true;
+                        bal_tableBalancingControl.enableBalancing = true;
                         /* we are working with unsigned integers */
-                        if (difference > bal_balancing.deltaCharge_mAs[s][m][cb]) {
-                            bal_balancing.deltaCharge_mAs[s][m][cb] = 0u;
+                        if (difference > bal_tableBalancingControl.deltaCharge_mAs[s][m][cb]) {
+                            bal_tableBalancingControl.deltaCharge_mAs[s][m][cb] = 0u;
                         } else {
-                            bal_balancing.deltaCharge_mAs[s][m][cb] -= difference;
+                            bal_tableBalancingControl.deltaCharge_mAs[s][m][cb] -= difference;
                         }
                     } else {
-                        bal_balancing.activateBalancing[s][m][cb] = false;
+                        bal_tableBalancingControl.activateBalancing[s][m][cb] = false;
                     }
                 }
             }
         }
-        bal_balancing.nrBalancedCells[s] = nrBalancedCells;
+        bal_tableBalancingControl.nrBalancedCells[s] = nrBalancedCells;
     }
 
-    DATA_WRITE_DATA(&bal_balancing);
+    DATA_WRITE_DATA(&bal_tableBalancingControl);
 }
 
 static void BAL_Deactivate(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                bal_balancing.activateBalancing[s][m][cb] = false;
-                bal_balancing.deltaCharge_mAs[s][m][cb]   = 0u;
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                bal_tableBalancingControl.activateBalancing[s][m][cb] = false;
+                bal_tableBalancingControl.deltaCharge_mAs[s][m][cb]   = 0u;
             }
         }
-        bal_balancing.nrBalancedCells[s] = 0u;
+        bal_tableBalancingControl.nrBalancedCells[s] = 0u;
     }
-    bal_balancing.enableBalancing = false;
-    bal_state.active              = false;
+    bal_tableBalancingControl.enableBalancing = false;
+    bal_state.active                          = false;
 
-    DATA_WRITE_DATA(&bal_balancing);
+    DATA_WRITE_DATA(&bal_tableBalancingControl);
 }
 
 static void BAL_ProcessStateCheckBalancing(void) {
@@ -258,69 +287,84 @@ static void BAL_ProcessStateBalancing(void) {
     }
 }
 static bool BAL_CheckImbalances(void) {
-    bool returnValue = false;
+    bool imbalancesExist = false;
 
+    /* A positive charge difference means that this cell still needs balancing. */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if (bal_balancing.deltaCharge_mAs[s][m][cb] > 0) {
-                    returnValue = true;
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                if (bal_tableBalancingControl.deltaCharge_mAs[s][m][cb] > 0) {
+                    /* Record remaining work and continue checking the other cells. */
+                    imbalancesExist = true;
                 }
             }
         }
     }
-    return returnValue;
+    return imbalancesExist;
 }
 
 static void BAL_ComputeImbalances(void) {
-    int16_t voltageMin_mV                   = 0;
-    uint16_t minVoltageModuleIndex          = 0u;
-    uint16_t minVoltageModuleCellBlockIndex = 0u;
-    float_t SOC                             = 0.0f;
-    uint32_t DOD                            = 0u;
-    uint32_t maxDOD                         = 0u;
+    int16_t minimumCellVoltage_mV              = 0;
+    int16_t cellVoltage_mV                     = 0;
+    int16_t minimumCellVoltageWithThreshold_mV = 0;
+    uint16_t minimumVoltageModuleIndex         = 0u;
+    uint16_t minimumVoltageCellBlockIndex      = 0u;
+    float_t stateOfChargeFraction              = 0.0f;
+    uint32_t depthOfDischarge_mAs              = 0u;
+    uint32_t maximumDepthOfDischarge_mAs       = 0u;
+    uint32_t chargeDifference_mAs              = 0u;
 
-    DATA_READ_DATA(&bal_balancing, &bal_cellVoltage);
+    DATA_READ_DATA(&bal_tableBalancingControl, &bal_tableCellVoltage);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        /* Assign first cell voltage to*/
-        voltageMin_mV                  = INT16_MAX;
-        minVoltageModuleIndex          = 0u;
-        minVoltageModuleCellBlockIndex = 0u;
+        /* Find the most discharged cell to use as the string reference. */
+        minimumCellVoltage_mV        = INT16_MAX;
+        minimumVoltageModuleIndex    = 0u;
+        minimumVoltageCellBlockIndex = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if (bal_cellVoltage.cellVoltage_mV[s][m][cb] <= voltageMin_mV) {
-                    voltageMin_mV                  = bal_cellVoltage.cellVoltage_mV[s][m][cb];
-                    minVoltageModuleIndex          = m;
-                    minVoltageModuleCellBlockIndex = cb;
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                if (bal_tableCellVoltage.cellVoltage_mV[s][m][cb] <= minimumCellVoltage_mV) {
+                    minimumCellVoltage_mV        = bal_tableCellVoltage.cellVoltage_mV[s][m][cb];
+                    minimumVoltageModuleIndex    = m;
+                    minimumVoltageCellBlockIndex = cb;
                 }
             }
         }
 
-        SOC = SE_GetStateOfChargeFromVoltage(
-            ((float_t)(bal_cellVoltage.cellVoltage_mV[s][minVoltageModuleIndex][minVoltageModuleCellBlockIndex])) /
-            1000.0f);
-        maxDOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
-        bal_balancing.deltaCharge_mAs[s][minVoltageModuleIndex][minVoltageModuleCellBlockIndex] = 0u;
+        /* Estimate the reference cell's remaining charge from its relaxed
+         * voltage. Its depth of discharge is the maximum required balancing
+         * amount against which all other cells in this string are compared.
+         */
+        const int16_t referenceCellVoltage_mV =
+            bal_tableCellVoltage.cellVoltage_mV[s][minimumVoltageModuleIndex][minimumVoltageCellBlockIndex];
+        stateOfChargeFraction       = SE_GetStateOfChargeFromVoltage(referenceCellVoltage_mV) / 100.0f;
+        maximumDepthOfDischarge_mAs = BC_CAPACITY_mAh * (uint32_t)((1.0f - stateOfChargeFraction) * 3600.0f);
+        bal_tableBalancingControl.deltaCharge_mAs[s][minimumVoltageModuleIndex][minimumVoltageCellBlockIndex] = 0u;
 
-        /* update balancing threshold */
-        bal_state.balancingThreshold = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
+        /* Ignore voltage differences smaller than the balancing hysteresis. */
+        bal_state.balancingThreshold       = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
+        minimumCellVoltageWithThreshold_mV = minimumCellVoltage_mV + bal_state.balancingThreshold;
 
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if ((m != minVoltageModuleIndex) || (cb != minVoltageModuleCellBlockIndex)) {
-                    if (bal_cellVoltage.cellVoltage_mV[s][m][cb] >= (voltageMin_mV + bal_state.balancingThreshold)) {
-                        SOC = SE_GetStateOfChargeFromVoltage(
-                            ((float_t)(bal_cellVoltage.cellVoltage_mV[s][m][cb])) / 1000.0f);
-                        DOD                                     = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
-                        bal_balancing.deltaCharge_mAs[s][m][cb] = (maxDOD - DOD);
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                if ((m != minimumVoltageModuleIndex) || (cb != minimumVoltageCellBlockIndex)) {
+                    cellVoltage_mV = bal_tableCellVoltage.cellVoltage_mV[s][m][cb];
+                    if (cellVoltage_mV >= minimumCellVoltageWithThreshold_mV) {
+                        /* A higher state of charge means this cell has more
+                         * charge to remove than the reference cell. Store the
+                         * difference as the balancing work in mAs.
+                         */
+                        stateOfChargeFraction = SE_GetStateOfChargeFromVoltage(cellVoltage_mV) / 100.0f;
+                        depthOfDischarge_mAs  = BC_CAPACITY_mAh * (uint32_t)((1.0f - stateOfChargeFraction) * 3600.0f);
+                        chargeDifference_mAs  = maximumDepthOfDischarge_mAs - depthOfDischarge_mAs;
+                        bal_tableBalancingControl.deltaCharge_mAs[s][m][cb] = chargeDifference_mAs;
                     }
                 }
             }
         }
     }
 
-    DATA_WRITE_DATA(&bal_balancing);
+    DATA_WRITE_DATA(&bal_tableBalancingControl);
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -365,7 +409,7 @@ extern void BAL_Trigger(void) {
             break;
         case BAL_FSM_INITIALIZATION:
             BAL_SaveLastStates(&bal_state);
-            BAL_Init(&bal_balancing);
+            BAL_Init(&bal_tableBalancingControl);
             BAL_ProcessStateInitialization(&bal_state);
             break;
         case BAL_FSM_INITIALIZED:
@@ -395,7 +439,15 @@ extern BAL_FSM_e BAL_GetState(void) {
 }
 
 extern DATA_BLOCK_BALANCING_CONTROL_s *TEST_BAL_GetBalancingControl(void) {
-    return &bal_balancing;
+    return &bal_tableBalancingControl;
+}
+
+extern DATA_BLOCK_CELL_VOLTAGE_s *TEST_BAL_GetCellVoltage(void) {
+    return &bal_tableCellVoltage;
+}
+
+extern void TEST_BAL_ComputeImbalances(void) {
+    BAL_ComputeImbalances();
 }
 
 extern BAL_STATE_s *TEST_BAL_GetBalancingState(void) {

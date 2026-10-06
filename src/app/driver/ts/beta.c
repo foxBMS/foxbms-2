@@ -43,8 +43,8 @@
  * @file    beta.c
  * @author  foxBMS Team
  * @date    2020-01-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  BETA
  *
@@ -121,7 +121,7 @@ extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
 #if defined(BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && (BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         resistance_Ohm = BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                         ((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
+                         ((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1.0f);
 #else  /* BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
         /* R_2 = R_1 * ( V_2 / (V_supply - V_adc ) ) */
         resistance_Ohm = BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
@@ -141,7 +141,7 @@ extern int16_t BETA_TemperatureFromResistance(float_t resistance_Ohm) {
         float_t temperature_degC = (1.0f / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETA_COEFFICIENT) +
                                             (1.0f / (BETA_T_REF_C + BETA_KELVIN)))) -
                                    BETA_KELVIN;
-        temperature_ddegC = (int16_t)(10.0f * temperature_degC); /* Convert to deci &deg;C */
+        temperature_ddegC        = (int16_t)(10.0f * temperature_degC); /* Convert to deci &deg;C */
     } else {
         /* Invalid value if as resistance can not be negative */
         temperature_ddegC = INT16_MIN;
@@ -151,7 +151,7 @@ extern int16_t BETA_TemperatureFromResistance(float_t resistance_Ohm) {
 
 extern float_t BETA_ResistanceFromTemperature(int16_t temperature_ddegC) {
     float_t resistance_Ohm = 0.0f;
-    resistance_Ohm         = BETA_R_REF_Ohm *
+    resistance_Ohm = BETA_R_REF_Ohm *
                      exp(BETA_BETA_COEFFICIENT * ((1.0f / (((float_t)temperature_ddegC / 10.0f) + BETA_KELVIN)) -
                                                   (1.0f / (BETA_T_REF_C + BETA_KELVIN))));
     return resistance_Ohm;

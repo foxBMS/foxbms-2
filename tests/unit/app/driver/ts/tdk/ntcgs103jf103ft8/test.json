@@ -1,0 +1,15 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/tdk/ntcgs103jf103ft8/tdk_ntcgs103jf103ft8.c"
+    ],
+    "test": "test_tdk_ntcgs103jf103ft8.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts",
+      "src/app/driver/ts/tdk/ntcgs103jf103ft8"
+    ],
+    "use": "M"
+  }
+]

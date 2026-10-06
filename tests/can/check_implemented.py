@@ -93,7 +93,7 @@ def evaluate_implementation(callback_file: Path, function_name: str) -> bool:
 
 
 def main() -> int:
-    """This script checks whether a expected callback is implemented."""
+    """Check whether an expected callback is implemented."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",

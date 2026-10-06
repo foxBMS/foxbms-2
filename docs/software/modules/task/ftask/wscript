@@ -40,14 +40,16 @@
 # !!! This build script is not meant to be reused !!!
 
 
-# cSpell:ignore DCLR,DSET,PULDIS
+# cSpell:ignore DCLR,DSET
+
+from waflib.Build import BuildContext
 
 
-def build(bld):
+def build(bld: BuildContext) -> None:
     source = ["ftask_how-to.c"]
     includes = [
-        ".",
-        "../../../../../src/app/main/include",
+        bld.path.get_bld(),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     bld.path.find_or_declare("HL_gio.h").write(
         "/* dummy file */\n"
@@ -72,6 +74,5 @@ def build(bld):
         features="c",
         source=source,
         includes=includes,
-        cflags=["--diag_suppress=179", "--diag_suppress=552"],
-        use="DOCUMENTATION FOXBMS",
+        uselib="DOCUMENTATION FOXBMS",
     )

@@ -3,7 +3,7 @@
 
 
 .. |local_bms_master_version| replace:: ``v1.1.3``
-.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|-based |bms-master|
 .. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
 
 .. _TI_TMS570_BASED_BMS_MASTER_V1_1_3:

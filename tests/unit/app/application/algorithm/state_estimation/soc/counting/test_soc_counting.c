@@ -43,8 +43,8 @@
  * @file    test_soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,10 +61,10 @@
 #include "Mockdatabase.h"
 #include "Mockfram.h"
 
-#include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
 #include "soc_counting_cfg.h"
 
+#include "battery_cell_cfg_types.h"
 #include "foxmath.h"
 #include "state_estimation.h"
 #include "test_assert_helper.h"
@@ -72,36 +72,28 @@
 #include <math.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("soc_counting.c")
-TEST_SOURCE_FILE("soe_none.c")
-TEST_SOURCE_FILE("soh_none.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/soc/counting")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 FRAM_SOC_s fram_soc = {0};
 /**local copy of DATA_BLOCK_SOC_s table**/
-static DATA_BLOCK_SOC_s cp_pTableSoc = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+static DATA_BLOCK_SOC_s cp_pTableSoc                           = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+static DATA_BLOCK_CURRENT_COUNTER_s cp_soc_tableCurrentCounter = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_COUNTER};
+
 /** Maximum SOC in percentage */
 #define SOC_MAXIMUM_SOC_perc (100.0f)
 /** Minimum SOC in percentage */
 #define SOC_MINIMUM_SOC_perc (0.0f)
 
+static SOC_STATE_s *soc_state = NULL_PTR;
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    soc_state = TEST_GetSocStateValues();
 }
-
 void tearDown(void) {
 }
 
+/*========== Test Cases =====================================================*/
 void testSE_GetStateOfChargeFromVoltage(void) {
     float_t test_soc        = -1.0f;
     int16_t test_voltage_mV = 3780;
@@ -166,4 +158,65 @@ void testSOC_UpdateNvmValues(void) {
     }
 }
 
-/*========== Test Cases =====================================================*/
+void testSOC_SetValue(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_SOC_SetValue(NULL_PTR, 30.0f, 70.0f, 50.0f, 0u));
+
+    /*test if SOC percentage values are set*/
+    DATA_Read1DataBlock_ExpectAndReturn(&cp_soc_tableCurrentCounter, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SOC, FRAM_ACCESS_OK);
+
+    TEST_SOC_SetValue(&cp_pTableSoc, 30.0f, 70.0f, 50.0f, 0);
+    TEST_ASSERT_EQUAL_FLOAT(30.0f, cp_pTableSoc.minimumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(70.0f, cp_pTableSoc.maximumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(50.0f, cp_pTableSoc.averageSoc_perc[0]);
+
+    /*test if percentage upper limits are applied*/
+    DATA_Read1DataBlock_ExpectAndReturn(&cp_soc_tableCurrentCounter, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SOC, FRAM_ACCESS_OK);
+
+    TEST_SOC_SetValue(&cp_pTableSoc, 330.0f, 110.0f, 150.0f, 0);
+    TEST_ASSERT_EQUAL_FLOAT(100.0f, cp_pTableSoc.minimumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(100.0f, cp_pTableSoc.maximumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(100.0f, cp_pTableSoc.averageSoc_perc[0]);
+
+    /*test if percentage lower limits are applied*/
+    DATA_Read1DataBlock_ExpectAndReturn(&cp_soc_tableCurrentCounter, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SOC, FRAM_ACCESS_OK);
+
+    TEST_SOC_SetValue(&cp_pTableSoc, -30.0f, -110.0f, -50.0f, 0);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, cp_pTableSoc.minimumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, cp_pTableSoc.maximumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, cp_pTableSoc.averageSoc_perc[0]);
+
+    /*test if ccScaling Values are set*/
+    DATA_Read1DataBlock_ExpectAndReturn(&cp_soc_tableCurrentCounter, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SOC, FRAM_ACCESS_OK);
+
+    soc_state->sensorCcUsed[0] = true;
+
+    TEST_SOC_SetValue(&cp_pTableSoc, 30.0f, 70.0f, 50.0f, 0);
+    TEST_ASSERT_EQUAL_FLOAT(30.0f, cp_pTableSoc.minimumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(70.0f, cp_pTableSoc.maximumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(50.0f, cp_pTableSoc.averageSoc_perc[0]);
+
+    TEST_ASSERT_EQUAL_FLOAT(30.0f, soc_state->ccScalingMinimum[0]);
+    TEST_ASSERT_EQUAL_FLOAT(70.0f, soc_state->ccScalingMaximum[0]);
+    TEST_ASSERT_EQUAL_FLOAT(50.0f, soc_state->ccScalingAverage[0]);
+}
+
+void testSOC_GetStringSocPercentageFromCharge(void) {
+
+    /* test with realistic positive and negative values */
+    float_t ccOffset_perc = TEST_SOC_GetStringSocPercentageFromCharge(600);
+    TEST_ASSERT_EQUAL_FLOAT(4.7619, ccOffset_perc);
+
+    ccOffset_perc = TEST_SOC_GetStringSocPercentageFromCharge(-6000);
+    TEST_ASSERT_EQUAL_FLOAT(-47.619, ccOffset_perc);
+
+    /* test with maximum and minimum and negative values */
+    ccOffset_perc = TEST_SOC_GetStringSocPercentageFromCharge(INT32_MAX);
+    TEST_ASSERT_EQUAL_FLOAT(17043520, ccOffset_perc);
+
+    ccOffset_perc = TEST_SOC_GetStringSocPercentageFromCharge(INT32_MIN);
+    TEST_ASSERT_EQUAL_FLOAT(-17043520, ccOffset_perc);
+}

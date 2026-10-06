@@ -1,0 +1,187 @@
+{
+  "path": "src/app/application/config",
+  "files": [
+    {
+      "file_name": "battery_cell_cfg.h",
+      "defines": [
+        {
+          "name": "BC_TEMPERATURE_MAX_DISCHARGE_MSL_ddegC",
+          "description": "Maximum discharge temperature MSL",
+          "value": 550,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MAX_DISCHARGE_RSL_ddegC",
+          "description": "Maximum discharge temperature RSL",
+          "value": 500,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MAX_DISCHARGE_MOL_ddegC",
+          "description": "Maximum discharge temperature MOL",
+          "value": 450,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MIN_DISCHARGE_MSL_ddegC",
+          "description": "Minimum discharge temperature MSL",
+          "value": -200,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MIN_DISCHARGE_RSL_ddegC",
+          "description": "Minimum discharge temperature RSL",
+          "value": -150,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MIN_DISCHARGE_MOL_ddegC",
+          "description": "Minimum discharge temperature MOL",
+          "value": -100,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MAX_CHARGE_MSL_ddegC",
+          "description": "Maximum temperature limit during charge MSL",
+          "value": 450,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MAX_CHARGE_RSL_ddegC",
+          "description": "Maximum temperature limit during charge RSL",
+          "value": 400,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC",
+          "description": "Maximum temperature limit during charge MOL",
+          "value": 350,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MIN_CHARGE_MSL_ddegC",
+          "description": "Minimum temperature limit during discharge MSL",
+          "value": -200,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MIN_CHARGE_RSL_ddegC",
+          "description": "Minimum temperature limit during discharge RSL",
+          "value": -150,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_TEMPERATURE_MIN_CHARGE_MOL_ddegC",
+          "description": "Minimum temperature limit during discharge MOL",
+          "value": -100,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_MAX_MSL_mV",
+          "description": "Maximum cell voltage limit MSL",
+          "value": 2800,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_MAX_RSL_mV",
+          "description": "Maximum cell voltage limit RSL",
+          "value": 2750,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_MAX_MOL_mV",
+          "description": "Maximum cell voltage limit MOL",
+          "value": 2720,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_NOMINAL_mV",
+          "description": "Nominal cell voltage",
+          "value": 2500,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_MIN_MSL_mV",
+          "description": "Minimum cell voltage limit MSL",
+          "value": 1500,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_MIN_RSL_mV",
+          "description": "Minimum cell voltage limit RSL",
+          "value": 1550,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_VOLTAGE_MIN_MOL_mV",
+          "description": "Minimum cell voltage limit MOL",
+          "value": 1580,
+          "value_type": "int16_t"
+        },
+        {
+          "name": "BC_CURRENT_MAX_DISCHARGE_MSL_mA",
+          "description": "Maximum discharge current limit MSL",
+          "value": 180000,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_CURRENT_MAX_DISCHARGE_RSL_mA",
+          "description": "Maximum discharge current limit RSL",
+          "value": 175000,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_CURRENT_MAX_DISCHARGE_MOL_mA",
+          "description": "Maximum discharge current limit MOL",
+          "value": 170000,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_CURRENT_MAX_CHARGE_MSL_mA",
+          "description": "Maximum charge current limit MSL",
+          "value": 180000,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_CURRENT_MAX_CHARGE_RSL_mA",
+          "description": "Maximum charge current limit RSL",
+          "value": 175000,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_CURRENT_MAX_CHARGE_MOL_mA",
+          "description": "Maximum charge current limit MOL",
+          "value": 170000,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_CAPACITY_mAh",
+          "description": "Cell capacity used for SOC calculation",
+          "value": 3500,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BC_ENERGY_Wh",
+          "description": "Cell energy",
+          "value": 10.0,
+          "value_type": "float32_t"
+        }
+      ]
+    },
+    {
+      "file_name": "battery_cell_cfg.c",
+      "defines": [
+        {
+          "name": "soc_lookup_table",
+          "description": "SOC Lookup table in 1% steps starting with 100%",
+          "value": "battery_cell_soc_lookup-table.csv"
+        },
+        {
+          "name": "soe_lookup_table",
+          "description": "SOE Lookup table in 1% steps starting with 100%",
+          "value": "battery_cell_soe_lookup-table.csv"
+        }
+      ]
+    }
+  ]
+}

@@ -43,8 +43,8 @@
  * @file    NetworkInterface_custom.h
  * @author  foxBMS Team
  * @date    2025-10-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup SOME_GROUP
  * @prefix  NIC
  *
@@ -61,6 +61,8 @@
 /*========== Includes =======================================================*/
 #include "NetworkInterface.h"
 #ifdef UNITY_UNIT_TEST
+#include "database_cfg.h"
+
 #include "emac.h"
 #endif
 
@@ -77,6 +79,7 @@ extern NetworkInterface_t *NIC_FillInterfaceDescriptor(BaseType_t xEMACIndex, Ne
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern DATA_BLOCK_PHY_s *TEST_NIC_GetTablePhy(void);
 extern BaseType_t (*pNetworkInterfaceInitialise)(struct xNetworkInterface *pxInterface);
 extern BaseType_t (*pNetworkInterfaceOutput)(
     struct xNetworkInterface *pxDescriptor,

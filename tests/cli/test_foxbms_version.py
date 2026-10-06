@@ -55,7 +55,7 @@ except ModuleNotFoundError:
 class TestExtractVersion(unittest.TestCase):
     """Tests the 'extract_version' function"""
 
-    def test_no_match(self):
+    def test_no_match(self) -> None:
         """Regex does not match"""
         txt = "Line 1\nLine 2\nLine 3"
         mock_pattern = MagicMock()
@@ -64,7 +64,7 @@ class TestExtractVersion(unittest.TestCase):
             foxbms_version.extract_version(txt, mock_pattern)
         self.assertEqual(cm.exception.code, "Could not determine foxBMS 2 version.")
 
-    def test_version_found(self):
+    def test_version_found(self) -> None:
         """Regex matches"""
         txt = """Text 2\nLine 5\nLine 7 2"""
         result = foxbms_version.extract_version(
@@ -84,7 +84,7 @@ class TestGetVersion(unittest.TestCase):
         mock_compile: MagicMock,
         mock_read_text: MagicMock,
         mock_extract_version: MagicMock,
-    ):
+    ) -> None:
         """Wscript file exists"""
         txt = '''VERSION = "x.y.z"'''
         mock_read_text.return_value = txt
@@ -100,7 +100,7 @@ class TestGetVersion(unittest.TestCase):
         mock_compile: MagicMock,
         mock_read_text: MagicMock,
         mock_extract_version: MagicMock,
-    ):
+    ) -> None:
         """Wscript file does not exist"""
         txt = '''VERSION = "x.y.z"'''
         mock_read_text.side_effect = [FileNotFoundError, txt]
@@ -114,13 +114,13 @@ class TestGetVersion(unittest.TestCase):
 class TestGetNumericVersion(unittest.TestCase):
     """Tests the 'get_numeric_version' function"""
 
-    def test_letters(self, mock_get_version: MagicMock):
+    def test_letters(self, mock_get_version: MagicMock) -> None:
         """Test converting from letters to numbers"""
         mock_get_version.return_value = "x.y.z"
         result = foxbms_version.get_numeric_version()
         self.assertEqual(result, "120.121.122")
 
-    def test_numbers(self, mock_get_version: MagicMock):
+    def test_numbers(self, mock_get_version: MagicMock) -> None:
         """Test function when version is given with numbers"""
         mock_get_version.return_value = "1.2.3"
         result = foxbms_version.get_numeric_version()

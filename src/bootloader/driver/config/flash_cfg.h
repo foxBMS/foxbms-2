@@ -43,13 +43,16 @@
  * @file    flash_cfg.h
  * @author  foxBMS Team
  * @date    2023-08-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FLASH
  *
  * @brief   Header for the driver for the Flash module
- * @details TODO
+ * @details Defines the flash topology types, sizing macros, and declarations
+ *          for the constant bank and sector tables used by the flash driver.
+ *          This header describes the target memory layout exposed to the
+ *          bootloader flash access layer.
  */
 
 #ifndef FOXBMS__FLASH_CFG_H_

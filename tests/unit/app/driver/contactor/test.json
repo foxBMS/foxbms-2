@@ -1,0 +1,23 @@
+[
+  {
+    "source": "src/app/driver/contactor/contactor.c",
+    "test": "test_contactor.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/io",
+      "src/app/driver/sps",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/driver/config/contactor_cfg.h",
+      "src/app/driver/config/sps_cfg.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/sps/sps.h",
+      "src/app/engine/config/diag_cfg.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h"
+    ]
+  }
+]

@@ -1,0 +1,207 @@
+[
+  {
+    "source": [
+      "src/app/driver/config/can_cfg.c",
+      "src/app/driver/config/can_cfg_rx.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cfg_rx.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/rx/can_cbs_rx.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/config/can_cfg.c",
+      "src/app/driver/config/can_cfg_tx_cyclic.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cfg_tx_cyclic.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/tx-cyclic",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/engine/sys_mon",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/driver/config/can_cfg.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_cfg.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/imd",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/driver/config/contactor_cfg.c",
+    "test": "test_contactor_cfg.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/sps"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/dma_cfg.c",
+    "test": "test_dma_cfg.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/fram_cfg.c",
+    "test": "test_fram_cfg.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/pex_cfg.c",
+    "test": "test_pex_cfg.c",
+    "includes": [
+      "src/app/driver/config"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_adi.c",
+    "test": "test_spi_cfg_adi.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_dtnxp.c",
+    "test": "test_spi_cfg_debug.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_debug.c",
+    "test": "test_spi_cfg_dtnxp.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_generic.c",
+    "test": "test_spi_cfg_generic.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_mxm.c",
+    "test": "test_spi_cfg_mxm.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_nxp.c",
+    "test": "test_spi_cfg_nxp.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_st.c",
+    "test": "test_spi_cfg_st.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg_ti.c",
+    "test": "test_spi_cfg_ti.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/spi_cfg.c",
+    "test": "test_spi_cfg.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ]
+  },
+  {
+    "source": "src/app/driver/config/sps_cfg.c",
+    "test": "test_sps_cfg.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/sps"
+    ]
+  }
+]

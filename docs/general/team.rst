@@ -12,8 +12,8 @@ Team
 
    -- Phil Jackson
 
-In the following all persons that have contributed to foxBMS are listed in
-alphabetical order.
+In the following all persons that have contributed to |foxbms-unversioned| are
+listed in alphabetical order.
 
 - Andreas Gräfensteiner
 - Andreas Ochs

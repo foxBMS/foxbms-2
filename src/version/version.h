@@ -43,8 +43,8 @@
  * @file    version.h
  * @author  foxBMS Team
  * @date    2021-07-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
  * @prefix  VER
  *
@@ -69,13 +69,13 @@
 /*========== Macros and Definitions =========================================*/
 /** maximum length of the string #VER_VERSION_s::remote
  *
- * Has to be in line with the value in f_ti_arm_cgt.py!
+ * Has to be in line with the value in vcs.py!
  */
 #define VER_VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH (128u)
 
 /** maximum length of the string #VER_VERSION_s::commitHash
  *
- * Has to be in line with the value in f_ti_arm_cgt.py!
+ * Has to be in line with the value in vcs.py!
  */
 #define VER_VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH (14u)
 

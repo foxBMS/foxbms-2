@@ -1,0 +1,21 @@
+{
+  "supported": [
+    "bms",
+    "bootloader",
+    "db",
+    "etl",
+    "gui",
+    "log",
+    "plot",
+    "run-program",
+    "run-script"
+  ],
+  "unsupported": [
+    "cli-unittest",
+    "ide",
+    "install",
+    "misc",
+    "pre-commit",
+    "waf"
+  ]
+}

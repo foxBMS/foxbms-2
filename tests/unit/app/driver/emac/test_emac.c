@@ -43,8 +43,8 @@
  * @file    test_emac.c
  * @author  foxBMS Team
  * @date    2025-08-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,7 +55,6 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "MockFreeRTOS_IP.h"
 #include "MockHL_mdio.h"
 #include "MockNetworkInterface.h"
 #include "Mockdp83869.h"
@@ -69,18 +68,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("emac.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/emac")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/phy")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/uart")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/include")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define TEST_MDIO_BASE_ADDRESS (0xFCF78900u)
@@ -88,12 +75,13 @@ TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/
 
 #define TEST_PHY_ADDRESS (1u)
 
+/* TODO: It is weird, that we need to declare this struct here again*/
 struct EmacTxBufferDescriptor {
     volatile struct EmacTxBufferDescriptor *next;
     volatile uint32_t pBuffer;               /* Pointer to the actual Buffer storing the data to be transmitted. */
     volatile uint32_t bufferOffsetAndLength; /*Buffer Offset and Buffer Length (16 bits each) */
     volatile uint32_t flagsAndPacketLength;  /* Status flags and Packet Length. (16 bits each)*/
-} EMAC_TX_BUFFER_DESCRIPTOR_s;
+};
 
 EMAC_HDKIF_s emac_hdkifData[1];
 OS_TASK_HANDLE ftsk_taskHandleEmac;
@@ -107,7 +95,10 @@ EMAC_PACKET_BUFFER_s emac_txBuffer[3u];
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_CTRL_RAM_0_BASE = (uint32_t)(&test_Ram[0u]);
+#pragma GCC diagnostic pop
 
     EMAC_HDKIF_s *hdkif             = &emac_hdkifData[0];
     hdkif->emacBaseAddress          = TEST_EMAC_BASE_ADDRESS;
@@ -122,6 +113,8 @@ void tearDown(void) {
 }
 
 uint32_t TEST_SwapBytesUint32_t(const uint32_t val, int NumCalls) {
+    (void)val;
+    (void)NumCalls;
     return val;
 }
 
@@ -223,8 +216,11 @@ void testEMAC_InitializeHardware(void) {
     EMAC_SetNumberFreeBuffer_Expect(TEST_EMAC_BASE_ADDRESS, 0x0u, 10u);
     EMAC_EnableRx_Expect(TEST_EMAC_BASE_ADDRESS);
     EMAC_EnableRxInterruptPulse_Expect(TEST_EMAC_BASE_ADDRESS, 0xFCF78800u, 0x0u, 0x0u);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteRxHeaderDescriptorPointer_Expect(
         TEST_EMAC_BASE_ADDRESS, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead, 0x0u);
+#pragma GCC diagnostic pop
 
     PHY_Initialize_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, STD_OK);
     /* ======= RT1/2: Call function under test */
@@ -265,8 +261,11 @@ void testEMAC_InitializeHardware(void) {
     EMAC_SetNumberFreeBuffer_Expect(TEST_EMAC_BASE_ADDRESS, 0x0u, 10u);
     EMAC_EnableRx_Expect(TEST_EMAC_BASE_ADDRESS);
     EMAC_EnableRxInterruptPulse_Expect(TEST_EMAC_BASE_ADDRESS, 0xFCF78800u, 0x0u, 0x0u);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteRxHeaderDescriptorPointer_Expect(
         TEST_EMAC_BASE_ADDRESS, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead, 0x0u);
+#pragma GCC diagnostic pop
 
     PHY_Initialize_ExpectAndReturn(TEST_MDIO_BASE_ADDRESS, STD_NOT_OK);
     /* ======= RT2/2: Call function under test */
@@ -300,11 +299,17 @@ void testEMAC_InitializeDma(void) {
     volatile pEmacTxBufferDescriptor swappedBytes;
     for (uint16_t i = 0u; i < 170u; i++) {
         swappedBytes = (txBufferDescriptor + 1u + (i));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)(swappedBytes), (uint32_t)(swappedBytes));
         MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)(swappedBytes), (uint32_t)(swappedBytes));
+#pragma GCC diagnostic pop
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)(txBufferDescriptor), (uint32_t)(txBufferDescriptor));
+#pragma GCC diagnostic pop
 
     /* Initialize rx buffer */
     pRxBufferDescriptor = (volatile EMAC_RX_BUFFER_DESCRIPTOR_s *)swappedBytes + 1u;
@@ -312,12 +317,18 @@ void testEMAC_InitializeDma(void) {
     MATH_SwapBytesUint32_ExpectAndReturn(1536u, 1536u);
     MATH_SwapBytesUint32_ExpectAndReturn(0x20000000u, 0x20000000u);
     for (uint8_t i = 0u; i < 10u; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         MATH_SwapBytesUint32_ExpectAndReturn(
             (uint32_t)(&emac_rxBuffers[i][0]) + 14u, (uint8_t)(&emac_rxBuffers[i][0]) + 14u);
+#pragma GCC diagnostic pop
         if (i != (9u)) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
             MATH_SwapBytesUint32_ExpectAndReturn(
                 (uint32_t)(pRxBufferDescriptor + i + 1u), (uint32_t)(pRxBufferDescriptor + i + 1u));
         }
+#pragma GCC diagnostic pop
     }
     /* ======= RT1/1: Call function under test */
     EMAC_InitializeDma();
@@ -369,15 +380,24 @@ void testEMAC_Transmit(void) {
     /* Indicate the start of the packet */
     MATH_SwapBytesUint32_ExpectAndReturn(0xA0000008u, 0xA0000008u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)&testPayload[0u], (uint32_t)&testPayload[0u]);
+#pragma GCC diagnostic pop
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)(dmaDescriptor.length & 0xFFFFu), (uint32_t)(dmaDescriptor.length & 0xFFFFu));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)pCurrentBufferDescriptor->next, (uint32_t)pCurrentBufferDescriptor->next);
+#pragma GCC diagnostic pop
     /* Indicate the end of the packet */
     MATH_SwapBytesUint32_ExpectAndReturn(0x40000000u, 0x40000000u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteTxHeaderDescriptorPointer_Expect(TEST_EMAC_BASE_ADDRESS, (uint32_t)pCurrentBufferDescriptor, 0u);
+#pragma GCC diagnostic pop
 
     /* ======= RT1/2: Call function under test */
     EMAC_Transmit(&dmaDescriptor);
@@ -387,22 +407,34 @@ void testEMAC_Transmit(void) {
     /* Indicate the start of the packet */
     MATH_SwapBytesUint32_ExpectAndReturn(0xA0000008u, 0xA0000008u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)&testPayload[0u], (uint32_t)&testPayload[0u]);
+#pragma GCC diagnostic pop
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)(dmaDescriptor.length & 0xFFFFu), (uint32_t)(dmaDescriptor.length & 0xFFFFu));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)pCurrentBufferDescriptor->next, (uint32_t)pCurrentBufferDescriptor->next);
+#pragma GCC diagnostic pop
     /* Indicate the end of the packet */
     MATH_SwapBytesUint32_ExpectAndReturn(0x40000000u, 0x40000000u);
 
     emac_hdkifData->pTxChannel.pActiveTail->flagsAndPacketLength = 0x10000008u;
     MATH_SwapBytesUint32_ExpectAndReturn(0x10000008u, 0x10000008u);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pTxChannel.pFreeHead, (uint32_t)emac_hdkifData->pTxChannel.pFreeHead);
+#pragma GCC diagnostic pop
 
     MATH_SwapBytesUint32_ExpectAndReturn(0x10000008u, 0x10000008u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteTxHeaderDescriptorPointer_Expect(TEST_EMAC_BASE_ADDRESS, (uint32_t)pCurrentBufferDescriptor, 0u);
+#pragma GCC diagnostic pop
 
     /* ======= RT2/2: Call function under test */
     EMAC_Transmit(&dmaDescriptor);
@@ -485,8 +517,11 @@ void testEMAC_AcknowledgePacket(void) {
     TEST_ASSERT_FAIL_ASSERT(EMAC_EndOfReception(NULL_PTR));
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteRxCompletionPointer_Expect(
         TEST_EMAC_BASE_ADDRESS, (uint32_t)EMAC_CHANNELNUMBER, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead);
+#pragma GCC diagnostic pop
     /* ======= RT1/1: Call function under test */
     EMAC_AcknowledgePacket(emac_hdkifData->pRxChannel.pActiveHead);
 }
@@ -506,10 +541,13 @@ void testEMAC_UpdateRxChannel(void) {
     TEST_ASSERT_FAIL_ASSERT(EMAC_EndOfReception(NULL_PTR));
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next);
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next);
+#pragma GCC diagnostic pop
     /* ======= RT1/1: Call function under test */
     EMAC_UpdateRxChannel(emac_hdkifData->pRxChannel.pActiveHead);
 }
@@ -532,18 +570,23 @@ void testEMAC_EndOfReception(void) {
     /* ======= RT1/2: Test implementation */
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)0x20000000u, (uint32_t)0x20000000u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next);
+#pragma GCC diagnostic pop
     /* ======= RT1/2: Call function under test */
     EMAC_EndOfReception(emac_hdkifData->pRxChannel.pActiveHead);
 
     /* ======= RT2/2: Test implementation */
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)0x10000000u, (uint32_t)0x10000000u);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteRxHeaderDescriptorPointer_Expect(
         TEST_EMAC_BASE_ADDRESS, (uint32_t)emac_hdkifData->pRxChannel.pFreeHead, (uint32_t)EMAC_CHANNELNUMBER);
-
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next);
+#pragma GCC diagnostic pop
     /* ======= RT2/2: Call function under test */
     emac_hdkifData->pRxChannel.pActiveHead->flagsAndPacketLength = 0x10000000u;
     EMAC_EndOfReception(emac_hdkifData->pRxChannel.pActiveHead);
@@ -566,8 +609,11 @@ void testEMAC_UpdateLinkedList(void) {
     /* ======= RT1/1: Test implementation */
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)0x20000000u, (uint32_t)0x20000000u);
     MATH_SwapBytesUint32_ExpectAndReturn((uint32_t)1536u, (uint32_t)1536u);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next, (uint32_t)emac_hdkifData->pRxChannel.pActiveHead->next);
+#pragma GCC diagnostic pop
     /* ======= RT1/1: Call function under test */
     EMAC_UpdateLinkedList(emac_hdkifData->pRxChannel.pActiveHead);
     TEST_ASSERT_EQUAL(0x20000000u, emac_hdkifData->pRxChannel.pActiveHead->flagsAndPacketLength);
@@ -692,9 +738,12 @@ void testEMAC_TxInterruptHandler(void) {
 
     MATH_SwapBytesUint32_ExpectAndReturn(0x80000008u, 0x80000008u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pTxChannel.pNextBufferDescriptorToProcess->next,
         (uint32_t)emac_hdkifData->pTxChannel.pNextBufferDescriptorToProcess->next);
+#pragma GCC diagnostic pop
 
     emac_hdkifData->pTxChannel.pNextBufferDescriptorToProcess->next->flagsAndPacketLength = 0x40000008u;
     MATH_SwapBytesUint32_ExpectAndReturn(0x40000008u, 0x40000008u);
@@ -702,8 +751,11 @@ void testEMAC_TxInterruptHandler(void) {
     MATH_SwapBytesUint32_ExpectAndReturn(0x80000000u, 0x80000000u);
     MATH_SwapBytesUint32_ExpectAndReturn(0x40000000u, 0x40000000u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     EMAC_WriteTxCompletionPointer_Expect(
         TEST_EMAC_BASE_ADDRESS, 0u, (uint32_t)emac_hdkifData->pTxChannel.pNextBufferDescriptorToProcess->next);
+#pragma GCC diagnostic pop
     MATH_SwapBytesUint32_ExpectAndReturn(0x00000000u, 0x00000000u);
 
     /* ======= RT1/1: Call function under test */
@@ -744,8 +796,11 @@ void testEMAC_SetNextPointerOfCurrentTail(void) {
     TEST_ASSERT_FAIL_ASSERT(EMAC_SetNextPointerOfCurrentTail(NULL_PTR));
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     MATH_SwapBytesUint32_ExpectAndReturn(
         (uint32_t)emac_hdkifData->pRxChannel.pFreeHead->next, (uint32_t)emac_hdkifData->pRxChannel.pFreeHead->next);
+#pragma GCC diagnostic pop
     /* ======= RT1/1: Call function under test */
     EMAC_SetNextPointerOfCurrentTail(emac_hdkifData->pRxChannel.pFreeHead->next);
 }

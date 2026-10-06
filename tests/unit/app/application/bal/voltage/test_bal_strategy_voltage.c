@@ -43,8 +43,8 @@
  * @file    test_bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,18 +70,9 @@
 
 #include "bal.h"
 
-/*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("bal_strategy_voltage.c")
+#include <string.h>
 
-TEST_INCLUDE_PATH("../../src/app/application/bal")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/task/config")
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -118,4 +109,51 @@ void testBalancingFinished(void) {
     TEST_ASSERT_EQUAL(STD_NOT_OK, BAL_GetInitializationState());
     balancingState->initializationFinished = STD_OK;
     TEST_ASSERT_EQUAL(STD_OK, BAL_GetInitializationState());
+}
+
+/**
+ * @brief   Test of voltage-based balancing activation
+ * @details Cases:
+ *          - Routine validation:
+ *            - RT1/1: with a 3200 mV minimum and a 200 mV threshold, activate
+ *              the 3500 mV cell but not the 3200 mV cells
+ */
+void testBalancingActivationUsesCellVoltageThreshold(void) {
+    DATA_BLOCK_BALANCING_CONTROL_s *pBalancing = TEST_BAL_GetBalancingControl();
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltage    = TEST_BAL_GetCellVoltage();
+    DATA_BLOCK_MIN_MAX_s *pMinMax              = TEST_BAL_GetMinMax();
+    BAL_STATE_s *balancingState                = TEST_BAL_GetBalancingState();
+    const uint8_t stringIndex                  = 0u;
+    const uint8_t moduleIndex                  = 0u;
+    const uint8_t minimumVoltageCellIndex      = 0u;
+    const uint8_t higherVoltageCellIndex       = 1u;
+    const int16_t minimumCellVoltage_mV        = 3200;
+    const int16_t higherCellVoltage_mV         = 3500;
+    const int32_t balancingThreshold_mV        = 200;
+    const uint16_t expectedBalancedCellCount   = 1u;
+    const bool expectedFinished                = false;
+
+    (void)memset(pBalancing, 0, sizeof(*pBalancing));
+    (void)memset(pCellVoltage, 0, sizeof(*pCellVoltage));
+    (void)memset(pMinMax, 0, sizeof(*pMinMax));
+    pBalancing->header.uniqueId        = DATA_BLOCK_ID_BALANCING_CONTROL;
+    pCellVoltage->header.uniqueId      = DATA_BLOCK_ID_CELL_VOLTAGE;
+    pMinMax->header.uniqueId           = DATA_BLOCK_ID_MIN_MAX;
+    balancingState->balancingThreshold = balancingThreshold_mV;
+
+    for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+        pCellVoltage->cellVoltage_mV[stringIndex][moduleIndex][cb] = minimumCellVoltage_mV;
+    }
+    pCellVoltage->cellVoltage_mV[stringIndex][moduleIndex][higherVoltageCellIndex] = higherCellVoltage_mV;
+    pMinMax->minimumCellVoltage_mV[stringIndex]                                    = minimumCellVoltage_mV;
+
+    DATA_Read2DataBlocks_ExpectAndReturn(pCellVoltage, pMinMax, STD_OK);
+    BAL_GetBalancingThreshold_mV_ExpectAndReturn(balancingThreshold_mV);
+    DATA_Write1DataBlock_ExpectAndReturn(pBalancing, STD_OK);
+
+    TEST_ASSERT_EQUAL(expectedFinished, TEST_BAL_ActivateBalancing());
+    TEST_ASSERT_EQUAL(false, pBalancing->activateBalancing[stringIndex][moduleIndex][minimumVoltageCellIndex]);
+    TEST_ASSERT_EQUAL(true, pBalancing->activateBalancing[stringIndex][moduleIndex][higherVoltageCellIndex]);
+    TEST_ASSERT_EQUAL_UINT16(expectedBalancedCellCount, pBalancing->nrBalancedCells[stringIndex]);
+    TEST_ASSERT_EQUAL(true, pBalancing->enableBalancing);
 }

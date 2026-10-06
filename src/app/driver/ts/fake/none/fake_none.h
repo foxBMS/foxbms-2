@@ -43,8 +43,8 @@
  * @file    fake_none.h
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -57,6 +57,7 @@
 
 /*========== Includes =======================================================*/
 
+#include <math.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -67,16 +68,18 @@
 /**
  * @brief   returns a fake temperature
  * @param   adcVoltage_mv pseudo adc voltage in mV
+ * @param   supplyVoltage_V supply voltage in V
  * @return  fake temperature value, which is the input returned as float
  */
-extern int16_t TS_Fak00GetTemperatureFromLut(uint16_t adcVoltage_mv);
+extern int16_t TS_Fak00GetTemperatureFromLut(uint16_t adcVoltage_mv, float_t supplyVoltage_V);
 
 /**
  * @brief   returns a fake temperature
  * @param   adcVoltage_mv pseudo adc voltage in mV
+ * @param   supplyVoltage_V supply voltage in V
  * @return  fake temperature value, which is the input returned as float
  */
-extern int16_t TS_Fak00GetTemperatureFromPolynomial(uint16_t adcVoltage_mv);
+extern int16_t TS_Fak00GetTemperatureFromPolynomial(uint16_t adcVoltage_mv, float_t supplyVoltage_V);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

@@ -43,8 +43,8 @@
  * @file    test_sys_mon.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,10 +68,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define DUMMY_TASK_ID_0  (0)
@@ -223,7 +219,7 @@ void testSYSM_CheckNotificationsProvokeDurationViolationWithRecording(void) {
     OS_ExitTaskCritical_Expect();
 
     /* check if violation has been recorded */
-    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, FRAM_ACCESS_OK);
     SYSM_UpdateFramData();
     TEST_ASSERT_EQUAL(true, fram_sysMonViolationRecord.anyTimingIssueOccurred);
 }
@@ -358,7 +354,7 @@ void testSYSM_ClearAllTimingViolations(void) {
     /* ======= RT1/1: Test implementation */
     for (SYSM_TASK_ID_e taskId = (SYSM_TASK_ID_e)0; taskId < SYSM_TASK_ID_MAX; taskId++) {
         (void)DIAG_Handler_ExpectAndReturn(
-            DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, DIAG_SYSTEM, (uint32_t)taskId, STD_OK);
+            DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, DIAG_SYSTEM, (uint32_t)taskId, DIAG_HANDLER_RETURN_OK);
     }
     OS_EnterTaskCritical_Expect(); /* in SYSM_ClearAllTimingViolations */
     OS_ExitTaskCritical_Expect();  /* in SYSM_ClearAllTimingViolations */
@@ -368,7 +364,7 @@ void testSYSM_ClearAllTimingViolations(void) {
     OS_EnterTaskCritical_Expect(); /* in SYSM_UpdateFramData: in branch */
     OS_ExitTaskCritical_Expect();  /* in SYSM_UpdateFramData: in branch */
 
-    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, FRAM_ACCESS_OK);
 
     /* the called function alters a module static variable;
      * get the value to restore it */
@@ -437,7 +433,7 @@ void testSYSM_UpdateFramData(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     /* we do not need the information, whether FRAM_WriteData was successful or not */
-    (void)FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
+    (void)FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, FRAM_ACCESS_OK);
 
     SYSM_UpdateFramData();
     /* ======= RT1/2: test output verification */

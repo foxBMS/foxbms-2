@@ -1,0 +1,60 @@
+[
+  {
+    "platform": "win32",
+    "source": [
+      "src/bootloader/engine/boot/boot_helper.c",
+      "src/bootloader/engine/config/boot_cfg.c"
+    ],
+    "test": "test_boot_helper.c",
+    "includes": [
+      "C:/ti/Hercules/F021 Flash API/02.01.01/include",
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/flash",
+      "src/bootloader/driver/foxmath",
+      "src/bootloader/engine/boot",
+      "src/bootloader/engine/config",
+      "src/bootloader/main",
+      "src/bootloader/main/include"
+    ],
+    "mocks": [
+      "HL_sys_core.h",
+      "src/bootloader/driver/flash/flash.h",
+      "src/bootloader/main/include/fsystem.h"
+    ],
+    "defines": [
+      "UNITY_UNIT_TEST_BOOT_HELPER"
+    ]
+  },
+  {
+    "platform": "win32",
+    "source": [
+      "src/bootloader/engine/boot/boot.c",
+      "src/bootloader/engine/config/boot_cfg.c"
+    ],
+    "test": "test_boot.c",
+    "includes": [
+      "C:/ti/Hercules/F021 Flash API/02.01.01/include",
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/crc",
+      "src/bootloader/driver/flash",
+      "src/bootloader/driver/foxmath",
+      "src/bootloader/engine/boot",
+      "src/bootloader/engine/can",
+      "src/bootloader/engine/config",
+      "src/bootloader/main",
+      "src/bootloader/main/include"
+    ],
+    "mocks": [
+      "HL_sys_core.h",
+      "src/bootloader/driver/can/can.h",
+      "src/bootloader/driver/config/can_cfg.h",
+      "src/bootloader/driver/crc/crc.h",
+      "src/bootloader/driver/flash/flash.h",
+      "src/bootloader/engine/boot/boot_helper.h",
+      "src/bootloader/engine/can/can_cbs.h",
+      "src/bootloader/main/include/fsystem.h"
+    ]
+  }
+]

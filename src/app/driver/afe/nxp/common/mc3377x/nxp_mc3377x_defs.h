@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x_defs.h
  * @author  foxBMS Team
  * @date    2020-09-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -56,7 +56,7 @@
 #define FOXBMS__NXP_MC3377X_DEFS_H_
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 
 #include "database.h"
 #include "spi.h"

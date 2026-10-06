@@ -114,13 +114,26 @@
  * - Abort stack
  * - Undefined stack
  */
-#define STACKS_SIZE (0x1800)
+#define STACKS_SIZE (0x2000) /* has to be aligned with --stack_size */
 
-/* size of the FreeRTOS RAM; Also mentioned in cc-options.yaml; TODO does this have to fit to another value? */
-#define KERNEL_DATA_SIZE (0xB000)
+#define KERNEL_DATA_SIZE (0x10000)
+
+/* Must be aligned to KERNEL_DATA_SIZE for MPU region programming in FreeRTOS port.c */
+#define KERNEL_DATA_START_ADDRESS (0x08010000)
 
 /* size of shared-RAM section for DMA */
 #define SHARED_RAM_SIZE (0x2000)
+#define SHARED_RAM_START_ADDRESS (0x0807E000)
+
+/* This heap size refers to the heap size of the C runtime library,
+ * which is used for dynamic memory allocation (malloc/free).
+ * The heap size of the C runtime library is not related to the
+ * heap size used by FreeRTOS.
+ * In app.cmd it is placed in the .sysmem section, which is used for
+ * the C runtime library.
+*/
+--heap_size=0x2000
+--stack_size=0x2000 /* has to be aligned with STACKS_SIZE */
 
 /*========== Memory Layout ==================================================*/
 MEMORY
@@ -142,11 +155,12 @@ MEMORY
     /* RAM */
     STACKS                  (RW) : origin = GLOBAL_RAM_START_ADDRESS
                                    length = STACKS_SIZE
-    KERNEL_DATA             (RW) : origin = end(STACKS)
+    /* Keep KERNEL_DATA aligned to its 64KB MPU region size. */
+    KERNEL_DATA             (RW) : origin = KERNEL_DATA_START_ADDRESS
                                    length = KERNEL_DATA_SIZE
     RAM                     (RW) : origin = end(KERNEL_DATA)
-                                   length = (GLOBAL_RAM_SIZE - STACKS_SIZE - KERNEL_DATA_SIZE - SHARED_RAM_SIZE)
-    SHARED_RAM              (RW) : origin = end(RAM)
+                                   length = (SHARED_RAM_START_ADDRESS - end(KERNEL_DATA))
+    SHARED_RAM              (RW) : origin = SHARED_RAM_START_ADDRESS
                                    length = SHARED_RAM_SIZE
 
     ECC_VECTORS_TABLE        (R) : origin = ECC_DATA_START_ADDRESS

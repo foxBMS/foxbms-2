@@ -37,59 +37,92 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
     target = f"{bld.env.APPNAME.lower()}-bootloader"
-    source = [
-        "fassert.c",
-        "fstartup.c",
-        "intvecs_init.asm",
-        "intvecs.asm",
-    ]
-    includes = [
-        "include",
-        "../driver/can",
-        "../driver/config",
-        "../driver/rti",
-        "../engine/boot",
-        "../../version",
-    ]
+
+    source = "fassert"
+    includes = [bld.path.find_node("include")]
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        target=f"{op}{source}",
+    )
+    source = "fstartup"
+    use = f"{lp}hal"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+    source = "intvecs_init"
+    use = f"{lp}hal"
+    bld.objects(
+        features="asm",
+        source=f"{source}.asm",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+    source = "intvecs"
+    use = f"{lp}hal"
+    bld.objects(
+        features="asm",
+        source=f"{source}.asm",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+
     use = [
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-can-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-crc-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-crc-vendor-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-flash-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-foxmath-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-rti-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-driver-io-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-engine-boot-objects",
-        f"{bld.env.APPNAME.lower()}-bootloader-engine-can-objects",
-        f"{bld.env.APPNAME.lower()}-portable",
-        f"{bld.env.APPNAME.lower()}-bootloader-hal",
+        f"{op}fassert",
+        f"{op}flash",
+        f"{op}flash_cfg",
+        f"{op}fstartup",
+        f"{op}intvecs_init",
+        f"{op}intvecs",
+        f"{lp}driver",
+        f"{lp}engine",
+        f"{lp}hal",
+        f"{lp}portable",
+        "rtsv7R4_A_be_v3D16_eabi",
+        "_L2FMC",
+        # F021_API_CortexR4_BE_L2FMC_V3D16 is used through the linker script
     ]
 
     # setup specifically whether the bootloader or the target tests shall be built
-    if bld.options.target_test:
-        bld.recurse("../../../tests/unit-hw")
-        target += "-target-tests"
-        use.append(f"{bld.env.APPNAME.lower()}-bootloader-target-test-objects")
-    else:
-        source.append("main.c")
-        includes.extend(
-            [
-                "../engine/can",
-                "../driver/crc",
-                "../driver/flash",
-                "../driver/foxmath",
-                "../driver/rti",
-            ]
-        )
-        use.append(f"{bld.env.APPNAME.lower()}-bootloader-driver-dma-objects")
+    if bld.variant == "bootloader_unit_test_ti_arm_cgt":
+        bld.recurse([bld.srcnode.find_dir("tests/unit-hw").path_from(bld.path)])
+        return
 
-    bld.tiprogram(
-        source=source,
-        linker_script="bootloader.cmd",
+    includes = [
+        bld.path.find_node("include"),
+        bld.srcnode.find_node("src/bootloader/driver/can"),
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/crc"),
+        bld.srcnode.find_node("src/bootloader/driver/flash"),
+        bld.srcnode.find_node("src/bootloader/driver/foxmath"),
+        bld.srcnode.find_node("src/bootloader/driver/rti"),
+        bld.srcnode.find_node("src/bootloader/driver/rti"),
+        bld.srcnode.find_node("src/bootloader/engine/boot"),
+        bld.srcnode.find_node("src/bootloader/engine/can"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+        bld.srcnode.find_node("src/version"),
+    ]
+
+    linker_script_elf = bld.path.find_node("bootloader.cmd")
+    source = "main"
+    bld(
+        features="c cprogram",
+        source=f"{source}.c",
         includes=includes,
         use=use,
+        linker_script=linker_script_elf,
+        version=True,
         target=target,
     )

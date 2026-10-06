@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_cfg.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ADI
  *
@@ -62,16 +62,8 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/ades1830")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/diag")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-#define TEST_TEMPERATURE (10)
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -82,8 +74,5 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testADI_ConvertGpioVoltageToTemperature(void) {
-    TSI_GetTemperature_ExpectAndReturn(2u, 10);
-    int16_t testResultTemperature = ADI_ConvertGpioVoltageToTemperature(2u);
-    TEST_ASSERT_EQUAL(TEST_TEMPERATURE, testResultTemperature);
+void testDummy(void) {
 }

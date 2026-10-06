@@ -1,0 +1,142 @@
+{
+  "path": "src/app/application/config",
+  "files": [
+    {
+      "file_name": "battery_system_cfg.h",
+      "defines": [
+        {
+          "name": "BS_POSITIVE_DISCHARGE_CURRENT",
+          "description": "Defines whether discharge current is seen as positive or negative",
+          "value": true,
+          "value_type": "bool"
+        },
+        {
+          "name": "BS_NR_OF_STRINGS",
+          "description": "Number of parallel strings in the battery pack",
+          "value": 1,
+          "value_type": "uint8_t"
+        },
+        {
+          "name": "BS_NR_OF_MODULES_PER_STRING",
+          "description": "Number of modules in a string",
+          "value": 1,
+          "value_type": "uint8_t"
+        },
+        {
+          "name": "BS_NR_OF_CELL_BLOCKS_PER_MODULE",
+          "description": "Number of cells per module",
+          "value": 14,
+          "value_type": "uint8_t"
+        },
+        {
+          "name": "BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK",
+          "description": "Number of battery cells in a parallel cell connection per battery module",
+          "value": 1,
+          "value_type": "uint8_t"
+        },
+        {
+          "name": "BS_NR_OF_TEMP_SENSORS_PER_MODULE",
+          "description": "Number of temperature sensors per battery module",
+          "value": 8,
+          "value_type": "uint8_t"
+        },
+        {
+          "name": "BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms",
+          "description": "Delay in ms after which it is considered the current measurement is not responding anymore",
+          "value": 200,
+          "value_type": "uint16_t"
+        },
+        {
+          "name": "BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms",
+          "description": "Delay in ms after which it is considered the coulomb counting is not responding anymore",
+          "value": 2000,
+          "value_type": "uint16_t"
+        },
+        {
+          "name": "BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms",
+          "description": "Delay in ms after which it is considered the energy counting is not responding anymore",
+          "value": 2000,
+          "value_type": "uint16_t"
+        },
+        {
+          "name": "BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA",
+          "description": "Maximum break current of main contactors",
+          "value": 3500,
+          "value_type": "int32_t"
+        },
+        {
+          "name": "BS_MAIN_FUSE_MAXIMUM_TRIGGER_DURATION_ms",
+          "description": "Maximum fuse trigger duration",
+          "value": 3000,
+          "value_type": "uint16_t"
+        },
+        {
+          "name": "BS_MAXIMUM_STRING_CURRENT_mA",
+          "description": "Maximum string current limit in mA that is used in the SOA module",
+          "value": 2400,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BS_IGNORE_INTERLOCK_FEEDBACK",
+          "description": "Define if interlock feedback should be discarded or not",
+          "value": false,
+          "value_type": "bool"
+        },
+        {
+          "name": "BS_CHECK_CAN_TIMING",
+          "description": "Defines whether CAN timing shall be evaluated or not",
+          "value": true,
+          "value_type": "bool"
+        },
+        {
+          "name": "BS_BALANCING_DEFAULT_INACTIVE",
+          "description": "Defines whether balancing shall be available or not",
+          "value": true,
+          "value_type": "bool"
+        },
+        {
+          "name": "BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS",
+          "description": "Number of contactors in addition to string contactors (e.g., precharge)",
+          "value": 1,
+          "value_type": "uint8_t"
+        },
+        {
+          "name": "BS_REST_CURRENT_mA",
+          "description": "Current threshold for determining rest state of battery",
+          "value": 200,
+          "value_type": "int32_t"
+        },
+        {
+          "name": "BS_RELAXATION_PERIOD_10ms",
+          "description": "Wait time in 10ms before battery system is at rest",
+          "value": 60000,
+          "value_type": "uint16_t"
+        },
+        {
+          "name": "BS_CS_THRESHOLD_NO_CURRENT_mA",
+          "description": "Current sensor threshold for 0 current in mA as the sensor has a jitter",
+          "value": 200,
+          "value_type": "uint32_t"
+        },
+        {
+          "name": "BS_MAX_VOLTAGE_DROP_OVER_FUSE_mV",
+          "description": "Maximum voltage drop over fuse",
+          "value": 500,
+          "value_type": "int32_t"
+        },
+        {
+          "name": "BS_CHECK_FUSE_PLACED_IN_NORMAL_PATH",
+          "description": "Defines whether fuse shall be checked in NORMAL path or not",
+          "value": true,
+          "value_type": "bool"
+        },
+        {
+          "name": "BS_CHECK_FUSE_PLACED_IN_CHARGE_PATH",
+          "description": "Defines whether fuse shall be checked in CHARGE path or not",
+          "value": false,
+          "value_type": "bool"
+        }
+      ]
+    }
+  ]
+}

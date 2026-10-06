@@ -1,0 +1,23 @@
+[
+  {
+    "source": [
+      "src/app/engine/config/diag_cfg.c",
+      "src/app/engine/diag/diag.c",
+      "tests/unit/app/engine/config/diag_array_cfg.c"
+    ],
+    "test": "test_diag.c",
+    "includes": [
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/engine/diag",
+      "src/app/engine/diag/cbs",
+      "src/app/task/timer",
+      "src/os/freertos"
+    ],
+    "mocks": [
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_fatal-error.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/cbs/diag_cbs.h",
+      "src/app/task/timer/timer.h"
+    ]
+  }
+]

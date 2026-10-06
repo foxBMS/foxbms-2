@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_debug-response.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -60,12 +60,15 @@
 
 #include "can_cbs_tx_f_debug-response.h"
 
+#include "fram_cfg.h"
+
 #include "can.h"
 #include "can_cfg_tx-async-message-definitions.h"
 #include "can_helper.h"
 #include "database.h"
 #include "foxmath.h"
 #include "fstd_types.h"
+#include "master_info.h"
 #include "mcu.h"
 #include "rtc.h"
 #include "utils.h"
@@ -83,16 +86,19 @@
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH    (8u)
 /** @} */
 
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BMS_SOFTWARE_VERSION_INFO (0x00u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_UNIQUE_DIE_ID         (0x01u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_LOT_NUMBER            (0x02u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_WAFER_INFORMATION     (0x03u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_RTC_TIME                  (0x04u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH_HIGH_7        (0x05u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH_LOW_7         (0x06u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_UPTIME                    (0x07u)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_TIMESTAMP            (0x0Eu)
-#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_INFORMATION          (0x0Fu)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BMS_SOFTWARE_VERSION_INFO      (0x00u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_UNIQUE_DIE_ID              (0x01u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_LOT_NUMBER                 (0x02u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_WAFER_INFORMATION          (0x03u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_RTC_TIME                       (0x04u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH_HIGH_7             (0x05u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH_LOW_7              (0x06u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_UPTIME                         (0x07u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_FRAM_MEASUREMENT_VALUE         (0x08u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_FRAM_SLOPE_CALIBRATION_VALUES  (0x09u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_FRAM_OFFSET_CALIBRATION_VALUES (0x0Au)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_TIMESTAMP                 (0x0Eu)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_INFORMATION               (0x0Fu)
 
 /** @{
  * configuration of the BMS software version information signals for
@@ -234,6 +240,19 @@
 #define CANTX_MUX_COMMIT_HASH_SHA_LENGTH              (14u)
 /** @} */
 
+/** @{
+ * configuration of the lot message signals for multiplexer 'FramMeasurementValue' and 'Fra,CalibrationValue'
+ * in the 'DebugResponse' message
+ */
+#define CANTX_MUX_FRAM_CHANNEL_START_BIT (15u)
+#define CANTX_MUX_FRAM_CHANNEL_LENGTH    (8u)
+
+#define CANTX_MUX_FRAM_VALUE_START_BIT (39u)
+#define CANTX_MUX_FRAM_VALUE_LENGTH    (32u)
+/** @} */
+
+#define CANTX_FRAM_CALIBRATION_CONVERSION_FACTOR (10000.0f)
+
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -324,6 +343,13 @@ static uint64_t CANTX_TransmitCommitHashLow(void);
  * @return #STD_OK if transmission successful, otherwise #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e CANTX_DebugResponseSendMessage(uint64_t messageData);
+
+/**
+ * @brief   Request the ADC raw value
+ * @param calibrationChannel channel of the requested raw data
+ * @return  stack voltage ADC raw value float
+ */
+static float_t CANTX_GetMeasurementValueForFramCalibrationChannel(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
 
 /*========== Static Function Implementations ================================*/
 
@@ -750,6 +776,53 @@ static uint64_t CANTX_TransmitCommitHashLow(void) {
     return message;
 }
 
+static float_t CANTX_GetMeasurementValueForFramCalibrationChannel(
+    FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+
+    float_t retVal = -1.0f;
+    /**
+     * add any raw value function to the channel you intend to use
+     * the channel 0 is an example for getting raw Voltage from master_info
+    */
+    switch (calibrationChannel) {
+        case FRAM_CALIBRATION_CHANNEL_0:
+            retVal = (float_t)MINFO_GetClamp30cSupplyVoltage();
+            break;
+        case FRAM_CALIBRATION_CHANNEL_1:
+            retVal = 1.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_2:
+            retVal = 2.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_3:
+            retVal = 3.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_4:
+            retVal = 4.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_5:
+            retVal = 5.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_6:
+            retVal = 6.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_7:
+            retVal = 7.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_8:
+            retVal = 8.0f;
+            break;
+        case FRAM_CALIBRATION_CHANNEL_9:
+            retVal = 9.0f;
+            break;
+        default:
+            retVal = -1.0f;
+            break;
+    }
+
+    return retVal;
+}
+
 static STD_RETURN_TYPE_e CANTX_DebugResponseSendMessage(uint64_t messageData) {
     /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
     uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
@@ -762,6 +835,105 @@ static STD_RETURN_TYPE_e CANTX_DebugResponseSendMessage(uint64_t messageData) {
 }
 
 /*========== Extern Function Implementations ================================*/
+extern STD_RETURN_TYPE_e CANTX_TransmitAdcRawValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+    FAS_ASSERT(calibrationChannel < FRAM_CALIBRATION_CHANNEL_MAX);
+    uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+
+    uint64_t message = 0;
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_FRAM_MEASUREMENT_VALUE,
+        CAN_BIG_ENDIAN);
+    float32 rawValue = CANTX_GetMeasurementValueForFramCalibrationChannel(calibrationChannel);
+
+    CAN_TxSetMessageDataWithSignalData(
+        &message, CANTX_MUX_FRAM_VALUE_START_BIT, CANTX_MUX_FRAM_VALUE_LENGTH, (int32_t)rawValue, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_FRAM_CHANNEL_START_BIT,
+        CANTX_MUX_FRAM_CHANNEL_LENGTH,
+        (int32_t)calibrationChannel,
+        CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData(message, &data[0], CAN_BIG_ENDIAN);
+    STD_RETURN_TYPE_e successfullyQueued =
+        CAN_DataSend(CAN_NODE_DEBUG_MESSAGE, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, &data[0]);
+    return successfullyQueued;
+}
+
+extern STD_RETURN_TYPE_e CANTX_TransmitAdcSlopeValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+    FAS_ASSERT(calibrationChannel < FRAM_CALIBRATION_CHANNEL_MAX);
+    int32_t calibrationValue = 0;
+    uint8_t data[]           = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+    /*send slope calibration value message*/
+    uint64_t message = 0;
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_FRAM_SLOPE_CALIBRATION_VALUES,
+        CAN_BIG_ENDIAN);
+
+    calibrationValue =
+        (int32_t)(fram_CalibrationData.slope[(uint32_t)calibrationChannel] * CANTX_FRAM_CALIBRATION_CONVERSION_FACTOR);
+    CAN_TxSetMessageDataWithSignalData(
+        &message, CANTX_MUX_FRAM_VALUE_START_BIT, CANTX_MUX_FRAM_VALUE_LENGTH, calibrationValue, CAN_BIG_ENDIAN);
+
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_FRAM_CHANNEL_START_BIT,
+        CANTX_MUX_FRAM_CHANNEL_LENGTH,
+        (int32_t)calibrationChannel,
+        CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData(message, &data[0], CAN_BIG_ENDIAN);
+    STD_RETURN_TYPE_e successfullyQueued =
+        CAN_DataSend(CAN_NODE_DEBUG_MESSAGE, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, &data[0]);
+
+    if (successfullyQueued == STD_OK) {
+        return STD_OK;
+    } else {
+        return STD_NOT_OK;
+    }
+}
+
+extern STD_RETURN_TYPE_e CANTX_TransmitAdcOffsetValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+    FAS_ASSERT(calibrationChannel < FRAM_CALIBRATION_CHANNEL_MAX);
+    int32_t calibrationValue = 0;
+    uint8_t data[]           = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+    uint64_t message         = 0;
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_FRAM_OFFSET_CALIBRATION_VALUES,
+        CAN_BIG_ENDIAN);
+
+    calibrationValue =
+        (int32_t)(fram_CalibrationData.offset[(uint32_t)calibrationChannel] * CANTX_FRAM_CALIBRATION_CONVERSION_FACTOR);
+    CAN_TxSetMessageDataWithSignalData(
+        &message, CANTX_MUX_FRAM_VALUE_START_BIT, CANTX_MUX_FRAM_VALUE_LENGTH, calibrationValue, CAN_BIG_ENDIAN);
+
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_FRAM_CHANNEL_START_BIT,
+        CANTX_MUX_FRAM_CHANNEL_LENGTH,
+        (int32_t)calibrationChannel,
+        CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData(message, &data[0], CAN_BIG_ENDIAN);
+    STD_RETURN_TYPE_e successfullyQueued =
+        CAN_DataSend(CAN_NODE_DEBUG_MESSAGE, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, &data[0]);
+
+    if (successfullyQueued == STD_OK) {
+        return STD_OK;
+    } else {
+        return STD_NOT_OK;
+    }
+}
+
 extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e action) {
     STD_RETURN_TYPE_e successfullyQueued = STD_NOT_OK;
     uint64_t messageData                 = 0u;
@@ -849,5 +1021,9 @@ extern uint64_t TEST_CANTX_TransmitCommitHashHigh(void) {
 }
 extern STD_RETURN_TYPE_e TEST_CANTX_DebugResponseSendMessage(uint64_t messageData) {
     return CANTX_DebugResponseSendMessage(messageData);
+}
+extern uint64_t TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(
+    FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationValue) {
+    return CANTX_GetMeasurementValueForFramCalibrationChannel(calibrationValue);
 }
 #endif

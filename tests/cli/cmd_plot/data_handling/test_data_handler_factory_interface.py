@@ -45,7 +45,7 @@ import unittest
 class TestDataHandlerFactoryInterface(unittest.TestCase):
     """Test of 'data_handler_factory_interface.py'"""
 
-    def test_dummy(self):
+    def test_dummy(self) -> None:
         """Dummy test"""
         # this test is necessary because otherwise the exit code is non-zero
 

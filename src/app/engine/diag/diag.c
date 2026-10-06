@@ -43,8 +43,8 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -304,6 +304,7 @@ void DIAG_PrintErrors(void) {
 }
 
 static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t data) {
+    (void)data;
     uint8_t ret_val = 0;
     if (diag_locked > 0u) {
         return ret_val; /* only locked when clearing the diagnosis memory */
@@ -474,15 +475,24 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
     return ret_val;
 }
 
-STD_RETURN_TYPE_e DIAG_CheckEvent(STD_RETURN_TYPE_e cond, DIAG_ID_e diagId, DIAG_IMPACT_LEVEL_e impact, uint32_t data) {
-    STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+STD_RETURN_TYPE_e DIAG_ReportResultToHandler(
+    STD_RETURN_TYPE_e result,
+    DIAG_ID_e diagId,
+    DIAG_IMPACT_LEVEL_e impact,
+    uint32_t data) {
+    STD_RETURN_TYPE_e retVal        = STD_NOT_OK;
+    DIAG_RETURNTYPE_e handlerReturn = DIAG_HANDLER_RETURN_UNKNOWN;
 
-    if (cond == STD_OK) {
-        DIAG_Handler(diagId, DIAG_EVENT_OK, impact, data);
+    if (result == STD_OK) {
+        handlerReturn = DIAG_Handler(diagId, DIAG_EVENT_OK, impact, data);
     } else {
-        DIAG_Handler(diagId, DIAG_EVENT_NOT_OK, impact, data);
+        handlerReturn = DIAG_Handler(diagId, DIAG_EVENT_NOT_OK, impact, data);
     }
-
+    if (handlerReturn == DIAG_HANDLER_RETURN_OK) {
+        retVal = STD_OK;
+    } else {
+        retVal = STD_NOT_OK;
+    }
     return retVal;
 }
 
@@ -507,6 +517,7 @@ bool DIAG_IsAnyFatalErrorSet(void) {
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern void TEST_DIAG_SetDiagTotalErrorCount(uint16_t errors) {
+    (void)errors;
     diag.totalErrorCount = errors;
 }
 
@@ -519,6 +530,7 @@ extern void TEST_DIAG_SetDiagOccurrenceCounter(uint16_t errors) {
 }
 
 extern void TEST_DIAG_SetActiveFatalErrorCounter(uint16_t errors) {
+    (void)errors;
     diag_activeFatalErrorCount = 0;
 }
 

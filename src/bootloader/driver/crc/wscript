@@ -37,15 +37,26 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
     bld.recurse("vendor")
-    source = ["crc.c"]
+
     includes = [
-        ".",
-        "vendor",
-        "../rti",
-        "../../main/include",
+        bld.path,
+        bld.path.find_node("vendor"),
+        bld.srcnode.find_node("src/bootloader/driver/rti"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
     ]
-    target = f"{bld.env.APPNAME.lower()}-bootloader-driver-crc-objects"
-    bld.objects(source=source, includes=includes, target=target)
+    use = [f"{lp}hal", "_L2FMC"]
+    source = "crc"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )

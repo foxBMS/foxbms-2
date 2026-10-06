@@ -1,0 +1,95 @@
+[
+  {
+    "source": "src/app/task/os/freertos/os_freertos.c",
+    "test": "test_os_freertos_cache_disabled.c",
+    "includes": [
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_sys_core.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_crash-dump.h",
+      "src/app/driver/rtc/rtc.h",
+      "src/app/task/config/ftask_cfg.h",
+      "src/app/task/ftask/ftask.h",
+      "src/os/freertos/freertos/include/queue.h",
+      "src/os/freertos/freertos/include/task.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ],
+    "defines": [
+      "FOXBMS_MCU_USE_CACHE=(false)"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  },
+  {
+    "source": "src/app/task/os/freertos/os_freertos.c",
+    "test": "test_os_freertos_cache_enabled.c",
+    "includes": [
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_sys_core.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_crash-dump.h",
+      "src/app/driver/rtc/rtc.h",
+      "src/app/task/config/ftask_cfg.h",
+      "src/app/task/ftask/ftask.h",
+      "src/os/freertos/freertos/include/queue.h",
+      "src/os/freertos/freertos/include/task.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ],
+    "defines": [
+      "FOXBMS_MCU_USE_CACHE=(true)"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  },
+  {
+    "source": "src/app/task/os/freertos/os_freertos.c",
+    "test": "test_os_freertos.c",
+    "includes": [
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_sys_core.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_crash-dump.h",
+      "src/app/driver/rtc/rtc.h",
+      "src/app/task/config/ftask_cfg.h",
+      "src/app/task/ftask/ftask.h",
+      "src/os/freertos/freertos/include/queue.h",
+      "src/os/freertos/freertos/include/task.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ],
+    "defines": [
+      "FOXBMS_MCU_USE_CACHE=(false)"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  }
+]

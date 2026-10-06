@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_imd_bender-iso165c-request.h
  * @author  foxBMS Team
  * @date    2022-11-16 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -61,7 +61,9 @@
 
 #include "fstd_types.h"
 
+#ifdef UNITY_UNIT_TEST
 #include <stdint.h>
+#endif
 
 /*========== Macros and Definitions =========================================*/
 /** defines which action is performed when #CANTX_ImdRequest is called */

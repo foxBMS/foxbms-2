@@ -1,7 +1,7 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _CRC:
+.. _CRC_DRIVER:
 
 CRC
 ===

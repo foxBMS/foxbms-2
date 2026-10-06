@@ -64,8 +64,8 @@ Unit tests **MUST** be implemented for these tools.
 Supporting Programming and Scripting Languages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Supporting programming and scripting languages that support the projects
-objective **MUST** be chosen from the following list in order to limit the
+Supporting programming and scripting languages that support the project's
+objectives **MUST** be chosen from the following list to limit the
 number of external dependencies:
 
 - Python 3 (preferred)

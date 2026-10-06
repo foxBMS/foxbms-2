@@ -46,24 +46,22 @@ from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from ...cmd_plot.data_handling.data_source_types import DataSourceTypes
-from ...helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT
+from ...helpers.project_context import PROJECT_BUILD_ROOT, PROJECT_ROOT
 
 if TYPE_CHECKING:  # pragma: no cover
     from .plot_gui import PlotFrame
 
 
-# pylint: disable-next=too-many-instance-attributes, too-many-ancestors
+# pylint: disable-next=too-many-ancestors
 class RunPlotFrame(ttk.Frame):
-    """RunPlot Frame"""
+    """'Run Plot' Frame"""
 
     def __init__(self, parent: ttk.Notebook, root: "PlotFrame") -> None:
         super().__init__(parent)
         self.root = root
 
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=1)
-        self.columnconfigure(3, weight=1)
-        self.columnconfigure(4, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
         example_data_source_file = PROJECT_ROOT / Path(
             "docs/tools/fox/plot/img/example_data.csv"
@@ -75,119 +73,91 @@ class RunPlotFrame(ttk.Frame):
             "docs/tools/fox/plot/img/plot_config.yaml"
         )
 
-        # Set Styles
-        ttk.Style().configure("Multiline.TButton", justify="center")
+        input_frame = ttk.Frame(self)
+        input_frame.grid(column=0, row=0, padx=20, pady=(10, 0), sticky="nwe")
+        input_frame.columnconfigure(1, weight=1)
+        input_frame.rowconfigure((0, 1, 2, 3, 4), weight=1, uniform="a")
 
-        # Create Label, Button and text widget for selecting the Data Source File
-        data_source_label = ttk.Label(self, text="Data Source", width=17)
-        data_source_label.grid(
-            column=0, row=0, padx=(20, 0), pady=(20, 5), sticky="news"
+        # Data Source
+        ttk.Label(input_frame, text="Data-Source File").grid(
+            column=0, row=0, padx=(0, 10), pady=5, sticky="we"
         )
-        self.data_source_entry = ttk.Entry(self, width=50)
-        self.data_source_entry.grid(
-            column=1, columnspan=4, row=0, padx=(30, 0), pady=(20, 5), sticky="news"
-        )
+        self.data_source_entry = ttk.Entry(input_frame)
+        self.data_source_entry.grid(column=1, row=0, pady=5, sticky="we")
         if example_data_source_file.is_file():
             self.data_source_entry.insert(tk.END, str(example_data_source_file))
-        self.data_source_button = ttk.Button(
-            self, text="Choose file", command=self.open_data_source_cb
-        )
-        self.data_source_button.grid(
-            column=5, row=0, padx=(0, 20), pady=(20, 5), sticky="news"
-        )
+        ttk.Button(
+            input_frame,
+            text="Select File",
+            command=lambda: self.select_file_cb(self.data_source_entry),
+        ).grid(column=2, row=0, pady=5, sticky="we")
 
-        # Create Label, Button and text widget for selecting directory for Output
-        output_label = ttk.Label(
-            self, text="Output Directory", justify="left", width=17
+        # Output Directory
+        ttk.Label(input_frame, text="Output Directory").grid(
+            column=0, row=1, padx=(0, 10), pady=5, sticky="we"
         )
-        output_label.grid(column=0, row=1, padx=(20, 0), pady=(0, 5), sticky="news")
-        self.output_entry = ttk.Entry(self, width=50)
-        self.output_entry.grid(
-            column=1, columnspan=4, row=1, padx=(30, 0), pady=(0, 5), sticky="we"
-        )
-        self.output_entry.insert(tk.END, str(PROJECT_BUILD_ROOT / "gui"))
-        self.output_button = ttk.Button(
-            self,
-            text="Choose\ndirectory",
-            command=self.open_output_directory_cb,
+        self.output_directory_entry = ttk.Entry(input_frame)
+        self.output_directory_entry.grid(column=1, row=1, pady=5, sticky="we")
+        self.output_directory_entry.insert(tk.END, str(PROJECT_BUILD_ROOT / "gui"))
+
+        ttk.Button(
+            input_frame,
+            text="Select\nDirectory",
+            command=self.select_directory_cb,
             style="Multiline.TButton",
-        )
-        self.output_button.grid(
-            column=5, row=1, padx=(0, 20), pady=(0, 5), sticky="news"
-        )
+        ).grid(column=2, row=1, pady=2, sticky="we")
 
-        # Create Label and text widget for the datatype
-        data_type_label = ttk.Label(self, text="Data Type", width=17)
-        data_type_label.grid(column=0, row=2, padx=(20, 0), pady=(0, 10), sticky="news")
+        # Data Type
+        ttk.Label(input_frame, text="Data Type").grid(
+            column=0, row=2, padx=(0, 10), pady=5, sticky="we"
+        )
         self.data_type_entry = ttk.Combobox(
-            self,
-            width=50,
+            input_frame,
             values=DataSourceTypes._member_names_,  # pylint: disable=no-member
         )
-        self.data_type_entry.grid(
-            column=1, columnspan=4, row=2, padx=(30, 0), pady=(0, 10), sticky="news"
-        )
+        self.data_type_entry.grid(column=1, row=2, pady=5, sticky="we")
         self.data_type_entry.current(0)
 
         # Data Configuration
-        # Create text widget and Button to select file
-        data_config_label = ttk.Label(self, text="Data Configuration", width=17)
-        data_config_label.grid(
-            column=0, row=3, padx=(20, 0), pady=(5, 10), sticky="news"
+        ttk.Label(input_frame, text="Data-Configuration File").grid(
+            column=0, row=3, padx=(0, 10), pady=5, sticky="we"
         )
-        self.data_config_entry = ttk.Entry(self, width=50)
+        self.data_config_entry = ttk.Entry(input_frame)
+        self.data_config_entry.grid(column=1, row=3, pady=5, sticky="we")
         if example_data_config_file.is_file():
             self.data_config_entry.insert(tk.END, str(example_data_config_file))
-        self.data_config_entry.grid(
-            column=1, columnspan=4, row=3, padx=(30, 0), pady=(5, 10), sticky="news"
-        )
-        self.data_config_button = ttk.Button(
-            self, text="Choose file", command=self.open_data_config_cb
-        )
-        self.data_config_button.grid(
-            column=5, row=3, padx=(0, 20), pady=(5, 10), sticky="news"
-        )
+
+        ttk.Button(
+            input_frame,
+            text="Select File",
+            command=lambda: self.select_file_cb(self.data_config_entry),
+        ).grid(column=2, row=3, pady=5, sticky="we")
 
         # Plot Configuration
-        # Create text widget and Button to select file
-        plot_config_label = ttk.Label(self, text="Plot Configuration", width=17)
-        plot_config_label.grid(
-            column=0, row=4, padx=(20, 0), pady=(5, 5), sticky="news"
+        ttk.Label(input_frame, text="Plot-Configuration File").grid(
+            column=0, row=4, padx=(0, 10), pady=5, sticky="we"
         )
-        self.plot_config_entry = ttk.Entry(self, width=50)
-        self.plot_config_entry.grid(
-            column=1, columnspan=4, row=4, padx=(30, 0), pady=(5, 5), sticky="news"
-        )
-
+        self.plot_config_entry = ttk.Entry(input_frame)
+        self.plot_config_entry.grid(column=1, row=4, pady=5, sticky="we")
         if example_plot_config_file.is_file():
             self.plot_config_entry.insert(tk.END, str(example_plot_config_file))
-        self.plot_config_button = ttk.Button(
-            self, text="Choose file", command=self.open_plot_config_cb
-        )
-        self.plot_config_button.grid(
-            column=5, row=4, padx=(0, 20), pady=(5, 5), sticky="news"
-        )
 
-    def open_data_config_cb(self) -> None:
-        """Open filedialog and print it in TextBox"""
-        data_config_path = fd.askopenfilename()
-        self.data_config_entry.delete(0, tk.END)
-        self.data_config_entry.insert(tk.END, data_config_path)
+        ttk.Button(
+            input_frame,
+            text="Select File",
+            command=lambda: self.select_file_cb(self.plot_config_entry),
+        ).grid(column=2, row=4, pady=5, sticky="we")
 
-    def open_plot_config_cb(self) -> None:
-        """Open filedialog and print it in TextBox"""
-        plot_config_path = fd.askopenfilename()
-        self.plot_config_entry.delete(0, tk.END)
-        self.plot_config_entry.insert(tk.END, plot_config_path)
+    def select_file_cb(self, entry_object: ttk.Entry) -> None:
+        """Open filedialog and write selected item into Entry widget"""
+        file_path = fd.askopenfilename()
+        if file_path:
+            entry_object.delete(0, tk.END)
+            entry_object.insert(tk.END, file_path)
 
-    def open_data_source_cb(self) -> None:
-        """Open filedialog and print it in TextBox"""
-        data_source_path = fd.askopenfilename()
-        self.data_source_entry.delete(0, tk.END)
-        self.data_source_entry.insert(tk.END, data_source_path)
-
-    def open_output_directory_cb(self) -> None:
-        """Open filedialog and print it in TextBox"""
-        output_directory = fd.askdirectory()
-        self.output_entry.delete(0, tk.END)
-        self.output_entry.insert(tk.END, output_directory)
+    def select_directory_cb(self) -> None:
+        """Open directory dialog and write selected item into Entry widget"""
+        directory = fd.askdirectory()
+        if directory:
+            self.output_directory_entry.delete(0, tk.END)
+            self.output_directory_entry.insert(tk.END, directory)

@@ -1,0 +1,45 @@
+[
+  {
+    "source": "src/app/application/config/bal_cfg.c",
+    "test": "test_bal_cfg.c",
+    "mocks": [
+      "src/app/task/os/os.h"
+    ]
+  },
+  {
+    "source": "src/app/application/config/battery_cell_cfg.c",
+    "test": "test_battery_cell_cfg.c",
+    "use": [
+      "foxbms-config-battery_cell_cfg"
+    ]
+  },
+  {
+    "source": [
+      "src/app/application/config/battery_system_cfg.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_battery_system_cfg.c",
+    "mocks": [
+      "src/app/engine/database/database.h"
+    ]
+  },
+  {
+    "source": "src/app/application/config/ethernet_cfg.c",
+    "test": "test_ethernet_cfg.c"
+  },
+  {
+    "source": "src/app/application/config/soa_cfg.c",
+    "test": "test_soa_cfg.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/sps",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "tests/unit/app/application/config/battery_cell_cfg.h"
+    ]
+  }
+]

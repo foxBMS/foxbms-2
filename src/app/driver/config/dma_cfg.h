@@ -43,8 +43,8 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__DMA_CFG_H_
 
 /*========== Includes =======================================================*/
+#include "foxbms_config_debug.h"
 
 #include "battery_system_cfg.h"
 
@@ -86,7 +87,7 @@
 #define DMA_CHANNEL_I2C1_RX (DMA_CH11)
 #define DMA_CHANNEL_I2C2_TX (DMA_CH12)
 #define DMA_CHANNEL_I2C2_RX (DMA_CH13)
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 #define DMA_CHANNEL_SCI4_TX (DMA_CH14)
 #endif
 /**@}*/
@@ -107,7 +108,7 @@
 #define DMA_REQ_LINE_I2C1_RX (DMA_REQ10)
 #define DMA_REQ_LINE_I2C2_TX (DMA_REQ33)
 #define DMA_REQ_LINE_I2C2_RX (DMA_REQ32)
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 #define DMA_REQ_LINE_SCI4_TX (DMA_REQ43)
 #endif
 /**@}*/

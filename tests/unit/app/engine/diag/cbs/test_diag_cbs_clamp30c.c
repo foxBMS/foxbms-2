@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_clamp30c.c
  * @author  foxBMS Team
  * @date    2024-05-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,9 +63,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("diag_cbs_clamp30c.c")
-
-TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define DIAG_EVENT_INVALID (9u)

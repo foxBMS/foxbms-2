@@ -43,8 +43,8 @@
  * @file    test_soc_lookup-table.c
  * @author  foxBMS Team
  * @date    2025-07-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,9 +61,9 @@
 #include "Mockdatabase.h"
 #include "Mockfram.h"
 
-#include "battery_cell_cfg.h"
 #include "soc_lookup-table_cfg.h"
 
+#include "battery_cell_cfg_types.h"
 #include "foxmath.h"
 #include "state_estimation.h"
 #include "test_assert_helper.h"
@@ -71,25 +71,11 @@
 #include <math.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("soc_lookup-table.c")
-TEST_SOURCE_FILE("soe_none.c")
-TEST_SOURCE_FILE("soh_none.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/soc/lookup-table")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 FRAM_SOC_s fram_soc = {0};
 /**local copy of DATA_BLOCK_SOC_s table**/
-static DATA_BLOCK_SOC_s cp_pTableSoc    = {.header.uniqueId = DATA_BLOCK_ID_SOC};
-static DATA_BLOCK_SOC_s cp_pTableMinMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_SOC_s cp_pTableSoc = {.header.uniqueId = DATA_BLOCK_ID_SOC};
 /** Maximum SOC in percentage */
 #define SOC_MAXIMUM_SOC_perc (100.0f)
 /** Minimum SOC in percentage */
@@ -110,13 +96,20 @@ void testSE_InitializeStateOfCharge(void) {
 }
 
 void testSE_CalculateStateOfCharge(void) {
+    DATA_BLOCK_MIN_MAX_s *cp_pTableMinMax = TEST_SOC_GetTableMinMax();
 
-    DATA_Read1DataBlock_ExpectAndReturn(&cp_pTableMinMax, STD_OK);
-    static DATA_BLOCK_SOC_s tableMinMaxTimestampMismatch = {
-        .header.uniqueId = DATA_BLOCK_ID_MIN_MAX, .header.timestamp = 10};
-    DATA_Read1DataBlock_ReturnThruPtr_pDataToReceiver0(&tableMinMaxTimestampMismatch);
+    cp_pTableMinMax->header.timestamp         = 10u;
+    cp_pTableMinMax->maximumCellVoltage_mV[0] = 4123;
+    cp_pTableMinMax->minimumCellVoltage_mV[0] = 3461;
+    cp_pTableMinMax->averageCellVoltage_mV[0] = 3636;
+
+    DATA_Read1DataBlock_ExpectAndReturn(cp_pTableMinMax, STD_OK);
     FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SOC, FRAM_ACCESS_OK);
     SE_CalculateStateOfCharge(&cp_pTableSoc);
+
+    TEST_ASSERT_EQUAL_FLOAT(100.0f, cp_pTableSoc.maximumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(26.0f, cp_pTableSoc.minimumSoc_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(50.0f, cp_pTableSoc.averageSoc_perc[0]);
 }
 void testSE_GetStateOfChargeFromVoltage(void) {
     /* LUT values*/

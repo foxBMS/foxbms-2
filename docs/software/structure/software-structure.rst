@@ -18,8 +18,7 @@ BMS implementations applying the design paradigms, that
 - **MCU and external hardware dependent drivers are abstracted by the provided
   wrappers/abstraction layers.**
 
-.. drawio-figure:: img/sw-architecture.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/sw-architecture.svg
    :alt: Software structure
    :name: sw-structure
    :width: 800px
@@ -43,13 +42,13 @@ certification is required by the application.
 The |foxbms| software itself, executed within the operating system context, is
 grouped into three different layers:
 
-- A dedicated **foxBMS Driver Layer** uses the MCU-Wrapper to provide different
+- A dedicated **Driver Layer** uses the MCU-Wrapper to provide different
   communication interfaces (e.g., CAN, UART, SPI) to acquire measurement data,
   monitor status of hardware components (e.g., supply voltages, transceivers,
   real-time clock) as the well as the communication with the |bms-slaves|.
 - Diagnostic functions and error handling, system monitoring (for hard- and
   software) and interfaces to the data-exchange module are the most important
-  tasks of the **foxBMS Engine Layer**.
+  tasks of the **Engine Layer**.
   The data-exchange module, sometimes also called database ensures a reliable
   and safe asynchronous data exchange between different tasks and/or software
   modules.
@@ -63,9 +62,33 @@ grouped into three different layers:
   errors), state estimation functionalities (e.g., state-of-charge, state-of-
   health, state-of-energy) and the application specific BMS application
   (e.g., balancing, plausibility checks) are implemented within the
-  **foxBMS Application Layer**.
+  **Application Layer**.
   Additionally, an algorithm module provides an interface to execute advanced
   computation intensive algorithms.
+
+Dataflow
+--------
+
+.. figure:: ../../../build/docs/docs/software/structure/img/dataflow.svg
+   :alt: Dataflow
+   :name: bms-dataflow
+   :width: 1000px
+   :align: center
+
+   |foxbms| - Dataflow
+
+The Diagram above displays all writes (black arrows) and reads (colored arrows)
+into and from the database.
+Every function that writes or reads is listed along with the task this
+function is executed in.
+Although there can always only be one producer there are multiple black arrows
+going into the same Data Blocks.
+This is either caused by functions that belong to the same component or
+different components that can only be used interchangeably
+and not concurrently.
+Some of these are highlighted (BAL, AFE, IMD) to reduce the number of arrows
+and clutter.
+Functions that are callbacks are also marked as such.
 
 The Software structure is explained further in the following chapters.
 

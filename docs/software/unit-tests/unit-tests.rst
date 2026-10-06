@@ -6,12 +6,8 @@
 Unit Tests
 ==========
 
-We are using the `ceedling framework <https://github.com/ThrowTheSwitch/Ceedling>`_
-for unit testing.
-It is a tool based on rake that automatically generates the mocks (with
-`CMock <https://github.com/ThrowTheSwitch/CMock>`_) and test-runners and
-executes the unit tests with `Unity <https://github.com/ThrowTheSwitch/Unity>`_
-as assertion toolset.
+We are using |cmock|, |unity| and |c_exception| for unit testing integrated
+into the |waf| build toolchain.
 
 `Unit testing <https://en.wikipedia.org/wiki/Unit_testing>`_ tries to test
 properties of the interfaces of the smallest units in your software.
@@ -20,6 +16,11 @@ This test tries not to catch every detail of the implementation on the specific
 MCU or the behavior of modules to each other.
 For this reason the tests are compiled on a development machine instead of the
 target.
+
+.. note::
+
+   All module, file and function names used in this document are generic
+   placeholders and do not refer to any specific module of the code base.
 
 Usage
 -----
@@ -49,14 +50,14 @@ Typically, the header of a unit-test-file consists of three parts.
     #include "unity.h"
 
     /* part two: include Mocks */
-    #include "MockHL_spi.h"
-    #include "Mockbeta.h"
-    #include "Mockdatabase.h"
+    #include "Mockdependency_a.h"
+    #include "Mockdependency_b.h"
+    #include "Mockdependency_c.h"
 
     /* part three: include the code under test */
-    #include "adc.h"
+    #include "module.h"
 
-With this information ceedling will gather all necessary c-files to these
+With this information |cmock| will gather all necessary c-files to these
 headers and compile a test-runner.
 
 Using mocks
@@ -71,15 +72,15 @@ In order to isolate our code from the rest, we can replace the calls to the
 surrounding software with so-called
 `Mocks <https://en.wikipedia.org/wiki/Mock_object>`_.
 
-You can tell ceedling to create a mock of a file by including the header file
+You can tell |cmock| to create a mock of a file by including the header file
 and prepending the word ``Mock`` to it.
 The mocks will be created on demand.
 If you are running into issues with certain parts of the API not being
 available in your Mock, then check the generated header file, if they are
 present.
-Ceedling will have issues parsing the header if the functions are marked with
+|cmock| will have issues parsing the header if the functions are marked with
 special attributes or if they are defined as inline.
-In this case it might be necessary to tell CMock that those attributes are
+In this case it might be necessary to tell |cmock| that those attributes are
 "strippable" with the ``:strippables:`` yaml in ``project.yml``.
 
 Before calling a function in your test that is calling one of your mocked
@@ -87,15 +88,12 @@ functions internally, you must tell the test-runner that you are expecting the
 mock to be called.
 The generated mocks will have a ``*_Expect``-function for this.
 
-For further information on using CMock please refer to the linked documents
-in :ref:`Further reading <CEEDLING_FURTHER_READING>`.
-
 Using assertions
 ^^^^^^^^^^^^^^^^
 
 The main part of a test will be asserting that the output of a function is as
 expected.
-Unity supplies many assertions that are summed up pretty well on
+|unity| supplies many assertions that are summed up pretty well on
 `GitHub <https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityAssertionsReference.md>`_.
 
 A typical usage might look like this:
@@ -112,8 +110,8 @@ As a start for a unit test you can create an empty file that compiles a
 test-runner together with all needed mocks and the file under test.
 
 You can start this by creating the test-c-file.
-If the file that you want to test is called ``adc.c`` with header ``adc.h``
-then you would name the unit test ``test_adc.c``.
+If the file that you want to test is called ``module.c`` with header
+``module.h`` then you would name the unit test ``test_module.c``.
 The directory structure of our application is mirrored in the
 unit-test-directory.
 
@@ -122,7 +120,7 @@ Start with the basic includes:
 .. code-block:: c
 
     #include "unity.h"
-    #include "adc.h"
+    #include "module.h"
 
 When you compile with this, the test-runner will complain about missing
 symbols.
@@ -132,15 +130,15 @@ Then add mocks for those by including their headers:
 .. code-block:: c
 
     #include "unity.h"
-    #include "MockHL_spi.h"
-    #include "Mockbeta.h"
-    #include "Mockdatabase.h"
-    #include "Mockepcos_b57251v5103j060.h"
+    #include "Mockdependency_a.h"
+    #include "Mockdependency_b.h"
+    #include "Mockdependency_c.h"
 
-    #include "adc.h"
+    #include "module.h"
 
 When you are done with that there will sometimes still be missing variables.
-In this example definitions from ``spi_cfg.c`` are missing.
+In this example definitions from a configuration file ``module_cfg.c`` are
+missing.
 You have two options:
 add the variables directly to the test-file (this can be useful if you have to
 access them in the unit test) or adding the header that introduces those
@@ -149,14 +147,13 @@ variables:
 .. code-block:: c
 
     #include "unity.h"
-    #include "MockHL_spi.h"
-    #include "Mockbeta.h"
-    #include "Mockdatabase.h"
-    #include "Mockepcos_b57251v5103j060.h"
+    #include "Mockdependency_a.h"
+    #include "Mockdependency_b.h"
+    #include "Mockdependency_c.h"
 
-    #include "spi_cfg.h"
+    #include "module_cfg.h"
 
-    #include "adc.h"
+    #include "module.h"
 
 You can start with this variant in order to get the unit test to compile and
 then later on add the variables directly to your test and remove the added
@@ -165,9 +162,8 @@ header.
 Special care has to be taken when registers are directly accessed in code.
 This will most certainly lead to a SEGFAULT in the test-runner, as this access
 to some random address is not allowed or sensible on the native-platform.
-Ceedling has a `guide <http://www.throwtheswitch.org/build/native>`_ on
-replacing these register accesses with variables, but since we are using a HAL
-it can often be enough to just replace HAL-calls with mocks.
+The solution is to replace these register accesses with variables, but since we
+are using a HAL it can often be enough to just replace HAL-calls with mocks.
 
 To finish it, your test needs a startup and teardown function.
 These functions will be called between each single test in a file.
@@ -210,9 +206,9 @@ comments based on experience.
 #. Equivalence classes **SHALL** be created for every input of a module.
    An equivalence class describes which class of input values takes the same
    internal path inside the function.
-   For example, when writing plausibility checks, all values that are plausible
-   would be one group and the values that are not plausible would be another
-   group.
+   For example, when writing a function that validates a value against a valid
+   range, all values inside the range would be one group and all values outside
+   the range would be another group.
    All values that are loaded by the module or are passed to the module when
    calling it are considered input.
 #. Boundary values **MUST** be tested for every equivalence class.
@@ -247,63 +243,10 @@ Typical test failures
 
 This part tries to sum up typical causes for failing unit tests.
 
-Ceedling crash
-^^^^^^^^^^^^^^
-
-Sometimes you will see a unit test failing locally with output similar to
-the following:
-
-.. code-block:: console
-
-    Test 'test_bal.c'
-    -----------------
-    ERROR: Ceedling Failed
-
-    ERROR: Shell command failed.
-    > Shell executed command:
-    [gcc call redacted, not relevant here]
-    > And exited with status: [1].
-
-    rake aborted!
-    ShellExecutionException: ShellExecutionException
-    ceedling:23:in 'load'
-    ceedling:23:in '<main>'
-    Tasks: TOP => test:all
-    (See full trace by running task with --trace)
-
-This happens most of the time on the first run after changing the branch.
-It seems to be an internal issue with how we are using ceedling, but is
-resolved by simply executing the task again (which will then work normally).
-
-Missing coverage
-^^^^^^^^^^^^^^^^
-
-On CI (or when computing the coverage locally), you can encounter error
-messages similar to this:
-
-.. code-block:: console
-
-    Could not find coverage results for ../../src/app/driver/io/io.c
-
-    [...]
-
-    There were files with no coverage results: aborting.
-
-This means that new files have been introduced that are not covered by any
-unit test (this test can be even empty).
-In order to solve this you have two options:
-
-#. add the offending file to ``:uncovered_ignore_list:`` in ``project.yml``
-#. add an (empty) test to the unit tests.
-
-While the first option is quicker, it is preferred to use mainly the second
-option.
-This way we can have a good overview of the actual coverage of our code.
-
 SEGFAULT of the test-runner
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the test-runner aborts an ceedling provides not much output this most of the
+If the test-runner aborts an |unity| provides not much output this most of the
 time means that you have run into a segmentation fault.
 This happens when the code that is currently tested tries to access a register
 of the MCU directly.
@@ -320,7 +263,7 @@ Using coverage reports
 ----------------------
 
 When you build the unit tests with coverage enabled you will find a coverage
-report locally in ``build/app_host_unit_test/artifacts/gcov`` as HTML.
+report locally in ``build/app_unit_test_gcc/coverage`` as HTML.
 
 This report knows two metrics: line-coverage and branch-coverage.
 Line-coverage is the percentage of lines of code that have been passed while
@@ -335,23 +278,23 @@ Full example of a unit test
 ----------------------------
 
 This section explores how a full unit test could look like.
-As an example we have a ``math.h``:
+As an example we have a generic module ``arithmetic.h``:
 
 .. code-block:: c
     :linenos:
-    :caption: Header for ``math.h``
-    :name: math-h
+    :caption: Header for ``arithmetic.h``
+    :name: arithmetic-h
 
     extern uint16_t addition(uint8_t a, uint8_t b);
 
-This header is implemented in ``math.c``:
+This header is implemented in ``arithmetic.c``:
 
 .. code-block:: c
     :linenos:
-    :caption: Implementation of ``math.h``
-    :name: math-c
+    :caption: Implementation of ``arithmetic.h``
+    :name: arithmetic-c
 
-    #include "math.h"
+    #include "arithmetic.h"
 
     uint16_t addition(uint8_t a, uint8_t b) {
         return a + b;
@@ -361,20 +304,20 @@ In order to make sure that the function is implemented as expected, we can
 test its properties with a unit test. Since this is an addition-function it
 should be commutative.
 That means ``a + b == b + a``. Another issue could be that the implementation
-has an overflow when adding two full-scale `uint8_t`.
+has an overflow when adding two full-scale ``uint8_t``.
 The following unit-test-fixture has two tests that will be executed one after
 another.
 
 .. code-block:: c
     :linenos:
-    :caption: Unit test for ``math.h``
-    :name: test-math-c
+    :caption: Unit test for ``arithmetic.h``
+    :name: test-arithmetic-c
 
     /* The test-library */
     #include "unity.h"
 
     /* The file under test */
-    #include "math.h"
+    #include "arithmetic.h"
 
     void setUp(void) {
         /* this function is called before executing a test;
@@ -406,11 +349,6 @@ another.
         TEST_ASSERT_EQUAL(510, addition(UINT8_MAX, UINT8_MAX));
     }
 
-When we run these tests, ceedling will automatically search the dependencies,
-generate the boilerplate-code for an executable, compile all fragments, link
-a test-runner and run this test-runner in order to check that the assertions
-are correct.
-
 The described code is isolated from any other code.
 In "real" implementations, however, we will often find code that depends on
 other modules and functions.
@@ -419,54 +357,52 @@ Therefore it is often used with a mocking-framework which replaces dependencies
 with stubs whose behavior can be controlled by test.
 
 Let's assume that we want to test a function in another module that depends on
-``math.h``.
-This modules checks the plausibility of two values of which the sum should be
-same as a third value.
+``arithmetic.h``.
+This module checks whether the sum of two values matches an expected value.
 
 .. code-block:: c
     :linenos:
-    :caption: Header of ``plausibility.h``
-    :name: plausibility-h
+    :caption: Header of ``checker.h``
+    :name: checker-h
 
-    /* return 0 if values are not plausible, 1 if plausible */
-    extern uint8_t check_values_plausible(uint8_t voltage_1,
-                                          uint8_t voltage_2,
-                                          uint16_t sum_of_voltage);
+    /* return 0 if the sum does not match, 1 if it matches */
+    extern uint8_t check_sum_matches(uint8_t value_1,
+                                     uint8_t value_2,
+                                     uint16_t expected_sum);
 
 .. code-block:: c
     :linenos:
-    :caption: Implementation of ``plausibility.h``
-    :name: plausibility-c
+    :caption: Implementation of ``checker.h``
+    :name: checker-c
 
-    /* These values would be filled in from some other function in this module */
-    uint8_t voltage_1 = 6;
-    uint8_t voltage_2 = 12;
-    uint16_t sum_of_voltage = 18;
+    #include "checker.h"
 
-    uint8_t check_values_plausible(uint8_t voltage_1,
-                                   uint8_t voltage_2,
-                                   uint16_t sum_of_voltage) {
-        uint16_t calculated_sum = addition(voltage_1, voltage_2);
-        return calculated_sum == sum_of_voltage;
+    #include "arithmetic.h"
+
+    uint8_t check_sum_matches(uint8_t value_1,
+                              uint8_t value_2,
+                              uint16_t expected_sum) {
+        uint16_t calculated_sum = addition(value_1, value_2);
+        return calculated_sum == expected_sum;
     }
 
-In the unit test we replace addition with a mock.
-That means we do not care if ``math.h`` is implemented correctly and replace
-it with our own implementation.
+In the unit test we replace ``addition`` with a mock.
+That means we do not care if ``arithmetic.h`` is implemented correctly and
+replace it with our own implementation.
 
 .. code-block:: c
     :linenos:
-    :caption: Unit test for ``plausibility.h``
-    :name: test-plausibility-c
+    :caption: Unit test for ``checker.h``
+    :name: test-checker-c
 
     #include "unity.h"
 
-    /* ceedling will recognize by this that we want to create a mock of
-    math.h and analyze the file and create it */
-    #include "Mockmath.h"
+    /* CMock will recognize by this that we want to create a mock of
+    arithmetic.h and analyze the file and create it */
+    #include "Mockarithmetic.h"
 
     /* this is the file under test */
-    #include "plausibility.h"
+    #include "checker.h"
 
     void setUp(void) {
     }
@@ -474,26 +410,26 @@ it with our own implementation.
     void tearDown(void) {
     }
 
-    void testCheckValuesPlausibleWithPlausibleValues(void) {
+    void testCheckSumMatchesWithMatchingValues(void) {
         /* we tell the mock to expect that it is called with 5 and 4 and that
         it should return 9; This will be added to a list and the mocks will
         be "consumed" from this list during execution */
         addition_ExpectAndReturn(5, 4, 9);
 
-        /* assert that check_values_plausible returns true */
-        TEST_ASSERT(check_values_plausible(5, 4, 9));
+        /* assert that check_sum_matches returns true */
+        TEST_ASSERT(check_sum_matches(5, 4, 9));
     }
 
-    void testCheckValuesPlausibleWithImplausibleValues(void) {
+    void testCheckSumMatchesWithMismatchingValues(void) {
         addition_ExpectAndReturn(5, 4, 9);
 
-        /* assert that implausible values will return false */
-        TEST_ASSERT_FALSE(check_values_plausible(5, 4, 10));
+        /* assert that a mismatching expected sum will return false */
+        TEST_ASSERT_FALSE(check_sum_matches(5, 4, 10));
     }
 
 Both tests should pass.
-The second test asserts that function returns false if the values are not
-plausible.
+The second test asserts that the function returns false if the calculated sum
+does not match the expected value.
 For both tests the mock is told what it will receive and what it should return.
 Variants of these mock-functions exist that allow to ignore calls to this
 function, or to add a callback for more complex return values.
@@ -501,11 +437,6 @@ function, or to add a callback for more complex return values.
 Further reading
 ---------------
 
-.. _CEEDLING_FURTHER_READING:
-
-- `Ceedling command line interface <https://github.com/ThrowTheSwitch/Ceedling/blob/master/docs/CeedlingPacket.md>`_
 - `Introduction to CMock and mocking <http://www.throwtheswitch.org/cmock>`_
 - `API of CMock <https://github.com/ThrowTheSwitch/CMock/blob/master/docs/CMock_Summary.md>`_
 - `Assertion summary of Unity <https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityAssertionsReference.md>`_
-- Further tutorials can be found in the
-  `GitHub-project of ceedling <https://github.com/ThrowTheSwitch/Ceedling/tree/master/docs>`_

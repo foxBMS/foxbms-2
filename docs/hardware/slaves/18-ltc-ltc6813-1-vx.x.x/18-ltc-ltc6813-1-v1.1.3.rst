@@ -39,15 +39,14 @@ The pinout of this |bms-slave| is shown in the
 :ref:`pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-img` and
 :ref:`pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-table`.
 
-.. drawio-figure:: 18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_pinout.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/slaves/18-ltc-ltc6813-1-vx.x.x/18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_pinout.svg
    :alt: pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-img
    :name: pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-img
    :width: 800px
 
    Connector placement of the |local_bms_slave_identifier_full|.
 
-.. csv-table:: MC33775A-based 14-Cell BMS-Slave connectors description
+.. csv-table:: |local_bms_slave_identifier_full| connectors description
    :file: 18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_pinout.csv
    :name: pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-table
    :header-rows: 1
@@ -94,9 +93,8 @@ The block diagram of the |bms-slave| is shown in
 :numref:`block_diagram_6813-1_slave_18cell_v1.1.3`.
 
 .. _block_diagram_6813-1_slave_18cell_v1.1.3:
-.. drawio-figure:: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3.drawio
+.. figure:: ../../../../build/docs/docs/hardware/slaves/18-ltc-ltc6813-1-vx.x.x/18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3.svg
    :width: 100 %
-   :format: svg
    :align: center
 
    |bms-slave| 18-Cell Block Diagram
@@ -125,8 +123,7 @@ The cell voltage sense lines are input on the connector X200.
 The pinout is described in
 :numref:`Table %s <6813-1_slave_18cell_v1.1.3_cell_sense_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_24pins.svg
    :width: 300px
 
 .. csv-table:: Cell voltage sense connector
@@ -196,8 +193,7 @@ and X202 (secondary).
 The pinout is identical for the primary and secondary unit and is described in
 :numref:`Table %s <6813-1_slave_18cell_v1.1.3_temp_sense_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_16pins.svg
    :width: 300px
 
 .. csv-table:: Temperature sensor connector
@@ -227,8 +223,8 @@ of the |ltc-ltc6813-1|.
 On-board EEPROM
 ^^^^^^^^^^^^^^^
 
-The primary unit as well as the secondary unit of the foxBMS BMS-Slave board is
-equipped with an EEPROM IC (IC801).
+The primary unit as well as the secondary unit of the |foxbms-unversioned|
+BMS-Slave board is equipped with an EEPROM IC (IC801).
 The EEPROM for example can be used for storing data such as calibration values.
 Similar to the analog multiplexers, the EEPROM device is connected to the
 |I2C| bus of the |ltc-ltc6813-1| (7-bit address: 0x50).
@@ -292,36 +288,35 @@ be selected by register settings.
 Each of the 8 digital inputs/outputs has a discrete pull up resistor that for
 example can be used for directly connecting a tactile switch.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-isoSPI Daisy Chain Connection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+|isospi| Daisy Chain Connection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The data transmission between the slaves and between the slaves and the basic
-board takes place using the isoSPI interface.
-The isoSPI signals are input/output on the connectors X500/X501 (primary) and
+board takes place using the |isospi| interface.
+The |isospi| signals are input/output on the connectors X500/X501 (primary) and
 X502/X503 (secondary).
-The isoSPI ports are bidirectional, that means they can be used in forward and
+The |isospi| ports are bidirectional, that means they can be used in forward and
 reverse direction.
-The isoSPI connections are isolated galvanically using pulse transformers
+The |isospi| connections are isolated galvanically using pulse transformers
 (TR1400).
 The voltage amplitude of the differential signal can be adjusted by setting
 resistors (see paragraph :ref:`hardware_slave_daisy_current_18cell`).
 
-The pinout of the isoSPI connectors is described in
+The pinout of the |isospi| connectors is described in
 :numref:`Table %s <6813-1_slave_18cell_v1.1.3_daisy_input_connectors>` and
 :numref:`Table %s <6813-1_slave_18cell_v1.1.3_daisy_output_connectors>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_02pins.svg
    :width: 300px
 
-.. csv-table:: isoSPI Daisy Chain Input Connectors
+.. csv-table:: |isospi| Daisy Chain Input Connectors
    :name: 6813-1_slave_18cell_v1.1.3_daisy_input_connectors
    :header-rows: 1
    :delim: ;
    :file: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_daisy-input-connectors.csv
 
-.. csv-table:: isoSPI Daisy Chain Output Connectors
+.. csv-table:: |isospi| Daisy Chain Output Connectors
    :name: 6813-1_slave_18cell_v1.1.3_daisy_output_connectors
    :header-rows: 1
    :delim: ;
@@ -336,8 +331,8 @@ Software Timer
 
 The internal software timer of the |ltc-ltc6813-1| can be enabled/disabled by a
 dedicated external pin (SWTEN, pin 36 of the |ltc-ltc6813-1|).
-In order to support all features, the foxBMS BMS-Slave board offers a
-possibility to switch the software timer.
+In order to support all features, the |foxbms-unversioned| BMS-Slave board
+offers a possibility to switch the software timer.
 The software timer is enabled in the standard configuration, which means pin
 36 is pulled to VREG via a zero-ohm resistor (R1407).
 The timer can be disabled by removing the resistor R1407 and placing a
@@ -351,9 +346,9 @@ Daisy Chain Communication Current
 The daisy chain communication current can be set by the resistors R1400 and
 R1402.
 The default value is 820 |_| |Ohm| for R1402 and 1.2 |_| |kOhm| for R1400.
-This values result in a bias current of approximately 1mA and a differential
+These values result in a bias current of approximately 1mA and a differential
 signal amplitude of 1.18 |_| V.
-Theses values are suitable for high noise environments with cable lengths of
+These values are suitable for high noise environments with cable lengths of
 over 50m.
 More information can be found in the |ltc-ltc6813-1| datasheet.
 
@@ -418,8 +413,7 @@ connectors are in parallel for daisy chaining the supply).
 The pinout of the connectors X1001 and X1002 is shown in
 :numref:`Table %s <6813-1_slave_18cell_v1.1.3_external_dc_supply_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_02pins.svg
    :width: 300px
 
 .. csv-table:: External DC supply connector

@@ -3,7 +3,7 @@
 
 .. _HOW_TO_BUILD_A_LIBRARY_AND_LINK_IT_IN_A_FOXBMS_2_PROJECT:
 
-How to Build a Library and Link it in a foxBMS 2 Project
+How to Build a Library and Link it in a |foxbms| Project
 ========================================================
 
 Sometimes source code can not be shared between parties.
@@ -13,9 +13,9 @@ This allows the partner to build a static library.
 This library and the accompanying headers can then be shared with the partner
 and be included in the application.
 
-The following example describes the workflow. In this scenario **Partner A**
-develops on |foxbms| while **Partner B** should only provide a library to
-**Partner A**.
+The following example describes the workflow.
+In this scenario **Partner A** develops on |foxbms| while **Partner B** should
+only provide a library to **Partner A**.
 
 Bootstrapping a minimal development Project
 -------------------------------------------
@@ -29,19 +29,22 @@ Bootstrapping a minimal development Project
 
         .. code-block:: powershell
 
-           .\fox.ps1 waf bootstrap-library-project
+           .\fox.ps1 waf configure
+           .\fox.ps1 waf bootstrap_library_project
 
      .. group-tab:: Win32/Git bash
 
         .. code-block:: shell
 
-           ./fox.sh waf bootstrap-library-project
+           ./fox.sh waf configure
+           ./fox.sh waf bootstrap_library_project
 
      .. group-tab:: Linux
 
         .. code-block:: shell
 
-           ./fox.sh waf bootstrap-library-project
+           ./fox.sh waf configure
+           ./fox.sh waf bootstrap_library_project
 
 - **Partner A** shares the archive ``library-project.tar.gz`` with
   **Partner B**.
@@ -55,6 +58,8 @@ Building a Library
   :ref:`SOFTWARE_INSTALLATION`.
 - **Partner B** builds a library by adding sources etc. to the minimal project
   as needed and builds the library.
+- **Partner B** extract the archive
+- **Partner B** builds the library
 
   .. tabs::
 
@@ -62,18 +67,21 @@ Building a Library
 
         .. code-block:: powershell
 
+           .\fox.ps1 waf configure
            .\fox.ps1 waf build
 
      .. group-tab:: Win32/Git bash
 
         .. code-block:: shell
 
+           ./fox.sh waf configure
            ./fox.sh waf build
 
      .. group-tab:: Linux
 
         .. code-block:: shell
 
+           ./fox.sh waf configure
            ./fox.sh waf build
 
 - **Partner B** shares the library and accompanying headers with **Partner A**.
@@ -81,27 +89,43 @@ Building a Library
 Including the Library
 ---------------------
 
-- **Partner A** saves the library and accompanying headers and adds the path to
-  the library to the search path, the library name the list of used libraries
-  and the path to the headers to the include path (in ``cc-options.yaml``).
+- **Partner A** copies the provided library and headers to a suitable location.
+- **Partner A** updates the include path for headers and search path for
+  libraries in the build configuration by updating ``INCLUDES`` and
+  ``STLIBPATH``.
+- **Partner A** adds a configuration step that make the library available for
+  linking by using
+  ``conf.check_cc(stlib=<lib-name>", uselib_store="<reference>")``.
+- **Partner A** can now use functions etc. from the library by including the
+  headers and linking against the library by adding ``<reference>`` to the
+  ``use`` parameter in the build step that requires the library.
+- **Partner A** configures and builds the application as usual.
 
-- For including the library the library path has to be updated:
-   .. code-block:: powershell
+  .. tabs::
 
-      LIBRARY_PATHS:
-         win32:
-         - ..\..\src\app\driver\<library directory name>
-         linux:
+     .. group-tab:: Win32/PowerShell
 
-- In the section libraries the name of the library has to be added:
-   .. code-block:: powershell
+        .. code-block:: powershell
 
-      LIBRARIES:
-         ST: # libraries following the pattern "lib<name>.a"
-         TARGET: # libraries following the pattern "<name>.lib"
-         - <name>
+           .\fox.ps1 waf configure
+           .\fox.ps1 waf build_app_ti_arm_cgt
 
-- For the changes to take effect execute:
-  ./fox.sh waf configure
-- Now the project should build with:
-  ./fox.sh waf build_app_embedded
+     .. group-tab:: Win32/Git bash
+
+        .. code-block:: shell
+
+           ./fox.sh waf configure
+           ./fox.sh waf build_app_ti_arm_cgt
+
+     .. group-tab:: Linux
+
+        .. code-block:: shell
+
+           ./fox.sh waf configure
+           ./fox.sh waf build_app_ti_arm_cgt
+
+- If the build is successful, the external library is correctly linked into
+  the |foxbms| application.
+
+A working minimal example of a library and its integration into the project can
+be found in ``tests/variants/lib-build``.

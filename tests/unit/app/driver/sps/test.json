@@ -1,0 +1,28 @@
+[
+  {
+    "source": "src/app/driver/sps/sps.c",
+    "test": "test_sps.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/spi",
+      "src/app/driver/sps"
+    ],
+    "mocks": [
+      "src/app/driver/config/contactor_cfg.h",
+      "src/app/driver/config/pex_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/sps_cfg.h",
+      "src/app/driver/contactor/contactor.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/driver/sps/sps_types.h",
+      "src/app/engine/database/database.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

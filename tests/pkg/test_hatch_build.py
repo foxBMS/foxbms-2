@@ -57,7 +57,7 @@ except ModuleNotFoundError:
 class TestExtractVersion(unittest.TestCase):
     """Tests the 'extract_version' function"""
 
-    def test_no_match(self):
+    def test_no_match(self) -> None:
         """Regex does not match"""
         txt = "Line 1\nLine 2\nLine 3"
         mock_pattern = MagicMock()
@@ -66,7 +66,7 @@ class TestExtractVersion(unittest.TestCase):
             hatch_build.extract_version(txt, mock_pattern)
         self.assertEqual(cm.exception.code, "Could not determine foxBMS 2 version.")
 
-    def test_version_found(self):
+    def test_version_found(self) -> None:
         """Regex matches"""
         txt = """Text 2\nLine 5\nLine 7 2"""
         result = hatch_build.extract_version(txt, re.compile(r"Line (\d{1,} \d{1,})"))
@@ -84,7 +84,7 @@ class TestGetVersion(unittest.TestCase):
         mock_compile: MagicMock,
         mock_read_text: MagicMock,
         mock_extract_version: MagicMock,
-    ):
+    ) -> None:
         """Test the function"""
         txt = '''VERSION = "x.y.z"'''
         mock_read_text.return_value = txt
@@ -98,13 +98,13 @@ class TestGetVersion(unittest.TestCase):
 class TestGetNumericVersion(unittest.TestCase):
     """Tests the 'get_numeric_version' function"""
 
-    def test_letters(self, mock_get_version: MagicMock):
+    def test_letters(self, mock_get_version: MagicMock) -> None:
         """Test converting from letters to numbers"""
         mock_get_version.return_value = "x.y.z"
         result = hatch_build.get_numeric_version()
         self.assertEqual(result, "120.121.122")
 
-    def test_numbers(self, mock_get_version: MagicMock):
+    def test_numbers(self, mock_get_version: MagicMock) -> None:
         """Test function when version is given with numbers"""
         mock_get_version.return_value = "1.2.3"
         result = hatch_build.get_numeric_version()
@@ -119,7 +119,7 @@ class TestGetDependencies(unittest.TestCase):
         new_callable=mock_open,
         read_data="Line1\nLine2\nLine3 #\nLine4",
     )
-    def test_get_dependencies(self, _: MagicMock):
+    def test_get_dependencies(self, _: MagicMock) -> None:
         """Test the function"""
         result = hatch_build.get_dependencies()
         self.assertEqual(result, ["Line1", "Line2", "Line3", "Line4"])
@@ -128,13 +128,13 @@ class TestGetDependencies(unittest.TestCase):
 class TestCustomBuildHook(unittest.TestCase):
     """Tests the 'CustomBuildHook' class"""
 
-    def setUp(self):  # noqa:D102
+    def setUp(self) -> None:  # noqa: D102
         self.build_hook = hatch_build.CustomBuildHook(
             ".", {}, None, ProjectMetadata(".", None), ".", "."
         )
 
     @patch("hatch_build.BuildHookInterface.initialize")
-    def test_initialize(self, mock_initialize: MagicMock):
+    def test_initialize(self, mock_initialize: MagicMock) -> None:
         """Tests the function 'initialize'"""
         build_data = {"artifacts": []}
         self.build_hook.initialize("version", build_data)
@@ -142,7 +142,7 @@ class TestCustomBuildHook(unittest.TestCase):
         mock_initialize.assert_called_once()
 
     @patch("hatch_build.BuildHookInterface.finalize")
-    def test_finalize_is_file(self, mock_finalize: MagicMock):
+    def test_finalize_is_file(self, mock_finalize: MagicMock) -> None:
         """Tests the function 'finalize' when the version file exists"""
         version_file = Path(__file__).parents[2] / "cli" / "version.py"
         version_file.touch()
@@ -151,7 +151,7 @@ class TestCustomBuildHook(unittest.TestCase):
         self.assertFalse(version_file.is_file())
 
     @patch("hatch_build.BuildHookInterface.finalize")
-    def test_finalize_not_file(self, mock_finalize: MagicMock):
+    def test_finalize_not_file(self, mock_finalize: MagicMock) -> None:
         """Tests the function 'finalize' when the version file exists"""
         self.build_hook.finalize("version", {}, ".")
         mock_finalize.assert_called_once()
@@ -162,7 +162,9 @@ class TestCustomMetaDataHook(unittest.TestCase):
 
     @patch("hatch_build.get_numeric_version")
     @patch("hatch_build.get_dependencies")
-    def test_update(self, mock_dependencies: MagicMock, mock_version: MagicMock):
+    def test_update(
+        self, mock_dependencies: MagicMock, mock_version: MagicMock
+    ) -> None:
         """Tests the function 'update'"""
         build_hook = hatch_build.CustomMetaDataHook(".", {})
         dependencies = ["dependency 1", "dependency 2"]

@@ -37,74 +37,90 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
 
     bld.recurse(["api", "config", "vendor"])
 
-    includes = (
-        [
-            "../common/mc3377x/vendor",
-            "../../../config",
-            "../../../dma",
-            "../../../foxmath",
-            "../../../io",
-            "../../../mcu",
-            "../../../pex",
-            "../../../rtc",
-            "../../../spi",
-            "../../../ts",
-            "../../../ts/api",
-            "../../../../application/config",
-            "../../../../engine/config",
-            "../../../../engine/database",
-            "../../../../engine/diag",
-            "../../../../main/include",
-            "../../../../task/config",
-            "../../../../task/config",
-            "../../../../task/ftask",
-            "../../../../task/os",
-        ]
-        + [
-            bld.root.find_node(i).path_from(bld.path)
-            for i in bld.env.FOXBMS_INCLUDES_AFE
-        ]
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
-    )
+    use = [
+        f"{lp}hal",
+        f"{ip}afe",
+        f"{ip}rtos-kernel",
+        f"{cp}battery_cell_cfg",
+    ]
+
+    includes = [
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/afe/nxp/common/mc3377x/vendor"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/dma"),
+        bld.srcnode.find_node("src/app/driver/foxmath"),
+        bld.srcnode.find_node("src/app/driver/io"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/pex"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/driver/ts"),
+        bld.srcnode.find_node("src/app/driver/ts/api"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/engine/diag"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "nxp_mc33775a_alarm"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
     source = "nxp_mc33775a_balancing"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     source = "nxp_mc33775a_i2c"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
     source = "nxp_mc33775a_measurement"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
+    )
+
+    bld(
+        export_includes=[
+            bld.path,
+            bld.path.find_node("api"),
+            bld.path.find_node("config"),
+            bld.path.find_node("vendor"),
+            bld.srcnode.find_node("src/app/driver/afe/nxp/api"),
+            bld.srcnode.find_node("src/app/driver/afe/nxp/common/mc3377x"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+        ],
+        target=f"{ip}afe-nxp_mc33775a",
     )
 
     use = [

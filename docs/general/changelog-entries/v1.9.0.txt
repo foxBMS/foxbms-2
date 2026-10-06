@@ -2,6 +2,7 @@ The toolchain installation has been centralized into a prefix.
 On Windows the prefix is ``C:\foxbms`` and on Linux it is ``/opt/foxbms``.
 This shall help to simplify the toolchain handling and updates in the future.
 This means the following tools need to be installed again:
+
 - Ceedling
 - Doxygen
 - drawio-desktop

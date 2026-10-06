@@ -52,10 +52,6 @@ def read_config(config: Path) -> dict:
 
     Returns:
         Parsed YAML content.
-
-    Raises:
-        FileNotFoundError: If the specified file does not exist.
-        yaml.YAMLError: If there is an error parsing the YAML file.
     """
     with open(config, encoding="utf-8") as f:
         return yaml.safe_load(f)

@@ -1,0 +1,109 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.243 Electron/37.4.0 Safari/537.36" version="28.1.2">
+  <diagram id="2H94FB3-CQQHYjyflknN" name="build_app_ti_arm_cgt">
+    <mxGraphModel dx="1426" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-1" value="waf build_app_ti_arm_cgt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="360" y="20" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-2" value="1 Preparation" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="920" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-3" value="select build environment&lt;br&gt;&quot;ti_arm_cgt&quot; (from configure)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="145" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-4" value="version consistency check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="360" y="145" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-5" value="recurse into src/&lt;br&gt;create all build tasks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="660" y="145" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-3" target="nU5DRqEaDDO1ua0tHhvp-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-4" target="nU5DRqEaDDO1ua0tHhvp-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-8" value="2 Code generation" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="250" width="920" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-9" value="HALCoGen (app.hcg)&lt;br&gt;→ HAL sources &amp; headers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="295" width="205" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-10" value="bms.json validate&lt;br&gt;→ foxbms_config_*.h" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="285" y="295" width="205" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-11" value="version.c&lt;br&gt;app_build_cfg.c" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="510" y="295" width="205" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-12" value="battery cell / system&lt;br&gt;and diagnosis config" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="735" y="295" width="205" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-13" value="3 Compiling &amp; archiving" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="410" width="920" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-14" value="armcl / armasm&lt;br&gt;*.c, *.asm → *.o" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="455" width="400" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-15" value="armar → one static library per module&lt;br&gt;(foxbms-hal.lib, foxbms-driver.lib, ...)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="540" y="455" width="400" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-14" target="nU5DRqEaDDO1ua0tHhvp-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-17" value="4 Linking" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="570" width="920" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-18" value="armcl --run_linker&lt;br&gt;libraries + objects + linker script" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="615" width="400" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-19" value="foxbms.elf&lt;br&gt;(+ foxbms.elf.map, foxbms.elf.xml)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="615" width="400" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-18" target="nU5DRqEaDDO1ua0tHhvp-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-21" value="5 Post-processing" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="730" width="920" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-22" value="CRC-64&lt;br&gt;foxbms.crc64.csv / .json" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="60" y="775" width="205" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-23" value="armhex&lt;br&gt;foxbms.hex (+ .hex.map)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="285" y="775" width="205" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-24" value="tiobj2bin&lt;br&gt;foxbms.bin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="510" y="775" width="205" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-25" value="Lauterbach script&lt;br&gt;update_program_information.cmm" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="735" y="775" width="205" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-26" value="all artifacts in build/app_ti_arm_cgt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="340" y="890" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-27" value="incremental build (only changed tasks are re-run)&lt;br&gt;options: --preprocess-files, --generate-listings" style="shape=note;size=14;whiteSpace=wrap;html=1;align=left;spacingLeft=8;verticalAlign=middle;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="40" y="955" width="920" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-28" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-1" target="nU5DRqEaDDO1ua0tHhvp-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-29" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-2" target="nU5DRqEaDDO1ua0tHhvp-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-30" value="generated sources and headers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-8" target="nU5DRqEaDDO1ua0tHhvp-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-31" value="static libraries and objects" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-13" target="nU5DRqEaDDO1ua0tHhvp-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-32" value="foxbms.elf" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-17" target="nU5DRqEaDDO1ua0tHhvp-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nU5DRqEaDDO1ua0tHhvp-33" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeWidth=2;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="nU5DRqEaDDO1ua0tHhvp-21" target="nU5DRqEaDDO1ua0tHhvp-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

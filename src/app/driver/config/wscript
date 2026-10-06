@@ -37,153 +37,167 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
+
+    use = [
+        f"{lp}hal",
+        f"{ip}rtos-kernel",
+        f"{cp}battery_system_cfg",
+        "foxbms_config",
+    ]
 
     includes = [
-        ".",
-        "../mcu",
-        "../rtc",
-        "../can/cbs/rx",
-        "../../application/config",
-        "../../engine/config",
-        "../../engine/database",
-        "../../main/include",
-        "../../task/config",
-        "../../task/ftask",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/can/cbs/rx"),
+        bld.srcnode.find_node("src/app/driver/fram"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "can_cfg_rx"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../mcu",
-        "../rtc",
-        "../can/cbs/rx",
-        "../can/cbs/tx-cyclic",
-        "../../application/config",
-        "../../engine/config",
-        "../../engine/database",
-        "../../main/include",
-        "../../task/config",
-        "../../task/ftask",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/can/cbs/rx"),
+        bld.srcnode.find_node("src/app/driver/can/cbs/tx-cyclic"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "can_cfg_tx_cyclic"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../mcu",
-        "../rtc",
-        "../../application/config",
-        "../../engine/config",
-        "../../engine/database",
-        "../../main/include",
-        "../../task/config",
-        "../../task/ftask",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "can_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../sps",
-        "../../application/config",
-        "../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/sps"),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     source = "contactor_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../spi",
-        "../../application/config",
-        "../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     source = "dma_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../spi",
-        "../../application/config",
-        "../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/fram"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     source = "fram_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../spi",
-        "../mcu",
-        "../../application/config",
-        "../../engine/config",
-        "../../engine/database",
-        "../../main/include",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "pex_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../spi",
-        "../../application/config",
-        "../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/main/include"),
     ]
     source = "spi_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     src_map = {"ltc": "adi", "maxim": "mxm"}
@@ -195,36 +209,36 @@ def build(bld):
     source = f"spi_cfg_{man}"
     bld.objects(
         source=f"{source}.c",
-        includes=["."],
-        cflags=bld.env.CFLAGS_FOXBMS,
+        includes=[bld.path],
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     source = "spi_cfg_generic"
     bld.objects(
         source=f"{source}.c",
-        includes=["."],
-        cflags=bld.env.CFLAGS_FOXBMS,
+        includes=[bld.path],
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../sps",
-        "../mcu",
-        "../../application/config",
-        "../../engine/config",
-        "../../engine/database",
-        "../../main/include",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/sps"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "sps_cfg"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )

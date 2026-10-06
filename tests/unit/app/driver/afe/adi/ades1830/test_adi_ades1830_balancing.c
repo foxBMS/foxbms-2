@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_balancing.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -77,27 +77,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("adi_ades1830_balancing.c")
-TEST_SOURCE_FILE("adi_ades1830_cfg.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/ades1830")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/diag")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/pec")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
-TEST_INCLUDE_PATH("../../src/app/engine/database")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 static DATA_BLOCK_BALANCING_CONTROL_s adi_balancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};

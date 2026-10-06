@@ -64,16 +64,16 @@ fi
 # Error handling when Python environment is not found
 function InstallHelper() {
     env_dir="$1"
-    if [ "$IsWindows" == "1" ]; then
+    if [ "${IsWindows}" == "1" ]; then
         PYTHON="py"
     else
         PYTHON="python3"
     fi
-    if ! command -v "$PYTHON" &> /dev/null
+    if ! command -v "${PYTHON}" &> /dev/null
         then
         # No python available at all
-        echo "Could not find '$PYTHON' executable."
-        if [ "$IsWindows" == "1" ]; then
+        echo "Could not find '${PYTHON}' executable."
+        if [ "${IsWindows}" == "1" ]; then
             echo "Install Python3 from python.org and rerun the command."
         else
             echo "Use your distributions package manager to install Python3."
@@ -84,34 +84,41 @@ function InstallHelper() {
     fi
 
     # we have at least some 'py' executable.
-    PYTHON_SETUP_SCRIPT="$SCRIPT_DIR/cli/helper/python_setup.py"
-    $PYTHON "$PYTHON_SETUP_SCRIPT" "$env_dir"
+    PYTHON_SETUP_SCRIPT="${SCRIPT_DIR}/cli/helper/python_setup.py"
+    "${PYTHON}" "${PYTHON_SETUP_SCRIPT}" "${env_dir}"
     popd > /dev/null
     exit 1
 }
 
+script_path="$(readlink -f "$0")"
+if [[ "${script_path}" =~ [[:space:]] ]]; then
+    echo "The project path contains whitespace: ${SCRIPT_DIR}" >&2
+    echo "Move the project to a path without spaces." >&2
+    exit 1
+fi
+
 # Push into the repository root
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-pushd "$SCRIPT_DIR" > /dev/null
+pushd "${SCRIPT_DIR}" > /dev/null
 
 # foxBMS-prefix for installed tools
 # Define prefix Linux
-if [ "$IsLinux" == "1" ]; then
+if [ "${IsLinux}" == "1" ]; then
     PREFIX="/opt/foxbms"
 # Define prefix Windows
-elif [ "$IsWindows" = "1" ] ; then
+elif [ "${IsWindows}" = "1" ] ; then
     PREFIX="/C/foxbms"
 fi
 
 # Name of the Python environment
-ENV_NAME="2025-11-pale-fox"
+ENV_NAME="2026-07-pale-fox"
 
 FOXBMS_PYTHON_ENV_DIRECTORY="${PREFIX}/envs/${ENV_NAME}"
 
 # Activation script path
-if [ "$IsLinux" == "1" ]; then
+if [ "${IsLinux}" == "1" ]; then
     FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH="bin/activate"
-elif [ "$IsWindows" = "1" ] ; then
+elif [ "${IsWindows}" = "1" ] ; then
     FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH="Scripts/activate"
 fi
 
@@ -123,7 +130,7 @@ if [ ! -f "${FOXBMS_PYTHON_ACTIVATION_SCRIPT}" ]; then
 fi
 # Activate Python environment
 # shellcheck source=/dev/null
-source "$FOXBMS_PYTHON_ACTIVATION_SCRIPT"
+source "${FOXBMS_PYTHON_ACTIVATION_SCRIPT}"
 
 # Ensure that the Python executable is available
 if ! command -v python &> /dev/null
@@ -138,9 +145,9 @@ fi
 # therefore we can run fox.py
 
 # Special case if on Windows and the GUI shall open
-if [ "$IsWindows" = "1" ] ; then
+if [ "${IsWindows}" = "1" ] ; then
     for arg in "$@"; do
-        if [[ "$arg" == "gui" ]]; then
+        if [[ "${arg}" == "gui" ]]; then
             # by default use 'pythonw.exe' so that we can early exit after GUI
             # start in case we need to debug the gui and provide the debug
             # option, we need stdout and stderr, so we start the GUI 'blocking'
@@ -151,7 +158,7 @@ if [ "$IsWindows" = "1" ] ; then
             opts=("-h" "--help" "--debug-gui")
             for search in "${opts[@]}"; do
                 for st in "$@"; do
-                    if [[ "$st" == "$search" ]]; then
+                    if [[ "${st}" == "${search}" ]]; then
                         USE_PYTHON="python"
                         break
                     fi

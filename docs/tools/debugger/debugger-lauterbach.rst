@@ -47,10 +47,9 @@ Setup
 After setting up the hardware connection you should be able to load
 the Trace32 application.
 For details on where to find a ready configuration for |foxbms|, please refer
-to :numref:`WAF_TOOL_LAUTERBACH`.
+to :doc:`/tools/waf_tools/waf_tools_autosummary/waf_tools.lauterbach`.
 
-.. drawio-figure:: lauterbach-buttons.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/tools/debugger/lauterbach-buttons.svg
    :alt: Buttons in the Lauterbach Trace32 environment
    :name: lauterbach-buttons
    :width: 240px

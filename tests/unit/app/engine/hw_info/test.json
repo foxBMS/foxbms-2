@@ -1,0 +1,19 @@
+[
+  {
+    "source": "src/app/engine/hw_info/master_info.c",
+    "test": "test_master_info.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/engine/config",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/engine/hw_info"
+    ],
+    "mocks": [
+      "src/app/driver/fram/fram_helper.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h"
+    ]
+  }
+]

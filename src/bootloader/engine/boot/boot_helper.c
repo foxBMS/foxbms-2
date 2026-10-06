@@ -43,14 +43,17 @@
  * @file    boot_helper.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  BOOT
  *
  * @brief   File that contains the implementation of
  *          the functions that can assist the functions in boot.c and boot.h
- * @details TODO
+ * @details Implements helper services for the bootloader workflow that interact
+ *          with flash, RAM, privilege handling, and reset control. These
+ *          helpers load and persist boot metadata, restore reset state, clear
+ *          memory ranges, and trigger software resets when required.
  */
 
 /* cspell:ignore SYSECR */

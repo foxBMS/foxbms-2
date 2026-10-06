@@ -43,8 +43,8 @@
  * @file    app_build_cfg.h
  * @author  foxBMS Team
  * @date    2024-10-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
  * @prefix  VER
  *
@@ -89,6 +89,7 @@ typedef enum {
     AFE_ADI_ADES1830 = 0x0400,
     /* TI: 0x0500 - 0x0599 */
     AFE_TI_DUMMY = 0x0501,
+    /* ST: 0x0600 - 0x0699 */
     /* Current Limit -> 0xFFFF (4 digits) */
 } VER_AFE_e;
 /** @} */
@@ -188,6 +189,7 @@ typedef enum {
     TEMPERATURE_SENSOR_VIS02,
     TEMPERATURE_SENSOR_TDK00,
     TEMPERATURE_SENSOR_TDK01,
+    TEMPERATURE_SENSOR_TDK02,
 } VER_TEMPERATURE_SENSOR_e;
 /** @} */
 

@@ -43,8 +43,8 @@
  * @file    test_epcos_b57332v5103f360_polynomial.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,11 +61,6 @@
 #include "tsi.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("epcos_b57332v5103f360_polynomial.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/epcos/b57332v5103f360")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -80,6 +75,7 @@ void tearDown(void) {
 void testTSI_GetTemperatureFromEpcosB57332V5103F360Polynomial(void) {
     const uint8_t test_adcVoltage_mv = 5;
     const float test_temperature     = 1.0;
-    TS_Epc02GetTemperatureFromPolynomial_ExpectAndReturn(test_adcVoltage_mv, test_temperature);
-    TEST_ASSERT_EQUAL(test_temperature, TSI_GetTemperature(test_adcVoltage_mv));
+    const float supplyVoltage_V      = 3.0;
+    TS_Epc02GetTemperatureFromPolynomial_ExpectAndReturn(test_adcVoltage_mv, supplyVoltage_V, test_temperature);
+    TEST_ASSERT_EQUAL(test_temperature, TSI_GetTemperature(test_adcVoltage_mv, supplyVoltage_V));
 }

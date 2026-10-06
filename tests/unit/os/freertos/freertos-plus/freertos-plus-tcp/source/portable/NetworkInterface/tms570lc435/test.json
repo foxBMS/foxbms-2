@@ -1,0 +1,37 @@
+{
+  "source": [
+    "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/NetworkInterface/tms570lc435/NetworkInterface.c"
+  ],
+  "test": "test_NetworkInterface.c",
+  "includes": [
+    "src/app/driver/config",
+    "src/app/driver/emac",
+    "src/app/driver/foxmath",
+    "src/app/driver/uart",
+    "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include",
+    "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS",
+    "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/NetworkInterface/tms570lc435"
+  ],
+  "mocks": [
+    "src/app/driver/emac/emac-low-level.h",
+    "src/app/driver/emac/emac.h",
+    "src/app/driver/foxmath/foxmath.h",
+    "src/app/engine/database/database.h",
+    "src/app/main/include/infinite-loop-helper.h",
+    "src/app/task/os/os.h",
+    "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/FreeRTOS_Routing.h",
+    "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/NetworkBufferManagement.h",
+    "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+  ],
+  "defines": [
+    "COMPILE_FOR_UNIT_TEST=1",
+    "FOXBMS_TCP_SUPPORT=1",
+    "FOXBMS_UART_SUPPORT=1"
+  ],
+  "cflags": [
+    "-I",
+    "../../src/os/freertos/freertos/include",
+    "-include",
+    "FreeRTOSConfig.h"
+  ]
+}

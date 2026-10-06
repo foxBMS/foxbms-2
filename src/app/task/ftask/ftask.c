@@ -43,17 +43,22 @@
  * @file    ftask.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup TASK
  * @prefix  FTSK
  *
  * @brief   Implementation of OS-independent task creators
- * @details TODO
+ * @details This module implements the operating-system-independent task entry
+ *          functions used by foxBMS.
+ *          It contains the task main loops, state transitions during system
+ *          startup, and the calls into user code and system monitoring.
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
 
 #include "ftask.h"
 
@@ -236,7 +241,7 @@ extern void FTSK_CreateTaskI2c(void *const pvParameters) {
     }
 }
 
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler tell compiler this function is a task, context save not necessary */
 #pragma TASK(FTSK_CreateTaskAfe)
@@ -258,7 +263,7 @@ extern void FTSK_CreateTaskAfe(void *const pvParameters) {
 }
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler tell compiler this function is a task, context save not necessary */
 #pragma TASK(FTSK_CreateTaskUart)
@@ -273,7 +278,7 @@ extern void FTSK_CreateTaskUart(void *const pvParameters) {
 
     /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
      * loop for the user code (see www.freertos.org/a00125.html)*/
-    while (true) {
+    while (FOREVER()) {
         /* user code implementation */
         FTSK_RunUserCodeUart();
     }

@@ -43,8 +43,8 @@
  * @file    test_foxmath.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,6 @@
 #include "foxmath.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint16_t val16;
@@ -194,6 +193,17 @@ void test_MATH_MinimumOfTwoUint16_t(void) {
     TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(0u, UINT16_MAX));
 }
 
+void test_MATH_MinimumOfTwoUint32_t(void) {
+    uint32_t value1 = 0xFFFFFF42u;
+    uint32_t value2 = 0xFFFFFF67u;
+
+    TEST_ASSERT_EQUAL_UINT32(value1, MATH_MinimumOfTwoUint32_t(value1, value2));
+    TEST_ASSERT_EQUAL_UINT32(value1, MATH_MinimumOfTwoUint32_t(value2, value1));
+    TEST_ASSERT_EQUAL_UINT32(value1, MATH_MinimumOfTwoUint32_t(value1, UINT32_MAX));
+    TEST_ASSERT_EQUAL_UINT32(0u, MATH_MinimumOfTwoUint32_t(value1, 0u));
+    TEST_ASSERT_EQUAL_UINT32(0u, MATH_MinimumOfTwoUint32_t(UINT32_MAX, 0u));
+    TEST_ASSERT_EQUAL_UINT32(0u, MATH_MinimumOfTwoUint32_t(0u, UINT32_MAX));
+}
 void testMATH_AbsInt32_t(void) {
     TEST_ASSERT_EQUAL_INT32(5, MATH_AbsInt32_t(5));
     TEST_ASSERT_EQUAL_INT32(5, MATH_AbsInt32_t(-5));

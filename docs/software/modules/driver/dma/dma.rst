@@ -1,7 +1,7 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _DMA:
+.. _DMA_DRIVER:
 
 DMA
 ===
@@ -24,8 +24,8 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/dma/dma.c``
-- ``tests/unit/app/driver/config/dma_cfg.c``
+- ``tests/unit/app/driver/dma/test_dma.c``
+- ``tests/unit/app/driver/config/test_dma_cfg.c``
 
 Description
 -----------

@@ -1,0 +1,781 @@
+{
+  "path": "src/app/engine/config",
+  "files": [
+    {
+      "file_name": "diag_array_cfg.c",
+      "defines": [
+        {
+          "name": "DIAG_DIAGNOSIS_ID_CONFIGURATION",
+          "type": "diag_array"
+        }
+      ],
+      "array_entries": [
+        {
+          "event": "DIAG_ID_SYSTEM_MONITORING",
+          "description": "The system monitoring module has detected a deviation from task timing limits",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 0,
+          "enabled": true,
+          "callback": "DIAG_ErrorSystemMonitoring"
+        },
+        {
+          "event": "DIAG_ID_AFE_SPI",
+          "description": "Low-level communication error in the AFE driver",
+          "sensitivity": 5,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfeDriver"
+        },
+        {
+          "event": "DIAG_ID_AFE_COMMUNICATION_INTEGRITY",
+          "description": "Communication integrity error in the AFE, e.g., PEC error for AFE",
+          "sensitivity": 5,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfeDriver"
+        },
+        {
+          "event": "DIAG_ID_AFE_MUX",
+          "description": "The multiplexer connected to the AFE does not react in an expected way",
+          "sensitivity": 5,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfeDriver"
+        },
+        {
+          "event": "DIAG_ID_AFE_CONFIG",
+          "description": "The AFE driver has recognized a configuration error",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfeDriver"
+        },
+        {
+          "event": "DIAG_ID_CAN_TIMING",
+          "description": "The BMS does not receive CAN messages (a) at all or (b) not within the expected time frame",
+          "sensitivity": 100,
+          "severity": "FATAL_ERROR",
+          "delay": 200,
+          "enabled": true,
+          "callback": "DIAG_ErrorCanTiming"
+        },
+        {
+          "event": "DIAG_ID_CAN_RX_QUEUE_FULL",
+          "description": "The reception queue of the CAN driver is full, no new messages can be received",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorCanRxQueueFull"
+        },
+        {
+          "event": "DIAG_ID_CAN_TX_QUEUE_FULL",
+          "description": "The transmission queue of the CAN driver is full, all new messages will be lost",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorCanTxQueueFull"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_CC_RESPONDING",
+          "description": "The current counter measurements are missing or not inside expected timing constraints",
+          "sensitivity": 100,
+          "severity": "FATAL_ERROR",
+          "delay": 2000,
+          "enabled": true,
+          "callback": "DIAG_ErrorCurrentSensor"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_EC_RESPONDING",
+          "description": "The energy counter measurements are missing or not inside expected timing constraints",
+          "sensitivity": 100,
+          "severity": "FATAL_ERROR",
+          "delay": 2000,
+          "enabled": true,
+          "callback": "DIAG_ErrorCurrentSensor"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_RESPONDING",
+          "description": "The current sensor measurements are missing or not inside expected timing constraints",
+          "sensitivity": 100,
+          "severity": "FATAL_ERROR",
+          "delay": 200,
+          "enabled": true,
+          "callback": "DIAG_ErrorCurrentSensor"
+        },
+        {
+          "event": "DIAG_ID_REDUNDANCY_CELL_VOLTAGE",
+          "description": "Redundant measurement of the cell voltages has returned implausible values",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_PlausibilityCheck"
+        },
+        {
+          "event": "DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR",
+          "description": "The AFE driver has determined a cell voltage measurement to be implausible",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        },
+        {
+          "event": "DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR",
+          "description": "The AFE driver has determined a cell temperature measurement to be implausible",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        },
+        {
+          "event": "DIAG_ID_REDUNDANCY_CELL_TEMPERATURE",
+          "description": "Redundant measurement of the cell temperatures has returned implausible values",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_PlausibilityCheck"
+        },
+        {
+          "event": "DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD",
+          "description": "The spread (difference between min and max values) of the cell voltages is implausibly high",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_PlausibilityCheck"
+        },
+        {
+          "event": "DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD",
+          "description": "The spread (difference between min and max values) of the cell temperatures is implausibly high",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_PlausibilityCheck"
+        },
+        {
+          "event": "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL",
+          "description": "Cell voltage limits are violated with respect to the maximum safe limit (MSL)",
+          "sensitivity": 50,
+          "severity": "FATAL_ERROR",
+          "delay": 200,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvervoltage"
+        },
+        {
+          "event": "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL",
+          "description": "Cell voltage limits are violated with respect to the recommended safe limit (RSL)",
+          "sensitivity": 50,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvervoltage"
+        },
+        {
+          "event": "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL",
+          "description": "Cell voltage limits are violated with respect to the maximum operating limit (MOL)",
+          "sensitivity": 50,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvervoltage"
+        },
+        {
+          "event": "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL",
+          "description": "Cell voltage limits are violated with respect to the maximum safe limit (MSL)",
+          "sensitivity": 50,
+          "severity": "FATAL_ERROR",
+          "delay": 200,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndervoltage"
+        },
+        {
+          "event": "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL",
+          "description": "Cell voltage limits are violated with respect to the recommended safe limit (RSL)",
+          "sensitivity": 50,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndervoltage"
+        },
+        {
+          "event": "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL",
+          "description": "Cell voltage limits are violated with respect to the maximum operating limit (MOL)",
+          "sensitivity": 50,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndervoltage"
+        },
+        {
+          "event": "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL",
+          "description": "Temperature limits are violated with respect to the maximum safe limit (MSL)",
+          "sensitivity": 500,
+          "severity": "FATAL_ERROR",
+          "delay": 1000,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvertemperatureCharge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL",
+          "description": "Temperature limits are violated with respect to the recommended safe limit (RSL)",
+          "sensitivity": 500,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvertemperatureCharge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL",
+          "description": "Temperature limits are violated with respect to the maximum operating limit (MOL)",
+          "sensitivity": 500,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvertemperatureCharge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL",
+          "description": "Temperature limits are violated with respect to the maximum safe limit (MSL)",
+          "sensitivity": 500,
+          "severity": "FATAL_ERROR",
+          "delay": 1000,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvertemperatureDischarge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL",
+          "description": "Temperature limits are violated with respect to the recommended safe limit (RSL)",
+          "sensitivity": 500,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvertemperatureDischarge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL",
+          "description": "Temperature limits are violated with respect to the maximum operating limit (MOL)",
+          "sensitivity": 500,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvertemperatureDischarge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL",
+          "description": "Temperature limits are violated with respect to the maximum safe limit (MSL)",
+          "sensitivity": 500,
+          "severity": "FATAL_ERROR",
+          "delay": 1000,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndertemperatureCharge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL",
+          "description": "Temperature limits are violated with respect to the recommended safe limit (RSL)",
+          "sensitivity": 500,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndertemperatureCharge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL",
+          "description": "Temperature limits are violated with respect to the maximum operating limit (MOL)",
+          "sensitivity": 500,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndertemperatureCharge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL",
+          "description": "Temperature limits are violated with respect to the maximum safe limit (MSL)",
+          "sensitivity": 500,
+          "severity": "FATAL_ERROR",
+          "delay": 1000,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndertemperatureDischarge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL",
+          "description": "Temperature limits are violated with respect to the recommended safe limit (RSL)",
+          "sensitivity": 500,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndertemperatureDischarge"
+        },
+        {
+          "event": "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL",
+          "description": "Temperature limits are violated with respect to the maximum operating limit (MOL)",
+          "sensitivity": 500,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorUndertemperatureDischarge"
+        },
+        {
+          "event": "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL",
+          "description": "Overcurrent on cell-level with respect to the maximum safe limit (MSL)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_OVERCURRENT_CHARGE_CELL_RSL",
+          "description": "Overcurrent on cell-level with respect to the recommended safe limit (RSL)",
+          "sensitivity": 10,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_OVERCURRENT_CHARGE_CELL_MOL",
+          "description": "Overcurrent on cell-level with respect to the maximum operating limit (MOL)",
+          "sensitivity": 10,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL",
+          "description": "Overcurrent on cell-level with respect to the maximum safe limit (MSL)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_RSL",
+          "description": "Overcurrent on cell-level with respect to the recommended safe limit (RSL)",
+          "sensitivity": 10,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MOL",
+          "description": "Overcurrent on cell-level with respect to the maximum operating limit (MOL)",
+          "sensitivity": 10,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL",
+          "description": "Overcurrent on string-level with respect to the maximum safe limit (MSL)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_STRING_OVERCURRENT_CHARGE_RSL",
+          "description": "Overcurrent on string-level with respect to the recommended safe limit (RSL)",
+          "sensitivity": 10,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_STRING_OVERCURRENT_CHARGE_MOL",
+          "description": "Overcurrent on string-level with respect to the maximum operating limit (MOL)",
+          "sensitivity": 10,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL",
+          "description": "Overcurrent on string-level with respect to the maximum safe limit (MSL)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_RSL",
+          "description": "Overcurrent on string-level with respect to the recommended safe limit (RSL)",
+          "sensitivity": 10,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MOL",
+          "description": "Overcurrent on string-level with respect to the maximum operating limit (MOL)",
+          "sensitivity": 10,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL",
+          "description": "Overcurrent on pack-level with respect to the maximum safe limit (MSL)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentCharge"
+        },
+        {
+          "event": "DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL",
+          "description": "Overcurrent on pack-level with respect to the maximum safe limit (MSL)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorOvercurrentDischarge"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_ON_OPEN_STRING",
+          "description": "Current flowing despite the string is open",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorCurrentOnOpenString"
+        },
+        {
+          "event": "DIAG_ID_DEEP_DISCHARGE_DETECTED",
+          "description": "The deep discharge flag has been set in persistent memory",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorDeepDischarge"
+        },
+        {
+          "event": "DIAG_ID_AFE_OPEN_WIRE",
+          "description": "An open (broken) sense wire has been detected on the battery cell measurement",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfeDriver"
+        },
+        {
+          "event": "DIAG_ID_BMS_VALUES_PACK_VOLTAGE",
+          "description": "The plausibility module has decided that the pack voltage is implausible",
+          "sensitivity": 10,
+          "severity": "WARNING",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorBmsValuesPackVoltage"
+        },
+        {
+          "event": "DIAG_ID_INTERLOCK_FEEDBACK",
+          "description": "The interlock feedback indicates it to be open (but it is expected to be closed)",
+          "sensitivity": 10,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorInterlock"
+        },
+        {
+          "event": "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK",
+          "description": "The feedback on a string minus contactor does not match the expected value",
+          "sensitivity": 20,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_StringContactorFeedback"
+        },
+        {
+          "event": "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK",
+          "description": "The feedback on a string plus contactor does not match the expected value",
+          "sensitivity": 20,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_StringContactorFeedback"
+        },
+        {
+          "event": "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK",
+          "description": "The feedback on a precharge contactor does not match the expected value",
+          "sensitivity": 20,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_PrechargeContactorFeedback"
+        },
+        {
+          "event": "DIAG_ID_SBC_FIN_ERROR",
+          "description": "The state of the FIN signal in the SBC is not ok",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_Sbc"
+        },
+        {
+          "event": "DIAG_ID_SBC_RSTB_ERROR",
+          "description": "An activation of the RSTB pin of the SBC has been detected",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_Sbc"
+        },
+        {
+          "event": "DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the base cell voltage measurements are missing",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        },
+        {
+          "event": "DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the redundancy0 cell voltage measurements are missing",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        },
+        {
+          "event": "DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the base cell temperature measurements are missing",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        },
+        {
+          "event": "DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the redundancy0 temperature measurements are missing",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        },
+        {
+          "event": "DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE",
+          "description": "Precharging aborted due to a too high voltage difference",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_PrechargeProcess"
+        },
+        {
+          "event": "DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT",
+          "description": "Precharging aborted because measured current was too high",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_PrechargeProcess"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the current measurement on a string is not updated",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorCurrentMeasurement"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_MEASUREMENT_ERROR",
+          "description": "The redundancy module has detected a current measurement to be invalid",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorCurrentMeasurement"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the voltage 1 measurement of a current sensor is not updated",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorHighVoltageMeasurement"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the voltage 2 measurement of a current sensor is not updated",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorHighVoltageMeasurement"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the voltage 3 measurement of a current sensor is not updated",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorHighVoltageMeasurement"
+        },
+        {
+          "event": "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT",
+          "description": "The redundancy module has detected that the power measurement of a current sensor is not updated",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorPowerMeasurement"
+        },
+        {
+          "event": "DIAG_ID_POWER_MEASUREMENT_ERROR",
+          "description": "The redundancy module has detected a power measurement to be invalid",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 100,
+          "enabled": true,
+          "callback": "DIAG_ErrorPowerMeasurement"
+        },
+        {
+          "event": "DIAG_ID_INSULATION_MEASUREMENT_VALID",
+          "description": "The insulation measurement is valid or invalid",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_Insulation"
+        },
+        {
+          "event": "DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR",
+          "description": "A critical low insulation resistance has been measured",
+          "sensitivity": 5,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_Insulation"
+        },
+        {
+          "event": "DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING",
+          "description": "A warnable low insulation resistance has been measured",
+          "sensitivity": 5,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_Insulation"
+        },
+        {
+          "event": "DIAG_ID_INSULATION_GROUND_ERROR",
+          "description": "Insulation monitoring has detected a ground error",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_Insulation"
+        },
+        {
+          "event": "DIAG_ID_I2C_PEX_ERROR",
+          "description": "General error with the port expanders",
+          "sensitivity": 1,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_I2c"
+        },
+        {
+          "event": "DIAG_ID_I2C_RTC_ERROR",
+          "description": "I2C communication error with the RTC",
+          "sensitivity": 1,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_I2c"
+        },
+        {
+          "event": "DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR",
+          "description": "Clock integrity not guaranteed error in RTC IC",
+          "sensitivity": 1,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_Rtc"
+        },
+        {
+          "event": "DIAG_ID_RTC_BATTERY_LOW_ERROR",
+          "description": "RTC IC battery low flag set",
+          "sensitivity": 1,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_Rtc"
+        },
+        {
+          "event": "DIAG_ID_FRAM_READ_CRC_ERROR",
+          "description": "CRC does not match when reading from the FRAM",
+          "sensitivity": 1,
+          "severity": "INFO",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_FramError"
+        },
+        {
+          "event": "DIAG_ID_ALERT_MODE",
+          "description": "Critical error while opening the contactors. Fuse has not triggered",
+          "sensitivity": 1,
+          "severity": "FATAL_ERROR",
+          "delay": 0,
+          "enabled": true,
+          "callback": "DIAG_AlertFlag"
+        },
+        {
+          "event": "DIAG_ID_AEROSOL_ALERT",
+          "description": "High aerosol concentration detected",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_AerosolAlert"
+        },
+        {
+          "event": "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST",
+          "description": "Supply voltage of clamp 30C lost",
+          "sensitivity": 3,
+          "severity": "FATAL_ERROR",
+          "delay": 0,
+          "enabled": true,
+          "callback": "DIAG_SupplyVoltageClamp30c"
+        },
+        {
+          "event": "DIAG_ID_AFE_ALARM",
+          "description": "Alarm line showed an error occurred",
+          "sensitivity": 1,
+          "severity": "WARNING",
+          "delay": -1,
+          "enabled": true,
+          "callback": "DIAG_ErrorAfe"
+        }
+      ]
+    }
+  ]
+}

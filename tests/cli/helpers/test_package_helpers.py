@@ -59,12 +59,12 @@ def dummy_func() -> bool:
 class TestCheckProject(unittest.TestCase):
     """Test of 'check_project' function"""
 
-    def test_project(self):
+    def test_project(self) -> None:
         """Test function is executed when in the project"""
         result = dummy_func()
         self.assertTrue(result)
 
-    def test_package(self):
+    def test_package(self) -> None:
         """Test function is executed when in the package"""
         package_helpers.ROOT_IS_PROJECT = False
         result = dummy_func()

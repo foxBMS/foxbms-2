@@ -43,8 +43,8 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -54,9 +54,9 @@
 
 /*========== Includes =======================================================*/
 #include "battery_cell_cfg.h"
-#include "battery_system_cfg.h"
 #include "soe_counting_cfg.h"
 
+#include "battery_system_cfg_types.h"
 #include "bms.h"
 #include "database.h"
 #include "foxmath.h"
@@ -132,7 +132,7 @@ static uint32_t SOE_GetStringEnergyFromSoePercentage(float_t stringSoe_perc);
  *
  * @return returns corresponding string SOE in percentage [0.0, 100.0]
  */
-static float_t SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh);
+static float_t SOE_GetStringSoePercentageFromEnergy(int32_t energy_Wh);
 
 /**
  * @brief   initializes database and FRAM SOE values via lookup table (average, min and max).
@@ -177,7 +177,7 @@ static void SOE_SetValue(
 static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOE_s *pTableSoe, uint8_t stringNumber);
 
 /*========== Static Function Implementations ================================*/
-static float_t SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh) {
+static float_t SOE_GetStringSoePercentageFromEnergy(int32_t energy_Wh) {
     float_t stringSoe_perc        = 0.0f;
     const float_t stringEnergy_Wh = (float_t)energy_Wh;
     if (stringEnergy_Wh >= SOE_STRING_ENERGY_Wh) {
@@ -276,12 +276,7 @@ static void SOE_SetValue(
     if (soe_state.sensorEcUsed[stringNumber] == true) {
         DATA_READ_DATA(&soe_tableEnergyCounter);
 
-        float_t ecOffset =
-            SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableEnergyCounter.energyCounter_Wh[stringNumber]));
-
-        if (soe_tableEnergyCounter.energyCounter_Wh[stringNumber] < 0) {
-            ecOffset *= (-1.0f);
-        }
+        float_t ecOffset = SOE_GetStringSoePercentageFromEnergy(soe_tableEnergyCounter.energyCounter_Wh[stringNumber]);
 
         ecOffset *= BS_CURRENT_DIRECTION_FLOAT; /* negate calculated delta SOE in perc */
 
@@ -379,25 +374,48 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
             for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
                 if (soe_state.sensorEcUsed[s] == false) {
                     /* no energy counting activated -> manually integrate energy */
-                    uint32_t timestamp          = soe_tableCurrent.timestamp[s];
-                    uint32_t previous_timestamp = soe_tableCurrent.previousTimestamp[s];
+                    uint32_t timestamp = soe_tableCurrent.timestamp[s];
 
                     /* check if current measurement has been updated */
                     if (soe_state.previousTimestamp[s] != timestamp) {
-                        float_t time_step_s = (((float_t)timestamp - (float_t)previous_timestamp)) / 1000.0f;
+                        float_t time_step_s = (((float_t)timestamp - (float_t)soe_state.previousTimestamp[s])) /
+                                              UNIT_CONVERSION_FACTOR_1000_FLOAT;
                         if (time_step_s > 0.0f) {
-                            /* Current in charge direction negative means SOE increasing --> BAT naming, not ROB */
-                            float_t deltaSOE_Wh =
-                                ((((float_t)soe_tableCurrent.current_mA[s] / 1000.0f) *             /* convert to A */
-                                  ((float_t)soe_tableSystemVoltage1.highVoltage_mV[s] / 1000.0f)) / /* convert to V */
-                                 time_step_s) /                                                     /* unit: s */
-                                3600.0f; /* convert Ws -> Wh */
+                            float_t const batCurrent_A = (float_t)soe_tableCurrent.current_mA[s] /
+                                                         UNIT_CONVERSION_FACTOR_1000_FLOAT;
+                            float_t const batVoltage_V = (float_t)soe_tableSystemVoltage1.highVoltage_mV[s] /
+                                                         UNIT_CONVERSION_FACTOR_1000_FLOAT;
 
+                            float_t deltaSOE_Wh = (batVoltage_V * batCurrent_A * time_step_s) /
+                                                  UNIT_CONVERSION_FACTOR_3600_FLOAT; /* convert Ws -> Wh */
+                            /* Invert delta value in case of negative discharge current */
                             deltaSOE_Wh *= BS_CURRENT_DIRECTION_FLOAT;
 
-                            pSoeValues->averageSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
-                            pSoeValues->minimumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
-                            pSoeValues->maximumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
+                            pSoeValues->averageSoe_Wh[s] -= deltaSOE_Wh;
+                            pSoeValues->minimumSoe_Wh[s] -= deltaSOE_Wh;
+                            pSoeValues->maximumSoe_Wh[s] -= deltaSOE_Wh;
+                            pSoeValues->energyCounter_Wh[s] -= deltaSOE_Wh;
+
+                            /* Cap energy values to 0 */
+                            if (pSoeValues->averageSoe_Wh[s] < 0.0f) {
+                                pSoeValues->averageSoe_Wh[s] = 0.0f;
+                            }
+                            if (pSoeValues->minimumSoe_Wh[s] < 0.0f) {
+                                pSoeValues->minimumSoe_Wh[s] = 0.0f;
+                            }
+                            if (pSoeValues->maximumSoe_Wh[s] < 0.0f) {
+                                pSoeValues->maximumSoe_Wh[s] = 0.0f;
+                            }
+                            /* Cap energy values to nominal energy content */
+                            if (pSoeValues->averageSoe_Wh[s] > SOE_STRING_ENERGY_Wh) {
+                                pSoeValues->averageSoe_Wh[s] = SOE_STRING_ENERGY_Wh;
+                            }
+                            if (pSoeValues->minimumSoe_Wh[s] > SOE_STRING_ENERGY_Wh) {
+                                pSoeValues->minimumSoe_Wh[s] = SOE_STRING_ENERGY_Wh;
+                            }
+                            if (pSoeValues->maximumSoe_Wh[s] > SOE_STRING_ENERGY_Wh) {
+                                pSoeValues->maximumSoe_Wh[s] = SOE_STRING_ENERGY_Wh;
+                            }
 
                             if (BMS_GetCurrentFlowDirection(soe_tableCurrent.current_mA[s]) == BMS_CHARGING) {
                                 pSoeValues->chargeEnergyThroughput_Wh[s] = pSoeValues->chargeEnergyThroughput_Wh[s] +

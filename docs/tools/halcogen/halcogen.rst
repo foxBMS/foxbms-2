@@ -8,11 +8,13 @@
 ##################
 
 .. note::
-   A documentation of the tool |ti-halcogen| can be found in this section, the
-   Waf tool wrapper for this project in :ref:`WAF_TOOL_HALCOGEN`, information
-   on configuring |ti-halcogen| in the context of the toolchain of this project
-   in :ref:`HAL_CONFIGURATION` and an example on how to use a pre-generated
-   HAL instead of generating it in the compilation step in
+
+  Documentation of the tool |ti-halcogen| can be found in this section, the
+   Waf tool wrapper for this project in
+   :doc:`/tools/waf_tools/waf_tools_autosummary/waf_tools.hcg`, information
+   on configuring |ti-halcogen| in the context of the toolchain of this
+   project in :ref:`HAL_CONFIGURATION` and an example on how to use a
+   pre-generated HAL instead of generating it in the compilation step in
    :ref:`HOW_TO_USE_GENERATED_SOURCES_FROM_HALCOGEN`.
 
 This part of the manual summarizes the usage of |ti-halcogen| and references
@@ -27,21 +29,23 @@ Updating the Startup Routine
 (a weak implementation of) the function ``_c_int00`` (the system's startup
 routine). |foxbms| provides its own **non**-weak implementation of ``_c_int00``
 in ``fstartup.c``.
-The |foxbms| implementation of ``_c_int00`` must be coupled to the the current
+The |foxbms| implementation of ``_c_int00`` must be coupled to the current
 |ti-halcogen| configuration.
 
 Most changes in the |ti-halcogen| project do not alter the startup behavior and
-no further action needs to be taken into account.
-However there are settings that alter the startup behavior.
+no further action is required.
+However, there are settings that alter the startup behavior.
 Such settings need to be ported to ``fstartup.c`` as this non-weak
 implementation of ``_c_int00`` outweighs the generated, new version of
 ``_c_int00`` in ``HL_sys_startup.c``.
 Otherwise the startup function used by |foxbms| would not reflect the
 |ti-halcogen| configuration.
-The :ref:`WAF_TOOL_HALCOGEN` provides a mechanism to detected such changes.
+The :doc:`/tools/waf_tools/waf_tools_autosummary/waf_tools.hcg` provides a
+mechanism to detect such changes.
 The hash of the current ``HL_sys_startup.c`` implementation is stored in
-``src/app/hal/app-startup.hash`` and compared to the actual hash of the
-generated ``HL_sys_startup.c`` file.
+``src/app/hal/app-startup.hash`` (application) or
+``src/bootloader/hal/bootloader-startup.hash`` (bootloader) and compared to
+the hash of the generated ``HL_sys_startup.c`` file.
 If these are not the same, the build aborts with the following message:
 
 .. literalinclude:: fstartup.c-check.txt
@@ -57,31 +61,57 @@ Next, the function ``_c_int00`` in the two files (``fstartup.c``) and
 needs to update the ``_c_int00`` implementation in the file ``fstartup.c`` to
 reflect the |ti-halcogen| startup routine.
 The concluding step is to update the hash value in
-``src/app/hal/app-startup.hash`` with ``1something-other``.
-Now the build toolchain knows, that the changes applied in the |ti-halcogen|
+``src/<target>/hal/<target>-startup.hash`` with ``1something-other``.
+Now the build toolchain knows that the changes applied in |ti-halcogen|
 are reflected in the dependencies and the build will not abort after the HAL
 sources are generated.
 
-The following paths exists, after |ti-halcogen| has run and generated the
+.. note::
+
+  The hash files contain the plain hexadecimal hash string
+  (for example ``e2e61496edd65f44d7cc811b504ad1f2``).
+  The ``b'...'`` formatting in the error output comes from the Python
+  representation of byte strings.
+
+The following paths exist, after |ti-halcogen| has run and generated the
 sources (``target`` is either ``app`` or ``bootloader`` respectively):
 
 - The hash of
-  ``build/<target>_embedded/src/<target>/hal/source/HL_sys_startup.c``
+  ``build/<target>_ti_arm_cgt/src/<target>/hal/source/HL_sys_startup.c``
   matches the expected hash in ``<target>-startup.hash``.
   There is nothing to do and the build proceeds.
 - The hash of
-  ``build/<target>_embedded/src/<target>/hal/source/HL_sys_startup.c``
+  ``build/<target>_ti_arm_cgt/src/<target>/hal/source/HL_sys_startup.c``
   does **not** match the expected hash in
   ``src/<target>/hal/<target>-startup.hash``.
   The build process is aborted.
 
   - The developer needs to check the generated ``HL_sys_startup.c`` source and
-    diff it against the file against ``src/<target>/main/fstartup.c``.
+    diff it against ``src/<target>/main/fstartup.c``.
   - The developer needs to decide which changes need to be ported to
     ``src/<target>/main/fstartup.c`` and apply them.
   - The developer needs to update the hash in
     ``src/<target>/hal/<target>-startup.hash``.
   - Re-run the build process.
+
+Build Integration Details
+=========================
+
+The |foxbms| build integration for |ti-halcogen| performs additional steps
+besides simply invoking the code generator:
+
+- The ``*.hcg``/``*.dil`` input files are copied into the build directory and
+  synchronized after generation.
+- Generated files listed in ``conf/hcg/app-remove.yml`` (application) or
+  ``conf/hcg/bootloader-remove.yml`` (bootloader) are removed from the output,
+  because those parts are provided by |foxbms|.
+- If the HALCoGen configuration uses FreeRTOS, the build extracts
+  ``configCPU_CLOCK_HZ`` from the generated ``FreeRTOSConfig.h`` and writes it
+  to ``include/config_cpu_clock_hz.h`` as ``HALCOGEN_CPU_CLOCK_HZ``.
+
+These steps are implemented in
+:doc:`/tools/waf_tools/waf_tools_autosummary/waf_tools.hcg` and explain why
+generated outputs can differ from a plain HALCoGen run.
 
 Release Notes
 =============
@@ -103,7 +133,7 @@ Additional Known Issues
 In addition to the known issues described in the release notes we have
 encountered additional issues.
 This section captures the issue, together with a reference to correspondence
-with TI (not necessarily by us) and a description of work-around measures.
+with TI (not necessarily by us) and a description of workaround measures.
 This section refers to |ti-halcogen| in version ``04.07.01``.
 
 Incompatibility of enum-definitions with newer compilers in strict ANSI mode
@@ -121,13 +151,13 @@ standard).
 These enums, however, are used for comparison with *unsigned integers* in the
 generated HAL.
 Details can be found in a
-`TI forum post <https://e2e.ti.com/support/tools/ccs/f/code-composer-studio-forum/993701/codecomposer-ccs10-2-0-20-2-2lts-cannot-compile-halcogen-04-07-01-generated-sources-anymore>`_.
+`TI forum post <https://e2e.ti.com/support/tools/ccs/f/code-composer-studio-forum/993701/codecomposer-ccs10-2-0-20-2-2lts-cannot-compile-halcogen-04-07-01-generated-sources-anymore>`__.
 
 The correct fix for this issue would be to extend all relevant generated enums
 in the HAL with an entry ``dummy=UCHAR_MAX`` as last entry.
 This tells the compiler to use *unsigned char* as underlying data type for
 these enums.
-Since we cannot modify the HAL without loosing the ability to generate it and
+Since we cannot modify the HAL without losing the ability to generate it and
 TI is not planning to provide a fix in |ti-halcogen| as stated in the linked
 forum post, a second fix as described in the following paragraph is possible.
 
@@ -146,9 +176,9 @@ Message Definitions in CAN4
 |ti-halcogen| has a bug that prevents it from generating a complete set of
 message definitions for the message boxes 33 to 64.
 This issue is described in a
-`TI forum post about HALCoGen v04.05.02 <https://e2e.ti.com/support/microcontrollers/other-microcontrollers-group/other/f/other-microcontrollers-forum/543081/halcogen-not-generating-code-for-can4-mailboxes-32>`_
+`TI forum post about HALCoGen v04.05.02 <https://e2e.ti.com/support/microcontrollers/other-microcontrollers-group/other/f/other-microcontrollers-forum/543081/halcogen-not-generating-code-for-can4-mailboxes-32>`__
 and an additional
-`TI forum post about HALCoGen v04.07.01 <https://e2e.ti.com/support/microcontrollers/other-microcontrollers-group/other/f/other-microcontrollers-forum/998737/halcogen-not-generating-code-for-can4-mailboxes-32-in-halcogen-04-07-01>`_.
+`TI forum post about HALCoGen v04.07.01 <https://e2e.ti.com/support/microcontrollers/other-microcontrollers-group/other/f/other-microcontrollers-forum/998737/halcogen-not-generating-code-for-can4-mailboxes-32-in-halcogen-04-07-01>`__.
 TI plans to update the release note of |ti-halcogen| in the third quarter of
 2021 with this information.
 
@@ -173,10 +203,18 @@ The result should look like the content of :numref:`modify-can4-xml`.
       for(i=1;i &lt;= 64;i++)
             {
 
+Mailbox 41 Configuration in CAN1
+--------------------------------
+
+|ti-halcogen| has a bug that the initialization code of CAN1 mailbox 41 does
+not set the interrupt flag when activated in |ti-halcogen|.
+If the interrupt for this mailbox should be activated this needs to be
+configured manually.
+
 Mailbox 42 Configuration in CAN1
 --------------------------------
 
 |ti-halcogen| has a bug that the initialization code of CAN1 mailbox 42 is not
-generated whatever is configured in |ti-halcogen|.
+generated regardless of what is configured in |ti-halcogen|.
 To use this mailbox, the user needs to initialize this mailbox manually (see
-`TI forum post <https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/905953/ccs-tms570lc4357-halcogen-can-message-configuration-bug-can1-message-41-42---can2-message-41-42>`).
+`TI forum post on mailbox initialization <https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/905953/ccs-tms570lc4357-halcogen-can-message-configuration-bug-can1-message-41-42---can2-message-41-42>`_).

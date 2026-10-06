@@ -420,33 +420,35 @@ class TestTable(unittest.TestCase):
         table_obj_mock = Mock(name="table")
         setup_mock.return_value = table_obj_mock
         runner = CliRunner()
-        with runner.isolated_filesystem():
-            with open("test_config.txt", mode="w", encoding="utf-8") as _:
-                with open("test_output.txt", mode="w", encoding="utf-8") as _:
-                    with open("test_data.txt", mode="w", encoding="utf-8") as _:
-                        result = runner.invoke(
-                            cmd_table,
-                            [
-                                "--config",
-                                "test_config.txt",
-                                "--output",
-                                "test_output.txt",
-                                "test_data.txt",
-                            ],
-                        )
-                        setup_mock.assert_called_once_with(Path("test_config.txt"))
-                        run_table_mock.assert_called_once_with(
-                            table_obj_mock,
-                            Path("test_data.txt"),
-                            Path("test_output.txt"),
-                        )
-                        self.assertEqual(result.exit_code, 0)
+        with (
+            runner.isolated_filesystem(),
+            open("test_config.txt", mode="w", encoding="utf-8") as _,
+            open("test_output.txt", mode="w", encoding="utf-8") as _,
+            open("test_data.txt", mode="w", encoding="utf-8") as _,
+        ):
+            result = runner.invoke(
+                cmd_table,
+                [
+                    "--config",
+                    "test_config.txt",
+                    "--output",
+                    "test_output.txt",
+                    "test_data.txt",
+                ],
+            )
+            setup_mock.assert_called_once_with(Path("test_config.txt"))
+            run_table_mock.assert_called_once_with(
+                table_obj_mock,
+                Path("test_data.txt"),
+                Path("test_output.txt"),
+            )
+            self.assertEqual(result.exit_code, 0)
 
 
 class TestFoxCliMainCommandEtl(unittest.TestCase):
     """Test of the 'etl' commands and options."""
 
-    def test_help(self):
+    def test_help(self) -> None:
         """Test 'fox.py etl --help' command."""
         runner = CliRunner()
         result = runner.invoke(main, ["etl", "--help"])

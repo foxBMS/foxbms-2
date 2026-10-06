@@ -14,9 +14,9 @@ Apart from that a debugger is a required tool for downloading code into the
 BMS.
 
 A debugger attaches to the microcontroller on the BMS which will be called
-`target` in the following text.
+*target* in the following text.
 The interface through which the connection to the target is established is
-called `JTAG`.
+called ``JTAG``.
 The debugger can halt execution of the program on the target, download register
 values and restart execution.
 Moreover it is possible to mark locations in the code in such a way that the
@@ -58,15 +58,15 @@ all values that are passed between state machines.
 As an example the table ``data_blockCellVoltage`` contains the consolidated
 cell voltages that are used by the BMS for decisions.
 For more information on the database refer to the database documentation in
-:numref:`DATABASE_MODULE`.
+:numref:`DATABASE_ENGINE`.
 
 For both of these variable types it can be helpful to monitor them
 continuously.
-Most debugger know a concept that is often called `watch window`.
+Most debugger know a concept that is often called a *watch window*.
 This watch window can be configured to monitor and continuously show updates of
 certain variables.
 This way it can be observed which values these variables take.
-Please note that even though the updates of a watch window might seem to be
+Please note that even though the updates of a *watch window* might seem to be
 real-time, they are obtained by continuously halting the target and sampling
 the registers of the target.
 That means that firstly the shown values do not necessarily have to be all

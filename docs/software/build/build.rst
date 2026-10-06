@@ -44,7 +44,7 @@ Building the Application
             ./fox.sh waf configure
 
 #. Now all build variants are available, e.g., to build the binaries
-   (``build_app_embedded``) and the documentation (``build_docs``):
+   (``build_app_ti_arm_cgt``) and the documentation (``build_docs``):
 
    .. tabs::
 
@@ -52,19 +52,19 @@ Building the Application
 
          .. code-block:: powershell
 
-            .\fox.ps1 waf build_app_embedded build_docs
+            .\fox.ps1 waf build_app_ti_arm_cgt build_docs
 
       .. group-tab:: Win32/Git bash
 
          .. code-block:: shell
 
-            ./fox.sh waf build_app_embedded build_docs
+            ./fox.sh waf build_app_ti_arm_cgt build_docs
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            ./fox.sh waf build_app_embedded build_docs
+            ./fox.sh waf build_app_ti_arm_cgt build_docs
 
    Waf commands can be concatenated and are executed in the order of their
    appearance.

@@ -1,7 +1,7 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _HOW_TO_USE_THE_CAN_MODULE:
+.. _HOW_TO_USE_THE_CAN_DRIVER:
 
 How to Use the CAN Module
 =========================
@@ -16,7 +16,7 @@ How to add a new CAN Message
       - ``AFE`` for CAN-based BMS-Slaves
       - ``AS`` for aerosol sensors
       - ``CS`` for current sensors
-      - ``f`` for foxBMS messages (prefix is intentional lowercase!)
+      - ``f`` for |foxbms| messages (prefix is intentional lowercase!)
       - ``IMD`` for insulation measurement devices.
 
    #. Set the DLC

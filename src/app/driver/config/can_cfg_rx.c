@@ -43,8 +43,8 @@
  * @file    can_cfg_rx.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CANRX
  *
@@ -54,7 +54,10 @@
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_aerosol_sensor.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_current_sensor.h"
+#include "foxbms_config_imd_sensor.h"
 
 #include "can_cfg.h"
 
@@ -76,10 +79,18 @@ const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
     {CAN_NODE_1, CANRX_BMS_STATE_REQUEST_MESSAGE, &CANRX_BmsStateRequest},
     {CAN_NODE_DEBUG_MESSAGE, CANRX_DEBUG_MESSAGE, &CANRX_Debug},
 
-#if (defined(FOXBMS_IMD_BENDER_ISO165C) && (FOXBMS_IMD_BENDER_ISO165C == 1))
-    {CAN_NODE_IMD, CANRX_IMD_BENDER_ISO165C_INFO_MESSAGE, &CANRX_ImdBenderIso165cInfo},
-    {CAN_NODE_IMD, CANRX_IMD_BENDER_ISO165C_RESPONSE_MESSAGE, &CANRX_ImdBenderIso165cResponse},
-#endif
+/* ============== AFE: Analog Front End =====================================*/
+#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
+    {CAN_NODE_RX_CELL_VOLTAGES, CANRX_AFE_CELL_VOLTAGES_MESSAGE, &CANRX_CellVoltages},
+    {CAN_NODE_RX_CELL_TEMPERATURES, CANRX_AFE_CELL_TEMPERATURES_MESSAGE, &CANRX_CellTemperatures},
+#endif /* FOXBMS_AFE_DRIVER_DEBUG_CAN */
+
+/* ============== AS: Aerosol Sensor ========================================*/
+#if (defined(FOXBMS_AS_HONEYWELL_BAS6C_X00) && (FOXBMS_AS_HONEYWELL_BAS6C_X00 == 1))
+    {CAN_NODE_1, CANRX_AS_HONEYWELL_BAS6C_X00_MESSAGE, &CANRX_AsHoneywellBas6cX00},
+#endif /* FOXBMS_AS_HONEYWELL_BAS6C_X00 */
+
+/* ============== CS: Current Sensor ========================================*/
 #if (defined(FOXBMS_CS_ISABELLENHUETTE_IVT_S) && (FOXBMS_CS_ISABELLENHUETTE_IVT_S == 1))
     {CAN_NODE_CURRENT_SENSOR, CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_MESSAGE, &CANRX_CsIsabellenhuetteIvtS},
     {CAN_NODE_CURRENT_SENSOR, CANRX_CS_ISABELLENHUETTE_IVT_STRING0_V1_MESSAGE, &CANRX_CsIsabellenhuetteIvtS},
@@ -89,17 +100,16 @@ const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
     {CAN_NODE_CURRENT_SENSOR, CANRX_CS_ISABELLENHUETTE_IVT_STRING0_PWR_MESSAGE, &CANRX_CsIsabellenhuetteIvtS},
     {CAN_NODE_CURRENT_SENSOR, CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CC_MESSAGE, &CANRX_CsIsabellenhuetteIvtS},
     {CAN_NODE_CURRENT_SENSOR, CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_MESSAGE, &CANRX_CsIsabellenhuetteIvtS},
-#endif
-#if (defined(FOXBMS_AS_HONEYWELL_BAS6C_X00) && (FOXBMS_AS_HONEYWELL_BAS6C_X00 == 1))
-    {CAN_NODE_1, CANRX_AS_HONEYWELL_BAS6C_X00_MESSAGE, &CANRX_AsHoneywellBas6cX00},
-#endif
-#if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
-    {CAN_NODE_RX_CELL_VOLTAGES, CANRX_AFE_CELL_VOLTAGES_MESSAGE, &CANRX_CellVoltages},
-    {CAN_NODE_RX_CELL_TEMPERATURES, CANRX_AFE_CELL_TEMPERATURES_MESSAGE, &CANRX_CellTemperatures},
-#endif
+#endif /* FOXBMS_CS_ISABELLENHUETTE_IVT_S */
 #if (defined(FOXBMS_CS_LEM_CAB500) && (FOXBMS_CS_LEM_CAB500 == 1))
     {CAN_NODE_CURRENT_SENSOR, CANRX_CS_LEM_CAB500_STRING0_MESSAGE, &CANRX_CsLemCab500},
-#endif
+#endif /* FOXBMS_CS_LEM_CAB500 */
+
+/* ============== IMD: Insulation Monitoring Device =========================*/
+#if (defined(FOXBMS_IMD_BENDER_ISO165C) && (FOXBMS_IMD_BENDER_ISO165C == 1))
+    {CAN_NODE_IMD, CANRX_IMD_BENDER_ISO165C_INFO_MESSAGE, &CANRX_ImdBenderIso165cInfo},
+    {CAN_NODE_IMD, CANRX_IMD_BENDER_ISO165C_RESPONSE_MESSAGE, &CANRX_ImdBenderIso165cResponse},
+#endif /* FOXBMS_IMD_BENDER_ISO165C */
 };
 
 /** length of CAN message arrays */

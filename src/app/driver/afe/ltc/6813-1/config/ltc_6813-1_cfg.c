@@ -43,8 +43,8 @@
  * @file    ltc_6813-1_cfg.c
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -230,7 +230,9 @@ const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS] = {
 /*========== Extern Function Implementations ================================*/
 
 int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV) {
-    return TSI_GetTemperature(adcVoltage_mV); /* Convert degree Celsius to deci degree Celsius */
+    return TSI_GetTemperature(
+        adcVoltage_mV,
+        SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V); /* Convert degree Celsius to deci degree Celsius */
 }
 
 uint8_t LTC_GetVoltageInputIndexFromCellBlockIndex(uint8_t indexCellBlock) {

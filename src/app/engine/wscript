@@ -37,8 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
 
@@ -49,6 +51,7 @@ def build(bld):
         f"{op}database_helper",
         f"{op}diag",
         f"{op}diag_cfg",
+        f"{op}diag_array_cfg",
         f"{op}diag_cbs_aerosol-sensor",
         f"{op}diag_cbs_afe",
         f"{op}diag_cbs_bms",

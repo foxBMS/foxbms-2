@@ -43,8 +43,8 @@
  * @file    mxm_cfg.c
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -92,7 +92,7 @@ extern STD_RETURN_TYPE_e MXM_SendData(uint16_t *txBuffer, uint16_t length) {
     FAS_ASSERT(length != 0u);
     const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitData(&spi_mxmInterface, txBuffer, length);
     /* this driver currently only handles one physical string, therefore reporting to string 0 */
-    (void)DIAG_CheckEvent(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
+    (void)DIAG_ReportResultToHandler(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
     return spiReturnValue;
 }
 
@@ -102,7 +102,7 @@ extern STD_RETURN_TYPE_e MXM_ReceiveData(uint16_t *txBuffer, uint16_t *rxBuffer,
     FAS_ASSERT(length != 0u);
     const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitReceiveData(&spi_mxmInterface, txBuffer, rxBuffer, length);
     /* this driver currently only handles one physical string, therefore reporting to string 0 */
-    (void)DIAG_CheckEvent(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
+    (void)DIAG_ReportResultToHandler(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
     return spiReturnValue;
 }
 

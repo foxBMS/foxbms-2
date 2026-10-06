@@ -43,8 +43,8 @@
  * @file    test_io.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,9 +66,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("io.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/io")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -81,68 +78,233 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
+/**
+ * @brief   Test of IO_SetPinDirectionToOutput
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: null register address -> assert
+ *            - AT2/2: pin above MCU_LARGEST_PIN_NUMBER -> assert
+ *          - Routine validation:
+ *            - RT1/3: bit 0 changes from 0 to 1
+ *            - RT2/3: bit 0 stays 1 when already set
+ *            - RT3/3: highest valid pin is set without changing other bits
+ */
 void testIO_SetPinDirectionToOutput(void) {
-    volatile uint32_t registerValue = 1u;
+    const uint32_t highestPinMask   = (uint32_t)1u << MCU_LARGEST_PIN_NUMBER;
+    volatile uint32_t registerValue = 0u;
+
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToOutput(NULL_PTR, 0u));
+
+    /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToOutput(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
 
-    /* 0 -> 1 */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation ================================== */
+    /* ======= RT1/3: Call function under test ============================= */
     IO_SetPinDirectionToOutput(&registerValue, 0u);
+
+    /* ======= RT1/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(1u, registerValue);
 
-    /* 1 -> 1 */
+    /* ======= RT2/3: Test implementation ================================== */
+    /* ======= RT2/3: Call function under test ============================= */
     IO_SetPinDirectionToOutput(&registerValue, 0u);
+
+    /* ======= RT2/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(1u, registerValue);
+
+    /* ======= RT3/3: Test implementation ================================== */
+    registerValue = 0x13579BDFu;
+
+    /* ======= RT3/3: Call function under test ============================= */
+    IO_SetPinDirectionToOutput(&registerValue, MCU_LARGEST_PIN_NUMBER);
+
+    /* ======= RT3/3: Test output verification ============================= */
+    TEST_ASSERT_EQUAL((0x13579BDFu | highestPinMask), registerValue);
 }
 
+/**
+ * @brief   Test of IO_SetPinDirectionToInput
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: null register address -> assert
+ *            - AT2/2: pin above MCU_LARGEST_PIN_NUMBER -> assert
+ *          - Routine validation:
+ *            - RT1/3: bit 0 changes from 1 to 0
+ *            - RT2/3: bit 0 stays 0 when already cleared
+ *            - RT3/3: highest valid pin is cleared without changing other bits
+ */
 void testIO_SetPinDirectionToInput(void) {
+    const uint32_t highestPinMask   = (uint32_t)1u << MCU_LARGEST_PIN_NUMBER;
     volatile uint32_t registerValue = 1u;
+
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToInput(NULL_PTR, 0u));
+
+    /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToInput(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
 
-    /* 1 -> 0 */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation ================================== */
+    /* ======= RT1/3: Call function under test ============================= */
     IO_SetPinDirectionToInput(&registerValue, 0u);
+
+    /* ======= RT1/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(0u, registerValue);
 
-    /* 0 -> 0 */
+    /* ======= RT2/3: Test implementation ================================== */
+    /* ======= RT2/3: Call function under test ============================= */
     IO_SetPinDirectionToInput(&registerValue, 0u);
+
+    /* ======= RT2/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(0u, registerValue);
+
+    /* ======= RT3/3: Test implementation ================================== */
+    registerValue = (0x13579BDFu | highestPinMask);
+
+    /* ======= RT3/3: Call function under test ============================= */
+    IO_SetPinDirectionToInput(&registerValue, MCU_LARGEST_PIN_NUMBER);
+
+    /* ======= RT3/3: Test output verification ============================= */
+    TEST_ASSERT_EQUAL(0x13579BDFu, registerValue);
 }
 
+/**
+ * @brief   Test of IO_PinSet
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: null register address -> assert
+ *            - AT2/2: pin above MCU_LARGEST_PIN_NUMBER -> assert
+ *          - Routine validation:
+ *            - RT1/3: bit 0 changes from 0 to 1
+ *            - RT2/3: bit 0 stays 1 when already set
+ *            - RT3/3: highest valid pin is set without changing other bits
+ */
 void testIO_PinSet(void) {
+    const uint32_t highestPinMask   = (uint32_t)1u << MCU_LARGEST_PIN_NUMBER;
     volatile uint32_t registerValue = 0u;
+
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_PinSet(NULL_PTR, 0u));
+
+    /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_PinSet(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
 
-    /* 0 -> 1 */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation ================================== */
+    /* ======= RT1/3: Call function under test ============================= */
     IO_PinSet(&registerValue, 0u);
+
+    /* ======= RT1/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(1u, registerValue);
 
-    /* 1 -> 1 */
+    /* ======= RT2/3: Test implementation ================================== */
+    /* ======= RT2/3: Call function under test ============================= */
     IO_PinSet(&registerValue, 0u);
+
+    /* ======= RT2/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(1u, registerValue);
+
+    /* ======= RT3/3: Test implementation ================================== */
+    registerValue = 0x2468ACE0u;
+
+    /* ======= RT3/3: Call function under test ============================= */
+    IO_PinSet(&registerValue, MCU_LARGEST_PIN_NUMBER);
+
+    /* ======= RT3/3: Test output verification ============================= */
+    TEST_ASSERT_EQUAL((0x2468ACE0u | highestPinMask), registerValue);
 }
 
+/**
+ * @brief   Test of IO_PinReset
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: null register address -> assert
+ *            - AT2/2: pin above MCU_LARGEST_PIN_NUMBER -> assert
+ *          - Routine validation:
+ *            - RT1/3: bit 0 changes from 1 to 0
+ *            - RT2/3: bit 0 stays 0 when already cleared
+ *            - RT3/3: highest valid pin is cleared without changing other bits
+ */
 void testIO_PinReset(void) {
+    const uint32_t highestPinMask   = (uint32_t)1u << MCU_LARGEST_PIN_NUMBER;
     volatile uint32_t registerValue = 1u;
+
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_PinReset(NULL_PTR, 0u));
+
+    /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_PinReset(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
 
-    /* 1 -> 0 */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation ================================== */
+    /* ======= RT1/3: Call function under test ============================= */
     IO_PinReset(&registerValue, 0u);
+
+    /* ======= RT1/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(0u, registerValue);
 
-    /* 0 -> 0 */
+    /* ======= RT2/3: Test implementation ================================== */
+    /* ======= RT2/3: Call function under test ============================= */
     IO_PinReset(&registerValue, 0u);
+
+    /* ======= RT2/3: Test output verification ============================= */
     TEST_ASSERT_EQUAL(0u, registerValue);
+
+    /* ======= RT3/3: Test implementation ================================== */
+    registerValue = (0x2468ACE0u | highestPinMask);
+
+    /* ======= RT3/3: Call function under test ============================= */
+    IO_PinReset(&registerValue, MCU_LARGEST_PIN_NUMBER);
+
+    /* ======= RT3/3: Test output verification ============================= */
+    TEST_ASSERT_EQUAL(0x2468ACE0u, registerValue);
 }
 
+/**
+ * @brief   Test of IO_PinGet
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: null register address -> assert
+ *            - AT2/2: pin above MCU_LARGEST_PIN_NUMBER -> assert
+ *          - Routine validation:
+ *            - RT1/4: bit 0 reads low when cleared
+ *            - RT2/4: bit 1 reads high when set
+ *            - RT3/4: highest valid pin reads high when set
+ *            - RT4/4: highest valid pin reads low when cleared
+ */
 void testIO_PinGet(void) {
-    volatile uint32_t registerValue = 1u;
-    /* invalid argument tests */
+    const uint32_t highestPinMask   = (uint32_t)1u << MCU_LARGEST_PIN_NUMBER;
+    volatile uint32_t registerValue = (0x00000002u | highestPinMask);
+
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_PinGet(NULL_PTR, 0u));
+
+    /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(IO_PinGet(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
 
-    TEST_ASSERT_EQUAL(STD_PIN_LOW, IO_PinGet(&registerValue, 1u));
-    TEST_ASSERT_EQUAL(STD_PIN_HIGH, IO_PinGet(&registerValue, 0u));
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/4: Test implementation ================================== */
+    /* ======= RT1/4: Call function under test ============================= */
+    TEST_ASSERT_EQUAL(STD_PIN_LOW, IO_PinGet(&registerValue, 0u));
+
+    /* ======= RT2/4: Test implementation ================================== */
+    /* ======= RT2/4: Call function under test ============================= */
+    TEST_ASSERT_EQUAL(STD_PIN_HIGH, IO_PinGet(&registerValue, 1u));
+
+    /* ======= RT3/4: Test implementation ================================== */
+    /* ======= RT3/4: Call function under test ============================= */
+    TEST_ASSERT_EQUAL(STD_PIN_HIGH, IO_PinGet(&registerValue, MCU_LARGEST_PIN_NUMBER));
+
+    /* ======= RT4/4: Test implementation ================================== */
+    registerValue = 0x7FFFFFFFu;
+
+    /* ======= RT4/4: Call function under test ============================= */
+    TEST_ASSERT_EQUAL(STD_PIN_LOW, IO_PinGet(&registerValue, MCU_LARGEST_PIN_NUMBER));
 }

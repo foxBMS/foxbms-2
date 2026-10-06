@@ -43,8 +43,8 @@
  * @file    adi_ades1830_cfg.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ADI
  *
@@ -81,7 +81,8 @@ const uint8_t adi_voltageInputsUsed[ADI_MAX_SUPPORTED_CELLS] = {
     1u,
 };
 
-const uint8_t adi_temperatureInputsUsed[SLV_NR_OF_GPIOS_PER_MODULE] = {
+#if (SLV_USE_MUX_FOR_TEMP == false)
+const uint8_t adi_temperatureInputsUsed[ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS] = {
     1u,
     1u,
     1u,
@@ -93,6 +94,26 @@ const uint8_t adi_temperatureInputsUsed[SLV_NR_OF_GPIOS_PER_MODULE] = {
     0u,
     0u,
 };
+#elif (SLV_USE_MUX_FOR_TEMP == true)
+const uint8_t adi_temperatureInputsUsed[ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS] = {
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    0u,
+    0u,
+    0u,
+    0u,
+};
+#endif
 
 /*========== Static Function Prototypes =====================================*/
 

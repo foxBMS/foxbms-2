@@ -43,8 +43,8 @@
  * @file    debug_can.h
  * @author  foxBMS Team
  * @date    2024-04-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  DECAN
  *
@@ -65,7 +65,7 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 
 /** Maximum queue timeout time in milliseconds */
 #define DECAN_CAN2AFE_QUEUE_TIMEOUT_MS ((TickType_t)0u)

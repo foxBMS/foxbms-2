@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_cs_lem-cab500.c
  * @author  foxBMS Team
  * @date    2025-04-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -132,7 +132,7 @@ static void CANRX_LemHandleChannelError(const CAN_SHIM_s *const kpkCanShim, uint
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     FAS_ASSERT(messageId == CANRX_CS_LEM_CAB500_STRING0_ID);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    switch (messageId) {
+    switch (messageId) {                     /* GCOVR_EXCL_BR_WITHOUT_HIT: 1/2 */
         case CANRX_CS_LEM_CAB500_STRING0_ID: /* Current status */
             kpkCanShim->pTableCurrent->invalidMeasurement[stringNumber] = 1;
             /* TODO identify error*/
@@ -159,7 +159,7 @@ static void CANRX_LemHandleSensorData(
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
 
-    switch (messageId) {
+    switch (messageId) { /* GCOVR_EXCL_BR_WITHOUT_HIT: 1/2 */
         /* Current measurement */
         case CANRX_CS_LEM_CAB500_STRING0_ID:
             CANRX_LemSetCurrent(kpkCanShim, stringNumber, signalData);

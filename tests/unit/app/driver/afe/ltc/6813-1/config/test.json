@@ -1,0 +1,22 @@
+[
+  {
+    "source": "src/app/driver/afe/ltc/6813-1/config/ltc_6813-1_cfg.c",
+    "test": "test_ltc_6813-1_cfg.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ltc/6813-1/config",
+      "src/app/driver/afe/ltc/common",
+      "src/app/driver/afe/ltc/common/config",
+      "src/app/driver/config",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api"
+    ],
+    "mocks": [
+      "src/app/driver/ts/api/tsi.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

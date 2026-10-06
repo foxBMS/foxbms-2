@@ -43,8 +43,8 @@
  * @file    adi_ades1830_gpio_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -184,7 +184,7 @@ static void ADI_SaveRxToGpioVoltageBuffer(
                 signedValue  = (int16_t)rawValue;
                 floatVoltage = ((float_t)signedValue * ADI_VOLTAGE_CONVERSION_FACTOR * ADI_VOLTAGE_CONVERSION_UNIT) +
                                ADI_VOLTAGE_CONVERSION_OFFSET;
-                voltage = (int16_t)floatVoltage; /* Unit mV */
+                voltage      = (int16_t)floatVoltage; /* Unit mV */
 
                 /* RequirementId: D7.1 V1R0 SIF-4.40.02.01 */
                 /* Check that register does not contain cleared value */

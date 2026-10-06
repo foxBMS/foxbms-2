@@ -28,8 +28,7 @@ Unit Test
 Description
 -----------
 
-.. drawio-figure:: interlock-schematic.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/software/modules/driver/interlock/interlock-schematic.svg
    :alt: Simplified schematic of the interlock circuit
    :name: interlock-circuit-simplified
    :width: 240px
@@ -107,5 +106,5 @@ will always return ``ILCK_SWITCH_ON``.
 In addition to the feedback pins, the ADC inputs of the MCU also monitor the
 voltages and currents described in the section `Circuit description`_.
 Currently, these readings are only stored in the database
-(:numref:`DATABASE_MODULE`).
+(:numref:`DATABASE_ENGINE`).
 They can be used for further diagnostics.

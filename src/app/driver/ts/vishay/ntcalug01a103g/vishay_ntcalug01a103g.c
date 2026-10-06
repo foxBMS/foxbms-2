@@ -43,8 +43,8 @@
  * @file    vishay_ntcalug01a103g.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -71,152 +71,48 @@
 /* clang-format off */
 /** LUT filled from higher resistance to lower resistance */
 static const TS_TEMPERATURE_SENSOR_LUT_s ts_ntcalug01a103gLut[] = {
-        { -400, 334274.4f},
-        { -390, 312904.4f},
-        { -380, 293033.6f},
-        { -370, 274548.0f},
-        { -360, 257343.1f},
-        { -350, 241322.9f},
-        { -340, 226398.8f},
-        { -330, 212489.7f},
-        { -320, 199520.6f},
-        { -310, 187422.7f},
-        { -300, 176132.5f},
-        { -290, 165591.5f},
-        { -280, 155745.6f},
-        { -270, 146545.1f},
-        { -260, 137944.1f},
-        { -250, 129900.0f},
-        { -240, 122373.7f},
-        { -230, 115329.0f},
-        { -220, 108732.2f},
-        { -210, 102552.5f},
-        { -200, 96761.1f },
-        { -190, 91331.5f },
-        { -180, 86239.0f },
-        { -170, 81460.9f },
-        { -160, 76976.0f },
-        { -150, 72764.6f },
-        { -140, 68808.6f },
-        { -130, 65091.1f },
-        { -120, 61596.4f },
-        { -110, 58309.9f },
-        { -100, 55218.1f },
-        {  -90, 52308.4f },
-        {  -80, 49569.0f },
-        {  -70, 46989.1f },
-        {  -60, 44558.56f},
-        {  -50, 42267.85f},
-        {  -40, 40108.20f},
-        {  -30, 38071.41f},
-        {  -20, 36149.83f},
-        {  -10, 34336.32f},
-        {   0, 32624.23f},
-        {   10, 31007.34f},
-        {   20, 29479.85f},
-        {   30, 28036.35f},
-        {   40, 26671.76f},
-        {   50, 25381.36f},
-        {   60, 24160.73f},
-        {   70, 23005.71f},
-        {   80, 21912.45f},
-        {   90, 20877.31f},
-        {  100, 19896.90f},
-        {  110, 18968.04f},
-        {  120, 18087.75f},
-        {  130, 17253.25f},
-        {  140, 16461.90f},
-        {  150, 15711.26f},
-        {  160, 14999.01f},
-        {  170, 14323.01f},
-        {  180, 13681.22f},
-        {  190, 13071.73f},
-        {  200, 12492.75f},
-        {  210, 11942.59f},
-        {  220, 11419.69f},
-        {  230, 10922.54f},
-        {  240, 10449.75f},
-        {  250, 10000.00f},
-        {  260, 9572.05f },
-        {  270, 9164.74f },
-        {  280, 8776.97f },
-        {  290, 8407.70f },
-        {  300, 8055.96f },
-        {  310, 7720.82f },
-        {  320, 7401.43f },
-        {  330, 7096.96f },
-        {  340, 6806.64f },
-        {  350, 6529.74f },
-        {  360, 6265.58f },
-        {  370, 6013.51f },
-        {  380, 5772.92f },
-        {  390, 5543.22f },
-        {  400, 5323.88f },
-        {  410, 5114.37f },
-        {  420, 4914.20f },
-        {  430, 4722.92f },
-        {  440, 4540.08f },
-        {  450, 4365.27f },
-        {  460, 4198.11f },
-        {  470, 4038.21f },
-        {  480, 3885.23f },
-        {  490, 3738.84f },
-        {  500, 3598.72f },
-        {  510, 3464.58f },
-        {  520, 3336.12f },
-        {  530, 3213.08f },
-        {  540, 3095.22f },
-        {  550, 2982.27f },
-        {  560, 2874.02f },
-        {  570, 2770.26f },
-        {  580, 2670.76f },
-        {  590, 2575.34f },
-        {  600, 2483.82f },
-        {  610, 2396.00f },
-        {  620, 2311.74f },
-        {  630, 2230.85f },
-        {  640, 2153.21f },
-        {  650, 2078.65f },
-        {  660, 2007.05f },
-        {  670, 1938.27f },
-        {  680, 1872.19f },
-        {  690, 1808.69f },
-        {  700, 1747.65f },
-        {  710, 1688.98f },
-        {  720, 1632.56f },
-        {  730, 1578.31f },
-        {  740, 1526.13f },
-        {  750, 1475.92f },
-        {  760, 1427.62f },
-        {  770, 1381.12f },
-        {  780, 1336.37f },
-        {  790, 1293.29f },
-        {  800, 1251.80f },
-        {  810, 1211.85f },
-        {  820, 1173.36f },
-        {  830, 1136.28f },
-        {  840, 1100.55f },
-        {  850, 1066.11f },
-        {  860, 1032.91f },
-        {  870, 1000.91f },
-        {  880, 970.05f },
-        {  890, 940.29f },
-        {  900, 911.59f },
-        {  910, 883.89f },
-        {  920, 857.17f },
-        {  930, 831.38f },
-        {  940, 806.49f },
-        {  950, 782.46f },
-        {  960, 759.26f },
-        {  970, 736.85f },
-        {  980, 715.21f },
-        {  990, 694.31f },
-        { 1000, 674.11f },
-        { 1010, 654.60f },
-        { 1020, 635.74f },
-        { 1030, 617.51f },
-        { 1040, 599.88f },
-        { 1050, 582.84f }
+    {-550, 953773.5f},
+    {-500, 664169.3f},
+    {-450, 468363.2f},
+    {-400, 334274.4f},
+    {-350, 241322.8f},
+    {-300, 176132.5f},
+    {-250, 129899.9f},
+    {-200, 96761.1f},
+    {-150, 72764.5f},
+    {-100, 55218.1f},
+    {-50, 42267.8f},
+    {0, 32624.2f},
+    {50, 25381.3f},
+    {100, 19896.9f},
+    {150, 15711.2f},
+    {200, 12492.7f},
+    {250, 10000.0f},
+    {300, 8055.9f},
+    {350, 6529.7f},
+    {400, 5323.8f},
+    {450, 4365.2f},
+    {500, 3598.7f},
+    {550, 2982.2f},
+    {600, 2483.8f},
+    {650, 2078.6f},
+    {700, 1747.6f},
+    {750, 1475.9f},
+    {800, 1251.8f},
+    {850, 1066.1f},
+    {900, 911.5f},
+    {950, 782.4f},
+    {1000, 674.1f},
+    {1050, 582.8f},
+    {1100, 505.6f},
+    {1150, 440.1f},
+    {1200, 384.4f},
+    {1250, 336.7f},
+    {1300, 295.8f},
+    {1350, 260.7f},
+    {1400, 230.4f},
+    {1450, 204.1f},
+    {1500, 181.3f}
 };
 /* clang-format on */
 
@@ -265,7 +161,7 @@ static const uint16_t ts_ntcalug01a103gLutSize = sizeof(ts_ntcalug01a103gLut) / 
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
+extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     int16_t temperature_ddegC = 0;
     float_t resistance_Ohm    = 0.0f;
     float_t adcVoltage_V      = adcVoltage_mV / 1000.0f; /* Convert mV to V */
@@ -283,11 +179,11 @@ extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     (TS_VISHAY_NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         resistance_Ohm = TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                         ((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
+                         ((supplyVoltage_V / adcVoltage_V) - 1);
 #else  /* TS_VISHAY_NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
         /* R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
         resistance_Ohm = TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                         (adcVoltage_V / (TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
+                         (adcVoltage_V / (supplyVoltage_V - adcVoltage_V));
 #endif /* TS_VISHAY_NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
@@ -316,8 +212,9 @@ extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     return temperature_ddegC;
 }
 
-extern int16_t TS_Vis00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+extern int16_t TS_Vis00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     (void)adcVoltage_mV;
+    (void)supplyVoltage_V;
     FAS_ASSERT(FAS_TRAP);
     int16_t temperature_ddegC = 0;
     /* TODO this is not implemented */

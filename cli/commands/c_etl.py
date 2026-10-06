@@ -52,7 +52,8 @@ from ..cmd_etl.cmds.can_decode_helper import (
 from ..cmd_etl.cmds.can_filter_helper import can_filter_setup, run_filter
 from ..cmd_etl.cmds.convert_helper import converter_setup, run_converter
 from ..cmd_etl.cmds.table_helper import run_table, table_setup
-from ..cmd_etl.etl.convert import InputFormats, OutputFormats
+from ..cmd_etl.etl import OutputFormats
+from ..cmd_etl.etl.convert import InputFormats
 from ..helpers.click_helpers import HELP_NAMES, echo, verbosity_option
 
 DEFAULT_CONFIG_FILE_FILTER = Path("filter.yml")

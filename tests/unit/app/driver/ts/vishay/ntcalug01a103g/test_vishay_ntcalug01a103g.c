@@ -43,8 +43,8 @@
  * @file    test_vishay_ntcalug01a103g.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,9 +61,6 @@
 #include "vishay_ntcalug01a103g.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/ts")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/vishay/ntcalug01a103g")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -76,11 +73,11 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testTS_Vis00GetTemperatureFromLutFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Vis00GetTemperatureFromLut(4000u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis00GetTemperatureFromLut(0u));
-    TEST_ASSERT_EQUAL_INT16(98.9484f, TS_Vis00GetTemperatureFromLut(2000u));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Vis00GetTemperatureFromLut(4000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis00GetTemperatureFromLut(0u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(99, TS_Vis00GetTemperatureFromLut(2000u, 3.0f));
 }
 
 void testTS_Vis00GetTemperatureFromPolynomialFixedValues(void) {
-    TEST_ASSERT_FAIL_ASSERT(TS_Vis00GetTemperatureFromPolynomial(1u));
+    TEST_ASSERT_FAIL_ASSERT(TS_Vis00GetTemperatureFromPolynomial(1u, 3.0f));
 }

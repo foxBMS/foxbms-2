@@ -30,8 +30,8 @@ Changed
 - Function names are now checked by Axivion to conform to the guidelines.
 - Use correct prefix in the
 
-  - ``version`` module (:ref:`VERSION_MODULE`)
-  - ``assert`` module (:ref:`ASSERTION_MODULE`)
+  - ``version`` module (:ref:`VERSION_MAIN`)
+  - ``assert`` module (:ref:`ASSERTION_MAIN`)
 - The behavior of the ``build_bin`` command, which creates the binary, has been
   improved.
   If the BMS configuration file (``conf/bms/bms.json``) has been changed, the

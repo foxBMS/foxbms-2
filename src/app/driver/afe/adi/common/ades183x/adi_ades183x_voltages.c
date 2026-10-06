@@ -43,8 +43,8 @@
  * @file    adi_ades183x_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -304,11 +304,11 @@ static void ADI_SaveRxToCellVoltageBuffer(
                     storedVoltageIndex = ADI_GetStoredVoltageIndex(registerVoltageIndex);
                     if (storedVoltageIndex < BS_NR_OF_CELL_BLOCKS_PER_MODULE) {
                         bufferMSB   = (uint16_t)(data
-                                                   [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) +
-                                                    (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u]);
+                                                     [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) +
+                                                      (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u]);
                         bufferLSB   = (uint16_t)(data
-                                                   [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) +
-                                                    (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)]);
+                                                     [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) +
+                                                      (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)]);
                         rawValue    = bufferLSB | (bufferMSB << ADI_BYTE_SHIFT);
                         signedValue = (int16_t)rawValue;
                         floatVoltage =
@@ -412,7 +412,7 @@ extern void ADI_GetStringAndModuleVoltage(ADI_STATE_s *adiState) {
 
     ADI_CopyCommandBytes(adi_cmdRdauxd, adi_command);
     ADI_ReadRegister(adi_command, dataReceive, adiState);
-    for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         pVoltageTable->stringVoltage_mV[s]     = 0;
         pVoltageTable->invalidStringVoltage[s] = true;
         uint8_t numberValidModuleMeasurements  = 0u;
@@ -429,7 +429,7 @@ extern void ADI_GetStringAndModuleVoltage(ADI_STATE_s *adiState) {
             floatVoltage = (((float_t)signedValue * ADI_VOLTAGE_CONVERSION_FACTOR * ADI_VOLTAGE_CONVERSION_UNIT) +
                             ADI_VOLTAGE_CONVERSION_OFFSET) *
                            25.0f;
-            vpvVoltage                            = floatVoltage; /* Unit mV */
+            vpvVoltage   = floatVoltage; /* Unit mV */
             pVoltageTable->moduleVoltage_mV[s][m] = (int32_t)(vpvVoltage);
 
             /* Check that register does not contain cleared value */

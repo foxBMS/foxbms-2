@@ -43,8 +43,8 @@
  * @file    test_epcos_b57861s0103f045.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,11 +58,9 @@
 
 #include "epcos_b57861s0103f045.h"
 #include "foxmath.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/ts")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/epcos/b57861s0103f045")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -75,11 +73,12 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testTS_Epc01GetTemperatureFromLutFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Epc01GetTemperatureFromLut(0u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Epc01GetTemperatureFromLut(4000u));
-    TEST_ASSERT_EQUAL_INT16(99, TS_Epc01GetTemperatureFromLut(2000u));
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Epc01GetTemperatureFromLut(0u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Epc01GetTemperatureFromLut(4000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(99, TS_Epc01GetTemperatureFromLut(2000u, 3.0f));
 }
 
 void testTS_Epc01GetTemperatureFromPolynomialFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(1114, TS_Epc01GetTemperatureFromPolynomial(100u));
+    TEST_ASSERT_EQUAL_INT16(1114, TS_Epc01GetTemperatureFromPolynomial(100u, 3.0f));
+    TEST_ASSERT_FAIL_ASSERT(TS_Epc01GetTemperatureFromPolynomial(1000u, 0.0f));
 }

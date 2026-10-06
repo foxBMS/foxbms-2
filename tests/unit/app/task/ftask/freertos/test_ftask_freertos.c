@@ -43,12 +43,12 @@
  * @file    test_ftask_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of the ftask implementation for FreeRTOS
+ * @brief   Test of the FTASK-module implementation for FreeRTOS
  * @details Tests Create Task
  *
  */
@@ -62,17 +62,9 @@
 #include "Mocksys_mon.h"
 
 #include "ftask.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ftask_freertos.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** size of storage area for the database queue */
@@ -92,8 +84,6 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_WORDS \
     FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES)
 #define FTSK_TASK_I2C_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_I2C_STACK_SIZE_IN_BYTES)
-
-OS_TASK_HANDLE ftsk_taskHandleI2c;
 
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
     OS_PRIORITY_REAL_TIME,
@@ -137,7 +127,7 @@ volatile OS_BOOT_STATE_e os_boot = OS_OFF;
 /** timestamp of the scheduler start */
 uint32_t os_schedulerStartTime = 0u;
 
-#define NUM_TASKCREATE_TESTS 8
+#define NUM_TASKCREATE_TESTS (8u)
 TaskHandle_t taskCreateExpectedResults[BS_NR_OF_STRINGS][NUM_TASKCREATE_TESTS] = {0};
 
 /*
@@ -152,6 +142,11 @@ TaskHandle_t MPU_xTaskCreateStatic_TestCallback(
     StackType_t *const puxStackBuffer,
     StaticTask_t *const pxTaskBuffer,
     int num_calls) {
+    (void)pxTaskCode;
+    (void)pcName;
+    (void)uxStackDepth;
+    (void)pvParameters;
+    (void)uxPriority;
 
     uint8_t currentTest = 0u;
 
@@ -378,4 +373,11 @@ void testFTSK_CreateTasks(void) {
     TEST_ASSERT_EQUAL(NULL, dummyHandleFail);
 
     FTSK_CreateTasks();
+}
+
+/* cspell:ignore testv */
+void testvApplicationMallocFailedHook(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(vApplicationMallocFailedHook());
 }

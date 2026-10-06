@@ -56,7 +56,7 @@ except ModuleNotFoundError:
 class TestReadConfig(unittest.TestCase):
     """Unit tests for the read_config function."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a temporary directory and create a valid YAML file
         for testing.
         """
@@ -67,25 +67,25 @@ class TestReadConfig(unittest.TestCase):
         with open(self.yaml_path, mode="w", encoding="utf-8") as f:
             yaml.dump(self.test_data, f)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up the temporary directory after tests."""
         self.temp_dir.cleanup()
 
-    def test_read_config_success(self):
+    def test_read_config_success(self) -> None:
         """Test that read_config correctly reads a valid YAML file
         and returns its contents.
         """
         result = read_config(self.yaml_path)
         self.assertEqual(result, self.test_data)
 
-    def test_file_not_found(self):
+    def test_file_not_found(self) -> None:
         """Test that read_config raises FileNotFoundError if the
         file does not exist.
         """
         with self.assertRaises(FileNotFoundError):
             read_config(Path(self.temp_dir.name) / "non_existent.yml")
 
-    def test_yaml_error(self):
+    def test_yaml_error(self) -> None:
         """Test that read_config raises yaml.YAMLError if the YAML
         file content is invalid.
         """

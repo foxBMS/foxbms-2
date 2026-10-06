@@ -43,24 +43,31 @@
  * @file    test_adi_ades183x_commands.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Test of adi_ades183x_commands.c
  * @details TODO
  *
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+/* nothing to test in this file */
+void testDummy(void) {
+}

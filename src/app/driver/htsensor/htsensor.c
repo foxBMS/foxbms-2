@@ -43,8 +43,8 @@
  * @file    htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  HTSEN
  *
@@ -225,13 +225,13 @@ static uint8_t HTSEN_ConvertRawHumidity(uint16_t data) {
 extern void HTSEN_Trigger(void) {
     static HTSEN_STATE_e htsenState    = HTSEN_START_MEAS;
     STD_RETURN_TYPE_e htsenReturnValue = STD_OK;
-    uint32_t current_time              = OS_GetTickCount();
+    uint32_t currentTime               = OS_GetTickCount();
 
     switch (htsenState) {
         case HTSEN_START_MEAS:
             /* Trigger a measurement */
             htsenReturnValue = I2C_WriteDma(HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, 2u, htsen_i2cWriteBuffer);
-            OS_DelayTaskUntil(&current_time, 2u);
+            OS_DelayTaskUntil(&currentTime, 2u);
             if (htsenReturnValue == STD_OK) {
                 htsenState = HTSEN_READ_RESULTS;
             }
@@ -241,7 +241,7 @@ extern void HTSEN_Trigger(void) {
             /* Try to read values */
             htsenReturnValue = I2C_ReadDma(
                 HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, HTSEN_TOTAL_DATA_LENGTH_IN_BYTES, htsen_i2cReadBuffer);
-            OS_DelayTaskUntil(&current_time, 2u);
+            OS_DelayTaskUntil(&currentTime, 2u);
             if (htsenReturnValue == STD_OK) {
                 /* If sensor acknowledges on I2C bus, results are available */
                 /* Check if CRC valid */
@@ -283,6 +283,8 @@ extern void HTSEN_Trigger(void) {
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern uint8_t TEST_HTSEN_TestCalculateCrc8(uint8_t *data, uint32_t length) {
+    (void)data;
+    (void)length;
     return HTSEN_CalculateCrc8(data, 2u);
 }
 #endif

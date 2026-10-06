@@ -1,0 +1,26 @@
+[
+  {
+    "platform": "win32",
+    "source": [
+      "src/bootloader/driver/config/flash_cfg.c",
+      "src/bootloader/driver/flash/flash.c"
+    ],
+    "test": "test_flash.c",
+    "includes": [
+      "C:/ti/Hercules/F021 Flash API/02.01.01/include",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/flash",
+      "src/bootloader/main/include"
+    ],
+    "mocks": [
+      "C:/ti/Hercules/F021 Flash API/02.01.01/include/FapiFunctions.h",
+      "src/bootloader/main/include/infinite-loop-helper.h"
+    ],
+    "cflags": [
+      "-include",
+      "Types.h",
+      "-include",
+      "stdint.h"
+    ]
+  }
+]

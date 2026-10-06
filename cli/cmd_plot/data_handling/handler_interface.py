@@ -70,7 +70,9 @@ class DataHandlerInterface(ABC):
             parquet_file_path = tmp_handler.check_for_tmp_file(file_path, "parquet")
             data_file_changed = file_tracker.check_file_changed(file_path)
             if parquet_file_path is not None and not data_file_changed and not no_tmp:
-                return pd.read_parquet(parquet_file_path, engine="pyarrow")
+                return pd.read_parquet(
+                    parquet_file_path, engine="pyarrow", to_pandas_kwargs={}
+                )
         except ArrowInvalid as e:
             recho(f"Parquet Error: {e}")
             sys.exit(1)

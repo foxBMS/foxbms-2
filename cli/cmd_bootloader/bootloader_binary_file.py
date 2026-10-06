@@ -37,7 +37,6 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-
 """Implementation for handling and preparing an application binary for usage
 with the Bootloader.
 """
@@ -49,11 +48,11 @@ from pathlib import Path
 
 import numpy as np
 
-from ..helpers.misc import (
+from ..helpers.misc import get_sha256_file_hash_str
+from ..helpers.project_context import (
     FOXBMS_APP_CRC_FILE,
     FOXBMS_APP_INFO_FILE,
     FOXBMS_BIN_FILE,
-    get_sha256_file_hash_str,
 )
 
 CRC_TABLE_COLUMN_IDX = {
@@ -86,7 +85,7 @@ class BootloaderBinaryFile:
             program = json.loads(program_info.read_text("utf-8"))
         except FileNotFoundError:
             sys.exit(
-                f"{program_info} not found, please run 'waf build_app_embedded' "
+                f"{program_info} not found, please run 'waf build_app_ti_arm_cgt' "
                 "command to build the project first/again, exit."
             )
         except (JSONDecodeError, TypeError):
@@ -102,7 +101,7 @@ class BootloaderBinaryFile:
             hash_app_current = get_sha256_file_hash_str(app)
         except FileNotFoundError:
             sys.exit(
-                f"{app} not found, please run 'waf build_app_embedded' "
+                f"{app} not found, please run 'waf build_app_ti_arm_cgt' "
                 "command to build the project first/again, exit."
             )
         hash_csv_current = get_sha256_file_hash_str(crc_table)
@@ -113,8 +112,8 @@ class BootloaderBinaryFile:
         ):
             sys.exit(
                 f"{app} does not match {program_info}"
-                " Please try to remove all these files using 'waf clean_app_embedded'"
-                " and build them again using 'waf build_app_embedded'. Abort!"
+                " Please try to remove all these files using 'waf clean_app_ti_arm_cgt'"
+                " and build them again using 'waf build_app_ti_arm_cgt'. Abort!"
             )
 
         # Extract the CRC array from the .csv file
@@ -122,7 +121,7 @@ class BootloaderBinaryFile:
             self.array_csv = np.genfromtxt(crc_table, delimiter=",", dtype=str)
         except FileNotFoundError:
             sys.exit(
-                f"{crc_table} not found, please run 'waf build_app_embedded' "
+                f"{crc_table} not found, please run 'waf build_app_ti_arm_cgt' "
                 "command to build the project first/again, exit."
             )
 
@@ -138,7 +137,7 @@ class BootloaderBinaryFile:
             index_of_8_bytes: index of the CRC table array
 
         Returns:
-            TBD
+            A tuple containing the CRC signature and data in 64 bits.
         """
         return int(
             self.array_csv[index_of_8_bytes + 1][

@@ -48,7 +48,7 @@ from typing import TYPE_CHECKING
 
 from yaml import safe_dump, safe_load
 
-from ...helpers.misc import PROJECT_BUILD_ROOT
+from ...helpers.project_context import PROJECT_BUILD_ROOT
 
 if TYPE_CHECKING:  # pragma: no cover
     from .plot_gui import PlotFrame
@@ -64,7 +64,7 @@ class Column:
 
 # pylint: disable-next=too-many-instance-attributes, too-many-ancestors
 class DataConfigFrame(ttk.Frame):
-    """PlotConfig Frame"""
+    """'Data Config' Frame"""
 
     def __init__(self, parent: ttk.Notebook, root: "PlotFrame") -> None:
         super().__init__(parent)
@@ -72,6 +72,8 @@ class DataConfigFrame(ttk.Frame):
         self.columns: list[Column] = []
 
         self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=0)
+        self.rowconfigure(1, weight=1)
 
         with open(
             Path(__file__).parent.parent.parent
@@ -80,180 +82,161 @@ class DataConfigFrame(ttk.Frame):
             / "schemas"
             / "csv_handler.json",
             encoding="utf-8",
-        ) as f:
-            valid_column_types = safe_load(f)["properties"]["columns"][
-                "additionalProperties"
-            ]["enum"]
-
-        # Set Styles
-        font_heading = ("TkDefaultFont", 10, "bold")
-        ttk.Style().configure("Multiline.TButton", justify="center")
-        ttk.Style().configure("heading.TButton", font=font_heading, justify="center")
+        ) as file:
+            self.valid_column_types: list[str] = safe_load(file)["properties"][
+                "columns"
+            ]["additionalProperties"]["enum"]
 
         # Create Frame for the File Information of the Data Configuration File
-        file_frame = ttk.Frame(self, padding=(15, 5))
-        file_frame.grid(column=0, row=0, sticky="news")
-        file_frame.columnconfigure(1, weight=1)
+        file_path_frame = ttk.Frame(self)
+        file_path_frame.grid(column=0, row=0, padx=15, pady=(10, 5), sticky="nwe")
+        file_path_frame.columnconfigure(1, weight=1)
+        file_path_frame.rowconfigure(0, weight=0)
 
-        file_path_label = ttk.Label(self, text="Data-Config File Path", width=20)
-        file_path_label.grid(
-            in_=file_frame, column=0, row=0, pady=(10, 0), sticky="news"
+        ttk.Label(file_path_frame, text="Data-Config File Path").grid(
+            column=0, row=0, padx=(0, 10), sticky="we"
         )
-        self.file_path_entry = ttk.Entry(self, width=10)
+        self.file_path_entry = ttk.Entry(file_path_frame)
+        self.file_path_entry.grid(column=1, columnspan=2, row=0, sticky="we")
         self.file_path_entry.insert(
             tk.END, str(PROJECT_BUILD_ROOT / "gui" / "data_config.yaml")
         )
-        self.file_path_entry.grid(
-            in_=file_frame, column=1, columnspan=2, row=0, pady=(10, 0), sticky="we"
-        )
+        ttk.Button(
+            file_path_frame, text="Select File", command=self.select_file_cb
+        ).grid(column=3, row=0, sticky="news")
 
-        self.file_path_button = ttk.Button(
-            self, text="Select File", command=self.open_file_cb
+        # Create Frame for Data Configuration
+        data_config_frame = ttk.Labelframe(
+            self, text="Data Configuration", padding=(10, 5)
         )
-        self.file_path_button.grid(
-            in_=file_frame, column=3, row=0, pady=(10, 0), sticky="news"
+        data_config_frame.grid(column=0, row=1, padx=15, sticky="news")
+        data_config_frame.columnconfigure((1, 2), weight=1)
+        data_config_frame.rowconfigure(3, weight=1)
+
+        ttk.Label(data_config_frame, text="Number of Lines to skip").grid(
+            column=0, row=0, pady=(0, 5), padx=(0, 10), sticky="we"
         )
-
-        # Create Labels and text widgets to input relevant data for the Data Configuration
-        data_frame = ttk.Labelframe(self, text="Data Configuration", padding=(10, 5))
-        data_frame.grid(column=0, row=1, padx=10, pady=(5, 0), sticky="news")
-        data_frame.columnconfigure(1, weight=1)
-        data_frame.columnconfigure(2, weight=1)
-
-        skip_label = ttk.Label(self, text="Number of Lines to skip", width=23)
-        skip_label.grid(in_=data_frame, column=0, row=2, pady=(0, 5), sticky="news")
-        self.skip_entry = ttk.Entry(self, width=10)
+        self.skip_entry = ttk.Entry(data_config_frame)
+        self.skip_entry.grid(column=1, row=0, padx=(0, 5), pady=(0, 5), sticky="we")
         self.skip_entry.insert(tk.END, "0")
-        self.skip_entry.grid(
-            in_=data_frame, column=1, row=2, padx=(0, 5), pady=(0, 5), sticky="news"
+        ttk.Label(data_config_frame, text="Precision of Data").grid(
+            column=0, row=1, pady=(0, 5), padx=(0, 10), sticky="we"
         )
-
-        precision_label = ttk.Label(self, text="Precision of Data", width=23)
-        precision_label.grid(
-            in_=data_frame, column=0, row=3, pady=(0, 5), sticky="news"
-        )
-        self.precision_entry = ttk.Entry(self, width=10)
-        self.precision_entry.insert(tk.END, "2")
+        self.precision_entry = ttk.Entry(data_config_frame)
         self.precision_entry.grid(
-            in_=data_frame, column=1, row=3, padx=(0, 5), pady=(0, 5), sticky="news"
+            column=1, row=1, padx=(0, 5), pady=(0, 5), sticky="we"
+        )
+        self.precision_entry.insert(tk.END, "2")
+
+        # Widgets for adding Columns to Treeview
+        ttk.Label(data_config_frame, text="Input Columns").grid(
+            column=0, row=2, pady=(0, 5), padx=(0, 10), sticky="we"
         )
 
-        # Adding Columns to Treeview
-        columns_label = ttk.Label(self, text="Input Columns", width=23)
-        columns_label.grid(in_=data_frame, column=0, row=4, pady=5, sticky="news")
-
-        self.columns_header_entry = ttk.Entry(self, width=10)
+        self.columns_header_entry = ttk.Entry(data_config_frame)
         self.columns_header_entry.grid(
-            in_=data_frame, column=1, row=4, padx=(0, 5), pady=5, sticky="news"
+            column=1, row=2, padx=(0, 5), pady=(0, 5), sticky="we"
         )
         self.columns_type_entry = ttk.Combobox(
-            self, width=10, values=valid_column_types
+            data_config_frame, values=self.valid_column_types
         )
-        self.columns_type_entry.grid(
-            in_=data_frame, column=2, row=4, pady=5, sticky="news"
-        )
+        self.columns_type_entry.grid(column=2, row=2, pady=(0, 5), sticky="we")
         self.columns_type_entry.current(0)
         self.columns_header_entry.insert(tk.END, "name")
 
-        self.column_add_button = ttk.Button(
-            self, text="Add Column", command=self.add_column_cb
-        )
-        self.column_add_button.grid(
-            in_=data_frame, column=3, row=4, pady=5, sticky="news"
-        )
+        ttk.Button(
+            data_config_frame, text="Add Column", command=self.add_column_cb
+        ).grid(column=3, row=2, pady=(0, 5), sticky="news")
 
         self.columns_treeview = ttk.Treeview(
-            self, columns=("column", "type"), show="headings", height=6
+            data_config_frame, columns=("column", "type"), show="headings", height=5
         )
         self.columns_treeview.heading("column", text="Column")
         self.columns_treeview.heading("type", text="Type")
         self.columns_treeview.grid(
-            in_=data_frame,
             column=1,
             columnspan=2,
-            row=5,
-            rowspan=6,
-            pady=5,
+            row=3,
+            pady=(5, 2),
             sticky="news",
         )
 
         # Create Button to remove added Columns
-        button_frame_remove = ttk.Frame(self)
-        button_frame_remove.grid(
-            in_=data_frame,
+        remove_button_frame = ttk.Frame(data_config_frame)
+        remove_button_frame.grid(
             column=3,
-            row=5,
-            rowspan=6,
+            row=3,
             padx=(5, 0),
             pady=5,
             sticky="news",
         )
-        self.columns_remove_button = ttk.Button(
-            self,
+        ttk.Button(
+            remove_button_frame,
             text="Remove\nSelected\nColumn",
             style="Multiline.TButton",
             command=self.remove_column_cb,
-        )
-        self.columns_remove_button.pack(in_=button_frame_remove, side=tk.TOP)
+        ).pack(side=tk.TOP)
 
-        # Create Button to generate a Data Configuration File
-        button_frame_generate = ttk.Frame(self)
-        button_frame_generate.grid(column=0, row=3, sticky="news")
-        self.data_config_generate = ttk.Button(
-            self,
+        # Create "Generate Data Configuration" Button
+        generate_config_button_frame = ttk.Frame(self)
+        generate_config_button_frame.grid(column=0, row=2, sticky="news")
+        ttk.Button(
+            generate_config_button_frame,
             text="Generate\nData Configuration",
             command=self.generate_data_config_cb,
-            style="heading.TButton",
+            style="Heading.TButton",
+        ).pack(pady=(2, 2))
+
+    def select_file_cb(self) -> None:
+        """Open filedialog and write selected item into Entry widget"""
+        file_path = fd.asksaveasfilename(
+            defaultextension=".yaml", filetypes=[("YAML File", "*.yaml")]
         )
-        self.data_config_generate.pack(in_=button_frame_generate, pady=(2, 2))
+        if file_path:
+            self.file_path_entry.delete(0, tk.END)
+            self.file_path_entry.insert(tk.END, file_path)
 
     def add_column_cb(self) -> None:
         """Add column to List"""
         column_name = str(self.columns_header_entry.get().strip())
         column_type = str(self.columns_type_entry.get().strip())
         if column_name in ("", "name"):
-            self.root.write_text("Column header has to be given\n")
+            self.root.write_text("Column header is missing.\n")
             return
         if column_type == "":
-            self.root.write_text("Column type has to be given\n")
+            self.root.write_text("Column type is missing.\n")
             return
-
+        if column_type not in self.valid_column_types:
+            self.root.write_text("Column type is not valid.\n")
+            return
         self.columns.append(Column(column_name, column_type))
         self.columns_treeview.insert("", tk.END, values=(column_name, column_type))
         self.columns_header_entry.delete(0, tk.END)
         self.columns_type_entry.current(0)
 
     def remove_column_cb(self) -> None:
-        """Remove column from List"""
+        """Remove selected column from List"""
         item = self.columns_treeview.focus()
         if item == "":
-            self.root.write_text("Column has to be selected\n")
+            self.root.write_text("Please select a Column from the list.\n")
             return
         self.columns.pop(self.columns_treeview.index(item))
         self.columns_treeview.delete(item)
 
-    def open_file_cb(self) -> None:
-        """Open filedialog and print it in Entry widget"""
-        output_directory = fd.asksaveasfilename(
-            defaultextension=".yaml", filetypes=[("YAML File", "*.yaml")]
-        )
-        self.file_path_entry.delete(0, tk.END)
-        self.file_path_entry.insert(tk.END, output_directory)
-
     def generate_data_config_cb(self) -> None:
-        """Generate data configuration file"""
+        """Generate a data configuration file"""
         data_file_path = self.file_path_entry.get().strip()
         if (data_file_path == "") or (" " in data_file_path):
             self.root.write_text(
-                "Path of the Data-File has to be given as a valid path\n"
+                "Path of the Data Configuration File has to be given as a valid path.\n"
             )
             return
         if len(self.columns) == 0:
-            self.root.write_text("Columns have to be given\n")
+            self.root.write_text("Please add Columns.\n")
             return
-        columns = {}
+        column_dict = {}
         for column in self.columns:
-            columns[column.column_name] = column.column_type
+            column_dict[column.column_name] = column.column_type
         try:
             general = {
                 "skip": int(self.skip_entry.get().strip()),
@@ -261,15 +244,15 @@ class DataConfigFrame(ttk.Frame):
             }
         except ValueError:
             self.root.write_text(
-                "Number of Lines to skip and Precision of Data have to be given as integers\n"
+                "Number of Lines to skip and Precision of Data have to be given as integers.\n"
             )
             return
-        data_config = {"general": general, "columns": columns}
+        data_config = {"general": general, "columns": column_dict}
         Path(data_file_path).parent.absolute().mkdir(parents=True, exist_ok=True)
-        with open(data_file_path, mode="w", encoding="utf-8") as f:
-            safe_dump(data_config, f)
+        with open(data_file_path, mode="w", encoding="utf-8") as file:
+            safe_dump(data_config, file)
         self.root.write_text(
-            f"Data Configuration File has been saved in {data_file_path}\n"
+            f"Data Configuration File has been saved in '{data_file_path}'.\n"
         )
-        self.root.tab_plot.data_config_entry.delete(0, tk.END)
-        self.root.tab_plot.data_config_entry.insert(tk.END, str(data_file_path))
+        self.root.run_plot_tab.data_config_entry.delete(0, tk.END)
+        self.root.run_plot_tab.data_config_entry.insert(tk.END, str(data_file_path))

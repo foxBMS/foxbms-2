@@ -8,8 +8,9 @@ Software Developer Manual
 
 Depending on the application domain various functional safety standards exist.
 A general norm that acts as a superset for domain-specific functional safety
-standards is the IEC 61508-3 :cite:`IEC61508-3:2010`. Several breakdowns of
-this norm are given in literature such as :cite:`Medoff2014`.
+standards is the IEC 61508-3 :cite:`IEC61508-3:2010`.
+Several breakdowns of this norm are given in literature such as
+:cite:`Medoff2014`.
 
 The software development manual is split into several documents:
 

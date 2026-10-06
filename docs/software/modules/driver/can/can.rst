@@ -190,7 +190,8 @@ Messages to receive
 The received message parameters are:
 
 - CAN ID of message to be received.
-- data length code, number of bytes to receive. Default 8, maximum 8.
+- data length code, number of bytes to receive.
+  Default 8, maximum 8.
 - byte order, endianness (big or little endian) of CAN data.
 - callback function: pointer to the function that is called when the message
   is received. The data of the CAN message is available within this

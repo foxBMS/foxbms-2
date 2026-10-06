@@ -54,12 +54,12 @@ from foo import Foo  # module under test
 class TestFooInstantiation(unittest.TestCase):
     """Test 'Foo'-object instantiation."""
 
-    def test_foo_instantiation_ok(self):
+    def test_foo_instantiation_ok(self) -> None:
         """The object can be instantiated."""
         Foo(1)
         # nothing to assert for in this case.
 
-    def test_foo_instantiation_wrong_initialization_value(self):
+    def test_foo_instantiation_wrong_initialization_value(self) -> None:
         """The object can not be instantiated because some reason."""
         # as the instantiation throws an exception, we need to capture it and
         # check that we raise the expected exception
@@ -85,7 +85,7 @@ class TestFooInstantiation(unittest.TestCase):
 class TestFooAddTwo(unittest.TestCase):
     """Test 'add_two' method of the 'Foo' class."""
 
-    def test_add_two(self):
+    def test_add_two(self) -> None:
         """Calling 'add_two' on an 'Foo' instance shall add 2 to its 'attr'
         attribute.
         """
@@ -108,7 +108,7 @@ class TestFooAddTwo(unittest.TestCase):
 class TestFooPrintAttr(unittest.TestCase):
     """Test 'print_attr' method of the 'Foo' class."""
 
-    def test_print_attr(self):
+    def test_print_attr(self) -> None:
         """The string-representation of the 'attr' attribute shall be printed
         to stdout.
         """

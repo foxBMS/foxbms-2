@@ -1,0 +1,18 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/epcos/b57861s0103f045/lookup-table/epcos_b57861s0103f045_lookup-table.c"
+    ],
+    "test": "test_epcos_b57861s0103f045_lookup-table.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/epcos/b57861s0103f045"
+    ],
+    "mocks": [
+      "src/app/driver/ts/epcos/b57861s0103f045/epcos_b57861s0103f045.h"
+    ],
+    "use": "M"
+  }
+]

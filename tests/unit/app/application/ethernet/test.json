@@ -1,0 +1,62 @@
+[
+  {
+    "source": "src/app/application/ethernet/ethernet.c",
+    "test": "test_ethernet.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/application/ethernet",
+      "src/app/driver/config",
+      "src/app/driver/emac",
+      "src/app/driver/foxmath",
+      "src/app/driver/phy",
+      "src/app/driver/uart",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/NetworkInterface/tms570lc435"
+    ],
+    "mocks": [
+      "src/app/application/config/ethernet_cfg.h",
+      "src/app/application/ethernet/ethernet_freertos.h",
+      "src/app/driver/foxmath/utils.h",
+      "src/app/main/include/infinite-loop-helper.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/FreeRTOS_Routing.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/FreeRTOS_Sockets.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/NetworkInterface.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/NetworkInterface/tms570lc435/NetworkInterface_custom.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "defines": [
+      "FOXBMS_TCP_SUPPORT=1",
+      "FOXBMS_UART_SUPPORT=1"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/application/ethernet/ethernet_freertos.c",
+    "test": "test_ethernet_freertos.c",
+    "includes": [
+      "src/app/application/ethernet",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS"
+    ],
+    "mocks": [
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/FreeRTOS_Routing.h",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include/FreeRTOS_Sockets.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  }
+]

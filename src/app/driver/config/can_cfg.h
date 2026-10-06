@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -57,7 +57,7 @@
 #define FOXBMS__CAN_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 
 #include "HL_can.h"
 
@@ -86,7 +86,7 @@ typedef struct {
 #if (defined(FOXBMS_AFE_DRIVER_DEBUG_CAN) && (FOXBMS_AFE_DRIVER_DEBUG_CAN == 1))
 #define CAN_NODE_RX_CELL_VOLTAGES     (CAN_NODE_1)
 #define CAN_NODE_RX_CELL_TEMPERATURES (CAN_NODE_1)
-#endif
+#endif /* FOXBMS_AFE_DRIVER_DEBUG_CAN */
 /**@}*/
 
 /**
@@ -119,7 +119,7 @@ typedef struct {
 #define CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG (4u)
 /** The number of cell temperatures received per can message */
 #define CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG (6u)
-#endif
+#endif /* FOXBMS_AFE_DRIVER_DEBUG_CAN */
 
 /** An offset of zero for can signal preparation */
 #define CAN_SIGNAL_OFFSET_0 (0.0f)
@@ -205,7 +205,7 @@ typedef struct {
     bool invalidFlag[CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG];
     uint16_t cellVoltage[CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG];
 } CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s;
-#endif
+#endif /* FOXBMS_AFE_DRIVER_DEBUG_CAN */
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {

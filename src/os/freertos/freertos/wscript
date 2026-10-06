@@ -37,8 +37,16 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+
+    bld.recurse("portable")
+
     source = [
         "croutine.c",
         "event_groups.c",
@@ -47,21 +55,33 @@ def build(bld):
         "stream_buffer.c",
         "tasks.c",
         "timers.c",
-        "portable/ccs/arm_cortex-r5/port.c",
-        "portable/ccs/arm_cortex-r5/portasm.asm",
-        "portable/common/mpu_wrappers.c",
-        # Configure heap for tcp; heap_4 and heap_5 are recommended by FreeRTOS
-        "portable/memmang/heap_4.c",
     ]
-    includes = ["include", "portable/ccs/arm_cortex-r5"]
-    target = f"{bld.env.APPNAME.lower()}-os"
-    use = f"{bld.env.APPNAME.lower()}-portable"
-    cflags = bld.env.CFLAGS_OS
+    use = [
+        f"{op}port",
+        f"{op}portasm",
+        f"{op}mpu_wrappers",
+        f"{op}heap_4",
+        f"{lp}portable",
+        f"{lp}hal",
+        f"{ip}rtos-kernel",
+    ]
 
-    bld.stlib(
+    bld(
+        features="c cstlib",
         source=source,
-        includes=includes,
-        cflags=cflags,
+        preinclude_deps=[
+            bld.bldnode.find_or_declare("foxbms_config_rtos.h"),
+            bld.bldnode.find_or_declare("foxbms_config_debug.h"),
+        ],
         use=use,
-        target=target,
+        uselib="OS",
+        target=f"{lp}os",
+    )
+
+    bld(
+        export_includes=[
+            bld.path.find_node("include"),
+            bld.path.find_node("portable/ccs/arm_cortex-r5"),
+        ],
+        target=f"{ip}rtos-kernel",
     )

@@ -27,7 +27,8 @@ The steps of adding the sensor contain:
 Basic Directory Structure
 -------------------------
 
-#. Adapt ``tools/waf-tools/bms_config_validator.py`` to recognize the new
+#. Adapt ``tools/waf_tools/bms_config_generate.py`` and
+   ``tools/waf_tools/bms_config_validate.py`` to recognize the new
    manufacturer and the temperature sensor.
 #. Add the *Great-Sensor* manufacturer directory ``great-sensor``:
    ``src/app/driver/ts/great-sensor``.
@@ -109,7 +110,7 @@ To ensure the sensor's name is written correctly to the
 ``VER_TEMPERATURE_SENSOR_e`` enum in the ``app_build_cfg.h`` header.
 
 Furthermore, the ``get_temperature_sensor_name`` function in
-``create_app_build_cfg`` and its helper functions (there is one for each
+``app_build_config_generate`` and its helper functions (there is one for each
 manufacturer) have to be updated or added, so the new sensor's short name can
 be retrieved from its complete name in ``bms.json``.
 
@@ -135,8 +136,6 @@ the main build system, special care has to be taken that the correct source
 files are attracted.
 This mainly applies to the implementations of the lookup-table and polynomial
 function as they do not have a separate header file.
-Use ``TEST_SOURCE_FILE("good-sensor_temp123_polynomial.c")`` in the test file
-in order to hint the correct source file to the unit test build system.
 
 Updating the IDE configuration
 ------------------------------
@@ -164,4 +163,4 @@ For the example the configuration would have to be:
   }
 
 After this, the temperature sensor is exposed through the
-:ref:`temperature_sensor_api`.
+:ref:`TEMPERATURE_SENSOR_API`.

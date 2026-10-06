@@ -61,7 +61,7 @@ from .bootloader import Bootloader, BootloaderStatus
 from .bootloader_can import BootloaderInterfaceCan
 
 # Filter for received can messages
-can_filters = []
+can_filters: list[CanFilter] = []
 
 
 class FoxPyFilter(Filter):  # pylint:disable=too-few-public-methods

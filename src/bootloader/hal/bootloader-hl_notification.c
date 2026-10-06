@@ -35,8 +35,8 @@
 /**
  * @file    bootloader-hl_notification.c
  * @date    11-Dec-2018
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  IGNOR
  *
@@ -80,35 +80,52 @@
 /*========== Extern Function Implementations ================================*/
 
 void esmGroup1Notification(esmBASE_t *esm, uint32 channel) {
+    (void)esm;
+    (void)channel;
 }
 
 void esmGroup2Notification(esmBASE_t *esm, uint32 channel) {
+    (void)esm;
+    (void)channel;
 }
 
 void esmGroup3Notification(esmBASE_t *esm, uint32 channel) {
+    (void)esm;
+    (void)channel;
     while (FOREVER()) { /* Wait */
     }
 }
 
 void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
+    (void)inttype;
+    (void)channel;
 }
 
 void rtiNotification(rtiBASE_t *rtiREG, uint32 notification) {
+    (void)rtiREG;
+    (void)notification;
 }
 
 void canErrorNotification(canBASE_t *node, uint32 notification) {
+    (void)node;
+    (void)notification;
 }
 
 void canStatusChangeNotification(canBASE_t *node, uint32 notification) {
+    (void)node;
+    (void)notification;
 }
 
 void gioNotification(gioPORT_t *port, uint32 bit) {
+    (void)port;
+    (void)bit;
 }
 
 void epcCAMFullNotification(void) {
 }
 
 void epcFIFOFullNotification(uint32 epcFIFOStatus) {
+    (void)epcFIFOStatus;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

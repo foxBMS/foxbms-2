@@ -1,0 +1,78 @@
+[
+  {
+    "source": [
+      "src/app/driver/afe/ltc/6813-1/config/ltc_6813-1_cfg.c",
+      "src/app/driver/afe/ltc/6813-1/ltc_6813-1.c"
+    ],
+    "test": "test_ltc_6813-1.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ltc/6813-1/config",
+      "src/app/driver/afe/ltc/common",
+      "src/app/driver/afe/ltc/common/config",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/driver/afe/api/afe_plausibility.h",
+      "src/app/driver/afe/ltc/common/ltc_afe_dma.h",
+      "src/app/driver/afe/ltc/common/ltc_pec.h",
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/driver/ts/api/tsi.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/afe/ltc/6813-1/config/ltc_6813-1_cfg.c",
+      "src/app/driver/afe/ltc/6813-1/ltc_6813-1.c",
+      "src/app/driver/afe/ltc/common/ltc_pec.c"
+    ],
+    "test": "test_ltc_6813-1_pec_in_arrays.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ltc/6813-1/config",
+      "src/app/driver/afe/ltc/common",
+      "src/app/driver/afe/ltc/common/config",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/driver/afe/api/afe_plausibility.h",
+      "src/app/driver/afe/ltc/common/ltc_afe_dma.h",
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/pex/pex.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/driver/ts/api/tsi.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

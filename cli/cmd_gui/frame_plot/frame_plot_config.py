@@ -37,17 +37,18 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements the 'plot_config' frame"""
+"""Implements the 'Plot Config' frame"""
 
 import json
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog as fd
-from tkinter import font, ttk
+from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from ...cmd_plot.drawer.graph_types import GraphTypes
-from ...helpers.misc import PROJECT_BUILD_ROOT
+from ...helpers.project_context import PROJECT_BUILD_ROOT
+from ..style_config import get_italic_font, get_text_font
 
 if TYPE_CHECKING:  # pragma: no cover
     from .plot_gui import PlotFrame
@@ -57,378 +58,317 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # pylint: disable-next=too-many-instance-attributes, too-many-ancestors
 class PlotConfigFrame(ttk.Frame):
-    """PlotConfig Frame"""
+    """'Plot Config' Frame"""
 
-    # pylint: disable-next=too-many-statements, too-many-locals
+    # pylint: disable-next=too-many-statements
     def __init__(self, parent: ttk.Notebook, root: "PlotFrame") -> None:
         super().__init__(parent)
         self.plots: list[dict] = []
         self.root = root
         self.columnconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
 
-        # Set Styles for Headings and Buttons
-        font_heading = font.Font(family="TkDefaultFont", size=10, weight="bold")
-        self.font_italics = font.Font(
-            name="Italic.TEntry", family="Segoe UI", size=9, slant="italic"
-        )
-        self.font_default = font.Font(name="Default.TEntry", family="Segoe UI", size=9)
-        ttk.Style().configure("heading.TButton", font=font_heading, justify="center")
-        ttk.Style().configure("Multiline.TButton", justify="center")
+        self.italic_font = get_italic_font()
+        self.text_font = get_text_font()
 
         # Create Frame for the File Information of the Plot Configuration File
-        file_frame = ttk.Frame(self, padding=(15, 5))
-        file_frame.grid(column=0, row=0, sticky="news")
-        file_frame.columnconfigure(1, weight=1)
+        file_path_frame = ttk.Frame(self)
+        file_path_frame.grid(column=0, row=0, padx=15, pady=(10, 5), sticky="news")
+        file_path_frame.columnconfigure(1, weight=1)
 
-        file_path_label = ttk.Label(self, text="Plot-Config File Path", width=20)
-        file_path_label.grid(
-            in_=file_frame, column=0, row=0, sticky="news", pady=(10, 0)
+        ttk.Label(file_path_frame, text="Plot-Config File Path").grid(
+            column=0, row=0, padx=(0, 10), sticky="news"
         )
-        self.file_path_entry = ttk.Entry(self, width=10)
+        self.file_path_entry = ttk.Entry(file_path_frame)
         self.file_path_entry.insert(
             tk.END, str(PROJECT_BUILD_ROOT / "gui" / Path("plot_config.yaml"))
         )
-        self.file_path_entry.grid(
-            in_=file_frame, column=1, row=0, sticky="we", pady=(10, 0)
-        )
-        self.file_path_button = ttk.Button(
-            self, text="Select File", command=self.open_file_cb
-        )
-        self.file_path_button.grid(
-            in_=file_frame, column=2, row=0, sticky="news", pady=(10, 0)
-        )
+        self.file_path_entry.grid(column=1, row=0, sticky="we")
+        ttk.Button(
+            file_path_frame, text="Select File", command=self.select_file_cb
+        ).grid(column=2, row=0, sticky="news")
 
         # Create Frame for Input of the Plot Configuration File
-        config_frame = ttk.Frame(self)
-        config_frame.grid(column=0, row=1, sticky="news")
-
-        config_frame.columnconfigure(0, weight=5)
+        plot_config_frame = ttk.Frame(self)
+        plot_config_frame.grid(column=0, row=1, sticky="news")
+        plot_config_frame.columnconfigure(0, weight=1)
+        plot_config_frame.rowconfigure((0, 1), weight=1)
 
         # Create Frame for Plot Input
-        plot_config_frame = ttk.Labelframe(
-            self, text="Plot Data", padding=(10, 3, 10, 3)
+        plot_data_frame = ttk.Labelframe(
+            plot_config_frame, text="Plot Data", padding=(10, 3)
         )
-        plot_config_frame.grid(
-            in_=config_frame, column=0, row=0, padx=(10, 0), pady=(5, 0), sticky="news"
-        )
-        plot_config_frame.columnconfigure(0, weight=1)
-        plot_config_frame.rowconfigure(0, weight=1)
+        plot_data_frame.grid(column=0, row=0, padx=(15, 0), sticky="news")
+        plot_data_frame.columnconfigure(1, weight=1)
+        plot_data_frame.rowconfigure((0, 1, 2, 3, 4, 5, 6), weight=1)
 
-        plot_config_entries_frame = ttk.Frame(self, padding=(0, 0, 10, 0))
-        plot_config_entries_frame.grid(
-            in_=plot_config_frame, column=0, row=0, sticky="news"
+        ttk.Label(plot_data_frame, text="Plot-File Name").grid(
+            column=0, row=0, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        plot_config_entries_frame.columnconfigure(1, weight=1)
-
-        plot_file_name_label = ttk.Label(self, text="Plot-File Name", width=20)
-        plot_file_name_label.grid(
-            in_=plot_config_entries_frame, column=0, row=0, pady=(0, 5), sticky="news"
-        )
-        self.plot_file_name_entry = ttk.Entry(self, width=10)
+        self.plot_file_name_entry = ttk.Entry(plot_data_frame)
         self.plot_file_name_entry.grid(
-            in_=plot_config_entries_frame,
             column=1,
             row=0,
+            padx=(0, 10),
             pady=(0, 5),
-            sticky="news",
+            sticky="we",
         )
 
-        plot_type_label = ttk.Label(self, text="Plot Type", width=20)
-        plot_type_label.grid(
-            in_=plot_config_entries_frame, column=0, row=1, pady=(0, 5), sticky="news"
+        ttk.Label(plot_data_frame, text="Plot Type").grid(
+            column=0, row=1, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.plot_type_entry = ttk.Combobox(
-            self,
-            width=5,
+        self.plot_type_combobox = ttk.Combobox(
+            plot_data_frame,
             values=GraphTypes._member_names_,  # pylint: disable=no-member
         )
-        self.plot_type_entry.grid(
-            in_=plot_config_entries_frame, column=1, row=1, pady=(0, 5), sticky="news"
+        self.plot_type_combobox.grid(
+            column=1, row=1, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.plot_type_entry.current(0)
+        self.plot_type_combobox.current(0)
 
-        plot_title_label = ttk.Label(self, text="Plot Title", width=20)
-        plot_title_label.grid(
-            in_=plot_config_entries_frame, column=0, row=2, pady=(0, 5), sticky="news"
+        ttk.Label(plot_data_frame, text="Plot Title").grid(
+            column=0, row=2, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.plot_title_entry = ttk.Entry(self, width=10)
+        self.plot_title_entry = ttk.Entry(plot_data_frame)
         self.plot_title_entry.grid(
-            in_=plot_config_entries_frame,
             column=1,
             row=2,
+            padx=(0, 10),
             pady=(0, 5),
-            sticky="news",
+            sticky="we",
         )
 
-        x_axis_label = ttk.Label(self, text="Input Column x-Axis", width=20)
-        x_axis_label.grid(
-            in_=plot_config_entries_frame, column=0, row=3, pady=(0, 5), sticky="news"
+        ttk.Label(plot_data_frame, text="Input Column x-Axis").grid(
+            column=0, row=3, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.x_axis_entry = ttk.Entry(self, width=10)
-        self.x_axis_entry.grid(
-            in_=plot_config_entries_frame,
+        self.x_axis_column_entry = ttk.Entry(plot_data_frame)
+        self.x_axis_column_entry.grid(
             column=1,
             row=3,
+            padx=(0, 10),
             pady=(0, 5),
             sticky="we",
         )
 
-        label_x_axis_label = ttk.Label(self, text="Label for x-Axis", width=20)
-        label_x_axis_label.grid(
-            in_=plot_config_entries_frame, column=0, row=4, pady=(0, 5), sticky="news"
+        ttk.Label(plot_data_frame, text="Label for x-Axis").grid(
+            column=0, row=4, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.label_x_axis_entry = ttk.Entry(self, width=10)
-        self.label_x_axis_entry.grid(
-            in_=plot_config_entries_frame,
+        self.x_axis_name_entry = ttk.Entry(plot_data_frame)
+        self.x_axis_name_entry.grid(
             column=1,
             row=4,
+            padx=(0, 10),
             pady=(0, 5),
             sticky="we",
         )
 
-        label_y_axes_label = ttk.Label(self, text="Labels for y-Axes", width=20)
-        label_y_axes_label.grid(
-            in_=plot_config_entries_frame, column=0, row=5, pady=(0, 5), sticky="news"
+        ttk.Label(plot_data_frame, text="Labels for y-Axes").grid(
+            column=0, row=5, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.label_y_axes_entry = ttk.Entry(self, width=10, font=self.font_italics)
-        self.label_y_axes_entry.grid(
-            in_=plot_config_entries_frame,
+        self.y_axes_names_entry = ttk.Entry(plot_data_frame, font=self.italic_font)
+        self.y_axes_names_entry.grid(
             column=1,
             row=5,
+            padx=(0, 10),
             pady=(0, 5),
             sticky="we",
         )
-        self.label_y_axes_entry.bind("<KeyRelease>", self.change_font_cb)
-        self.label_y_axes_entry.insert(tk.END, "separate labels with a comma")
+        self.y_axes_names_entry.bind("<KeyRelease>", self.change_font_cb)
+        self.y_axes_names_entry.insert(tk.END, "separate labels with a comma")
 
-        plot_config_buttons_frame = ttk.Frame(self)
-        plot_config_buttons_frame.grid(
-            in_=plot_config_frame, column=1, row=0, sticky="news"
-        )
-        plot_config_buttons_frame.rowconfigure(1, weight=1)
+        # Add Variables for Checkbutton
+        self.save_plot_value = tk.BooleanVar(value=False)
+        self.show_plot_value = tk.BooleanVar(value=False)
 
-        checkbox_frame = ttk.Frame(self)
-        checkbox_frame.grid(
-            in_=plot_config_buttons_frame, column=0, row=0, sticky="news"
-        )
+        ttk.Checkbutton(
+            plot_data_frame,
+            text="Save Plot",
+            variable=self.save_plot_value,
+            state="!alternate",
+        ).grid(column=2, row=0, padx=(5, 0), pady=(0, 5), sticky="we")
+        ttk.Checkbutton(
+            plot_data_frame,
+            text="Show Plot",
+            variable=self.show_plot_value,
+            state="!alternate",
+        ).grid(column=2, row=1, padx=(5, 0), pady=(0, 5), sticky="we")
 
-        self.save_checkbutton_value = tk.BooleanVar()
-        self.save_checkbutton_value.set(False)
-        save_plot_label = ttk.Label(self, text="Save Plot", width=12)
-        save_plot_label.grid(in_=checkbox_frame, column=0, row=0, pady=(0, 5))
-        save_plot_checkbutton = ttk.Checkbutton(
-            self, text="Yes", variable=self.save_checkbutton_value
-        )
-        save_plot_checkbutton.grid(in_=checkbox_frame, column=1, row=0, pady=(0, 5))
-        save_plot_checkbutton.state(["!alternate"])
+        # Create Frame for 'Add Plot' Button
+        add_plot_button_frame = ttk.Frame(plot_data_frame)
+        add_plot_button_frame.grid(column=2, row=2, rowspan=4, sticky="news")
+        add_plot_button_frame.columnconfigure(0, weight=1)
+        add_plot_button_frame.rowconfigure(0, weight=1)
 
-        self.show_checkbutton_value = tk.BooleanVar()
-        self.show_checkbutton_value.set(False)
-        show_plot_label = ttk.Label(self, text="Show Plot", width=12)
-        show_plot_label.grid(in_=checkbox_frame, column=0, row=1, pady=(0, 5))
-        show_plot_checkbutton = ttk.Checkbutton(
-            self, text="Yes", variable=self.show_checkbutton_value
-        )
-        show_plot_checkbutton.grid(in_=checkbox_frame, column=1, row=1, pady=(0, 5))
-        show_plot_checkbutton.state(["!alternate"])
-
-        plot_add_button_frame = ttk.Frame(self)
-        plot_add_button_frame.grid(
-            in_=plot_config_buttons_frame, column=0, row=1, sticky="news"
-        )
-        plot_add_button_frame.columnconfigure(0, weight=1)
-        plot_add_button_frame.rowconfigure(0, weight=1)
-
-        self.plot_add_button = ttk.Button(
-            self, text="Add Plot", command=self.add_plot_cb
-        )
-        self.plot_add_button.grid(in_=plot_add_button_frame, column=0, row=0)
+        ttk.Button(
+            add_plot_button_frame,
+            text="Add\nPlot",
+            command=self.add_plot_cb,
+            style="Multiline.TButton",
+        ).grid(column=0, row=0)
 
         # Create Frame for Line Input
-        line_frame = ttk.Labelframe(self, text="Line Data", padding=(10, 3, 10, 3))
-        line_frame.grid(
-            in_=config_frame, column=0, row=1, padx=(10, 0), pady=(5, 0), sticky="news"
+        line_data_frame = ttk.Labelframe(
+            plot_config_frame, text="Line Data", padding=(10, 3)
         )
-        line_frame.columnconfigure(0, weight=1)
-        line_frame.rowconfigure(0, weight=1)
+        line_data_frame.grid(column=0, row=1, padx=(15, 0), pady=5, sticky="news")
+        line_data_frame.columnconfigure(1, weight=1)
+        line_data_frame.rowconfigure((0, 1, 2, 3), weight=1)
 
-        line_input_frame = ttk.Frame(self, padding=(0, 0, 10, 0))
-        line_input_frame.grid(in_=line_frame, column=0, row=0, sticky="news")
-        line_input_frame.columnconfigure(1, weight=1)
-
-        y_axis_label = ttk.Label(self, text="Input Column y-Axis", width=20)
-        y_axis_label.grid(
-            in_=line_input_frame, column=0, row=0, pady=(0, 5), sticky="news"
+        ttk.Label(line_data_frame, text="Input Column y-Axis").grid(
+            column=0, row=0, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.y_axis_entry = ttk.Entry(self, width=10)
-        self.y_axis_entry.grid(
-            in_=line_input_frame, column=1, row=0, pady=(0, 5), sticky="news"
+        self.y_axis_column_entry = ttk.Entry(line_data_frame)
+        self.y_axis_column_entry.grid(
+            column=1, row=0, padx=(0, 10), pady=(0, 5), sticky="we"
         )
 
-        label_line_label = ttk.Label(self, text="Label for the Line", width=20)
-        label_line_label.grid(
-            in_=line_input_frame, column=0, row=10, pady=(0, 5), sticky="news"
+        ttk.Label(line_data_frame, text="Label for the Line").grid(
+            column=0, row=1, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.label_line_entry = ttk.Entry(self, width=10, font=self.font_italics)
-        self.label_line_entry.grid(
-            in_=line_input_frame,
+        self.line_name_entry = ttk.Entry(line_data_frame, font=self.italic_font)
+        self.line_name_entry.grid(
             column=1,
-            row=10,
+            row=1,
+            padx=(0, 10),
             pady=(0, 5),
-            sticky="news",
+            sticky="we",
         )
-        self.label_line_entry.bind("<KeyRelease>", self.change_font_cb)
-        self.label_line_entry.insert(tk.END, "optional")
+        self.line_name_entry.bind("<KeyRelease>", self.change_font_cb)
+        self.line_name_entry.insert(tk.END, "optional")
 
-        min_value_label = ttk.Label(self, text="min y-value", width=20)
-        min_value_label.grid(
-            in_=line_input_frame, column=0, row=11, pady=(0, 5), sticky="news"
+        ttk.Label(line_data_frame, text="min y-value").grid(
+            column=0, row=2, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.min_value_entry = ttk.Entry(self, width=10, font=self.font_italics)
+        self.min_value_entry = ttk.Entry(line_data_frame, font=self.italic_font)
         self.min_value_entry.grid(
-            in_=line_input_frame,
             column=1,
-            row=11,
+            row=2,
+            padx=(0, 10),
             pady=(0, 5),
-            sticky="news",
+            sticky="we",
         )
         self.min_value_entry.bind("<KeyRelease>", self.change_font_cb)
         self.min_value_entry.insert(tk.END, "optional")
 
-        max_value_label = ttk.Label(self, text="max y-value", width=20)
-        max_value_label.grid(
-            in_=line_input_frame, column=0, row=12, pady=(0, 5), sticky="news"
+        ttk.Label(line_data_frame, text="max y-value").grid(
+            column=0, row=3, padx=(0, 10), pady=(0, 5), sticky="we"
         )
-        self.max_value_entry = ttk.Entry(self, width=10, font=self.font_italics)
+        self.max_value_entry = ttk.Entry(line_data_frame, font=self.italic_font)
         self.max_value_entry.grid(
-            in_=line_input_frame,
             column=1,
-            row=12,
+            row=3,
+            padx=(0, 10),
             pady=(0, 5),
-            sticky="news",
+            sticky="we",
         )
         self.max_value_entry.bind("<KeyRelease>", self.change_font_cb)
         self.max_value_entry.insert(tk.END, "optional")
 
-        self.line_add_button = ttk.Button(
-            self,
+        ttk.Button(
+            line_data_frame,
             text="Add\nLine",
             command=self.add_line_cb,
             style="Multiline.TButton",
-            width=8,
-        )
-        self.line_add_button.grid(in_=line_frame, column=1, row=0, pady=3)
+        ).grid(column=2, row=0, rowspan=4)
 
-        # Create Frame for a Treeview
-        treeview_frame = ttk.Frame(self, padding=(10, 0))
+        # Create Frame for Treeview
+        treeview_frame = ttk.Frame(plot_config_frame)
         treeview_frame.grid(
-            in_=config_frame, column=1, row=0, rowspan=2, pady=(8, 0), sticky="news"
+            column=1, row=0, rowspan=2, padx=10, pady=(3, 5), sticky="news"
         )
-
         treeview_frame.rowconfigure(0, weight=1)
         treeview_frame.columnconfigure(0, weight=1)
-        treeview_frame.columnconfigure(2, weight=1)
 
-        self.plot_treeview = ttk.Treeview(self, show="tree")
-        self.plot_treeview.grid(
-            in_=treeview_frame,
+        self.plots_treeview = ttk.Treeview(treeview_frame, show="tree")
+        self.plots_treeview.grid(
             column=0,
-            columnspan=3,
             row=0,
             pady=(5, 0),
             sticky="news",
         )
 
-        item_button_frame = ttk.Frame(self, padding=(0, 5))
-        item_button_frame.grid(
-            in_=treeview_frame, column=0, columnspan=3, row=1, sticky="ns"
-        )
+        item_button_frame = ttk.Frame(treeview_frame)
+        item_button_frame.grid(column=0, row=1, pady=5)
         item_button_frame.rowconfigure(0, weight=1)
         item_button_frame.columnconfigure(0, weight=1)
         item_button_frame.columnconfigure(1, weight=1)
-
-        self.open_item_button = ttk.Button(
-            self,
+        ttk.Button(
+            item_button_frame,
             text="Open\nSelected Item",
             style="Multiline.TButton",
             command=self.open_selected_item_cb,
-        )
-        self.remove_item_button = ttk.Button(
-            self,
+        ).grid(column=0, row=0, padx=(0, 2), sticky="ns")
+        ttk.Button(
+            item_button_frame,
             text="Remove\nSelected Item",
             style="Multiline.TButton",
             command=self.remove_selected_item_cb,
-        )
-
-        self.open_item_button.grid(in_=item_button_frame, column=0, row=0, padx=(0, 2))
-        self.remove_item_button.grid(
-            in_=item_button_frame, column=1, row=0, padx=(2, 0)
-        )
-
+        ).grid(column=1, row=0, padx=(2, 0), sticky="ns")
         # Create Button to generate a Plot Configuration File
-        self.plot_config_generate = ttk.Button(
-            self,
+        ttk.Button(
+            treeview_frame,
             text="Generate\nPlot Configuration",
             command=self.generate_plot_config_cb,
-            style="heading.TButton",
-        )
-        self.plot_config_generate.grid(in_=treeview_frame, column=1, row=2)
+            style="Heading.TButton",
+        ).grid(column=0, row=2)
 
     def change_font_cb(self, event: tk.Event) -> None:
-        """Change the font of the widget to the default font"""
+        """Change the font of the widget to default font"""
         # ensure that the widget supports setting the font
         if isinstance(event.widget, ttk.Entry):
-            event.widget.configure(font=self.font_default)
+            event.widget.configure(font=self.text_font)
 
-    def open_file_cb(self) -> None:
-        """Open filedialog and print it in Entry widget"""
-        output_directory = fd.asksaveasfilename(
+    def select_file_cb(self) -> None:
+        """Open filedialog and write selected item into Entry widget"""
+        file_path = fd.asksaveasfilename(
             defaultextension=".yaml", filetypes=[("YAML File", "*.yaml")]
         )
-        self.file_path_entry.delete(0, tk.END)
-        self.file_path_entry.insert(tk.END, output_directory)
+        if file_path:
+            self.file_path_entry.delete(0, tk.END)
+            self.file_path_entry.insert(tk.END, file_path)
 
     def add_plot_cb(self) -> None:
         """Add the Input-Data for the Plot to the Table"""
         plot_file_name = self.plot_file_name_entry.get().strip()
-        plot_type = self.plot_type_entry.get().strip()
+        plot_type = self.plot_type_combobox.get().strip()
         plot_title = self.plot_title_entry.get().strip()
-        input_x_axis = self.x_axis_entry.get().strip()
-        label_x_axis = self.label_x_axis_entry.get().strip()
-        label_y_axes = self.label_y_axes_entry.get().strip()
+        x_axis_column = self.x_axis_column_entry.get().strip()
+        x_axis_name = self.x_axis_name_entry.get().strip()
+        y_axes_names = self.y_axes_names_entry.get().strip()
 
         err = 0
 
         if (plot_file_name == "") or (" " in plot_file_name):
             self.root.write_text(
-                "Name of the Plot-File has to be given as a valid path\n"
+                "Name of the Plot-File has to be given as a valid path.\n"
             )
             err += 1
-        if input_x_axis == "":
-            self.root.write_text("Input column for x-axis has to be given\n")
+        if x_axis_column == "":
+            self.root.write_text("Please provide an input column for the x-axis.\n")
             err += 1
         if plot_title == "":
-            self.root.write_text("Title of the plot has to be given\n")
+            self.root.write_text("Please provide a Title for the plot.\n")
             err += 1
-        if label_x_axis == "":
-            self.root.write_text("Label for the x-axis has to be given\n")
+        if x_axis_name == "":
+            self.root.write_text("Please provide a Label for the x-axis.\n")
             err += 1
-        if ("separate labels with a comma" in label_y_axes) or (label_y_axes == ""):
-            self.root.write_text("Labels for the y-axes have to be given\n")
+        if ("separate labels with a comma" in y_axes_names) or (y_axes_names == ""):
+            self.root.write_text("Please provide Labels for the y-axes.\n")
             err += 1
-        if plot_type == "":
-            self.root.write_text("Plot Type has to be given\n")
+        if plot_type not in GraphTypes._member_names_:  # pylint: disable=protected-access, no-member
+            self.root.write_text("Please select a Plot Type.\n")
             err += 1
 
         for plot in self.plots:
             if plot_file_name == plot["name"]:
                 self.root.write_text(
-                    "Name of the Plot-File has to be unique for each Plot\n"
+                    "Name of the Plot-File has to be unique for each Plot.\n"
                 )
                 err += 1
-        y_labels = [label.strip() for label in label_y_axes.split(",")]
+                break
+        y_labels = [label.strip() for label in y_axes_names.split(",")]
         if len(y_labels) > 3:
-            self.root.write_text("One Plot can not contain more than 3 lines\n")
+            self.root.write_text("One Plot cannot contain more than 3 lines.\n")
             err += 1
 
         if err > 0:
@@ -436,14 +376,14 @@ class PlotConfigFrame(ttk.Frame):
 
         description = {
             "title": plot_title,
-            "x_axis": label_x_axis,
+            "x_axis": x_axis_name,
             "y_axes": y_labels,
         }
 
         graph_keys = ["show", "save"]
-        graph_values: list = [
-            self.show_checkbutton_value.get(),
-            self.save_checkbutton_value.get(),
+        graph_values: list[bool] = [
+            self.show_plot_value.get(),
+            self.save_plot_value.get(),
         ]
         graph = dict(zip(graph_keys, graph_values, strict=True))
 
@@ -451,40 +391,22 @@ class PlotConfigFrame(ttk.Frame):
             {
                 "name": plot_file_name,
                 "type": plot_type,
-                "mapping": {"x": input_x_axis},
+                "mapping": {"x": x_axis_column},
                 "description": description,
                 "graph": graph,
             }
         )
-        self.update_treeview()
+        self._update_treeview()
 
-        PlotConfigFrame.insert_text(self.plot_file_name_entry, "")
-        PlotConfigFrame.insert_text(self.plot_title_entry, "")
-        PlotConfigFrame.insert_text(self.x_axis_entry, "")
-        PlotConfigFrame.insert_text(self.label_x_axis_entry, "")
-        PlotConfigFrame.insert_text(
-            self.label_y_axes_entry, "separate labels with a comma"
-        )
-        self.label_y_axes_entry.configure(font=self.font_italics)
-        self.show_checkbutton_value.set(False)
-        self.save_checkbutton_value.set(False)
-        self.plot_type_entry.current(0)
-
-    def open_plot(self, plot: dict) -> None:
-        """Open the given Plot in the 'Plot Data' Frame"""
-        PlotConfigFrame.insert_text(self.plot_file_name_entry, plot["name"])
-        PlotConfigFrame.insert_text(self.plot_type_entry, plot["type"])
-        PlotConfigFrame.insert_text(self.x_axis_entry, plot["mapping"]["x"])
-        PlotConfigFrame.insert_text(self.plot_title_entry, plot["description"]["title"])
-        PlotConfigFrame.insert_text(
-            self.label_x_axis_entry, plot["description"]["x_axis"]
-        )
-        PlotConfigFrame.insert_text(
-            self.label_y_axes_entry, ", ".join(plot["description"]["y_axes"])
-        )
-        self.label_y_axes_entry.configure(font=self.font_default)
-        self.show_checkbutton_value.set(plot["graph"]["show"])
-        self.save_checkbutton_value.set(plot["graph"]["save"])
+        self._insert_text(self.plot_file_name_entry, "")
+        self._insert_text(self.plot_title_entry, "")
+        self._insert_text(self.x_axis_column_entry, "")
+        self._insert_text(self.x_axis_name_entry, "")
+        self._insert_text(self.y_axes_names_entry, "separate labels with a comma")
+        self.y_axes_names_entry.configure(font=self.italic_font)
+        self.show_plot_value.set(False)
+        self.save_plot_value.set(False)
+        self.plot_type_combobox.current(0)
 
     def add_line_cb(self) -> None:
         """Add the Input-Data for the Line to the selected Plot from the Table"""
@@ -497,7 +419,7 @@ class PlotConfigFrame(ttk.Frame):
             self.root.write_text(str(e))
             return
         if parent_plot != selected_item:
-            self.root.write_text("The selected item has to be a Plot\n")
+            self.root.write_text("Please select a Plot.\n")
             return
 
         line_key = ""
@@ -506,15 +428,15 @@ class PlotConfigFrame(ttk.Frame):
                 line_key = line
                 break
         if line_key == "":
-            self.root.write_text("A Plot can only contain 3 lines\n")
+            self.root.write_text("A Plot cannot contain more than 3 lines.\n")
             return
-        input_column = self.y_axis_entry.get().strip()
-        label = self.label_line_entry.get().strip()
+        input_column = self.y_axis_column_entry.get().strip()
+        label = self.line_name_entry.get().strip()
         min_value = self.min_value_entry.get().strip()
         max_value = self.max_value_entry.get().strip()
         err = 0
         if input_column == "":
-            self.root.write_text("Input columns for y-axis has to be given\n")
+            self.root.write_text("Please provide an input column for the y-axis.\n")
             err += 1
         line_dict: dict[str, list | str | float] = {"input": [input_column]}
         if label not in ("optional", ""):
@@ -523,57 +445,65 @@ class PlotConfigFrame(ttk.Frame):
             try:
                 line_dict["min"] = float(min_value)
             except ValueError:
-                self.root.write_text("Minimum y-value has to be given as a number\n")
+                self.root.write_text("Minimum y-value has to be a number.\n")
                 err += 1
         if max_value not in ("optional", ""):
             try:
                 line_dict["max"] = float(max_value)
             except ValueError:
-                self.root.write_text("Maximum y-value has to be given as a number\n")
+                self.root.write_text("Maximum y-value has to be a number.\n")
                 err += 1
         if err > 0:
             return
         self.plots[index]["mapping"][line_key] = line_dict
 
         try:
-            self.update_treeview()
+            self._update_treeview()
         except tk.TclError as e:
             self.root.write_text(str(e))
             del self.plots[index]["mapping"][line_key]
             return
 
-        PlotConfigFrame.insert_text(self.y_axis_entry, "")
-        PlotConfigFrame.insert_text(self.label_line_entry, "optional")
-        PlotConfigFrame.insert_text(self.min_value_entry, "optional")
-        PlotConfigFrame.insert_text(self.max_value_entry, "optional")
-        self.label_line_entry.configure(font=self.font_italics)
-        self.min_value_entry.configure(font=self.font_italics)
-        self.max_value_entry.configure(font=self.font_italics)
+        self._insert_text(self.y_axis_column_entry, "")
+        self._insert_text(self.line_name_entry, "optional")
+        self._insert_text(self.min_value_entry, "optional")
+        self._insert_text(self.max_value_entry, "optional")
+        self.line_name_entry.configure(font=self.italic_font)
+        self.min_value_entry.configure(font=self.italic_font)
+        self.max_value_entry.configure(font=self.italic_font)
+
+    def open_plot(self, plot: dict) -> None:
+        """Open plot in the 'Plot Data' Frame"""
+        self._insert_text(self.plot_file_name_entry, plot["name"])
+        self._insert_text(self.plot_type_combobox, plot["type"])
+        self._insert_text(self.x_axis_column_entry, plot["mapping"]["x"])
+        self._insert_text(self.plot_title_entry, plot["description"]["title"])
+        self._insert_text(self.x_axis_name_entry, plot["description"]["x_axis"])
+        self._insert_text(
+            self.y_axes_names_entry, ", ".join(plot["description"]["y_axes"])
+        )
+        self.y_axes_names_entry.configure(font=self.text_font)
+        self.show_plot_value.set(plot["graph"]["show"])
+        self.save_plot_value.set(plot["graph"]["save"])
 
     def open_line(self, line: dict) -> None:
-        """Open the given Line in the 'Line Data' Frame"""
-        PlotConfigFrame.insert_text(self.y_axis_entry, line["input"][0])
-        labels = ""
-        min_value = ""
-        max_value = ""
+        """Open line in the 'Line Data' Frame"""
+        self._insert_text(self.y_axis_column_entry, line["input"][0])
         if "min" in line:
-            min_value = line["min"]
+            self._insert_text(self.min_value_entry, line["min"])
+            self.min_value_entry.configure(font=self.text_font)
         if "max" in line:
-            max_value = line["max"]
+            self._insert_text(self.max_value_entry, line["max"])
+            self.max_value_entry.configure(font=self.text_font)
         if "labels" in line:
-            labels = line["labels"][0]
-        PlotConfigFrame.insert_text(self.min_value_entry, min_value)
-        PlotConfigFrame.insert_text(self.max_value_entry, max_value)
-        PlotConfigFrame.insert_text(self.label_line_entry, labels)
-        self.min_value_entry.configure(font=self.font_default)
-        self.max_value_entry.configure(font=self.font_default)
-        self.label_line_entry.configure(font=self.font_default)
+            self._insert_text(self.line_name_entry, line["labels"][0])
+            self.line_name_entry.configure(font=self.text_font)
 
     def get_selected_item(self) -> tuple[str, str, int] | None:
-        """Gets the selected item"""
-        selected_item = self.plot_treeview.focus()
+        """Extract the selected item from the treeview"""
+        selected_item = self.plots_treeview.focus()
         if selected_item == "":
-            self.root.write_text("Select an item from the table\n")
+            self.root.write_text("Please select an item.\n")
             return None
 
         if ("_" in selected_item) and selected_item.split("_")[-1] in (
@@ -581,7 +511,7 @@ class PlotConfigFrame(ttk.Frame):
             "y2",
             "y3",
         ):
-            parent_plot = self.plot_treeview.parent(selected_item)
+            parent_plot = self.plots_treeview.parent(selected_item)
             selected_item = selected_item.split("_")[-1]
         else:
             parent_plot = selected_item
@@ -589,11 +519,11 @@ class PlotConfigFrame(ttk.Frame):
         for index, plot in enumerate(self.plots):
             if parent_plot == plot["name"]:
                 return parent_plot, selected_item, index
-        err = "Item could not be found\n"
+        err = "Item could not be found.\n"
         raise ValueError(err)
 
     def open_selected_item_cb(self) -> None:
-        """Gets the selected item and executes the corresponding function"""
+        """Get the selected item and executes the corresponding function"""
         try:
             items = self.get_selected_item()
             if items is None:
@@ -608,7 +538,7 @@ class PlotConfigFrame(ttk.Frame):
             self.open_line(self.plots[index]["mapping"][selected_item])
 
     def remove_selected_item_cb(self) -> None:
-        """Gets the selected item and removes it"""
+        """Get the selected item and remove it"""
         try:
             items = self.get_selected_item()
             if items is None:
@@ -620,15 +550,13 @@ class PlotConfigFrame(ttk.Frame):
         if parent_plot == selected_item:
             self.plots.pop(index)
         else:
-            PlotConfigFrame.remove_line_from_plot(
-                self.plots[index]["mapping"], selected_item
-            )
-        self.update_treeview()
+            self._remove_line_from_plot(self.plots[index]["mapping"], selected_item)
+        self._update_treeview()
 
     def generate_plot_config_cb(self) -> None:
         """Generate plot configuration file"""
         if len(self.plots) == 0:
-            self.root.write_text("Add Plots to generate a Plot Configuration File\n")
+            self.root.write_text("Please add Plots.\n")
             return
         for plot in self.plots:
             if (
@@ -636,40 +564,40 @@ class PlotConfigFrame(ttk.Frame):
                 and ("y2" not in plot["mapping"])
                 and ("y3" not in plot["mapping"])
             ):
-                self.root.write_text("Every Plot has to contain at least one line\n")
+                self.root.write_text("Every Plot has to contain at least one line.\n")
                 return
         plot_file_path = self.file_path_entry.get().strip()
         if (plot_file_path == "") or (" " in plot_file_path):
             self.root.write_text(
-                "Path of the Plot Configuration File has to be given as a valid path\n"
+                "Path of the Plot Configuration File has to be given as a valid path.\n"
             )
             return
         Path(plot_file_path).parent.absolute().mkdir(parents=True, exist_ok=True)
-        with open(plot_file_path, mode="w", encoding="utf-8") as f:
-            json.dump(self.plots, f)
+        with open(plot_file_path, mode="w", encoding="utf-8") as file:
+            json.dump(self.plots, file)
         self.root.write_text(
-            f"Plot Configuration File has been saved in {plot_file_path}\n"
+            f"Plot Configuration File has been saved in '{plot_file_path}'.\n"
         )
-        self.root.tab_plot.plot_config_entry.delete(0, tk.END)
-        self.root.tab_plot.plot_config_entry.insert(tk.END, str(plot_file_path))
+        self.root.run_plot_tab.plot_config_entry.delete(0, tk.END)
+        self.root.run_plot_tab.plot_config_entry.insert(tk.END, str(plot_file_path))
 
-    def update_treeview(self) -> None:
-        """Remove all elements from the treeview and read from self.plots"""
-        for item in self.plot_treeview.get_children():
-            self.plot_treeview.delete(item)
+    def _update_treeview(self) -> None:
+        """Remove all elements from the treeview and insert all elements from self.plots"""
+        for item in self.plots_treeview.get_children():
+            self.plots_treeview.delete(item)
 
         for plot in self.plots:
-            self.plot_treeview.insert("", tk.END, plot["name"], text=plot["name"])
+            self.plots_treeview.insert("", tk.END, plot["name"], text=plot["name"])
             for key, line in plot["mapping"].items():
                 if key in ("y1", "y2", "y3"):
                     line_input = line["input"][0]
-                    self.plot_treeview.insert(
+                    self.plots_treeview.insert(
                         plot["name"], tk.END, line_input + "_" + key, text=line_input
                     )
-                    self.plot_treeview.item(plot["name"], open=True)
+                    self.plots_treeview.item(plot["name"], open=True)
 
     @staticmethod
-    def remove_line_from_plot(mapping: dict[str, str | dict], key: str) -> None:
+    def _remove_line_from_plot(mapping: dict[str, str | dict], key: str) -> None:
         """Remove the given Line and adjust the keys if necessary"""
         if key == "y3":
             del mapping[key]
@@ -690,7 +618,7 @@ class PlotConfigFrame(ttk.Frame):
                 del mapping["y1"]
 
     @staticmethod
-    def insert_text(tkinter_obj: ttk.Entry, input_str: str) -> None:
-        """Delete the content of the object and insert the input"""
-        tkinter_obj.delete(0, tk.END)
-        tkinter_obj.insert(tk.END, input_str)
+    def _insert_text(entry_obj: ttk.Entry, input_str: str) -> None:
+        """Delete the content and insert the input"""
+        entry_obj.delete(0, tk.END)
+        entry_obj.insert(tk.END, input_str)

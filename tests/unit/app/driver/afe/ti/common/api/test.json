@@ -1,0 +1,29 @@
+[
+  {
+    "source": "src/app/driver/afe/ti/common/api/ti_bq79xxx_afe_dma.c",
+    "test": "test_ti_bq79xxx_afe_dma.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/mcu",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/app/task/os"
+    ],
+    "mocks": [
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TI=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

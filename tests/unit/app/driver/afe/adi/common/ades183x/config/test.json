@@ -1,0 +1,24 @@
+[
+  {
+    "source": "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.c",
+    "test": "test_adi_ades183x_cfg.c",
+    "includes": [
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/config",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api"
+    ],
+    "mocks": [
+      "src/app/driver/ts/api/tsi.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  }
+]

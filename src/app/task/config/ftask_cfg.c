@@ -43,17 +43,22 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
  * @brief   Task configuration
- * @details TODO
+ * @details This module instantiates the configured task definitions and
+ *          provides the user-code functions executed by the tasks.
+ *          It ties the generic task framework to the concrete application
+ *          modules that are scheduled during runtime.
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
 
 #include "ftask_cfg.h"
 
@@ -66,6 +71,7 @@
 #include "adc.h"
 #include "algorithm.h"
 #include "bal.h"
+#include "bms-values.h"
 #include "bms.h"
 #include "can.h"
 #include "contactor.h"
@@ -81,7 +87,6 @@
 #include "master_info.h"
 #include "meas.h"
 #include "pex.h"
-#include "redundancy.h"
 #include "rtc.h"
 #include "sbc.h"
 #include "sof_trapezoid.h"
@@ -90,7 +95,7 @@
 #include "state_estimation.h"
 #include "sys.h"
 #include "sys_mon.h"
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 #include "os.h"
 #include "uart.h"
 #endif
@@ -152,7 +157,7 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c = {
     FTSK_TASK_I2C_CYCLE_TIME,
     FTSK_TASK_I2C_STACK_SIZE_IN_BYTES,
     FTSK_TASK_I2C_PV_PARAMETERS};
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
     FTSK_TASK_AFE_PRIORITY,
     FTSK_TASK_AFE_PHASE,
@@ -161,7 +166,7 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
     FTSK_TASK_AFE_PV_PARAMETERS};
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 OS_TASK_DEFINITION_s ftsk_taskDefinitionUart = {
     FTSK_TASK_UART_PRIORITY,
     FTSK_TASK_UART_PHASE,
@@ -229,8 +234,7 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     SPS_Initialize();
     (void)MEAS_Initialize();
 
-    /* Initialize redundancy module */
-    (void)MRC_Initialize();
+    BMSVL_Initialize();
 
     /* This function operates under the assumption that it is called when
      * the operating system is not yet running.
@@ -249,7 +253,7 @@ extern void FTSK_RunUserCodeCyclic1ms(void) {
     OS_IncrementTimer();
     DIAG_UpdateFlags();
     /* user code */
-#if (FOXBMS_AFE_DRIVER_TYPE_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_FSM) && (FOXBMS_AFE_DRIVER_TYPE_FSM == 1)
     MEAS_Control();
 #endif
     CAN_ReadRxBuffer();
@@ -269,8 +273,7 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     SBC_Trigger(&sbc_stateMcuSupervisor);
 
     if (ftsk_cyclic10msCounter == TASK_10MS_COUNTER_FOR_50MS) {
-        MRC_ValidateAfeMeasurement();
-        MRC_ValidatePackMeasurement();
+        BMSVL_UpdateSystemValues();
         ftsk_cyclic10msCounter = 0;
     }
     /* Call BMS_Trigger function at the end of the 10ms task to allow previously
@@ -285,10 +288,9 @@ extern void FTSK_RunUserCodeCyclic100ms(void) {
     /* user code */
     static uint8_t ftsk_cyclic100msCounter = 0;
 
-    /** Perform SOC and SOE calculations only every 1s. Not suited if analog
-     *  integration of current sensor is NOT used. Manual integration of current
-     *  requires a higher frequency.
-     */
+    /* Perform SOC and SOE calculations only every 1s. Not suited if analog
+     * integration of current sensor is NOT used. Manual integration of current
+     * requires a higher frequency. */
     if (ftsk_cyclic100msCounter == TASK_100MS_COUNTER_FOR_1S) {
         SE_RunStateEstimations();
         ftsk_cyclic100msCounter = 0;
@@ -316,18 +318,18 @@ void FTSK_RunUserCodeI2c(void) {
     PEX_Trigger();
     HTSEN_Trigger();
     RTC_Trigger();
-    uint32_t current_time = OS_GetTickCount();
-    OS_DelayTaskUntil(&current_time, 2u);
+    uint32_t currentTime = OS_GetTickCount();
+    OS_DelayTaskUntil(&currentTime, 2u);
 }
 
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 void FTSK_RunUserCodeAfe(void) {
     /* user code */
     MEAS_Control();
 }
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 void FTSK_RunUserCodeUart(void) {
     /* user code */
 

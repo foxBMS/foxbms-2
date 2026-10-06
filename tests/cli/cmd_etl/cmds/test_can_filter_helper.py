@@ -54,7 +54,7 @@ try:
         run_filter,
         validate_filter_config,
     )
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
     from cli.cmd_etl.cmds.can_filter_helper import (
@@ -63,7 +63,7 @@ except ModuleNotFoundError:
         run_filter,
         validate_filter_config,
     )
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 
 
 class TestCANFilterSetup(unittest.TestCase):
@@ -173,7 +173,7 @@ class TestValidateFilterConfig(unittest.TestCase):
 class TestSanitizeArgs(unittest.TestCase):
     """Tests _sanitize_args method"""
 
-    def test__sanitize_args_use_std_streams(self):
+    def test__sanitize_args_use_std_streams(self) -> None:
         """Exit with error message on invalid input file."""
         _err, _out = io.StringIO(), io.StringIO()
         filter_obj = Mock()
@@ -183,7 +183,7 @@ class TestSanitizeArgs(unittest.TestCase):
             _sanitize_args(filter_obj)
         # nothing shall happen
 
-    def test__sanitize_args_output_directory_not_writeable(self):
+    def test__sanitize_args_output_directory_not_writeable(self) -> None:
         """Output directory not writeable."""
         _err, _out = io.StringIO(), io.StringIO()
         filter_obj = Mock()
@@ -203,7 +203,7 @@ class TestSanitizeArgs(unittest.TestCase):
         self.assertRegex(err, r"Directory '.*[\\\/]foxbms-2' is not writeable.\n")
         self.assertEqual(out, "")
 
-    def test__sanitize_args_output_file_not_writeable(self):
+    def test__sanitize_args_output_file_not_writeable(self) -> None:
         """Output file not writeable."""
         _err, _out = io.StringIO(), io.StringIO()
         filter_obj = Mock()
@@ -224,7 +224,7 @@ class TestSanitizeArgs(unittest.TestCase):
         self.assertRegex(err, r"'.*[\\\/]foxbms-2[\\\/]foo.txt' is not writeable.")
         self.assertEqual(out, "")
 
-    def test__sanitize_args_input_file_does_not_exist(self):
+    def test__sanitize_args_input_file_does_not_exist(self) -> None:
         """Input files does not exist."""
         _err, _out = io.StringIO(), io.StringIO()
         filter_obj = Mock()
@@ -245,7 +245,7 @@ class TestSanitizeArgs(unittest.TestCase):
         self.assertEqual(out, "")
 
     @patch("builtins.open", side_effect=[IOError])
-    def test__sanitize_args_input_file_not_readable(self, *_):
+    def test__sanitize_args_input_file_not_readable(self, _open: MagicMock) -> None:
         """Input file not readable."""
         _err, _out = io.StringIO(), io.StringIO()
         filter_obj = Mock()
@@ -266,7 +266,7 @@ class TestSanitizeArgs(unittest.TestCase):
         self.assertEqual(out, "")
 
     @patch("builtins.open", new_callable=mock_open, read_data="foo")
-    def test__sanitize_args_input_file_readable(self, *_):
+    def test__sanitize_args_input_file_readable(self, _open: MagicMock) -> None:
         """Input file readable."""
         _err, _out = io.StringIO(), io.StringIO()
         filter_obj = Mock()
@@ -284,7 +284,7 @@ class TestSanitizeArgs(unittest.TestCase):
 class TestRunFilter(unittest.TestCase):
     """Tests run_filter method"""
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         if hasattr(self, "tmp_file"):
             if self.tmp_file.is_file():
                 self.tmp_file.unlink()
@@ -349,7 +349,7 @@ class TestRunFilter(unittest.TestCase):
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.open", new_callable=mock_open, read_data="line1\nline2\nline3\n")
     def test_run_filter_using_file_and_stdout(
-        self, _, stdout: StringIO, is_file: Mock
+        self, _open: MagicMock, stdout: StringIO, is_file: MagicMock
     ) -> None:
         """Read from file and write to stdout"""
         # case 3/4 in source
@@ -366,7 +366,7 @@ class TestRunFilter(unittest.TestCase):
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.open", new_callable=mock_open, read_data="line1\nline2\nline3\n")
     def test_run_filter_using_file_but_writing_to_stdout_fails(
-        self, _open, stdout: StringIO, _: Mock
+        self, _open: MagicMock, stdout: StringIO, _: MagicMock
     ) -> None:
         """Read from file and write to stdout"""
         # case 3/4 in source

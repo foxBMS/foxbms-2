@@ -23,9 +23,9 @@ Added
 - The CAN driver has been improved.
   The implementation of cyclic and asynchronously message is split into
   separate files to simplify the maintainability and addition of new messages
-  (see :ref:`HOW_TO_USE_THE_CAN_MODULE`).
+  (see :ref:`HOW_TO_USE_THE_CAN_DRIVER`).
 - The implementation of macros that compose a CAN message has been made
-  consistently (see :ref:`HOW_TO_USE_THE_CAN_MODULE`).
+  consistently (see :ref:`HOW_TO_USE_THE_CAN_DRIVER`).
 - The ``f_DebugBuildConfiguration`` message was added.
   It transmits the contents of the files ``battery_system_cfg.c``,
   ``battery_cell_cfg.c`` and ``bms.json``.

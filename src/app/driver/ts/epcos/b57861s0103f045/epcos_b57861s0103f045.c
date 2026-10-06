@@ -43,8 +43,8 @@
  * @file    epcos_b57861s0103f045.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -161,7 +161,7 @@ static uint16_t ts_b57861s0103f045LutSize = sizeof(ts_b57861s0103f045Lut) / size
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TS_Epc01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
+extern int16_t TS_Epc01GetTemperatureFromLut(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     int16_t temperature_ddegC = 0;
     float_t resistance_Ohm    = 0.0f;
     float_t adcVoltage_V      = adcVoltage_mV / 1000.0f; /* Convert mV to V */
@@ -179,11 +179,11 @@ extern int16_t TS_Epc01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     (TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         resistance_Ohm = TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                         ((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
+                         ((supplyVoltage_V / adcVoltage_V) - 1.0f);
 #else  /* TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
         /* R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
         resistance_Ohm = TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                         (adcVoltage_V / (TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
+                         (adcVoltage_V / (supplyVoltage_V - adcVoltage_V));
 #endif /* TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
@@ -212,10 +212,13 @@ extern int16_t TS_Epc01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     return temperature_ddegC;
 }
 
-extern int16_t TS_Epc01GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+extern int16_t TS_Epc01GetTemperatureFromPolynomial(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
+    /* Trap if supply voltage is not equal to the referenced Voltage on which the polynomial is calculated */
+    FAS_ASSERT(supplyVoltage_V == 3.0);
+
     /* cspell:ignore vadc */
     float_t temperature_degC = 0.0f;
-    float_t vadc_V           = adcVoltage_mV / 1000.0f;
+    float_t vadc_V           = adcVoltage_mV / UNIT_CONVERSION_FACTOR_1000_FLOAT;
     float_t vadc2            = vadc_V * vadc_V;
     float_t vadc3            = vadc2 * vadc_V;
     float_t vadc4            = vadc3 * vadc_V;

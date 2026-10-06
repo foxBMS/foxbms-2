@@ -56,31 +56,51 @@ except ModuleNotFoundError:
 class TestFoxCliMainCommandMisc(unittest.TestCase):
     """Test of the 'misc' commands and options."""
 
-    def test_misc_without_subcommand_prints_help(self):
+    def test_misc_without_subcommand_prints_help(self) -> None:
         """Test 'fox.py misc' command shows help text."""
         runner = CliRunner()
         result = runner.invoke(main, ["misc"])
         self.assertEqual(0, result.exit_code)
         self.assertIn("Usage:", result.stdout)
 
+    @patch("cli.commands.c_misc.open_cli_unit_test_report")
+    def test_misc_ut_cli(self, mock_open_cli_unit_test_report: MagicMock) -> None:
+        """Test 'fox.py misc ut-er' command."""
+        mock_open_cli_unit_test_report.return_value = None
+        runner = CliRunner()
+        result = runner.invoke(main, ["misc", "ut-cli"])
+        self.assertEqual(0, result.exit_code)
+        self.assertEqual("", result.stdout)
+        self.assertEqual("", result.stderr)
+
+    @patch("cli.commands.c_misc.open_embedded_unit_test_report")
+    def test_misc_ut_er(self, mock_open_embedded_unit_test_report: MagicMock) -> None:
+        """Test 'fox.py misc ut-er' command."""
+        mock_open_embedded_unit_test_report.return_value = None
+        runner = CliRunner()
+        result = runner.invoke(main, ["misc", "ut-er"])
+        self.assertEqual(0, result.exit_code)
+        self.assertEqual("", result.stdout)
+        self.assertEqual("", result.stderr)
+
     @patch("cli.commands.c_misc.get_prefixes")
-    def test_misc_list_prefixes(self, mock_get_prefixes: MagicMock):
-        """Test 'fox.py misc --list-prefixes' command."""
+    def test_misc_list_prefixes(self, mock_get_prefixes: MagicMock) -> None:
+        """Test 'fox.py misc list-prefixes' command."""
         mock_get_prefixes.return_value = ["ABC", "DEF"]
         runner = CliRunner()
-        result = runner.invoke(main, ["misc", "--list-prefixes"])
+        result = runner.invoke(main, ["misc", "list-prefixes"])
         self.assertEqual(0, result.exit_code)
         self.assertEqual("ABC\nDEF\n", result.stdout)
 
     @patch("cli.commands.c_misc.lint_freertos")
-    def test_misc_uncrustify_freertos(self, mock_lint_freertos: MagicMock):
+    def test_misc_uncrustify_freertos(self, mock_lint_freertos: MagicMock) -> None:
         """Build documentation example code"""
         mock_lint_freertos.return_value = 0
         runner = CliRunner()
         result = runner.invoke(main, ["misc", "uncrustify-freertos"])
         self.assertEqual(0, result.exit_code)
 
-    def test_misc_verify_checksum_no_files(self):
+    def test_misc_verify_checksum_no_files(self) -> None:
         """Build documentation example code"""
         runner = CliRunner()
         result = runner.invoke(main, ["misc", "verify-checksum", "xyz"])
@@ -88,7 +108,7 @@ class TestFoxCliMainCommandMisc(unittest.TestCase):
         self.assertIn("No files provided.", result.stderr)
 
     @patch("cli.commands.c_misc.verify")
-    def test_misc_verify_checksum(self, mock_verify: MagicMock):
+    def test_misc_verify_checksum(self, mock_verify: MagicMock) -> None:
         """Build documentation example code"""
         mock_verify.return_value = 0
         runner = CliRunner()
@@ -98,11 +118,24 @@ class TestFoxCliMainCommandMisc(unittest.TestCase):
         self.assertEqual(0, result.exit_code)
 
     @patch("cli.commands.c_misc.check_repository_depth")
-    def test_check_repository_depth(self, mock_check_repository_depth: MagicMock):
+    def test_check_repository_depth(
+        self, mock_check_repository_depth: MagicMock
+    ) -> None:
         """Test 'fox.py misc check-repository-depth' command."""
         mock_check_repository_depth.return_value = 0
         runner = CliRunner()
         result = runner.invoke(main, ["misc", "check-repository-depth"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_misc.run_plot_periods")
+    def test_misc_plot_periods(self, mock_run_plot_periods: MagicMock) -> None:
+        """Test 'fox.py misc plot-periods' command."""
+        mock_run_plot_periods.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(
+            main,
+            ["misc", "plot-periods", str(Path(__file__)), "0x123"],
+        )
         self.assertEqual(0, result.exit_code)
 
 

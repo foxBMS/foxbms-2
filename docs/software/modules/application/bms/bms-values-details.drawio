@@ -1,0 +1,132 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Page-1" id="d3kr_7ILpzaN7meWo4F9">
+    <mxGraphModel dx="2364" dy="-30" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="bKxEFLSg_LCiLVUafFyg-5" target="KFtBL0jW_fKQvgM_sRZN-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bKxEFLSg_LCiLVUafFyg-5" value="BMSVL_UpdateSystemValues" style="text;whiteSpace=wrap;align=center;fontStyle=1;fontSize=17;" parent="1" vertex="1">
+          <mxGeometry x="-690" y="860" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-8" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-4" target="KFtBL0jW_fKQvgM_sRZN-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-44" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-4" target="KFtBL0jW_fKQvgM_sRZN-42">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-370" y="1060" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-49" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="KFtBL0jW_fKQvgM_sRZN-44">
+          <mxGeometry x="-0.4208" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-4" value="redundant cell&lt;div&gt;voltage&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;and&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;temperature&lt;/span&gt;&lt;div&gt;measurement&lt;/div&gt;&lt;div&gt;support&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-645" y="1000" width="170" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-7" target="KFtBL0jW_fKQvgM_sRZN-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-7" value="Copy from from *Base-entry to validated entry" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1160.5" width="175" height="39" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-9" target="KFtBL0jW_fKQvgM_sRZN-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-9" target="KFtBL0jW_fKQvgM_sRZN-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-9" value="Read Database entries" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-620" y="930" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-14" value="DATA_BLOCK_CURRENT_s&#xa;DATA_BLOCK_SYSTEM_VOLTAGE_1_s&#xa;DATA_BLOCK_SYSTEM_VOLTAGE_3_s&#xa;DATA_BLOCK_POWER_s&#xa;DATA_BLOCK_MIN_MAX_s" style="text;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="-475" y="910" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-16" target="KFtBL0jW_fKQvgM_sRZN-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-16" value="Read *BASE entries of cell voltage and temperature" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1080" width="175" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-19" value="DATA_BLOCK_ID_CELL_VOLTAGE_BASE&lt;div&gt;DATA_BLOCK_ID_CELL_TEMPERATURE_BASE&lt;br&gt;&lt;/div&gt;" style="text;whiteSpace=wrap;html=1;rotation=0;align=right;" vertex="1" parent="1">
+          <mxGeometry x="-1160" y="1090" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-19" target="KFtBL0jW_fKQvgM_sRZN-16">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-490" y="950" as="sourcePoint" />
+            <mxPoint x="-425" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-22" value="DATA_BLOCK_ID_CELL_VOLTAGE&lt;div&gt;DATA_BLOCK_ID_CELL_TEMPERATURE&lt;br&gt;&lt;/div&gt;" style="text;whiteSpace=wrap;html=1;rotation=0;align=right;" vertex="1" parent="1">
+          <mxGeometry x="-1160" y="1160" width="270" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-22" target="KFtBL0jW_fKQvgM_sRZN-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-960" y="990" as="sourcePoint" />
+            <mxPoint x="-860" y="1089" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-24" target="KFtBL0jW_fKQvgM_sRZN-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-24" value="Derive (validated) minimum, maximum and avergage cell voltage and temperature data" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1219" width="175" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-26" target="KFtBL0jW_fKQvgM_sRZN-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-26" value="Validate current measurement&amp;nbsp;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1299" width="175" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-27" target="KFtBL0jW_fKQvgM_sRZN-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-27" value="Validate individual string voltage measurement" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1349" width="175" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-28" target="KFtBL0jW_fKQvgM_sRZN-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-28" value="Validate battery voltage measurement" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1399" width="175" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-32" value="Validate high voltage bus measurement" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1449" width="175" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-34" target="KFtBL0jW_fKQvgM_sRZN-41">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-572" y="1630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-34" value="Write BMS-relevant measurement data to database" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="-870" y="1490" width="175" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-35" value="DATA_BLOCK_ID_CELL_VOLTAGE&lt;div&gt;DATA_BLOCK_ID_CELL_TEMPERATURE&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;text-align: left; background-color: initial;&quot;&gt;DATA_BLOCK_PACK_VALUES_s&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;text-align: left; background-color: initial;&quot;&gt;DATA_BLOCK_MIN_MAX_s&lt;/span&gt;&lt;/div&gt;" style="text;whiteSpace=wrap;html=1;rotation=0;align=right;" vertex="1" parent="1">
+          <mxGeometry x="-1160" y="1479.5" width="270" height="71" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-38" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;shape=link;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-35" target="KFtBL0jW_fKQvgM_sRZN-34">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-900" y="1514.96" as="sourcePoint" />
+            <mxPoint x="-880" y="1514.96" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-41" value="" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" vertex="1" parent="1">
+          <mxGeometry x="-584" y="1620" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-48" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="KFtBL0jW_fKQvgM_sRZN-42" target="KFtBL0jW_fKQvgM_sRZN-41">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-300" y="1323" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-300" y="1635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KFtBL0jW_fKQvgM_sRZN-42" value="TODO" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-330" y="1228" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -37,6 +37,24 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+
     bld.recurse("source")
+
+    bld(
+        export_includes=[
+            bld.path.find_node("source"),
+            bld.path.find_node("source/include"),
+            bld.path.find_node("source/portable/BufferManagement"),
+            bld.path.find_node("source/portable/Compiler/CCS"),
+            bld.path.find_node("source/portable/NetworkInterface/Common"),
+            bld.path.find_node("source/portable/NetworkInterface/include"),
+            bld.path.find_node("source/portable/NetworkInterface/loopback"),
+            bld.path.find_node("source/portable/NetworkInterface/tms570lc435"),
+        ],
+        target=f"{ip}rtos-tcp",
+    )

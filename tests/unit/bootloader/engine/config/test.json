@@ -1,0 +1,12 @@
+[
+  {
+    "source": "src/bootloader/engine/config/boot_cfg.c",
+    "test": "test_boot_cfg.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/foxmath",
+      "src/bootloader/engine/config"
+    ]
+  }
+]

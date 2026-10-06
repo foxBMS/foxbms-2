@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_balancing.c
  * @author  foxBMS Team
  * @date    2025-03-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,15 +72,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("nxp_mc33775a_balancing.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x/vendor")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -164,7 +155,7 @@ void testN77x_BalanceControl(void) {
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         uint8_t deviceAddress   = m + 1u;
         uint16_t balancingState = 0u;
-        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
             if (n77x_testState.n77xData.balancingControl->activateBalancing[n77x_testState.currentString][m][cb] ==
                 true) {
                 balancingState |= 1u << cb;
@@ -214,7 +205,7 @@ void testN77x_BalanceControl(void) {
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         uint8_t deviceAddress   = m + 1u;
         uint16_t balancingState = 0u;
-        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
             if (n77x_testState.n77xData.balancingControl->activateBalancing[n77x_testState.currentString][m][cb] ==
                 true) {
                 balancingState |= 1u << cb;

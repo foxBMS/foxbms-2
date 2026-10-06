@@ -1,0 +1,25 @@
+[
+  {
+    "source": "src/app/driver/afe/maxim/common/config/mxm_cfg.c",
+    "test": "test_mxm_cfg.c",
+    "includes": [
+      "src/app/driver/afe/maxim/common/config",
+      "src/app/driver/config",
+      "src/app/driver/io",
+      "src/app/driver/spi",
+      "src/app/engine/diag",
+      "src/os/freertos/freertos/include"
+    ],
+    "mocks": [
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_MAXIM=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+    ]
+  }
+]

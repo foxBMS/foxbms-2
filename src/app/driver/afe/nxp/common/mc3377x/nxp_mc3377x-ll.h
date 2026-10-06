@@ -24,13 +24,20 @@
  * @file    nxp_mc3377x-ll.h
  * @author  NXP
  * @date    2022-07-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
  * @brief   Header for the low level driver for the MC3377X
  * @details TODO
+ */
+
+/*
+ *
+ * Fraunhofer IISB changed the file in order to improve MISRA-C compliance and
+ * to adapt it to the foxBMS coding style. Changes are as follows:
+ * - Remove used types to conform to MISRA-C
  */
 
 #ifndef FOXBMS__NXP_MC3377X_LL_H_
@@ -56,7 +63,7 @@
 /** Error register address */
 #define N77X_ERROR_REGISTER_ADDRESS 0x3FFF
 
-typedef enum N77X_COMMUNICATION_STATUS {
+typedef enum {
     N77X_COMMUNICATION_OK,
     N77X_COMMUNICATION_ERROR_SHORT_MESSAGE,
     N77X_COMMUNICATION_ERROR_WRONG_CRC,

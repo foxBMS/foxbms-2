@@ -36,8 +36,8 @@
  * @file    spi_cfg_mxm.c
  * @author  foxBMS Team
  * @date    2026-02-06 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -66,11 +66,11 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /* cspell:disable */
-/** @struct g_spiPacket
+/**
 *   @brief globals
 *
 */
-static volatile struct g_spiPacket {
+static volatile struct {
     spiDAT1_t g_spiDataFormat;
     uint32 tx_length;
     uint32 rx_length;
@@ -78,7 +78,7 @@ static volatile struct g_spiPacket {
     uint16 *rxdata_ptr;
     SpiDataStatus_t tx_data_status;
     SpiDataStatus_t rx_data_status;
-} g_spiPacket_t[5U];
+} g_spiPacketMxm_t[5U];
 /* cspell:enable */
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -277,8 +277,8 @@ void SPI_InitializeAfeSpecificSpiInterfaces(void) {
                    | (uint32)((uint32)1U << 25U); /* SOMI[1] */
 
     /** - Initialize TX and RX data buffer Status */
-    g_spiPacket_t[0U].tx_data_status = SPI_READY;
-    g_spiPacket_t[0U].rx_data_status = SPI_READY;
+    g_spiPacketMxm_t[0U].tx_data_status = SPI_READY;
+    g_spiPacketMxm_t[0U].rx_data_status = SPI_READY;
 
     /** - Finally start SPI1 */
     spiREG1->GCR1 = (spiREG1->GCR1 & 0xFEFFFFFFU) | 0x01000000U;
@@ -450,8 +450,8 @@ void SPI_InitializeAfeSpecificSpiInterfaces(void) {
                    | (uint32)((uint32)1U << 11U); /* SOMI */
 
     /** - Initialize TX and RX data buffer Status */
-    g_spiPacket_t[3U].tx_data_status = SPI_READY;
-    g_spiPacket_t[3U].rx_data_status = SPI_READY;
+    g_spiPacketMxm_t[3U].tx_data_status = SPI_READY;
+    g_spiPacketMxm_t[3U].rx_data_status = SPI_READY;
 
     /** - Finally start SPI4 */
     spiREG4->GCR1 = (spiREG4->GCR1 & 0xFEFFFFFFU) | 0x01000000U;

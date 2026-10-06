@@ -1,0 +1,96 @@
+[
+  {
+    "source": [
+      "src/app/application/bms/bms-values.c"
+    ],
+    "test": "test_bms-values-redundancy.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/application/redundancy",
+      "tests/unit/support"
+    ],
+    "mocks": [
+      "src/app/application/plausibility/plausibility.h",
+      "src/app/application/redundancy/redundancy.h",
+      "src/app/engine/database/database.h"
+    ],
+    "defines": [
+      "FOXBMS_HAVE_REDUNDANT_V_T_MEASUREMENT=1"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/application/bms/bms-values.c"
+    ],
+    "test": "test_bms-values.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "tests/unit/support"
+    ],
+    "mocks": [
+      "src/app/application/plausibility/plausibility.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/database/database_helper.h"
+    ],
+    "defines": [
+      "FOXBMS_HAVE_REDUNDANT_V_T_MEASUREMENT=0"
+    ],
+    "use": "M"
+  },
+  {
+    "source": [
+      "src/app/application/bms/bms.c",
+      "src/app/driver/config/sps_cfg.c",
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_bms.c",
+    "includes": [
+      "src/app/application/bal",
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/application/soa",
+      "src/app/driver/afe/api",
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/tx-cyclic",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/interlock",
+      "src/app/driver/led",
+      "src/app/driver/meas",
+      "src/app/driver/sps",
+      "src/app/engine/diag",
+      "src/app/engine/sys_mon",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bal/bal.h",
+      "src/app/application/plausibility/plausibility.h",
+      "src/app/application/soa/soa.h",
+      "src/app/driver/afe/api/afe.h",
+      "src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h",
+      "src/app/driver/contactor/contactor.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/driver/interlock/interlock.h",
+      "src/app/driver/led/led.h",
+      "src/app/driver/meas/meas.h",
+      "src/app/driver/sps/sps.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h",
+      "tests/unit/app/application/config/battery_system_cfg.h"
+    ],
+    "defines": [
+      "TEST_BS_NR_OF_STRINGS=2u"
+    ],
+    "use": "M"
+  }
+]

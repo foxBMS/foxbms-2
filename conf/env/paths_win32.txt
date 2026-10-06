@@ -1,5 +1,3 @@
-C:\Bauhaus\7.5.2\bin
-C:\foxbms\Ceedling\1.0.1\bin
 C:\foxbms\Doxygen\1.14.0
 C:\foxbms\draw.io\28.1.2
 C:\foxbms\Graphviz\14.0.0\bin

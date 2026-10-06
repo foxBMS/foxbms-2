@@ -820,6 +820,84 @@ SG_ SensorFaults : 39|5@0+ (1,0) [0|31] "" Vector__XXX
 SG_ RollingCounter : 42|3@0+ (1,0) [0|7] "" Vector__XXX
 SG_ CrcCheckCode : 63|8@0+ (1,0) [0|255] "" Vector__XXX
 
+BO_ 1319 CS_IsabellenhuetteIvtString0Cc: 6 Vector__XXX
+SG_ IVT_Result_As_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_As_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_As_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_As_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_As : 23|32@0- (1,0) [-2147483648|2147483647] "As" Vector__XXX
+SG_ IVT_MsgCount_Result_As : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT_ID_Result_As : 7|8@0+ (1,0) [6|6] "" Vector__XXX
+
+BO_ 1313 CS_IsabellenhuetteIvtString0Curr: 6 Vector__XXX
+SG_ IVT_Result_I_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_I_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_I_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_I_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_ID_Result_I : 7|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ IVT_MsgCount_Result_I : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT_Result_I : 23|32@0- (1,0) [-2147483648|2147483647] "mA" Vector__XXX
+
+BO_ 1320 CS_IsabellenhuetteIvtString0Ec: 6 Vector__XXX
+SG_ IVT_Result_Wh_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_Wh_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_Wh_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_Wh_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
+SG_ IVT_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
+
+BO_ 1318 CS_IsabellenhuetteIvtString0Pwr: 6 Vector__XXX
+SG_ IVT_Result_W_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_W_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_W_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_W_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W" Vector__XXX
+SG_ IVT_MsgCount_Result_W : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT_ID_Result_W : 7|8@0+ (1,0) [5|5] "" Vector__XXX
+
+BO_ 1317 CS_IsabellenhuetteIvtString0Temp: 6 Vector__XXX
+SG_ IVT_Result_T_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_T_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_T_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_T_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
+SG_ IVT_Result_T : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "degC" Vector__XXX
+SG_ IVT_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+
+BO_ 1314 CS_IsabellenhuetteIvtString0V1: 6 Vector__XXX
+SG_ IVT_Result_U1_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U1_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U1_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U1_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_ID_Result_U1 : 7|8@0+ (1,0) [1|1] "" Vector__XXX
+SG_ IVT_Result_U1 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
+SG_ IVT_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+
+BO_ 1315 CS_IsabellenhuetteIvtString0V2: 6 Vector__XXX
+SG_ IVT_Result_U2_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U2_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U2_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U2_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_ID_Result_U2 : 7|8@0+ (1,0) [2|2] "" Vector__XXX
+SG_ IVT_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT_Result_U2 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
+
+BO_ 1316 CS_IsabellenhuetteIvtString0V3: 6 Vector__XXX
+SG_ IVT_Result_U3_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U3_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_Result_U3_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
+SG_ IVT_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
+SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+
+BO_ 962 CS_LemCab500String0: 8 Vector__XXX
+SG_ PRODUCT_NAME : 47|24@0+ (1,0) [0|1] "" Vector__XXX
+SG_ CSM_FAIL : 39|7@0+ (1,0) [0|1] "" Vector__XXX
+SG_ ERROR_INDICATION : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ CSM_BAT_CURRENT_mA : 7|32@0+ (1,0) [0|4294967295] "" Vector__XXX
+
 BO_ 546 f_BmsFatalError: 8 Vector__XXX
 SG_ FatalErrorCode : 7|8@0+ (1,0) [0|255] "" Vector__XXX
 
@@ -1712,7 +1790,13 @@ SG_ InitializeFram m3 : 27|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ RequestRtcTime m4 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ RequestBootTimestamp m4 : 9|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ RequestUptime m5 : 16|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ FramCalibrationChannel m11 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ CalibrationValue11 m11 : 39|32@0- (0.0001,0) [-214748.3648|214748.3647] "" Vector__XXX
 SG_ RequestIdentifyHardware m7 : 15|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ CalibrationChannel9 m9 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ CalibrationChannel8 m8 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ CalibrationChannel10 m10 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ CalibrationValue10 m10 : 39|32@0- (0.0001,0) [-214748.3648|214748.3647] "" Vector__XXX
 
 BO_ 771 f_DebugBuildConfiguration: 8 Vector__XXX
 SG_ f_DebugBuildConfiguration_Mux M : 0|8@1+ (1,0) [0|0] "" Vector__XXX
@@ -1762,13 +1846,6 @@ SG_ ThresholdNoCurrent m51 : 55|12@0+ (1,0) [0|1] "mA" Vector__XXX
 SG_ MainContactorsMaxBreakCurrent m50 : 31|32@0+ (1,0) [0|1] "mA" Vector__XXX
 SG_ NrOfContactors m50 : 23|8@0+ (1,0) [0|1] "" Vector__XXX
 SG_ NrOfContactorsOutsideStrings m50 : 15|8@0+ (1,0) [0|1] "" Vector__XXX
-SG_ StandbyPeriodicOpenWireCheck m54 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ NormalPeriodicOpenWireCheck m54 : 18|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ ChargePeriodicOpenWireCheck m54 : 37|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ StandbyOpenWirePeriod m54 : 14|12@0+ (1,0) [0|4095] "s" Vector__XXX
-SG_ NormalOpenWirePeriod m54 : 17|12@0+ (1,0) [0|4095] "s" Vector__XXX
-SG_ ErrorOpenWirePeriod m54 : 40|12@0+ (1,0) [0|4095] "s" Vector__XXX
-SG_ ChargeOpenWirePeriod m54 : 36|12@0+ (1,0) [0|4095] "s" Vector__XXX
 SG_ CheckFusePlacedInChargePath m52 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ CheckFusePlacedInNormalPath m52 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ MaxVoltageDropOverFuse m52 : 11|12@0+ (1,0) [0|1] "mV" Vector__XXX
@@ -1839,6 +1916,12 @@ SG_ GetBootMonth m14 : 47|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ GetBootSeconds m14 : 8|6@0+ (1,0) [0|63] "" Vector__XXX
 SG_ GetbootWeekday m14 : 39|3@0+ (1,0) [0|7] "" Vector__XXX
 SG_ GetBootYear m14 : 43|7@0+ (1,0) [0|127] "" Vector__XXX
+SG_ MeasurementValue m8 : 39|32@0- (1,0) [-2147483648|2147483647] "" Vector__XXX
+SG_ CalibrationChannel8 m8 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ CalibrationValue9 m9 : 39|32@0- (0.0001,0) [-214748.3648|214748.3647] "" Vector__XXX
+SG_ CalibrationChannel9 m9 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ CalibrationValue10 m10 : 39|32@0- (0.0001,0) [-214748.3648|214748.3647] "" Vector__XXX
+SG_ CalibrationChannel10 m10 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 770 f_DebugUnsupportedMultiplexerVal: 8 Vector__XXX
 SG_ MessageId : 7|32@0+ (1,0) [0|1] "" Vector__XXX
@@ -2092,84 +2175,6 @@ SG_ IC_IMC_SELFTEST_SCR m33 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ IG_IMC_TEST_CNT m90 : 8|16@1+ (1,0) [0|65535] "Calls" Vector__XXX
 SG_ IMD_Response_DataWord2 m0 : 24|16@1+ (1,0) [0|65535] "" Vector__XXX
 SG_ IMD_Response_DataWord1 m0 : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
-
-BO_ 1313 CS_IsabellenhuetteIvtString0Curr: 6 Vector__XXX
-SG_ IVT_Result_I_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_I_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_I_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_I_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_I : 7|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ IVT_MsgCount_Result_I : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_Result_I : 23|32@0- (1,0) [-2147483648|2147483647] "mA" Vector__XXX
-
-BO_ 1319 CS_IsabellenhuetteIvtString0Cc: 6 Vector__XXX
-SG_ IVT_Result_As_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_As_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_As_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_As_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_As : 23|32@0- (1,0) [-2147483648|2147483647] "As" Vector__XXX
-SG_ IVT_MsgCount_Result_As : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_ID_Result_As : 7|8@0+ (1,0) [6|6] "" Vector__XXX
-
-BO_ 1320 CS_IsabellenhuetteIvtString0Ec: 6 Vector__XXX
-SG_ IVT_Result_Wh_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_Wh_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_Wh_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_Wh_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ IVT_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
-
-BO_ 1318 CS_IsabellenhuetteIvtString0Pwr: 6 Vector__XXX
-SG_ IVT_Result_W_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_W_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_W_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_W_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W" Vector__XXX
-SG_ IVT_MsgCount_Result_W : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_ID_Result_W : 7|8@0+ (1,0) [5|5] "" Vector__XXX
-
-BO_ 1317 CS_IsabellenhuetteIvtString0Temp: 6 Vector__XXX
-SG_ IVT_Result_T_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_T_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_T_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_T_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
-SG_ IVT_Result_T : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "degC" Vector__XXX
-SG_ IVT_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-
-BO_ 1314 CS_IsabellenhuetteIvtString0V1: 6 Vector__XXX
-SG_ IVT_Result_U1_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U1_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U1_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U1_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_U1 : 7|8@0+ (1,0) [1|1] "" Vector__XXX
-SG_ IVT_Result_U1 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-SG_ IVT_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-
-BO_ 1315 CS_IsabellenhuetteIvtString0V2: 6 Vector__XXX
-SG_ IVT_Result_U2_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U2_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U2_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U2_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_U2 : 7|8@0+ (1,0) [2|2] "" Vector__XXX
-SG_ IVT_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_Result_U2 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-BO_ 1316 CS_IsabellenhuetteIvtString0V3: 6 Vector__XXX
-SG_ IVT_Result_U3_System_Error : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_Measurement_Error : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
-SG_ IVT_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-
-BO_ 962 CS_LemCab500String0: 8 Vector__XXX
-SG_ PRODUCT_NAME : 47|24@0+ (1,0) [0|1] "" Vector__XXX
-SG_ CSM_FAIL : 39|7@0+ (1,0) [0|1] "" Vector__XXX
-SG_ ERROR_INDICATION : 32|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ CSM_BAT_CURRENT_mA : 7|32@0+ (1,0) [0|4294967295] "" Vector__XXX
 
 CM_ BO_ 640 "Cell temperature measurement data (in:can_cbs_rx_afe_cell-temperatures.c:CANRX_CellTemperatures, fv:rx, type:Cell Information)";
 CM_ SG_ 640 CellTemperature_000 "Temperature of cell 0";
@@ -2570,6 +2575,25 @@ CM_ SG_ 624 CellVoltage_213 "Voltage of cell 213";
 CM_ SG_ 624 CellVoltage_214 "Voltage of cell 214";
 CM_ SG_ 624 CellVoltage_215 "Voltage of cell 215";
 CM_ BO_ 964 "(in:can_cbs_rx_as_honeywell-bas6c-x00.c:CANRX_AsHoneywellBas6cX00, fv:rx, type:Aerosol Sensor)";
+CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
+CM_ SG_ 2147483904 IVT_HVBattery_Status "Status of measured battery voltage";
+CM_ SG_ 2147483904 IVT_HVBattery "Measured battery voltage";
+CM_ SG_ 2147483904 IVT_Current_Status "Status of current measurement";
+CM_ SG_ 2147483904 IVT_Current "Measured current value";
+CM_ SG_ 2147483911 IVT_ShuntTemp_Status "Status of shunt temperature measurement";
+CM_ SG_ 2147483911 IVT_ShuntTemp "Measured temperature of the shunt";
+CM_ BO_ 962 "LEM Current Sensor (in:can_cbs_rx_cs_lem-cab500.c:CANRX_CsLemCab500, fv:rx, type:Current Sensor)";
+CM_ SG_ 962 PRODUCT_NAME "CAB5 Product name";
+CM_ SG_ 962 CSM_FAIL "Error information";
+CM_ SG_ 962 ERROR_INDICATION "Error flag to validate sent current";
+CM_ SG_ 962 CSM_BAT_CURRENT_mA "Battery current field uses 0x80000000 as zero value, 0x7FFFFFFF as -1 mA and 0x80000001 as 1mA";
 CM_ BO_ 546 "Message contains the fatal error code (in:can_cbs_tx_f_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)";
 CM_ BO_ 544 "Message contains general BMS state information (in:can_cbs_tx_f_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)";
 CM_ SG_ 544 BmsState "Shows the internal state of the BMS state machine";
@@ -3040,6 +3064,10 @@ CM_ SG_ 768 InitializeFram "Instructs the BMS to initialize the FRAM";
 CM_ SG_ 768 RequestRtcTime "Instructs the BMS to communicate its current time";
 CM_ SG_ 768 RequestBootTimestamp "Instructs the BMS to communicate its current boot timestamp";
 CM_ SG_ 768 RequestUptime "Instructs the BMS to communicate its current uptime";
+CM_ SG_ 768 FramCalibrationChannel "Set the calibration channel";
+CM_ SG_ 768 CalibrationValue11 "Set slope calibration value";
+CM_ SG_ 768 CalibrationChannel10 "Set the calibration channel";
+CM_ SG_ 768 CalibrationValue10 "Set offset calibration value";
 CM_ BO_ 771 "Contains the build configuration (in:can_cbs_tx_f_debug-build-configuration.c:CANTX_DebugBuildConfiguration, fv:tx, type:Debug)";
 CM_ BO_ 772 "Contains the hardware identifications (in:can_cbs_tx_f_debug-identify-hardware.c:CANTX_DebugIdentifyHardware, fv:tx, type:Debug)";
 CM_ BO_ 769 "Responses to the 'Debug' message (in:can_cbs_tx_f_debug-response.c:CANTX_DebugResponse, fv:tx, type:Debug)";
@@ -3048,6 +3076,12 @@ CM_ SG_ 769 CoordinateX "x coordinate of the MCU die on the wafer (read from DIE
 CM_ SG_ 769 CoordinateY "y coordinate of the MCU die on the wafer (read from DIEIDL register)";
 CM_ SG_ 769 LotNumber "lot number of the MCU (read from DIEIDH register)";
 CM_ SG_ 769 UniqueId "Content of Device Identification Register (DEVID)";
+CM_ SG_ 769 MeasurementValue "Set the calibration value";
+CM_ SG_ 769 CalibrationChannel8 "Set the calibration channel";
+CM_ SG_ 769 CalibrationValue9 "Configured slope calibration value";
+CM_ SG_ 769 CalibrationChannel9 "Set the calibration channel";
+CM_ SG_ 769 CalibrationValue10 "Configured offset calibration value";
+CM_ SG_ 769 CalibrationChannel10 "Set the calibration channel";
 CM_ BO_ 770 "(in:can_cbs_tx_f_debug-unsupported-multiplexer-values.c:CANTX_DebugUnsupportedMultiplexerVal, fv:tx, type:Debug)";
 CM_ BO_ 562 "Electrical limit information (in:can_cbs_tx_f_pack-limits.c:CANTX_PackLimits, fv:tx, type:Pack Information)";
 CM_ SG_ 562 MaximumChargeCurrent "Maximum battery pack charge current";
@@ -3148,19 +3182,6 @@ CM_ BO_ 537 "Message contains the state of our System state machine(in:can_cbs_t
 CM_ BO_ 55 "(in:can_cbs_rx_imd_bender-iso165c-info.c:CANRX_ImdBenderIso165cInfo, fv:rx, type:Insulation Measurement Device)";
 CM_ BO_ 34 "(in:can_cbs_tx_imd_bender-iso165c-request.c:CANTX_ImdRequest, fv:tx, type:Insulation Measurement Device)";
 CM_ BO_ 35 "(in:can_cbs_rx_imd_bender-iso165c-response.c:CANRX_ImdBenderIso165cResponse, fv:rx, type:Insulation Measurement Device)";
-CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)";
-CM_ BO_ 962 "LEM Current Sensor (in:can_cbs_rx_cs_lem-cab500.c:CANRX_CsLemCab500, fv:rx, type:Current Sensor)";
-CM_ SG_ 962 PRODUCT_NAME "CAB5 Product name";
-CM_ SG_ 962 CSM_FAIL "Error information";
-CM_ SG_ 962 ERROR_INDICATION "Error flag to validate sent current";
-CM_ SG_ 962 CSM_BAT_CURRENT_mA "Battery current field uses 0x80000000 as zero value, 0x7FFFFFFF as -1 mA and 0x80000001 as 1mA";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -3196,10 +3217,6 @@ BA_ "GenMsgCycleTime" BO_ 580 100;
 BA_ "GenMsgCycleTime" BO_ 537 100;
 BA_ "GenMsgCycleTime" BO_ 55 1000;
 
-BA_ "GenSigStartValue" SG_ 34 MS_IMC_MEAN_FACTOR 10;
-BA_ "GenSigStartValue" SG_ 34 MS_IMC_R_ISO_WRN_THR 200;
-BA_ "GenSigStartValue" SG_ 34 MC_IMC_SELFTEST_SCR 6;
-BA_ "GenSigStartValue" SG_ 34 MS_IMC_R_ISO_ERR_THR 100;
 BA_ "GenSigStartValue" SG_ 1319 IVT_ID_Result_As 6;
 BA_ "GenSigStartValue" SG_ 1320 IVT_ID_Result_Wh 7;
 BA_ "GenSigStartValue" SG_ 1318 IVT_ID_Result_W 5;
@@ -3207,6 +3224,27 @@ BA_ "GenSigStartValue" SG_ 1317 IVT_ID_Result_T 4;
 BA_ "GenSigStartValue" SG_ 1314 IVT_ID_Result_U1 1;
 BA_ "GenSigStartValue" SG_ 1315 IVT_ID_Result_U2 2;
 BA_ "GenSigStartValue" SG_ 1316 IVT_ID_Result_U3 3;
+BA_ "GenSigStartValue" SG_ 2147483904 IVT_HVBattery_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483904 IVT_HVBattery 524288;
+BA_ "GenSigStartValue" SG_ 2147483904 IVT_Current_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483904 IVT_Current 8388608;
+BA_ "GenSigStartValue" SG_ 2147483911 IVT_ShuntTemp 70;
+BA_ "GenSigStartValue" SG_ 2147483905 IVT_VoltageLinkPlus_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483905 IVT_VoltageLinkMinus_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483905 IVT_VoltageLinkMinus 524288;
+BA_ "GenSigStartValue" SG_ 2147483905 IVT_VoltageLinkPlus 524288;
+BA_ "GenSigStartValue" SG_ 2147483906 IVT_VoltagePackMinus_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483906 IVT_VoltagePackMinus 524288;
+BA_ "GenSigStartValue" SG_ 2147483906 IVT_VoltagePackPlus_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483906 IVT_VoltagePackPlus 524288;
+BA_ "GenSigStartValue" SG_ 2147483907 IVT_VoltageLinkPreCharge_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483907 IVT_VoltageLinkPreCharge 524288;
+BA_ "GenSigStartValue" SG_ 2147483907 IVT_VoltageLinkDiff_Status 1;
+BA_ "GenSigStartValue" SG_ 2147483907 IVT_VoltageLinkDiff 524288;
+BA_ "GenSigStartValue" SG_ 34 MS_IMC_MEAN_FACTOR 10;
+BA_ "GenSigStartValue" SG_ 34 MS_IMC_R_ISO_WRN_THR 200;
+BA_ "GenSigStartValue" SG_ 34 MC_IMC_SELFTEST_SCR 6;
+BA_ "GenSigStartValue" SG_ 34 MS_IMC_R_ISO_ERR_THR 100;
 
 BA_ "SigType" SG_ 1040 shortHash5 3;
 BA_ "SigType" SG_ 1040 shortHash6 3;
@@ -3221,10 +3259,10 @@ VAL_ 608 f_CellTemperatures_Mux 0 "CellTemperatures_000_005" 1 "CellTemperatures
 VAL_ 592 f_CellVoltages_Mux 0 "CellVoltages_000_003" 1 "CellVoltages_004_007" 2 "CellVoltages_008_011" 3 "CellVoltages_012_015" 4 "CellVoltages_016_019" 5 "CellVoltages_020_023" 6 "CellVoltages_024_027" 7 "CellVoltages_028_031" 8 "CellVoltages_032_035" 9 "CellVoltages_036_039" 10 "CellVoltages_040_043" 11 "CellVoltages_044_047" 12 "CellVoltages_048_051" 13 "CellVoltages_052_055" 14 "CellVoltages_056_059" 15 "CellVoltages_060_063" 16 "CellVoltages_064_067" 17 "CellVoltages_068_071" 18 "CellVoltages_072_075" 19 "CellVoltages_076_079" 20 "CellVoltages_080_083" 21 "CellVoltages_084_087" 22 "CellVoltages_088_091" 23 "CellVoltages_092_095" 24 "CellVoltages_096_099" 25 "CellVoltages_100_103" 26 "CellVoltages_104_107" 27 "CellVoltages_108_111" 28 "CellVoltages_112_115" 29 "CellVoltages_116_119" 30 "CellVoltages_120_123" 31 "CellVoltages_124_127" 32 "CellVoltages_128_131" 33 "CellVoltages_132_135" 34 "CellVoltages_136_139" 35 "CellVoltages_140_143" 36 "CellVoltages_144_147" 37 "CellVoltages_148_151" 38 "CellVoltages_152_155" 39 "CellVoltages_156_159"
 40 "CellVoltages_160_163" 41 "CellVoltages_164_167" 42 "CellVoltages_168_171" 43 "CellVoltages_172_175" 44 "CellVoltages_176_179" 45 "CellVoltages_180_183" 46 "CellVoltages_184_187" 47 "CellVoltages_188_191" 48 "CellVoltages_192_195" 49 "CellVoltages_196_199" 50 "CellVoltages_200_203" 51 "CellVoltages_204_207" 52 "CellVoltages_208_211" 53 "CellVoltages_212_215";
 VAL_ 255 f_CrashDump_Mux 0 "StackOverflow";
-VAL_ 768 f_Debug_Mux 1 "Rtc" 0 "VersionInfo" 2 "SoftwareReset" 3 "FramInitialization" 4 "TimeInfo" 5 "UptimeInfo" 7 "IdentifyHardware";
-VAL_ 771 f_DebugBuildConfiguration_Mux 36 "BatteryCell_MaxDischargeTemp" 39 "BatteryCell_MinDischargeTemp" 34 "BatteryCell_MaxChargeTemp" 38 "BatteryCell_MinChargeTemp" 37 "BatteryCell_MaxVolt" 40 "BatteryCell_MinVolt" 32 "BatteryCell" 33 "BatteryCell_MaxChargeCur" 35 "BatteryCell_MaxDischargeCur" 48 "BatterySystem_General1" 55 "BatterySystem_TotalNumbers" 51 "BatterySystem_CurrentSensor" 50 "BatterySystem_Contactors" 54 "BatterySystem_OpenWireCheck" 52 "BatterySystem_Fuse" 49 "BatterySystem_General2" 53 "BatterySystem_MaxCurrent" 16 "Application" 0 "Slave";
+VAL_ 768 f_Debug_Mux 1 "Rtc" 0 "VersionInfo" 2 "SoftwareReset" 3 "FramInitialization" 4 "TimeInfo" 5 "UptimeInfo" 11 "SetSlopeFramCalibrationValue" 7 "IdentifyHardware" 9 "GetMeasValueForFramCalibration" 8 "FramRequestCalibrationValues" 10 "SetOffsetFramCalibrationValue";
+VAL_ 771 f_DebugBuildConfiguration_Mux 36 "BatteryCell_MaxDischargeTemp" 39 "BatteryCell_MinDischargeTemp" 34 "BatteryCell_MaxChargeTemp" 38 "BatteryCell_MinChargeTemp" 37 "BatteryCell_MaxVolt" 40 "BatteryCell_MinVolt" 32 "BatteryCell" 33 "BatteryCell_MaxChargeCur" 35 "BatteryCell_MaxDischargeCur" 48 "BatterySystem_General1" 55 "BatterySystem_TotalNumbers" 51 "BatterySystem_CurrentSensor" 50 "BatterySystem_Contactors" 52 "BatterySystem_Fuse" 49 "BatterySystem_General2" 53 "BatterySystem_MaxCurrent" 16 "Application" 0 "Slave";
 VAL_ 772 f_DebugIdentifyHardware_Mux 0 "BMS-Master" 1 "BMS-Slaves";
-VAL_ 769 f_DebugResponse_Mux 3 "McuWaferInformation" 2 "McuLotNumber" 1 "McuUniqueDieId" 0 "BmsSoftwareVersionInfo" 15 "BootInformation" 4 "RtcTime" 6 "CommitHashLow7" 5 "CommitHashHigh7" 7 "Uptime" 14 "BootTimestamp";
+VAL_ 769 f_DebugResponse_Mux 3 "McuWaferInformation" 2 "McuLotNumber" 1 "McuUniqueDieId" 0 "BmsSoftwareVersionInfo" 15 "BootInformation" 4 "RtcTime" 6 "CommitHashLow7" 5 "CommitHashHigh7" 7 "Uptime" 14 "BootTimestamp" 8 "FramMeasValueForCalibration" 9 "FramSlopeCalibrationValue" 10 "FramOffsetCalibrationValue";
 VAL_ 577 f_StringMinMaxCellTemperature_Mux 0 "String0";
 VAL_ 578 f_StringMinMaxCellVoltage_Mux 0 "String0";
 VAL_ 576 f_StringState_Mux 0 "String0";
@@ -3629,8 +3667,29 @@ VAL_ 624 CellVoltage_212_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_213_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_214_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_215_invalidFlag 0 "Invalid" 1 "Valid";
-VAL_ 546 FatalErrorCode 0 "DIAG_ID_SYSTEM_MONITORING" 1 "DIAG_ID_AFE_SPI" 2 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 3 "DIAG_ID_AFE_MUX" 4 "DIAG_ID_AFE_CONFIG" 5 "DIAG_ID_CAN_TIMING" 8 "DIAG_ID_CURRENT_SENSOR_CC_RESPONDING" 9 "DIAG_ID_CURRENT_SENSOR_EC_RESPONDING" 10 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 17 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 18 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL" 20 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 23 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 26 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL" 29 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 32 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 35 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 38 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 41 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 44 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 47 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 48 "DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL" 49 "DIAG_ID_CURRENT_ON_OPEN_STRING" 50 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 53 "DIAG_ID_INTERLOCK_FEEDBACK" 54 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 55 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK"
-56 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 58 "DIAG_ID_SBC_RSTB_ERROR" 65 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 66 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 67 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 68 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 69 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_POWER_MEASUREMENT_ERROR" 81 "DIAG_ID_ALERT_MODE" 83 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 84 "DIAG_ID_AFE_ALARM" 85 "NO_ERROR" 57 "DIAG_ID_SBC_FIN_ERROR" 52 "DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE";
+VAL_ 1319 IVT_ID_Result_As 6 "Vt_Result_As";
+VAL_ 1313 IVT_ID_Result_I 0 "Vt_Result_I";
+VAL_ 1320 IVT_ID_Result_Wh 7 "Vt_Result_Wh";
+VAL_ 1318 IVT_ID_Result_W 5 "Vt_Result_W";
+VAL_ 1317 IVT_ID_Result_T 4 "Vt_Result_T";
+VAL_ 1314 IVT_ID_Result_U1 1 "Vt_Result_U1";
+VAL_ 1315 IVT_ID_Result_U2 2 "Vt_Result_U2";
+VAL_ 1316 IVT_ID_Result_U3 3 "Vt_Result_U3";
+VAL_ 2147485697 IVT_Coulomb_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "Overcurrent L2" 2 "Overcurrent L1" 1 "Init" 0 "Valid";
+VAL_ 2147485698 IVT_Energy_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "Overload L2" 2 "Overload L1" 1 "Init" 0 "Valid";
+VAL_ 2147483904 IVT_HVBattery_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 2147483904 IVT_Current_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "Overcurrent L2" 2 "Overcurrent L1" 1 "Init" 0 "Valid";
+VAL_ 2147483911 IVT_ShuntTemp_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "Undertemperature" 2 "Overtemperature" 1 "Init" 0 "Valid";
+VAL_ 2147483905 IVT_VoltageLinkPlus_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 2147483905 IVT_VoltageLinkMinus_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 2147483906 IVT_VoltagePackMinus_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 2147483906 IVT_VoltagePackPlus_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 2147483907 IVT_VoltageLinkPreCharge_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 2147483907 IVT_VoltageLinkDiff_Status 15 "Error" 14 "Not_Available" 13 "reserved13" 12 "reserved12" 11 "reserved11" 10 "reserved10" 9 "reserved9" 8 "reserved8" 7 "reserved7" 6 "reserved6" 5 "reserved5" 4 "reserved4" 3 "reserved3" 2 "Overvoltage L1" 1 "Init" 0 "Valid";
+VAL_ 546 FatalErrorCode 0 "DIAG_ID_SYSTEM_MONITORING" 1 "DIAG_ID_AFE_SPI" 2 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 3 "DIAG_ID_AFE_MUX" 4 "DIAG_ID_AFE_CONFIG" 5 "DIAG_ID_CAN_TIMING" 6 "DIAG_ID_CAN_RX_QUEUE_FULL" 7 "DIAG_ID_CAN_TX_QUEUE_FULL" 8 "DIAG_ID_CURRENT_SENSOR_CC_RESPONDING" 9 "DIAG_ID_CURRENT_SENSOR_EC_RESPONDING" 10 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 11 "DIAG_ID_REDUNDANCY_CELL_VOLTAGE" 12 "DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR" 13 "DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR" 14 "DIAG_ID_REDUNDANCY_CELL_TEMPERATURE" 15 "DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD" 16 "DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD" 17 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 18 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL" 19 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL" 20 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 21 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL" 22 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL" 23 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 24 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL" 25 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL" 26 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL"
+27 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL" 28 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL" 29 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 30 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL" 31 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL" 32 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 33 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL" 34 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL" 35 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 36 "DIAG_ID_OVERCURRENT_CHARGE_CELL_RSL" 37 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MOL" 38 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 39 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_RSL" 40 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MOL" 41 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 42 "DIAG_ID_STRING_OVERCURRENT_CHARGE_RSL" 43 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MOL" 44 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 45 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_RSL" 46 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MOL" 47 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 48 "DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL" 49 "DIAG_ID_CURRENT_ON_OPEN_STRING"
+50 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 51 "DIAG_ID_AFE_OPEN_WIRE" 52 "DIAG_ID_BMS_VALUES_PACK_VOLTAGE" 53 "DIAG_ID_INTERLOCK_FEEDBACK" 54 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 55 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK" 56 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 57 "DIAG_ID_SBC_FIN_ERROR" 58 "DIAG_ID_SBC_RSTB_ERROR" 59 "DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT" 60 "DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT" 61 "DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT" 62 "DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT" 63 "DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE" 64 "DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT" 65 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 66 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 67 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 68 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 69 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_POWER_MEASUREMENT_ERROR" 72 "DIAG_ID_INSULATION_MEASUREMENT_VALID" 73 "DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR"
+74 "DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING" 75 "DIAG_ID_INSULATION_GROUND_ERROR" 76 "DIAG_ID_I2C_PEX_ERROR" 77 "DIAG_ID_I2C_RTC_ERROR" 78 "DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR" 79 "DIAG_ID_RTC_BATTERY_LOW_ERROR" 80 "DIAG_ID_FRAM_READ_CRC_ERROR" 81 "DIAG_ID_ALERT_MODE" 82 "DIAG_ID_AEROSOL_ALERT" 83 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 84 "DIAG_ID_AFE_ALARM";
 VAL_ 544 BmsState 0 "UNINITIALIZED" 1 "INITIALIZATION" 2 "INITIALIZED" 3 "IDLE" 4 "OPEN_CONTACTORS" 5 "STANDBY" 6 "PRECHARGE" 7 "NORMAL" 8 "DISCHARGE" 9 "CHARGE" 10 "ERROR" 11 "UNDEFINED";
 VAL_ 544 GeneralError 0 "No Error" 1 "Error";
 VAL_ 544 GeneralWarning 0 "No Warning" 1 "Warning";
@@ -4074,6 +4133,10 @@ VAL_ 768 SetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday"
 VAL_ 768 SetMonth 1 "January" 2 "February" 3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December";
 VAL_ 768 TriggerSoftwareReset 0 "NO_SOFTWARE_RESET" 1 "SOFTWARE_RESET";
 VAL_ 768 InitializeFram 0 "Uninitialized" 1 "Initialized";
+VAL_ 768 FramCalibrationChannel 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
+VAL_ 768 CalibrationChannel9 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
+VAL_ 768 CalibrationChannel8 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
+VAL_ 768 CalibrationChannel10 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
 VAL_ 771 SOC_algorithm 0 "None" 1 "Debug" 2 "Counting" 3 "Lookup Table";
 VAL_ 771 SOE_algorithm 0 "None" 1 "Debug" 2 "Counting";
 VAL_ 771 SOF_algorithm 0 "Trapezoid";
@@ -4092,6 +4155,9 @@ VAL_ 769 GetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday"
 VAL_ 769 RtcRequestFlag 0 "No Request" 1 "Valid Request" 2 "Invalid Request";
 VAL_ 769 GetBootMonth 1 "January" 2 "February" 3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December";
 VAL_ 769 GetbootWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday" 6 "Saturday" 0 "Sunday";
+VAL_ 769 CalibrationChannel8 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
+VAL_ 769 CalibrationChannel9 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
+VAL_ 769 CalibrationChannel10 0 "FRAM_CHANNEL_0" 1 "FRAM_CHANNEL_1" 2 "FRAM_CHANNEL_2" 3 "FRAM_CHANNEL_3" 4 "FRAM_CHANNEL_4" 5 "FRAM_CHANNEL_5" 6 "FRAM_CHANNEL_6" 7 "FRAM_CHANNEL_7" 8 "FRAM_CHANNEL_8" 9 "FRAM_CHANNEL_9";
 VAL_ 576 IsStringConnected 0 "No" 1 "Yes";
 VAL_ 576 IsBalancingActive 0 "No" 1 "Yes";
 VAL_ 576 OvertemperatureChargeMslError 0 "No Error" 1 "Error";
@@ -4209,11 +4275,3 @@ VAL_ 35 IG_VIFC_HV_RELAIS 100 "Unknown" 1 "HV_1_POS" 0 "HV_1_NEG";
 VAL_ 35 IG_IMD_ERROR_CODE 1038 "VIFC_NoResponseTimeout" 1037 "VIFC_RepeatedOrMissingFrame" 1035 "VIFC_UnknownCommand" 1034 "VIFC_InvalidParameter" 1033 "VIFC_ChecksumErrorInFrame" 1032 "VIFC_Timeout10msExpired" 1001 "VIFC_QueueFullCommandRejected" 1000 "VIFC_CommandLocked" 37 "RepeatedOrMissingFrame" 36 "ErrorDuringWritingEEProms" 35 "UnknownCommand" 34 "InvalidParameter" 33 "ChecksumErrorInFrame" 32 "Timeout10msExpired";
 VAL_ 35 IG_IMD_FAILED_CMD 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 223 "S_VIFC_GET_POWER_MODE" 222 "S_VIFC_GET_VERSION" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 210 "S_VIFC_SET_HV_RELAIS" 203 "S_VIFC_CTL_MEASUREMENT" 202 "S_VIFC_CTL_LOCK" 201 "S_VIFC_CTL_POWER_MODE" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 61 "S_IMC_GET_MANUFACTURER" 60 "S_IMC_GET_MEAN_FACTOR" 59 "S_IMC_GET_EEPROM" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 51 "S_IMC_GET_VERSION" 50 "S_IMC_GET_R_ISO_ERR_THR" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 0 "S_VIFC_CTL_DUMMY";
 VAL_ 35 IC_IMC_SELFTEST_SCR 2 "ParameterConfig" 1 "OverAll" 0 "NoAction";
-VAL_ 1313 IVT_ID_Result_I 0 "Vt_Result_I";
-VAL_ 1319 IVT_ID_Result_As 6 "Vt_Result_As";
-VAL_ 1320 IVT_ID_Result_Wh 7 "Vt_Result_Wh";
-VAL_ 1318 IVT_ID_Result_W 5 "Vt_Result_W";
-VAL_ 1317 IVT_ID_Result_T 4 "Vt_Result_T";
-VAL_ 1314 IVT_ID_Result_U1 1 "Vt_Result_U1";
-VAL_ 1315 IVT_ID_Result_U2 2 "Vt_Result_U2";
-VAL_ 1316 IVT_ID_Result_U3 3 "Vt_Result_U3";

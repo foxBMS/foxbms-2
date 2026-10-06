@@ -19,7 +19,7 @@ Use [docs/getting-started/software-installation.rst](./docs/getting-started/soft
 > described.\
 > Otherwise, the configuration workload in later points of the setup or the
 > development will be significantly higher.
-
+<!--  -->
 > **_NOTE:_**
 >
 > Some programs are installed into a specific foxBMS 2 prefix.
@@ -29,13 +29,13 @@ Use [docs/getting-started/software-installation.rst](./docs/getting-started/soft
 >
 > | Operating system   | Installation prefix   |
 > |--------------------|-----------------------|
-> | Windows            | ``C:\\foxbms``        |
-
+> | Windows            | ``C:\foxbms``         |
+<!--  -->
 > **_WARNING:_**
 >
-> - All commands shall be run in PowerShell 7 or later.
-> - All commands shall be run in the root of the repository.
-
+> All commands shall be run in PowerShell 7 or later.
+> All commands shall be run in the root of the repository.
+<!--  -->
 > **_WARNING:_**
 >
 > These are the installation instructions for the host machine.\
@@ -54,7 +54,6 @@ These are the required steps:
 1. Install Python (required for tools)
 1. Install virtual Python environment (required for tools)
 1. Install Ruby (required for unit testing)
-1. Install Ruby Gems (required for unit testing)
 1. Install mingw-w64 (required for unit testing)
 1. Install Doxygen (required for building the documentation)
 1. Install Graphviz (required for building the documentation)
@@ -94,7 +93,7 @@ later steps of this manual.
 > ``git`` requires a correct proxy setup.
 > This means that the environment variables ``http_proxy`` and ``https_proxy``
 > must be set accordingly to your network configuration.
-
+<!--  -->
 > **_WARNING:_**
 >
 > Do not clone/download foxBMS 2 into a directory structure that includes
@@ -142,34 +141,34 @@ Installing TI HALCoGen may take a while.
 
 ## Install Python
 
-1. Install [Python 3.12](https://www.python.org/).\
-   If you have already installed Python 3.12 from <https://www.python.org> this
+1. Install [Python 3.14](https://www.python.org/).\
+   If you have already installed Python 3.14 from <https://www.python.org> this
    step can be skipped.
 
    > **_NOTE:_**
    >
-   > The required Python version is exactly 3.12.x
+   > The required Python version is exactly 3.14.x
 
-1. Open a terminal and run `py -3.12 --version`, this should print
-   something like `Python 3.12.8` or similar:
+1. Open a terminal and run `py -3.14 --version`, this should print
+   something like `Python 3.14.6` or similar:
 
    ```pwsh
-   py -3.12 --version
-   Python 3.12.8
+   py -3.14 --version
+   Python 3.14.6
    ```
 
 ## Install Virtual Python Environment
 
-1. Create a virtual environment **2025-11-pale-fox** by running:
+1. Create a virtual environment **2026-07-pale-fox** by running:
 
    ```pwsh
-   py -3.12 -m venv C:\foxbms\envs\2025-11-pale-fox
+   py -3.14 -m venv C:\foxbms\envs\2026-07-pale-fox
    ```
 
 1. Activate the virtual environment by running:
 
    ```pwsh
-   C:\foxbms\envs\2025-11-pale-fox\Scripts\activate.ps1
+   C:\foxbms\envs\2026-07-pale-fox\Scripts\activate.ps1
    ```
 
 1. Install the required packages by running:
@@ -197,7 +196,7 @@ missing.
 
 > **_NOTE:_**
 >
-> Installing MinGW64 requires 7-Zip to be installed.
+> Installing Ruby requires 7-Zip to be installed.
 > 7-Zip can be download from <https://7-zip.org>.
 
 1. Download the zip-archive
@@ -205,14 +204,6 @@ missing.
 1. Extract the archive to ``C:\foxbms\Ruby\Ruby34-x64``.
 1. Verify that ``ruby.exe`` is available at
    ``C:\foxbms\Ruby\Ruby34-x64\bin\ruby.exe``.
-
-## Install Ruby gems
-
-Install the required Ruby packages, i.e., Ruby gems by running:
-
-```pwsh
-C:\foxbms\Ruby\Ruby34-x64\bin\gem.cmd install --install-dir C:\foxbms\Ceedling\1.0.1 ceedling
-```
 
 ## Install mingw-w64
 
@@ -226,7 +217,7 @@ C:\foxbms\Ruby\Ruby34-x64\bin\gem.cmd install --install-dir C:\foxbms\Ceedling\1
   (**use this**
   [7z-archive](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z)).
 1. Extract the archive.
-1. Copy the extracted `mingw64` directory to
+1. Copy the extracted content of the `mingw64` directory to
   `C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0`.
 1. Verify that `gcc.exe` is available at
   `C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gcc.exe`.
@@ -301,7 +292,7 @@ To update the build environment the following steps must be done:
 1. Create a virtual environment **\<name-of-the-new-env\>** by running:
 
    ```pwsh
-   py -3.12-m venv C:\foxbms\envs\<name-of-the-new-env>
+   py -3.14-m venv C:\foxbms\envs\<name-of-the-new-env>
    ```
 
 1. Activate the virtual environment by running:

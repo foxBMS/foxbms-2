@@ -63,7 +63,7 @@ class MQTT(ComInterface):
     """
 
     def __init__(self, name: str, parameter: MQTTParameter) -> None:
-        """Initializes the MQTT communication interface.
+        """Initialize the MQTT communication interface.
 
         Args:
             name (str): The name of the interface.
@@ -75,7 +75,7 @@ class MQTT(ComInterface):
         )
 
     def read(self, block: bool = False, timeout: float | None = None) -> dict | None:
-        """Reads an incoming MQTT message from the output queue.
+        """Read an incoming MQTT message from the output queue.
 
         Args:
             block (bool): Whether to block if the queue is empty.
@@ -93,7 +93,7 @@ class MQTT(ComInterface):
         return self.control.output.get(block=block, timeout=timeout)
 
     def write(self, msg: dict) -> None:
-        """Publishes a message to a specific MQTT topic via the input queue.
+        """Publish a message to a specific MQTT topic via the input queue.
 
         Args:
             msg (dict): The MQTT message as dict
@@ -115,7 +115,7 @@ class MQTTProcess(ProcessInterface):
     def __init__(
         self, name: str, control: ComControl, parameter: MQTTParameter
     ) -> None:
-        """Initializes the MQTT process.
+        """Initialize the MQTT process.
 
         Args:
             name (str): Process name.
@@ -129,7 +129,7 @@ class MQTTProcess(ProcessInterface):
         self._client: Client | None = None
 
     def run(self) -> None:
-        """Starts the MQTT process, connects to the broker, and begins the event loop."""
+        """Start the MQTT process, connect to the broker, and begin the event loop."""
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         add_queue_handler(self.control.logger)
         logger.setLevel(self.control.log_level)
@@ -144,7 +144,7 @@ class MQTTProcess(ProcessInterface):
             self._read_from_input()
 
     def _connect(self) -> Client | None:
-        """Connects to the MQTT broker and subscribes to topics.
+        """Connect to the MQTT broker and subscribe to topics.
 
         Returns:
             Client | None: The connected MQTT Client instance, or None on failure.
@@ -173,7 +173,8 @@ class MQTTProcess(ProcessInterface):
         return None
 
     def _connect_sub(self) -> Client:
-        """Creates and configures the MQTT client, connects to the broker, and subscribes to topics.
+        """Create and configure the MQTT client, connect to the broker, and
+        subscribe to topics.
 
         Returns:
             Client: The initialized and connected MQTT Client.
@@ -191,7 +192,7 @@ class MQTTProcess(ProcessInterface):
         return client
 
     def _set_username_and_pwd(self, client: Client) -> Client:
-        """Sets username and password for MQTT client authentication if provided.
+        """Set username and password for MQTT client authentication if provided.
 
         Args:
             client (Client): The MQTT client instance.
@@ -212,7 +213,7 @@ class MQTTProcess(ProcessInterface):
         return client
 
     def _set_tls(self, client: Client) -> Client:
-        """Configures TLS/SSL for the MQTT client if a certificate is provided.
+        """Configure TLS/SSL for the MQTT client if a certificate is provided.
 
         Args:
             client (Client): The MQTT client instance.
@@ -255,7 +256,7 @@ class MQTTProcess(ProcessInterface):
         self.control.output.put(msg_dict)
 
     def _read_from_input(self) -> None:
-        """Reads outgoing messages from the input queue and publishes them via MQTT.
+        """Read outgoing messages from the input queue and publish them via MQTT.
 
         Handles:
             JSONDecodeError: If a message cannot be parsed.

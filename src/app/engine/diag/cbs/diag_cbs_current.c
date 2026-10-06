@@ -43,8 +43,8 @@
  * @file    diag_cbs_current.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -74,6 +74,7 @@ extern void DIAG_ErrorOvercurrentCharge(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
+    /* AXIVION Next Codeline Style Generic-MaxConditions: Full assertion range required */
     FAS_ASSERT(
         (diagId == DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL) || (diagId == DIAG_ID_OVERCURRENT_CHARGE_CELL_RSL) ||
         (diagId == DIAG_ID_OVERCURRENT_CHARGE_CELL_MOL) || (diagId == DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL) ||
@@ -160,6 +161,7 @@ extern void DIAG_ErrorOvercurrentDischarge(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
+    /* AXIVION Next Codeline Style Generic-MaxConditions: Full assertion range required */
     FAS_ASSERT(
         (diagId == DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL) || (diagId == DIAG_ID_OVERCURRENT_DISCHARGE_CELL_RSL) ||
         (diagId == DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MOL) || (diagId == DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL) ||

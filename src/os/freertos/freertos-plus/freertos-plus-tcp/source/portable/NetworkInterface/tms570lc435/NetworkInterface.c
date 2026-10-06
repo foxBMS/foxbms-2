@@ -43,8 +43,8 @@
  * @file    Networkinterface.c
  * @author  foxBMS Team
  * @date    2025-04-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup SOME_GROUP
  * @prefix  NIC
  *
@@ -53,13 +53,17 @@
  */
 
 /*========== Includes =======================================================*/
+/* clang-format off */
+#include "foxbms_config_rtos.h"
+#include "foxbms_config_debug.h"
+/* clang-format on */
+
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "FreeRTOS_IP.h"
 
 #include "database.h"
 #include "emac.h"
-#include "fassert.h"
 #include "infinite-loop-helper.h"
 #include "list.h"
 
@@ -149,12 +153,12 @@ static void NIC_ProcessRxPacket(void);
 static void NIC_FormatBuffer(
     NetworkBufferDescriptor_t const *networkBufferDescriptor,
     EMAC_PACKET_BUFFER_s *const pBuffer) {
-    FAS_ASSERT(networkBufferDescriptor != NULL_PTR);
-    FAS_ASSERT(pBuffer != NULL_PTR);
+    configASSERT(networkBufferDescriptor != NULL_PTR);
+    configASSERT(pBuffer != NULL_PTR);
 
     uint16_t bufferLength = (uint16_t)networkBufferDescriptor->xDataLength;
     /* Check lenght to prevent overflows */
-    FAS_ASSERT(bufferLength <= (uint16_t)BUFFER_SIZE_ROUNDED);
+    configASSERT(bufferLength <= (uint16_t)BUFFER_SIZE_ROUNDED);
 
     /* Copy data from FreeRTOS-Buffer to EMAC-TX-Puffer */
     (void)memcpy(pBuffer->pPayload, networkBufferDescriptor->pucEthernetBuffer, bufferLength);
@@ -174,7 +178,7 @@ static void NIC_FormatBuffer(
 /* AXIVION Next Codeline Style MisraC2012-1.2: Keep FreeRTOS naming */
 /* AXIVION Next Codeline CodingStyle-Naming.Function: Keep FreeRTOS naming */
 static BaseType_t xNetworkInterfaceInitialise(struct xNetworkInterface *pxInterface) {
-    FAS_ASSERT(pxInterface != NULL_PTR);
+    configASSERT(pxInterface != NULL_PTR);
 
     BaseType_t xReturn = pdPASS;
     /* Call the EMAC hardware initialize and with that included the PHY initialize function */
@@ -191,9 +195,9 @@ static BaseType_t xNetworkInterfaceOutput(
     struct xNetworkInterface *pxDescriptor,
     NetworkBufferDescriptor_t *const pxNetworkBuffer,
     BaseType_t xReleaseAfterSend) {
-    FAS_ASSERT(pxDescriptor != NULL_PTR);
-    FAS_ASSERT(pxNetworkBuffer != NULL_PTR);
-    FAS_ASSERT((xReleaseAfterSend == pdTRUE) || (xReleaseAfterSend == pdFALSE));
+    configASSERT(pxDescriptor != NULL_PTR);
+    configASSERT(pxNetworkBuffer != NULL_PTR);
+    configASSERT((xReleaseAfterSend == pdTRUE) || (xReleaseAfterSend == pdFALSE));
 
     /* As we are currently using only one network interface, we dont need
    * pxDescriptor */
@@ -234,7 +238,7 @@ static void NIC_TransferToTcp(void) {
 
         /* Safety: ensure we don't copy beyond our buffer */
         /* AXIVION Next Codeline IISB-LiteralSuffixesCheck: Content from FreeRTOS file */
-        FAS_ASSERT(xBytesReceived <= ipTOTAL_ETHERNET_FRAME_SIZE);
+        configASSERT(xBytesReceived <= ipTOTAL_ETHERNET_FRAME_SIZE);
 
         /* Copy from EMAC RX buffer into the FreeRTOS buffer */
         memcpy(pBufferDescriptor->pucEthernetBuffer, pEmacEthernetBuffer, xBytesReceived);
@@ -322,12 +326,21 @@ static void NIC_ProcessRxPacket(void) {
 /* AXIVION Next Codeline Style MisraC2012-1.2: Keep FreeRTOS naming */
 /* AXIVION Next Codeline CodingStyle-Naming.Function: Keep FreeRTOS naming */
 extern NetworkInterface_t *NIC_FillInterfaceDescriptor(BaseType_t xEMACIndex, NetworkInterface_t *pxInterface) {
-    FAS_ASSERT(xEMACIndex < (BaseType_t)EMAC_MAX_INSTANCE);
-    FAS_ASSERT(pxInterface != NULL_PTR);
+    configASSERT(xEMACIndex < (BaseType_t)EMAC_MAX_INSTANCE);
+    configASSERT(pxInterface != NULL_PTR);
 
-    nic_pInterface          = pxInterface;
-    pxInterface->pcName     = "TMS570";
+    nic_pInterface      = pxInterface;
+    pxInterface->pcName = "TMS570";
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
     pxInterface->pvArgument = (void *)xEMACIndex;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
+
     /* The initialisation function of this driver. */
     pxInterface->pfInitialise = xNetworkInterfaceInitialise;
     /* The output function of this driver. */
@@ -370,7 +383,7 @@ extern void NIC_Receive(void) {
 /* AXIVION Next Codeline CodingStyle-Naming.Function: Keep FreeRTOS naming */
 size_t uxNetworkInterfaceAllocateRAMToBuffers(
     NetworkBufferDescriptor_t pNetworkBuffers[ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS]) {
-    FAS_ASSERT(pNetworkBuffers != NULL_PTR);
+    configASSERT(pNetworkBuffers != NULL_PTR);
 
     /* Configure EMAC RAM for rx and tx. Uuses emac_rxBuffers internally only */
     EMAC_InitializeDma();
@@ -390,7 +403,7 @@ size_t uxNetworkInterfaceAllocateRAMToBuffers(
 /* AXIVION Next Codeline Style MisraC2012-1.2: Keep FreeRTOS naming */
 /* AXIVION Next Codeline CodingStyle-Naming.Function: Keep FreeRTOS naming */
 BaseType_t xGetPhyLinkStatus(struct xNetworkInterface *pxInterface) {
-    FAS_ASSERT(pxInterface != NULL_PTR);
+    configASSERT(pxInterface != NULL_PTR);
 
     (void)DATA_READ_DATA(&nic_tablePhy);
     STD_RETURN_TYPE_e phyLinked = EMAC_GetPhyLinkStatus();
@@ -424,6 +437,13 @@ NetworkInterface_t *pxFillInterfaceDescriptor(BaseType_t xEMACIndex, NetworkInte
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+
+extern DATA_BLOCK_PHY_s *TEST_NIC_GetTablePhy(void) {
+    return &nic_tablePhy;
+}
+
+#undef configASSERT
+#define configASSERT(x) FAS_ASSERT(x)
 /* function pointer for the actual static functions used in NIC_FillInterfaceDescriptor */
 BaseType_t (*pNetworkInterfaceInitialise)(struct xNetworkInterface *pxInterface) = xNetworkInterfaceInitialise;
 BaseType_t (*pNetworkInterfaceOutput)(

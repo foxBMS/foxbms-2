@@ -42,7 +42,7 @@
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_pre_commit import pre_commit_impl
@@ -57,8 +57,8 @@ class TestRunPrecommit(unittest.TestCase):
     """Class to test the run precommit"""
 
     @patch("cli.cmd_pre_commit.pre_commit_impl.run_process")
-    def test_run_pre_commit_process(self, mock_process):
-        """TODO"""
+    def test_run_pre_commit_process(self, mock_process: MagicMock) -> None:
+        """Test that pre-commit is invoked through run_process."""
         mock_process.return_value = SubprocessResult(0, "", "")
         result = pre_commit_impl.run_pre_commit(["--help"])
         _, args, _ = mock_process.mock_calls[0]

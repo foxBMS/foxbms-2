@@ -43,8 +43,8 @@
  * @file    adi_ades183x_temperatures.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -80,13 +80,33 @@
  */
 static uint16_t ADI_GetMappedGpioIndex(uint16_t temperatureSensorIndex);
 
+#if (SLV_USE_MUX_FOR_TEMP == true)
+/**
+ * @brief   Extracts the temperature from the multiplexed GPIOs
+ * @details This function extracts the temperature from the
+ *          multiplexed GPIOs.
+ *
+ * @param   pAdiState   pointer to the ADI state structure
+ */
+static void ADI_GetTemperaturesFromMultiplexedGpios(ADI_STATE_s *pAdiState);
+#elif (SLV_USE_MUX_FOR_TEMP == false)
+/**
+ * @brief   Extracts the temperature from the GPIOs
+ * @details This function extracts the temperature from the directly
+ *          connected GPIOs.
+ *
+ * @param   pAdiState   pointer to the ADI state structure
+ */
+static void ADI_GetTemperaturesFromGpios(ADI_STATE_s *pAdiState);
+#endif
+
 /*========== Static Function Implementations ================================*/
 static uint16_t ADI_GetMappedGpioIndex(uint16_t temperatureSensorIndex) {
     FAS_ASSERT(temperatureSensorIndex < BS_NR_OF_TEMP_SENSORS_PER_MODULE);
 
     uint16_t storedGpioIndex = 0u;
     uint16_t mappedIndex     = 0u;
-    for (uint8_t gpioIndex = 0u; gpioIndex < SLV_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
+    for (uint8_t gpioIndex = 0u; gpioIndex < ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS; gpioIndex++) {
         if (adi_temperatureInputsUsed[gpioIndex] == 1u) {
             if (storedGpioIndex == temperatureSensorIndex) {
                 mappedIndex = gpioIndex;
@@ -100,12 +120,69 @@ static uint16_t ADI_GetMappedGpioIndex(uint16_t temperatureSensorIndex) {
     return mappedIndex;
 }
 
-/*========== Extern Function Implementations ================================*/
-/* RequirementId: D7.1 V1R0 FUN-2.10.01.01 */
-extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
+#if (SLV_USE_MUX_FOR_TEMP == true)
+static void ADI_GetTemperaturesFromMultiplexedGpios(ADI_STATE_s *pAdiState) {
     FAS_ASSERT(pAdiState != NULL_PTR);
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        /* Mux case */
+        uint8_t muxId          = pAdiState->pMuxSequence[pAdiState->currentString]->muxId;
+        uint8_t muxChannel     = pAdiState->pMuxSequence[pAdiState->currentString]->muxChannel;
+        uint8_t sensorIdx      = muxId * ADI_MUX_GPIOS_PER_MUX + muxChannel;
+        int16_t gpioVoltage_mV = 0u;
+        uint16_t invalidFlag   = 0u;
 
-    for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        /* sensorIdx shall only be at a valid position if mux is not disabled */
+        FAS_ASSERT(sensorIdx < ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS || muxChannel == ADI_MUX_DISABLE_VALUE);
+
+        if (muxChannel != ADI_MUX_DISABLE_VALUE && sensorIdx < BS_NR_OF_TEMP_SENSORS_PER_MODULE) {
+            /* No temp read when mux in disable state or at an unused temp pin */
+            if (muxId == 0) {
+                /* Temp sensor 0-7 on Mux 0 */
+                gpioVoltage_mV = pAdiState->data.allGpioVoltages
+                                     ->gpioVoltages_mV[pAdiState->currentString]
+                                                      [ADI_MUX_0_TEMP_GPIO_POSITION + (m * SLV_NR_OF_GPIOS_PER_MODULE)];
+                invalidFlag    = pAdiState->data.allGpioVoltages->invalidGpioVoltages[pAdiState->currentString][m] &
+                                 (1u << ADI_MUX_0_TEMP_GPIO_POSITION);
+            } else if (muxId == 1) {
+                /* Temp sensor 8-16 on Mux 1 */
+                gpioVoltage_mV = pAdiState->data.allGpioVoltages
+                                     ->gpioVoltages_mV[pAdiState->currentString]
+                                                      [ADI_MUX_1_TEMP_GPIO_POSITION + (m * SLV_NR_OF_GPIOS_PER_MODULE)];
+                invalidFlag    = pAdiState->data.allGpioVoltages->invalidGpioVoltages[pAdiState->currentString][m] &
+                                 (1u << ADI_MUX_1_TEMP_GPIO_POSITION);
+            } else {
+                /* MuxSequence invalid */
+                FAS_ASSERT(FAS_TRAP);
+            }
+
+            /* Reverse search right temp index to store sensor value if current sensor is not disabled */
+            for (uint8_t tempIdx = 0u; tempIdx < BS_NR_OF_TEMP_SENSORS_PER_MODULE; tempIdx++) {
+                if (sensorIdx == ADI_GetMappedGpioIndex(tempIdx)) {
+                    /* Handle temperature values */
+                    if (invalidFlag == 0u) {
+                        pAdiState->data.cellTemperature->cellTemperature_ddegC[pAdiState->currentString][m][tempIdx] =
+                            ADI_ConvertGpioVoltageToTemperature(gpioVoltage_mV);
+                        pAdiState->data.cellTemperature->invalidCellTemperature[pAdiState->currentString][m][tempIdx] =
+                            false;
+                    } else {
+                        pAdiState->data.cellTemperature->cellTemperature_ddegC[pAdiState->currentString][m][tempIdx] =
+                            0;
+                        pAdiState->data.cellTemperature->invalidCellTemperature[pAdiState->currentString][m][tempIdx] =
+                            true;
+                    }
+                }
+            }
+        } else {
+            /* Current mux is disabled or at a temp pin unused in the active configuration */
+        }
+    }
+}
+#endif
+
+#if (SLV_USE_MUX_FOR_TEMP == false)
+static void ADI_GetTemperaturesFromGpios(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
             uint16_t gpioIndex = ADI_GetMappedGpioIndex(ts);
             /* Check GPIO voltage valid flag */
@@ -127,11 +204,33 @@ extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
         }
     }
 }
+#endif
+
+/*========== Extern Function Implementations ================================*/
+/* RequirementId: D7.1 V1R0 FUN-2.10.01.01 */
+extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
+
+#if (SLV_USE_MUX_FOR_TEMP == true)
+    ADI_GetTemperaturesFromMultiplexedGpios(pAdiState);
+#elif (SLV_USE_MUX_FOR_TEMP == false)
+    ADI_GetTemperaturesFromGpios(pAdiState);
+#endif
+}
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern uint16_t TEST_ADI_GetMappedGpioIndex(uint16_t registerGpioIndex) {
     return ADI_GetMappedGpioIndex(registerGpioIndex);
 }
+#if (SLV_USE_MUX_FOR_TEMP == true)
+extern void TEST_ADI_GetTemperaturesFromMultiplexedGpios(ADI_STATE_s *pAdiState) {
+    ADI_GetTemperaturesFromMultiplexedGpios(pAdiState);
+}
+#elif (SLV_USE_MUX_FOR_TEMP == false)
+extern void TEST_ADI_GetTemperaturesFromGpios(ADI_STATE_s *pAdiState) {
+    ADI_GetTemperaturesFromGpios(pAdiState);
+}
+#endif
 
 #endif

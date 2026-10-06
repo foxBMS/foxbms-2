@@ -26,13 +26,13 @@ Unit Test
 ^^^^^^^^^
 
 - ``tests/unit/app/driver/imd/bender/ir155/test_bender_ir155.c``
-- ``tests/unit/app/driver/imd/bender/ir155/test_bender_helper_ir155.c``
+- ``tests/unit/app/driver/imd/bender/ir155/test_bender_ir155_helper.c``
 
 Description of the IMD state machine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Bender IR155 driver is interfaced and controlled by the superimposed
-:ref:`IMD state machine<INSULATION_MEASUREMENT_DEVICE>`.
+:ref:`IMD state machine<IMD_DRIVER>`.
 The required functionality, that needs to be provided by this driver is:
 
 - Initialize the Bender IR155 device
@@ -48,7 +48,8 @@ Initialization procedure
 
 |tbc|
 
-The initialization process is implemented in function `IR155_InitializeModule`.
+The initialization process is implemented in function
+``IR155_InitializeModule``.
 
 Activation of insulation measurement
 """"""""""""""""""""""""""""""""""""
@@ -67,4 +68,4 @@ Insulation measurement
 
 |tbc|
 
-The measurement process is implemented in function `IR155_MeasureInsulation`.
+The measurement process is implemented in function ``IR155_MeasureInsulation``.

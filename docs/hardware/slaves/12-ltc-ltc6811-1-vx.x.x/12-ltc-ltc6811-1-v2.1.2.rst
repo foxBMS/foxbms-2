@@ -71,9 +71,8 @@ The block diagram of the |bms-slave| is shown in
 :numref:`block_diagram_6811-1_slave_12cell_v2.1.2`.
 
 .. _block_diagram_6811-1_slave_12cell_v2.1.2:
-.. drawio-figure:: ./12-ltc-ltc6811-1-v2.1.2/12-ltc-ltc6811-1-v2.1.2.drawio
+.. figure:: ../../../../build/docs/docs/hardware/slaves/12-ltc-ltc6811-1-vx.x.x/12-ltc-ltc6811-1-v2.1.2/12-ltc-ltc6811-1-v2.1.2.svg
    :width: 100 %
-   :format: svg
    :align: center
 
    |bms-slave| 12-Cell Block Diagram
@@ -102,8 +101,7 @@ The cell voltage sense lines are input on the connector X1503.
 The pinout is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.2_cell_sense_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_24pins.svg
    :width: 300px
 
 .. csv-table:: Cell voltage sense connector
@@ -173,8 +171,7 @@ and X1507 (secondary).
 The pinout is identical for the primary and secondary and is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.2_temp_sense_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_16pins.svg
    :width: 300px
 
 .. csv-table:: Temperature sensor connector
@@ -274,35 +271,34 @@ be selected by register settings.
 Each of the 8 digital inputs/outputs has a discrete pull up resistor that for
 example can be used for directly connecting a tactile switch.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-isoSPI Daisy Chain Connection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+|isospi| Daisy Chain Connection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The data transmission between the slaves and between the slaves and the basic
-board takes place using the isoSPI interface.
-The isoSPI signals are input on the connectors X1509 (primary) and X1511
+board takes place using the |isospi| interface.
+The |isospi| signals are input on the connectors X1509 (primary) and X1511
 (secondary).
-The isoSPI signals for daisy-chaining are output on the connectors X1510
+The |isospi| signals for daisy-chaining are output on the connectors X1510
 (primary) and X1512 (secondary).
-The isoSPI connections are isolated galvanically using pulse transformers
+The |isospi| connections are isolated galvanically using pulse transformers
 (TR201 / TR301).
 The voltage amplitude of the differential signal can be adjusted by setting
 resistors (see paragraph :ref:`hardware_slave_daisy_current_12cell_v2.1.2`).
 
-The pinout of the isoSPI connectors is described in
+The pinout of the |isospi| connectors is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.2_daisy_input_connectors>` and
 :numref:`Table %s <6811-1_slave_12cell_v2.1.2_daisy_output_connectors>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_02pins.svg
    :width: 300px
-.. csv-table:: isoSPI Daisy Chain Input Connectors
+.. csv-table:: |isospi| Daisy Chain Input Connectors
    :name: 6811-1_slave_12cell_v2.1.2_daisy_input_connectors
    :header-rows: 1
    :delim: ;
    :file: ./12-ltc-ltc6811-1-v2.1.2/12-ltc-ltc6811-1-v2.1.2_daisy-input-connectors.csv
 
-.. csv-table:: isoSPI Daisy Chain Output Connectors
+.. csv-table:: |isospi| Daisy Chain Output Connectors
    :name: 6811-1_slave_12cell_v2.1.2_daisy_output_connectors
    :header-rows: 1
    :delim: ;
@@ -332,9 +328,9 @@ Daisy Chain Communication Current
 The daisy chain communication current can be set by the resistors R206/R306 and
 R208/R308.
 The default value is 820 |Ohm| for R206/R306 and 1.21\ |kOhm| for R208/R308.
-This values result in a bias current of approximately 1mA and a differential
+These values result in a bias current of approximately 1mA and a differential
 signal amplitude of 1.18V.
-Theses values are suitable for high noise environments with cable lengths of
+These values are suitable for high noise environments with cable lengths of
 over 50m.
 More information can be found in the |ltc-ltc6811-1| datasheet.
 
@@ -394,8 +390,7 @@ connectors are in parallel for daisy chaining the supply).
 The pinout of the connectors X1513 and X1514 is shown in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.2_external_dc_supply_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_02pins.svg
    :width: 300px
 
 .. csv-table:: External DC supply connector

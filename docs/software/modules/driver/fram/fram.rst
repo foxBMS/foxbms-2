@@ -1,7 +1,7 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _FRAM:
+.. _FRAM_DRIVER:
 
 FRAM
 ====

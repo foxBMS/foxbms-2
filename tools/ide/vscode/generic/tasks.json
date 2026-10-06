@@ -17,7 +17,7 @@
       }
     },
     {
-      "label": "Build: App Embedded",
+      "label": "Build: App TI ARM CGT",
       "type": "process",
       "group": {
         "isDefault": false,
@@ -26,7 +26,7 @@
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "build_app_embedded",
+        "build_app_ti_arm_cgt",
         "-c",
         "yes"
       ],
@@ -117,28 +117,9 @@
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
-        "ceedling",
-        "--project",
-        "app",
-        "test:all"
-      ],
-      "problemMatcher": [
-        "$gcc"
-      ],
-      "options": {
-        "cwd": "place-holder"
-      }
-    },
-    {
-      "label": "Unit Test: Run App Unit Test (coverage mode)",
-      "type": "process",
-      "group": "build",
-      "command": "fox-wrapper-place-holder",
-      "args": [
-        "ceedling",
-        "--project",
-        "app",
-        "gcov:all"
+        "waf",
+        "build_app_unit_test_gcc",
+        "--targets=${fileBasenameNoExtension}"
       ],
       "problemMatcher": [
         "$gcc"
@@ -164,13 +145,13 @@
       }
     },
     {
-      "label": "Clean: App Embedded",
+      "label": "Clean: App TI ARM CGT",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "clean_app_embedded",
+        "clean_app_ti_arm_cgt",
         "-c",
         "yes"
       ],
@@ -185,10 +166,10 @@
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
-        "ceedling",
-        "--project",
-        "app",
-        "clobber"
+        "waf",
+        "clean_app_unit_test_gcc",
+        "-c",
+        "yes"
       ],
       "problemMatcher": [],
       "options": {

@@ -43,8 +43,8 @@
  * @file    fram_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  FRAM
  *
@@ -77,6 +77,15 @@ FRAM_SBC_INIT_s fram_sbcInit = {
 FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags = {false};
 FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord   = {false, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
 FRAM_INSULATION_FLAG_s fram_insulationFlags        = {.groundErrorDetected = false};
+FRAM_ADC_CALIBRATION_s fram_CalibrationData        = {
+    .slope  = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f},
+    .offset = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}};
+
+/**this is the structure for calibration values that have not been assigned to a specific value yet
+ * if you adjust these names along with this file they also need to be changed in can_cbs_tx_f_debug-response,
+ * can_cbs_rx_f_debug and where the calibration value is used to calculate the actual values
+*/
+
 /**@}*/
 
 /**
@@ -91,6 +100,7 @@ FRAM_BASE_HEADER_s fram_databaseHeader[] = {
     {(void *)(&fram_soe), sizeof(fram_soe), 0},
     {(void *)(&fram_sysMonViolationRecord), sizeof(fram_sysMonViolationRecord), 0},
     {(void *)(&fram_insulationFlags), sizeof(fram_insulationFlags), 0},
+    {(void *)(&fram_CalibrationData), sizeof(fram_CalibrationData), 0},
 };
 
 /*========== Static Function Prototypes =====================================*/

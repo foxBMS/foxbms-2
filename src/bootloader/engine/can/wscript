@@ -37,17 +37,29 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    source = ["can_cbs.c"]
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    source = [bld.path.find_node("can_cbs.c")]
     includes = [
-        ".",
-        "../boot",
-        "../../driver/can",
-        "../../driver/config",
-        "../../driver/crc",
-        "../../driver/flash",
-        "../../main/include",
+        bld.path,
+        bld.srcnode.find_node("src/bootloader/driver/can"),
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/crc"),
+        bld.srcnode.find_node("src/bootloader/driver/flash"),
+        bld.srcnode.find_node("src/bootloader/engine/boot"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
     ]
-    target = f"{bld.env.APPNAME.lower()}-bootloader-engine-can-objects"
-    bld.objects(source=source, includes=includes, target=target)
+    use = [f"{lp}hal", "_L2FMC"]
+    source = "can_cbs"
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )

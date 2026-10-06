@@ -43,8 +43,8 @@
  * @file    master_info.h
  * @author  foxBMS Team
  * @date    2020-07-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  MINFO
  *
@@ -107,6 +107,13 @@ void MINFO_SetDebugProbeConnectionState(MINFO_DEBUG_PROBE_CONNECTION_STATE_e sta
  * @return #MINFO_DEBUG_PROBE_CONNECTION_STATE_e if debugger connected or not
  */
 MINFO_DEBUG_PROBE_CONNECTION_STATE_e MINFO_GetDebugProbeConnectionState(void);
+
+/**
+ * @brief Get supply voltage for clamp30c in milli Volt
+ *
+ * @return supply voltage for clamp30c for calibration purposes from minfo_state.supplyVoltageClamp30c_mV
+ */
+extern uint32_t MINFO_GetClamp30cSupplyVoltage(void);
 
 /** @brief Check if supply voltage clamp 30C is present */
 void MINFO_CheckSupplyVoltageClamp30c(void);

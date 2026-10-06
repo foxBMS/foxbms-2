@@ -56,10 +56,10 @@ except ModuleNotFoundError:
     from cli.cmd_plot.data_handling.handler_interface import DataHandlerInterface
 
 
-class TestinterfaceGetTmpData(unittest.TestCase):
+class TestInterfaceGetTmpData(unittest.TestCase):
     """Tests for the static get_tmp_data method of interface."""
 
-    def test_returns_dataframe_when_cache_valid(self):
+    def test_returns_dataframe_when_cache_valid(self) -> None:
         """Return cached DataFrame when parquet exists, file unchanged, and no_tmp is False."""
         mock_tmp = mock.Mock()
         with TemporaryDirectory() as tmp_dir:
@@ -79,9 +79,11 @@ class TestinterfaceGetTmpData(unittest.TestCase):
 
                 df = DataHandlerInterface.get_tmp_data(data_path, no_tmp=False)
                 self.assertIs(df, expected_df)
-                read_parquet.assert_called_once_with(cached_parquet, engine="pyarrow")
+                read_parquet.assert_called_once_with(
+                    cached_parquet, engine="pyarrow", to_pandas_kwargs={}
+                )
 
-    def test_returns_none_when_no_tmp_flag(self):
+    def test_returns_none_when_no_tmp_flag(self) -> None:
         """Return None when no_tmp=True even if a cached parquet exists."""
         mock_tmp = mock.Mock()
         with TemporaryDirectory() as tmp_dir:
@@ -100,7 +102,7 @@ class TestinterfaceGetTmpData(unittest.TestCase):
                 df = DataHandlerInterface.get_tmp_data(data_path, no_tmp=True)
                 self.assertIsNone(df)
 
-    def test_returns_none_when_file_changed(self):
+    def test_returns_none_when_file_changed(self) -> None:
         """Return None when FileTracker indicates the source file has changed."""
         mock_tmp = mock.Mock()
         with TemporaryDirectory() as tmp_dir:
@@ -117,7 +119,7 @@ class TestinterfaceGetTmpData(unittest.TestCase):
             df = DataHandlerInterface.get_tmp_data(data_path, no_tmp=False)
             self.assertIsNone(df)
 
-    def test_returns_none_when_no_cached_file(self):
+    def test_returns_none_when_no_cached_file(self) -> None:
         """Return None when no cached parquet file is found."""
         mock_tmp = mock.Mock()
         with TemporaryDirectory() as tmp_dir:
@@ -133,7 +135,7 @@ class TestinterfaceGetTmpData(unittest.TestCase):
             df = DataHandlerInterface.get_tmp_data(data_path, no_tmp=False)
             self.assertIsNone(df)
 
-    def test_arrow_invalid_triggers_log_and_exit(self):
+    def test_arrow_invalid_triggers_log_and_exit(self) -> None:
         """Log and exit when pyarrow raises ArrowInvalid while accessing parquet."""
         mock_tmp = mock.Mock()
         with TemporaryDirectory() as tmp_dir:
@@ -159,10 +161,10 @@ class TestinterfaceGetTmpData(unittest.TestCase):
             self.assertIn("Parquet Error:", args[0])
 
 
-class TestinterfaceWriteTmpFile(unittest.TestCase):
+class TestInterfaceWriteTmpFile(unittest.TestCase):
     """Tests for the static write_tmp_file method of interface."""
 
-    def test_writes_parquet_to_tmp_dir(self):
+    def test_writes_parquet_to_tmp_dir(self) -> None:
         """Write DataFrame to parquet in the tmp directory using hash-based filename."""
         mock_tmp = mock.Mock()
         with TemporaryDirectory() as tmp_dir:

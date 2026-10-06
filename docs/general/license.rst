@@ -47,13 +47,13 @@ Further Information
 ===================
 
 We kindly request you to use one or more of the following phrases to refer to
-foxBMS in your hardware, software, documentation or advertising materials:
+|foxbms| in your hardware, software, documentation or advertising materials:
 
 - "This product uses parts of foxBMS®"
 - "This product includes parts of foxBMS®"
 - "This product is derived from foxBMS®"
 
-If you use foxBMS in your products, we encourage you to contact us at:
+If you use |foxbms| in your products, we encourage you to contact us at:
 
 .. code-block:: text
 
@@ -126,6 +126,15 @@ Third Party Sources and Software
    :widths: 10 50
    :delim: ;
    :file: ./license-tables/internal/license-info_waf.csv
+
+|cmock|
+-------
+
+.. csv-table::
+   :name: license-info_cmock
+   :widths: 30 10 10 50
+   :delim: ;
+   :file: ./license-tables/internal/license-info_cmock.csv
 
 Third Party Software
 ====================
@@ -219,15 +228,6 @@ Third Party Software
    :widths: 10 50
    :delim: ;
    :file: ./license-tables/external/license-info_ruby-installer.csv
-
-|ruby-gems|
------------
-
-.. csv-table::
-   :name: license-info_ruby-gems
-   :widths: 30 10 10 50
-   :delim: ;
-   :file: ./license-tables/external/license-info_ruby-gems.csv
 
 |vs-code|
 ---------

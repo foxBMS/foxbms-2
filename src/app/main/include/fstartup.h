@@ -43,13 +43,16 @@
  * @file    fstartup.h
  * @author  foxBMS Team
  * @date    2022-05-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
  * @prefix  STU
  *
  * @brief   Startup code
- * @details TODO
+ * @details This header declares the startup entry points used during system
+ *          initialization before the application scheduler is started.
+ *          It covers the toolchain-provided runtime initialization and the
+ *          platform startup routine.
  */
 
 #ifndef FOXBMS__FSTARTUP_H_

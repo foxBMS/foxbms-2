@@ -1,6 +1,9 @@
 .. include:: ./../../macros.txt
 .. include:: ./../../units.txt
 
+..
+   cspell:ignore Ootpa
+
 .. _HOW_TO_USE_UNIT_TESTS:
 
 How to use Unit Tests
@@ -14,46 +17,22 @@ Verify that the unit testing framework is working as expected:
 
       .. code-block:: powershell
 
-         .\fox.ps1 ceedling test:all
-         .\fox.ps1 ceedling gcov:all
+         .\fox.ps1 waf build_app_unit_test_gcc
 
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
-         ./fox.sh ceedling test:all
-         ./fox.sh ceedling gcov:all
+         ./fox.sh waf build_app_unit_test_gcc
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-         ./fox.sh ceedling test:all
-         ./fox.sh ceedling gcov:all
+         ./fox.sh waf build_app_unit_test_gcc
 
 Typical usage and more information on the unit tests can be found in
 :ref:`Unit tests <UNIT_TESTS>`.
-
-Default Includes
-----------------
-
-The default include paths are defined in `app_project_win32.yml` and
-`app_project_posix.yml` in the key ``:paths:`` |rarr| ``:include:``.
-
-When a tests requires specific include-paths to be added the macro
-``TEST_INCLUDE_PATH("../../path/to/directory")`` can be used.
-The include needs to start with ``../../`` and then specifies the path to the
-directory as seen from the repository root, e.g., to include the directory
-``src/app/driver/config`` use
-``TEST_INCLUDE_PATH("../../src/app/driver/config")``.
-The path must be provided in POSIX form (i.e., forward slashes).
-
-Additional Source files
------------------------
-
-If a test requires additional files to be compiled that cannot be derived from
-the list of included files, then the macro ``TEST_SOURCE_FILE("file-name.c")``
-can be used.
 
 Guidelines for the Unit Test Skeleton
 -------------------------------------
@@ -73,8 +52,6 @@ Therefore, there are now two functions that need to be united tested.
 At first the accompanying unit test file needs to be created in
 ``tests/unit/app/driver/abc/test_abc.c`` (notice the prefix ``test``) based on
 the template in ``conf/tpl/test_c.c``.
-The helper script ``tools/utils/generate_missing_test_files.py`` can be used to
-automatically create the file.
 
 Public/Extern Function Tests
 ----------------------------
@@ -82,7 +59,7 @@ Public/Extern Function Tests
 #. Add a function ``uint8_t testABC_DoThis()`` in the appropriate section in the
    test file ``tests/unit/app/driver/abc/test_abc.c``.
    This function implements the tests for ``ABC_DoThis()``.
-   The prefix ``test`` (**no** trailing underscore) is required for ceedling to
+   The prefix ``test`` (**no** trailing underscore) is required for |cmock| to
    detect the function as a *test*-function.
 #. Write the test code.
 
@@ -113,7 +90,7 @@ Static Function Tests
 #. Add a function ``void testABC_DoSomethingElse(void)`` in the appropriate
    section in the test file ``tests/unit/app/driver/abc/test_abc.c``.
    This function implements the tests for ``ABC_DoSomethingElse()``.
-   The prefix ``test`` (**no** trailing underscore) is required for ceedling to
+   The prefix ``test`` (**no** trailing underscore) is required for |cmock| to
    detect the function as a *test*-function.
    Note: The ``TEST_`` prefix of the *externalization* wrapper is removed and not
    part of the test function name.
@@ -147,47 +124,6 @@ The wrapper function ``TEST_ABC_DoSomethingElse`` needs to be put inside the
    :caption: Implementation of the ``abc``-driver test
              (``tests/unit/app/driver/abc/test_abc.c``)
 
-How to exclude files from unit tests
-====================================
-
-Normally, all files should be covered by a (at least empty) unit test.
-If a certain file is not meant to be covered by unit tests, it has to be
-excluded in several locations in order to suppress checking mechanisms in the
-toolchain.
-
-Additionally, the main wscript contains a mechanism that checks that every
-file has a corresponding test file in the proper location.
-Untested files have to be added to ``excl`` in ``check_test_files(ctx)``.
-
-Using Ceedling
-==============
-
-When developing or debugging a unit test, it might be beneficial to have finer
-control over which test is executed.
-
-For this and especially for debugging the unit test integration it is possible
-to directly access ceedling as follows:
-
-.. tabs::
-
-   .. group-tab:: Win32/PowerShell
-
-      .. code-block:: powershell
-
-         .\fox.ps1 ceedling gcov:test_plausibility.c
-
-   .. group-tab:: Win32/Git bash
-
-      .. code-block:: shell
-
-         ./fox.sh ceedling gcov:test_plausibility.c
-
-   .. group-tab:: Linux
-
-      .. code-block:: shell
-
-         ./fox.sh ceedling gcov:test_plausibility.c
-
 .. _linux_specific_usage:
 
 Linux specific Usage
@@ -199,9 +135,9 @@ all setup that install the dependencies as they are specified in
 However, it is still possible to get the unit test suite working on Linux.
 Internally it is tested with the following setup:
 
-- ``cat /etc/redhat-release``: Red Hat Enterprise Linux release 8.8 (Ootpa)
-- ``uname -mrs``: Linux 4.18.0-425.19.2.el8_7.x86_64 x86_64
-- ``gcc --version``: gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-18)
+- ``cat /etc/redhat-release``: AlmaLinux release 10.2 (Lavender Lion)
+- ``uname -mrs``: Linux 6.12.0-211.7.3.el10_2.x86_64 x86_64
+- ``gcc --version``: gcc (GCC) 14.3.1 20251022 (Red Hat 14.3.1-4)
 - ``ruby --version``: ruby 3.1.2p20 (2022-04-12 revision 4491bb740a)
   [x86_64-linux]
 

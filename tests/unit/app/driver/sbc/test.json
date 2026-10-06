@@ -1,0 +1,81 @@
+[
+  {
+    "source": "src/app/driver/sbc/nxpfs85xx.c",
+    "test": "test_nxpfs85xx_mcu_spi_transfer_data.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/fram",
+      "src/app/driver/io",
+      "src/app/driver/sbc",
+      "src/app/driver/sbc/fs8x_driver",
+      "src/app/driver/spi",
+      "src/app/engine/diag",
+      "src/app/engine/hw_info"
+    ],
+    "mocks": [
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/sbc/fs8x_driver/sbc_fs8x.h",
+      "src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/engine/hw_info/master_info.h",
+      "src/app/main/include/fassert.h"
+    ]
+  },
+  {
+    "source": "src/app/driver/sbc/nxpfs85xx.c",
+    "test": "test_nxpfs85xx.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/fram",
+      "src/app/driver/io",
+      "src/app/driver/sbc",
+      "src/app/driver/sbc/fs8x_driver",
+      "src/app/driver/spi",
+      "src/app/engine/diag",
+      "src/app/engine/hw_info"
+    ],
+    "mocks": [
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/sbc/fs8x_driver/sbc_fs8x.h",
+      "src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/engine/hw_info/master_info.h",
+      "src/app/main/include/fassert.h"
+    ]
+  },
+  {
+    "source": "src/app/driver/sbc/sbc.c",
+    "test": "test_sbc.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/fram",
+      "src/app/driver/io",
+      "src/app/driver/sbc",
+      "src/app/driver/sbc/fs8x_driver",
+      "src/app/driver/spi",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/sbc/fs8x_driver/sbc_fs8x.h",
+      "src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.h",
+      "src/app/driver/sbc/nxpfs85xx.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ]
+  }
+]

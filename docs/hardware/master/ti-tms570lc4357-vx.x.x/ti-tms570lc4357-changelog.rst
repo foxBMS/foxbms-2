@@ -1,6 +1,9 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
+..
+   cspell:ignore TCAN
+
 .. _CHANGELOG_FOR_THE_TI_TMS570_BASED_BMS_MASTER:
 
 Changelog for the |ti-tms570|\ -based |bms-master|
@@ -102,7 +105,8 @@ v1.1.1
 - Add clamping diodes for contactor feedback resistor dividers in order to
   protect inputs of port expander.
 - Add clamping diodes to insulation monitor PWM and OK inputs.
-- Adjust contactor connectors pinout to match foxBMS 1 Master pinout.
+- Adjust contactor connectors pinout to match |foxbms-unversioned| 1 BMS-Master
+  pinout.
 - Replace R8014 and R8017 10k resistors with 10R resistors due to amplifier
   gain error.
 - Add placement option to use ADUM6401 as a digital isolator for the CAN2

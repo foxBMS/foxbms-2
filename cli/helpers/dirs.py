@@ -45,7 +45,6 @@ locations for storing user data and cache files for the foxBMS application.
 Attributes:
     FOXBMS_BASE_DIR: Path to the application's main data directory.
     CACHE_DIR: Path to the application's cache directory.
-
 """
 
 # spell:ignore appauthor

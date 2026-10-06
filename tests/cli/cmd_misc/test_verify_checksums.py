@@ -44,7 +44,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_misc import verify_checksums
@@ -57,21 +57,21 @@ class TestIdeImpl(unittest.TestCase):
     """Test"""
 
     @patch("cli.cmd_misc.verify_checksums.get_multiple_files_hash_str")
-    def test_verify_single_file(self, hash_mock):
+    def test_verify_single_file(self, hash_mock: MagicMock) -> None:
         """Test single file verification"""
         hash_mock.return_value = "dummy_hash"
         result = verify_checksums.verify(Path("dummy_file"), "dummy_hash")
         self.assertEqual(result, 0)
 
     @patch("cli.cmd_misc.verify_checksums.get_multiple_files_hash_str")
-    def test_verify_multiple_files(self, hash_mock):
+    def test_verify_multiple_files(self, hash_mock: MagicMock) -> None:
         """Test multiple file verification"""
         hash_mock.return_value = "dummy_hash"
         result = verify_checksums.verify([Path("dummy_file")], "dummy_hash")
         self.assertEqual(result, 0)
 
     @patch("cli.cmd_misc.verify_checksums.get_multiple_files_hash_str")
-    def test_verify_invalid_hash(self, hash_mock):
+    def test_verify_invalid_hash(self, hash_mock: MagicMock) -> None:
         """Test multiple file verification"""
         hash_mock.return_value = "one-hash"
         buf = io.StringIO()

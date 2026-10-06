@@ -43,8 +43,8 @@
  * @file    test_rti.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -60,9 +60,6 @@
 #include "rti.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("rti.c")
-
-TEST_INCLUDE_PATH("../../src/bootloader/driver/rti")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* fake register, see src/bootloader/driver/rti/rti.h */

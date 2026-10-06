@@ -39,25 +39,25 @@
 
 """Implements the higher-level control unit simulation"""
 
-from collections.abc import Callable
+from queue import Queue
 
 from ...com.can_com import CAN
 
 
-def sim_unit(can_com: CAN, write_text: Callable[[str], None]) -> None:
-    """Implementation of the higher-level control unit simulation"""
+def sim_unit(can_com: CAN, log_queue: Queue[str]) -> None:
+    """Implementation of the higher-level control unit simulation."""
     try:
         can_com.start()
     except OSError as e:
-        write_text(f"{e}\n")
+        log_queue.put(str(e) + "\n")
         return
-    write_text("CAN Bus Unit is running.\n")
+    log_queue.put("CAN Bus Unit is running.\n")
     while can_com.is_alive():
         try:
             if msg := can_com.read(block=True, timeout=1):
-                write_text(f"Unit received msg: {msg!s}\n")
+                log_queue.put(f"Unit received msg: {msg!s}\n")
         except RuntimeError:
             break
-    write_text(f"End of communication of {can_com.name}.\n")
+    log_queue.put(f"End of communication of {can_com.name}.\n")
     can_com.shutdown(block=True, timeout=1)
     return

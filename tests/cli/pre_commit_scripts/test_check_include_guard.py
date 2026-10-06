@@ -44,6 +44,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
+from typing import ClassVar
 
 try:
     from cli.pre_commit_scripts import check_include_guard
@@ -55,17 +56,19 @@ except ModuleNotFoundError:
 class TestIncludeGuard(unittest.TestCase):
     """Class to test the functions inside check_include_guard.py"""
 
+    tests_dir: ClassVar[Path]
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:  # noqa: D102
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
 
-    def test_main_c_file(self):
+    def test_main_c_file(self) -> None:
         """Test main function with only .c-file"""
         argv = [str(self.tests_dir / "test_file.c")]
         result = check_include_guard.main(argv)
         self.assertEqual(result, 0)
 
-    def test_main_invalid_h_file(self):
+    def test_main_invalid_h_file(self) -> None:
         """Test main function with empty .h-file"""
         argv = [str(self.tests_dir / "test_file_empty.h")]
         err = io.StringIO()
@@ -86,13 +89,13 @@ class TestIncludeGuard(unittest.TestCase):
         ):
             self.assertIn(expected_err, line)
 
-    def test_main_valid_h_file(self):
+    def test_main_valid_h_file(self) -> None:
         """Test main function with valid .h-file"""
         argv = [str(self.tests_dir / "test_file_valid.h")]
         result = check_include_guard.main(argv)
         self.assertEqual(result, 0)
 
-    def test_main_invalid_h_file_multiple(self):
+    def test_main_invalid_h_file_multiple(self) -> None:
         """Test main function with invalid .h-file with one marker twice"""
         argv = [str(self.tests_dir / "test_file_multiple.h")]
         err = io.StringIO()
@@ -110,7 +113,7 @@ class TestIncludeGuard(unittest.TestCase):
         ):
             self.assertIn(expected_err, line)
 
-    def test_main_invalid_h_file_missing(self):
+    def test_main_invalid_h_file_missing(self) -> None:
         """Test main function with invalid .h-file with missing #define statement"""
         argv = [str(self.tests_dir / "test_file_invalid_content.h")]
         err = io.StringIO()

@@ -43,16 +43,14 @@
  * @file    c-015.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
  * @brief   Example code to show the application of the C coding guidelines
  * @details This code implements an example for C:015
  */
-
-/* cspell:ignore AXIVION */
 
 /*========== Includes =======================================================*/
 #include "c-015.h"

@@ -1,0 +1,32 @@
+[
+  {
+    "source": [
+      "src/app/application/bal/bal.c",
+      "src/app/application/bal/none/bal_strategy_none.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_bal_strategy_none.c",
+    "includes": [
+      "src/app/application/bal",
+      "src/app/application/bms",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/fram",
+      "src/app/driver/io",
+      "src/app/driver/spi",
+      "src/app/driver/sps",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/engine/database/database.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h",
+      "tests/unit/app/application/config/battery_system_cfg.h"
+    ]
+  }
+]

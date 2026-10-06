@@ -1,0 +1,205 @@
+[
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_adi.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_ADI=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_debug.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_DEBUG=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_ltc.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_mxm.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_MAXIM=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_nxp.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_NXP=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_spi_notification.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "COMPILE_FOR_UNIT_TEST=1"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_st.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_ST=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi_ti.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TI=1u"
+    ]
+  },
+  {
+    "source": "src/app/driver/spi/spi.c",
+    "test": "test_spi.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/config/dma_cfg.h",
+      "src/app/driver/config/spi_cfg.h",
+      "src/app/driver/config/spi_cfg_initialization.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

@@ -37,30 +37,91 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    source = [
-        "test_tms570_boot.c",
-        "test_tms570_crc.c",
-        "test_tms570_flash.c",
-        "test_tms570_main.c",
-    ]
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    target = f"{bld.env.APPNAME.lower()}-bootloader-target-tests"
+
+    use = [f"{lp}hal", "_L2FMC"]
+
+    source = "test_tms570_boot"
     includes = [
-        ".",
-        "../../src/bootloader/driver/can",
-        "../../src/bootloader/driver/config",
-        "../../src/bootloader/driver/crc",
-        "../../src/bootloader/driver/flash",
-        "../../src/bootloader/driver/foxmath",
-        "../../src/bootloader/driver/rti",
-        "../../src/bootloader/engine/boot",
-        "../../src/bootloader/engine/can",
-        "../../src/bootloader/main/include",
+        bld.path,
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/engine/boot"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
     ]
-    target = f"{bld.env.APPNAME.lower()}-bootloader-target-test-objects"
-
     bld.objects(
-        source=source,
+        source=f"{source}.c",
         includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+    source = "test_tms570_crc"
+    includes = [
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/crc"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+    ]
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+    source = "test_tms570_flash"
+    includes = [
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/flash"),
+    ]
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+
+    use = [
+        f"{op}test_tms570_boot",
+        f"{op}test_tms570_crc",
+        f"{op}test_tms570_flash",
+        f"{op}fassert",
+        f"{op}flash",
+        f"{op}flash_cfg",
+        f"{op}fstartup",
+        f"{op}intvecs_init",
+        f"{op}intvecs",
+        f"{lp}driver",
+        f"{lp}engine",
+        f"{lp}hal",
+        f"{lp}portable",
+        "rtsv7R4_A_be_v3D16_eabi",
+        "_L2FMC",
+        # F021_API_CortexR4_BE_L2FMC_V3D16 is used through the linker script
+    ]
+
+    linker_script_elf = bld.srcnode.find_node("src/bootloader/main/bootloader.cmd")
+    source = "test_tms570_main"
+    includes = [
+        bld.path,
+        bld.srcnode.find_node("src/bootloader/driver/can"),
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/crc"),
+        bld.srcnode.find_node("src/bootloader/engine/boot"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
+        bld.srcnode.find_node("src/version"),
+    ]
+    bld(
+        features="c cprogram",
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        linker_script=linker_script_elf,
+        version=True,
         target=target,
     )

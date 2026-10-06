@@ -43,8 +43,8 @@
  * @file    murata_ncxxxxh103_polynomial.c
  * @author  foxBMS Team
  * @date    2022-12-10 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -53,9 +53,12 @@
  */
 
 /*========== Includes =======================================================*/
+#include "bms-slave_cfg.h"
+
 #include "murata_ncxxxxh103.h"
 #include "tsi.h"
 
+#include <math.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -70,8 +73,8 @@
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV) {
-    return TS_Mur00GetTemperatureFromPolynomial(adcVoltage_mV);
+extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
+    return TS_Mur00GetTemperatureFromPolynomial(adcVoltage_mV, supplyVoltage_V);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

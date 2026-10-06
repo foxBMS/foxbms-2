@@ -1,0 +1,14 @@
+[
+  {
+    "source": "src/app/driver/afe/ti/dummy/ti_dummy.c",
+    "test": "test_ti_dummy.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ti/api"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TI=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

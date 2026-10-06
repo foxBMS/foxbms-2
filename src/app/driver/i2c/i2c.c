@@ -43,8 +43,8 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -152,8 +152,8 @@ static uint32_t I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface) {
     }
     /* This is the equation used in the HAL; seems to differ from Technical Reference Manual
         (docref: p.1769 eq.65, SPNU563A - March 2018) */
-    i2cClock_kHz = (uint32_t)(AVCLK1_FREQ * I2C_FACTOR_MHZ_TO_HZ) /
-                   (2u * (prescaler + 1u) * (pI2cInterface->CKH + dFactor));
+    i2cClock_kHz        = (uint32_t)(AVCLK1_FREQ * I2C_FACTOR_MHZ_TO_HZ) /
+                          (2u * (prescaler + 1u) * (pI2cInterface->CKH + dFactor));
     wordTransmitTime_us = (I2C_FACTOR_WORD_TO_BITS * I2C_FACTOR_S_TO_US) / i2cClock_kHz;
     return wordTransmitTime_us;
 }
@@ -452,7 +452,14 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(
 
         /* Set Tx buffer address */
         /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         dmaRAMREG->PCP[(dmaChannel_t)channelRx].IDADDR = (uint32_t)readData;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         /* AXIVION Enable Style MisraC2012-1.1: */
         /* Set number of Rx bytes to receive, (nrBytes-1) over DMA */
         dmaRAMREG->PCP[(dmaChannel_t)channelRx].ITCOUNT = ((nrBytes - 1u) << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
@@ -546,7 +553,14 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
 
         /* Set Tx buffer address */
         /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         dmaRAMREG->PCP[(dmaChannel_t)channelTx].ISADDR = (uint32_t)writeData;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         /* AXIVION Enable Style MisraC2012-1.1: */
         /* Set number of Tx bytes to transmit */
         dmaRAMREG->PCP[(dmaChannel_t)channelTx].ITCOUNT = (nrBytes << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
@@ -643,7 +657,14 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
 
         /* Set Tx buffer address */
         /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         dmaRAMREG->PCP[(dmaChannel_t)channelTx].ISADDR = (uint32_t)writeData;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         /* AXIVION Enable Style MisraC2012-1.1: */
         /* Set number of Tx bytes to transmit */
         dmaRAMREG->PCP[(dmaChannel_t)channelTx].ITCOUNT = (nrBytesWrite << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
@@ -696,7 +717,14 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
 
             /* Set Rx buffer address */
             /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
             dmaRAMREG->PCP[(dmaChannel_t)channelRx].IDADDR = (uint32_t)readData;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             /* AXIVION Enable Style MisraC2012-1.1: */
             /* Set number of Rx bytes to receive */
             dmaRAMREG->PCP[(dmaChannel_t)channelRx].ITCOUNT =

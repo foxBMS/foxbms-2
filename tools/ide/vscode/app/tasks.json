@@ -17,7 +17,7 @@
       }
     },
     {
-      "label": "Build: App Embedded",
+      "label": "Build: App TI ARM CGT",
       "type": "process",
       "group": {
         "isDefault": false,
@@ -26,7 +26,7 @@
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "build_app_embedded",
+        "build_app_ti_arm_cgt",
         "-c",
         "yes"
       ],
@@ -67,13 +67,13 @@
       }
     },
     {
-      "label": "Clean: App Embedded",
+      "label": "Clean: App TI ARM CGT",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "clean_app_embedded",
+        "clean_app_ti_arm_cgt",
         "-c",
         "yes"
       ],

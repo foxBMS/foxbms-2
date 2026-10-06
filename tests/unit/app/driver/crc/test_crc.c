@@ -43,8 +43,8 @@
  * @file    test_crc.c
  * @author  foxBMS Team
  * @date    2022-02-23 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,7 +61,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/crc")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* crcCalls is exported in crc.h only for unit testing purposes */
@@ -76,14 +75,4 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testCRC_CalculateCrc(void) {
-    uint64_t crc     = 0u;
-    uint8_t data[22] = {0u};
-    uint32_t size    = 22;
-    TEST_ASSERT_FAIL_ASSERT(CRC_CalculateCrc(NULL_PTR, &data[0], size));
-    TEST_ASSERT_FAIL_ASSERT(CRC_CalculateCrc(&crc, NULL_PTR, size));
-
-    TEST_ASSERT_EQUAL(STD_OK, CRC_CalculateCrc(&crc, &data[0], size));
-
-    crcCalls = 16u;
-    TEST_ASSERT_EQUAL(STD_NOT_OK, CRC_CalculateCrc(&crc, &data[0], size));
 }

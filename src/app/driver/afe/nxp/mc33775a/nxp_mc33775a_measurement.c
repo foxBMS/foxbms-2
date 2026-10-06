@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_measurement.c
  * @author  foxBMS Team
  * @date    2025-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -66,6 +66,8 @@
 #include "nxp_mc3377x.h"
 #include "nxp_mc3377x_helpers.h"
 #include "nxp_mc3377x_reg_def.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -193,7 +195,7 @@ static void N775_RetrieveTemperatures(N77X_STATE_s *pState, uint8_t m, bool *gpi
                         ->gpioVoltages_mV[pState->currentString]
                                          [N77X_MULTIPLEXER_TEMP_GPIO_POSITION + (m * SLV_NR_OF_GPIOS_PER_MODULE)];
             } else if (muxId == 1) {
-                /* Temp sensor 8-10 on Mux 1, including pressure sensor */
+                /* Temp sensor 8-16 on Mux 1 */
                 gpioVoltage_mV =
                     pState->n77xData.allGpioVoltage
                         ->gpioVoltages_mV[pState->currentString]

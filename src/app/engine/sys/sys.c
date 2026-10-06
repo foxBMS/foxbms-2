@@ -43,13 +43,17 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
  * @brief   Sys driver implementation
- * @details TODO
+ * @details This module implements the system state machine that sequences the
+ *          startup of the major application modules and supervises the
+ *          transition into normal operation.
+ *          It also coordinates initialization error handling and selected
+ *          built-in self checks.
  */
 
 /*========== Includes =======================================================*/
@@ -175,7 +179,7 @@ static SYS_FSM_STATES_e SYS_ProcessErrorState(const SYS_STATE_s *pSystemState);
  *          It is called by the trigger function every time
  *          the state machine timer has a non-zero value.
  * @param   pSystemState state of the system state machine
- * @return  TODO
+ * @return  returns always #STD_OK
  */
 static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState);
 
@@ -280,12 +284,13 @@ static SYS_FSM_STATES_e SYS_ProcessInitializationState(SYS_STATE_s *pSystemState
     switch (pSystemState->currentSubstate) {
         /**************************** ENTRY STATE ****************************************/
         case SYS_FSM_SUBSTATE_ENTRY:
-            SYS_SetSubstate(pSystemState, SYS_FSM_CHECK_DEEP_DISCHARGE, SYS_FSM_SHORT_TIME);
+            SYS_SetSubstate(pSystemState, SYS_FSM_CHECK_NON_VOLATILE_STORAGE, SYS_FSM_SHORT_TIME);
             break;
 
         /**************************** READ FRAM ******************************************/
-        case SYS_FSM_CHECK_DEEP_DISCHARGE:
+        case SYS_FSM_CHECK_NON_VOLATILE_STORAGE:
             (void)FRAM_ReadData(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG);
+            (void)FRAM_ReadData(FRAM_BLOCK_ID_FRAM_CALIBRATION);
             for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
                 if (fram_deepDischargeFlags.deepDischargeFlag[s] == true) {
                     (void)DIAG_Handler(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
@@ -743,7 +748,7 @@ extern SYS_FSM_SUBSTATES_e SYS_GetSystemSubstate(void) {
 STD_RETURN_TYPE_e TEST_SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
     return SYS_RunStateMachine(pSystemState);
 }
-STD_RETURN_TYPE_e TEST_SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest) {
+SYS_RETURN_TYPE_e TEST_SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest) {
     return SYS_CheckStateRequest(stateRequest);
 }
 SYS_CHECK_MULTIPLE_CALLS_e TEST_SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState) {

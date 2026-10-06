@@ -99,11 +99,26 @@ extern void vPortYield( void );
 #define portYIELD()    vPortYield()
 #define portSYS_SSIR1_REG      ( *( ( volatile uint32_t * ) 0xFFFFFFB0 ) )
 #define portSYS_SSIR1_SSKEY    ( 0x7500UL )
-/* start: required for Cortex-R5 MPU port - inline assembler is defined with __asm */
-#define portYIELD_WITHIN_API()     { portSYS_SSIR1_REG = portSYS_SSIR1_SSKEY; __asm( " DSB " ); __asm( " ISB " ); }
-/* end: required for Cortex-R5 MPU port - inline assembler is defined with __asm */
-#define portYIELD_FROM_ISR( x )    do { if( x != pdFALSE ) { portSYS_SSIR1_REG = portSYS_SSIR1_SSKEY;  ( void ) portSYS_SSIR1_REG; } } while( 0 )
+/* start: required for Cortex-R5 MPU port  */
 
+/* Do NOT define portYIELD_WITHIN_API() via SSIR1: an IRQ-based yield can be
+ * deferred by a subsequent taskENTER_CRITICAL(), which breaks the required
+ * "switch happens immediately" semantics (lost notifications). The kernel
+ * defaults portYIELD_WITHIN_API() to portYIELD() = SWI #0, which cannot be
+ * masked. The SSI path remains in use for portYIELD_FROM_ISR(). */
+/* end: required for Cortex-R5 MPU port */
+#ifndef UNITY_UNIT_TEST
+    #define portYIELD_FROM_ISR( x )                   \
+    do { if( x != pdFALSE ) {                         \
+             portSYS_SSIR1_REG = portSYS_SSIR1_SSKEY; \
+             ( void ) portSYS_SSIR1_REG;              \
+             __asm( " DSB " );                        \
+             __asm( " ISB " );                        \
+         }                                            \
+    } while( 0 )
+#else
+    #define portYIELD_FROM_ISR( x )
+#endif /* UNITY_UNIT_TEST */
 #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
     #define configUSE_PORT_OPTIMISED_TASK_SELECTION    1
 #endif

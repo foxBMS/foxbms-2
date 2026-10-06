@@ -46,7 +46,7 @@ import click
 from ..cmd_log import log_impl
 from ..helpers.click_helpers import verbosity_option
 from ..helpers.fcan import CanBusConfig, common_can_options
-from ..helpers.misc import PROJECT_BUILD_ROOT
+from ..helpers.project_context import PROJECT_BUILD_ROOT
 
 
 @click.command("log")

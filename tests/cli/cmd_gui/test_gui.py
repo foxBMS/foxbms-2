@@ -55,7 +55,7 @@ class TestGui(unittest.TestCase):
     """Test of the 'gui.py' file."""
 
     @patch("cli.cmd_gui.gui.run_gui")
-    def test_gui_main(self, mock_run_gui: MagicMock):
+    def test_gui_main(self, mock_run_gui: MagicMock) -> None:
         """Test function 'gui_main'."""
         gui.gui_main()
         mock_run_gui.assert_called_once()

@@ -43,8 +43,8 @@
  * @file    tsi.h
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TSI
  *
@@ -57,7 +57,7 @@
 #define FOXBMS__TSI_H_
 
 /*========== Includes =======================================================*/
-
+#include <math.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -68,12 +68,14 @@
 
 /**
  * @brief   translate a voltage to a temperature
- * @details Takes a voltage in mV as input and returns a temperature in int16_t
- *          according to the chosen temperature sensor implementation.
+ * @details Takes a voltage in mV and a supply volage in V as input and returns
+ *          a temperature in int16_t according to the chosen temperature sensor
+ *          implementation.
  * @param   adcVoltage_mV   ADC voltage value in mV
+ * @param   supplyVoltage_V  Value of resistor divider supply voltage in V
  * @return  Temperature in int16_t in deci &deg;C
  */
-extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV);
+extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV, float_t supplyVoltage_V);
 
 /**
  * @brief   Return the maximum plausible temperature

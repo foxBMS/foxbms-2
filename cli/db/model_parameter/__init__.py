@@ -52,11 +52,13 @@ The typical workflow is:
 """
 
 import zipfile
-from dataclasses import dataclass
 from pathlib import Path
 
+from pydantic import ConfigDict
+from pydantic.dataclasses import dataclass
 
-@dataclass
+
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class BaseModel:
     """Base class for model parameter dataclasses.
 
@@ -82,7 +84,6 @@ class BaseModel:
         """Validate attributes and normalize source paths.
 
         This method performs the following steps:
-        - Ensures ``name`` is a string.
         - Iterates over ``sources`` and converts string entries to paths by
           joining them with ``_directory``.
         - Leaves existing ``Path`` or ``zipfile.Path`` entries unchanged.
@@ -90,15 +91,10 @@ class BaseModel:
         - Stores the normalized list back into ``self.sources``.
 
         Raises:
-            TypeError
-                If ``name`` is not a string.
             ValueError
                 If at least one entry in ``sources`` does not resolve to an
                 existing path.
         """
-        if not isinstance(self.name, str):
-            err_txt = f"Modelname '{self.name}' is not a string."
-            raise TypeError(err_txt)
         new_sources = []
         for source in self.sources:
             if isinstance(source, str):

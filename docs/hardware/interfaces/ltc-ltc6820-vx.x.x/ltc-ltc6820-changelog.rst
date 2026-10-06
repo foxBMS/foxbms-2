@@ -1,6 +1,9 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
+..
+   cspell:ignore netclass
+
 .. _CHANGELOG_FOR_THE_LTC_LTC6820_BASED_BMS_INTERFACE:
 
 Changelog for the |ltc-ltc6820|\ -based |bms-interface|

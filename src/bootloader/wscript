@@ -37,13 +37,30 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    # The macro _L2FMC must be defined before the inclusion of the header file
-    # 'F021.h' on devices with the L2FMC Flash controller.
-    # doc:: F021 Flash API / Version 2.01.01 / Reference Guide
-    #       Literature Number: SPNU501G
-    #       December 2012-Revised October 2014
-    bld.define("_L2FMC", 1)
 
+def build(bld: BuildContext) -> None:
     bld.recurse(["driver", "engine", "hal", "main"])
+
+    if bld.env.VS_CODE_SHELL:
+        bld(
+            features="vscode",
+            target="bootloader",
+            vscode_dir=bld.path.make_node(".vscode"),
+            use_compiler_defines=True,
+            defines=["_L2FMC"],
+            include_dirs=[
+                f"build/{bld.variant}/src/bootloader/hal/include",
+                "src/version",
+            ],
+            glob_patterns=[
+                "src/bootloader/**",
+            ],
+            use_compiler_includes=True,
+            pylint=True,
+            python_extra_paths=True,
+            files_exclude={".vscode/**": True, "opt/**": True},
+            build_tasks=True,
+            environment="ti_arm_cgt",
+        )

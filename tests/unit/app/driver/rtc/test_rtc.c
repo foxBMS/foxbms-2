@@ -43,8 +43,8 @@
  * @file    test_rtc.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,15 +69,6 @@
 #include <time.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("rtc.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/i2c")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -104,12 +95,13 @@ void testRTC_Trigger(void) {
     I2C_Write_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cWriteBuffer, STD_OK);
     I2C_ReadDma_ExpectAndReturn(
         RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, RTC_NUMBER_OF_TIME_DATA_BYTES, expectedI2cReadBuffer, STD_OK);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     OS_DelayTaskUntil_Expect(&currentTime, 2u);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
 
     RTC_Trigger();
 }
@@ -128,7 +120,7 @@ void testRTC_Initialize(void) {
         expectedI2cWriteBuffer,
         STD_OK);
     OS_DelayTaskUntil_Expect(&currentTime, 2u);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     RTC_Initialize();
 
     OS_GetTickCount_ExpectAndReturn(0u);
@@ -141,7 +133,7 @@ void testRTC_Initialize(void) {
         STD_OK);
     OS_GetTickCount_ExpectAndReturn(0u);
     OS_DelayTaskUntil_Expect(&currentTime, 2u);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     RTC_Initialize();
 
     OS_GetTickCount_ExpectAndReturn(0u);
@@ -149,7 +141,7 @@ void testRTC_Initialize(void) {
     I2C_WriteDma_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cWriteBuffer, STD_OK);
     I2C_Read_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cReadBuffer, STD_OK);
     OS_DelayTaskUntil_Expect(&currentTime, 2u);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     RTC_Initialize();
 }
 
@@ -161,8 +153,9 @@ void testRTC_InitializeSystemTimeWithRtc(void) {
     I2C_Write_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cWriteBuffer, STD_OK);
     I2C_ReadDma_ExpectAndReturn(
         RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, RTC_NUMBER_OF_TIME_DATA_BYTES, expectedI2cReadBuffer, STD_OK);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
 

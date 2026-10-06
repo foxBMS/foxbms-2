@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -82,12 +82,12 @@ typedef enum {
     DATA_BLOCK_ID_BALANCING_CONTROL,
     DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE,
     DATA_BLOCK_ID_BALANCING_FEEDBACK_REDUNDANCY0,
-    DATA_BLOCK_ID_CELL_TEMPERATURE,
-    DATA_BLOCK_ID_CELL_TEMPERATURE_BASE,
-    DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0,
-    DATA_BLOCK_ID_CELL_VOLTAGE,
-    DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
-    DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0,
+    DATA_BLOCK_ID_CELL_TEMPERATURE, /**> validated cell temperature; written by the **bms values** module; consumable by other modules */
+    DATA_BLOCK_ID_CELL_TEMPERATURE_BASE, /**> base cell temperature measurement; written by the **afe** module; consumed **only** by the bms values module */
+    DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0, /**> redundant cell temperature measurement; written by the **afe** module; consumed **only** by the bms values module */
+    DATA_BLOCK_ID_CELL_VOLTAGE, /**> validated cell voltage; written by the **bms values** module; consumable by other modules */
+    DATA_BLOCK_ID_CELL_VOLTAGE_BASE, /**> base cell voltage measurement; written by the **afe** module; consumed **only** by the bms values module */
+    DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0, /**> redundant cell voltage measurement; written by the **afe** module; consumed **only** by the bms values module */
     DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
     DATA_BLOCK_ID_CURRENT,
     DATA_BLOCK_ID_CURRENT_SENSOR_TEMPERATURE,
@@ -108,7 +108,7 @@ typedef enum {
     DATA_BLOCK_ID_MSL_FLAG,
     DATA_BLOCK_ID_OPEN_WIRE_BASE,
     DATA_BLOCK_ID_OPEN_WIRE_REDUNDANCY0,
-    DATA_BLOCK_ID_PACK_VALUES,
+    DATA_BLOCK_ID_PACK_VALUES, /**> validated pack values; written by the **bms values** module; consumable by other modules */
     DATA_BLOCK_ID_RSL_FLAG,
     DATA_BLOCK_ID_SLAVE_CONTROL,
     DATA_BLOCK_ID_SOC,
@@ -588,6 +588,8 @@ typedef struct {
     float_t averageSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoh <= 100.0 */
     float_t minimumSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoh <= 100.0  */
     float_t maximumSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoh <= 100.0  */
+    float_t soh_perc[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                    [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< 0.0 <= soh <= 100.0 */
 } DATA_BLOCK_SOH_s;
 
 /** data block struct of SOE */
@@ -599,9 +601,10 @@ typedef struct {
     float_t averageSoe_perc[BS_NR_OF_STRINGS];              /*!< 0.0 <= averageSoe <= 100.0 */
     float_t minimumSoe_perc[BS_NR_OF_STRINGS];              /*!< 0.0 <= minimumSoe <= 100.0  */
     float_t maximumSoe_perc[BS_NR_OF_STRINGS];              /*!< 0.0 <= maximumSoe <= 100.0  */
-    uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS];               /*!< maximum string energy in Wh */
-    uint32_t averageSoe_Wh[BS_NR_OF_STRINGS];               /*!< average string energy in Wh */
-    uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS];               /*!< minimum string energy in Wh */
+    float_t maximumSoe_Wh[BS_NR_OF_STRINGS];                /*!< maximum string energy in Wh */
+    float_t averageSoe_Wh[BS_NR_OF_STRINGS];                /*!< average string energy in Wh */
+    float_t minimumSoe_Wh[BS_NR_OF_STRINGS];                /*!< minimum string energy in Wh */
+    float_t energyCounter_Wh[BS_NR_OF_STRINGS];             /*!< energyCounting Value in Wh */
     float_t chargeEnergyThroughput_Wh[BS_NR_OF_STRINGS];    /*!< inflow of energy */
     float_t dischargeEnergyThroughput_Wh[BS_NR_OF_STRINGS]; /*!< outflow of energy */
 } DATA_BLOCK_SOE_s;

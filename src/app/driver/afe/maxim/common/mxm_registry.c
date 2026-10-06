@@ -43,8 +43,8 @@
  * @file    mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -170,9 +170,8 @@ extern void MXM_MonRegistryParseVersionIntoDevices(MXM_MONITORING_INSTANCE_s *pS
             pState->rxBuffer[bufferPosition], pState->rxBuffer[bufferPosition + 1u], MXM_REG_VERSION_MOD, &model);
         if (model >= (uint16_t)MXM_MODEL_ID_invalid) {
             currentDevice->model = MXM_MODEL_ID_invalid;
-        } else if (
-            (model != (uint16_t)MXM_MODEL_ID_MAX17852) && (model != (uint16_t)MXM_MODEL_ID_MAX17853) &&
-            (model != (uint16_t)MXM_MODEL_ID_MAX17854)) {
+        } else if ((model != (uint16_t)MXM_MODEL_ID_MAX17852) && (model != (uint16_t)MXM_MODEL_ID_MAX17853) &&
+                   (model != (uint16_t)MXM_MODEL_ID_MAX17854)) {
             currentDevice->model = MXM_MODEL_ID_invalid;
         } else {
             /* AXIVION Next Codeline Style MisraC2012-10.5: All invalid values have been cleared. */

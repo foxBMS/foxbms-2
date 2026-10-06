@@ -6,24 +6,25 @@
 Dependency Management
 =====================
 
-|foxbms| uses other tools in order to build embedded sources, unit tests,
+|foxbms| uses other tools to build embedded sources, unit tests,
 documentation and other tools.
 These dependencies are either part of the repository (e.g., FreeRTOS)
-or are programs that need to be installed in order work with the repository
+or are programs that need to be installed in order to work with the repository
 (e.g., Python).
 
-The following sections list these dependencies, describes how to update them
+The following sections list these dependencies, describe how to update them
 and includes a maintenance plan to keep dependencies up-to-date.
 
 Internal Dependencies
 ---------------------
 
-Internal dependencies referr to dependencies where the dependency (i.e., some
-files) is actually commited to the repository, not just a configuration file.
+Internal dependencies refer to dependencies where the dependency (i.e., some
+files) is actually committed to the repository, not just a configuration file.
 
 - |freertos-kernel|: ``src/os/freertos/freertos``
 - |freertos-plus-tcp|: ``src/os/freertos/freertos-plus/freertos-plus-tcp``
 - |waf|: ``tools/waf``
+- |cmock|: ``tools/cmock``
 
 External Dependencies
 ---------------------
@@ -39,7 +40,6 @@ Dependencies that are installed locally on the developer's machine.
 - |python|
 - |python| packages: defined through ``requirements.txt``.
 - |ruby|
-- |ruby-gems|
 - |ti-code-composer-studio|
 - |ti-halcogen|
 - |vs-code|
@@ -58,7 +58,7 @@ Management Plan
   the issue.
 - After closing the ticket for the current update cycle, the ticket for the new
   update cycle **SHALL** be opened.
-- If a dependency can not be updated, it shall be document in the ticketing
+- If a dependency cannot be updated, it shall be documented in the ticketing
   system for the **next** update cycle why a dependency has not been updated.
 - Every dependency **SHALL** be updated in a separate commit.
   Use ``.gitlab/merge_request_templates/mr-dependency-update.md`` as template
@@ -85,7 +85,7 @@ How to Update the Individual Dependencies
 .. |snippet_install| replace:: Install the latest release of
 .. |update-installation-instructions| replace:: Update the installation instructions in ``docs/getting-started/software-installation.rst`` and ``INSTALL.md``
 .. |snippet_update_license| replace:: Update the relevant license information in
-.. |snippet_changelog_entry| replace:: Add a changelog entry. If updating the dependency required other changes than the dependency itself, document this in this changelog entry.
+.. |snippet_changelog_entry| replace:: Add a changelog entry. If updating the dependency required changes other than the dependency itself, document this in this changelog entry.
 .. |snippet_commit| replace:: Add the changes and commit the changes using the following commit message
 
 Updating Internal Dependencies
@@ -105,6 +105,11 @@ Updating Internal Dependencies
 +++++
 
 .. include:: ./update-processes/internal/update-waf.txt
+
+|cmock|
++++++++
+
+.. include:: ./update-processes/internal/update-cmock.txt
 
 Updating External Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,11 +158,6 @@ Updating External Dependencies
 ++++++
 
 .. include:: ./update-processes/external/update-ruby.txt
-
-|ruby-gems|
-+++++++++++
-
-.. include:: ./update-processes/external/update-ruby-gems.txt
 
 |ti-code-composer-studio|
 +++++++++++++++++++++++++

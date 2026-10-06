@@ -43,8 +43,8 @@
  * @file    test_diag.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,11 +68,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
-TEST_INCLUDE_PATH("../../src/os/freertos")
-TEST_INCLUDE_PATH("../../src/app/task/timer")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define NUM_DATA_READ_SUB_CALLS (2)
@@ -114,6 +109,7 @@ TimerHandle_t MockTIMER_Create_Callback(
     TimerCallbackFunction_t pxCallbackFunction,
     StaticTimer_t *pxTimerBuffer,
     int num_calls) {
+    (void)pxCallbackFunction;
     /* determine a value depending on num_calls (has to be synchronized with test) */
     switch (num_calls) {
         case 0:
@@ -144,6 +140,7 @@ TimerHandle_t MockTIMER_Create_Callback(
  * callback functions in the parameter list.
  */
 STD_RETURN_TYPE_e MockTIMER_Start_Callback(TimerHandle_t timerHandle, uint32_t ticks2wait, int num_calls) {
+    (void)timerHandle;
     /* determine a value depending on num_calls (has to be synchronized with test) */
     switch (num_calls) {
         case 0:
@@ -340,20 +337,20 @@ void testDIAG_PrintErrors(void) {
     DIAG_PrintErrors();
 }
 
-void testDIAG_CheckEvent(void) {
+void testDIAG_ReportResultToHandler(void) {
     /* ======= Routine tests ============================================= */
 
     /* ======= RT1/2 ======= */
     /* Condition is STD_OK */
     DIAG_ErrorSystemMonitoring_Expect(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_RESET, &diag_kDatabaseShim, 0u);
-    DIAG_CheckEvent(STD_OK, DIAG_ID_SYSTEM_MONITORING, DIAG_SYSTEM, 0u);
+    DIAG_ReportResultToHandler(STD_OK, DIAG_ID_SYSTEM_MONITORING, DIAG_SYSTEM, 0u);
 
     /* ======= RT2/2 ======= */
     /* Condition is STD_NOT_OK */
     CANTX_SendFatalErrorId_ExpectAndReturn(DIAG_ID_SYSTEM_MONITORING, STD_NOT_OK);
     TIMER_Start_Stub(MockTIMER_Start_Callback);
     DIAG_ErrorSystemMonitoring_Expect(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, &diag_kDatabaseShim, 0u);
-    DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_SYSTEM_MONITORING, DIAG_SYSTEM, 0u);
+    DIAG_ReportResultToHandler(STD_NOT_OK, DIAG_ID_SYSTEM_MONITORING, DIAG_SYSTEM, 0u);
 }
 
 void testDIAG_GetDelay(void) {

@@ -1,0 +1,9 @@
+[
+  {
+    "source": "src/bootloader/driver/crc/vendor/crc64_calc.c",
+    "test": "test_crc64_calc.c",
+    "includes": [
+      "src/bootloader/driver/crc/vendor"
+    ]
+  }
+]

@@ -3,7 +3,7 @@
 
 
 .. |local_bms_interface_version| replace:: ``v1.0.2``
-.. |local_bms_interface_identifier_short| replace:: |nxp-mc33664|\-based |bms-interface|
+.. |local_bms_interface_identifier_short| replace:: |nxp-mc33664|-based |bms-interface|
 .. |local_bms_interface_identifier_full| replace:: |local_bms_interface_identifier_short| |local_bms_interface_version|
 
 .. _NXP_MC33664_BASED_BMS_INTERFACE_V1_0_2:

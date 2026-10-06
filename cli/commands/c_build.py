@@ -41,7 +41,11 @@
 import click
 
 from ..cmd_build import build_impl
-from ..helpers.click_helpers import DISABLE_DEFAULT_HELP, IGNORE_UNKNOWN_OPTIONS
+from ..helpers.click_helpers import (
+    DISABLE_DEFAULT_HELP,
+    IGNORE_UNKNOWN_OPTIONS,
+    verbosity_option,
+)
 
 CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
 
@@ -53,10 +57,14 @@ CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
     is_eager=True,
     help="Directory where 'waf' is run.",
 )
+@verbosity_option
 @click.argument("waf_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def waf(ctx: click.Context, cwd: str, waf_args: tuple[str]) -> None:
-    """Run the ``waf`` build tool."""
+def waf(ctx: click.Context, cwd: str, verbose: int, waf_args: tuple[str, ...]) -> None:
+    """Run the 'waf' build tool."""
+    add_waf_verbosity = "v" * verbose
+    if add_waf_verbosity:
+        waf_args = (f"-{add_waf_verbosity}",) + waf_args
     if cwd:
         ret = build_impl.run_waf(list(waf_args), cwd=cwd, stdout=None, stderr=None)
     else:

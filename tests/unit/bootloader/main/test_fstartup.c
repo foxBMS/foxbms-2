@@ -43,8 +43,8 @@
  * @file    test_fstartup.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -106,9 +106,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-
-TEST_INCLUDE_PATH("../../tests/unit/bootloader/main/helper")
-TEST_INCLUDE_PATH("C:/ti/Hercules/HALCoGen/v04.07.01/drivers/TMS570LC4357ZWT/SYSTEM570v000")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

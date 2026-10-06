@@ -43,8 +43,8 @@
  * @file    ti_dummy.c
  * @author  foxBMS Team
  * @date    2023-09-11 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  TIDUM
  *
@@ -81,26 +81,31 @@ extern STD_RETURN_TYPE_e TIDUM_Initialize(void) {
 
 extern STD_RETURN_TYPE_e TIDUM_RequestEepromRead(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
+    (void)string;
     return STD_OK;
 }
 
 extern STD_RETURN_TYPE_e TIDUM_RequestEepromWrite(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
+    (void)string;
     return STD_OK;
 }
 
 extern STD_RETURN_TYPE_e TIDUM_RequestTemperatureRead(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
+    (void)string;
     return STD_OK;
 }
 
 extern STD_RETURN_TYPE_e TIDUM_RequestBalancingFeedbackRead(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
+    (void)string;
     return STD_OK;
 }
 
 extern STD_RETURN_TYPE_e TIDUM_RequestOpenWireCheck(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
+    (void)string;
     return STD_OK;
 }
 

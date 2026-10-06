@@ -43,8 +43,8 @@
  * @file    diag.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -121,21 +121,20 @@ typedef struct {
 extern DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data);
 
 /**
- * @brief   DIAG_CheckEvent provides a simple interface to check an event for
- *          #STD_OK
- * @details DIAG_CheckEvent is a wrapper function for #DIAG_Handler(). In simple
+ * @brief   Reports an STD_RETURN_TYPE_e result to the diagnosis handler.
+ * @details DIAG_ReportResultToHandler is a wrapper function for #DIAG_Handler(). In simple
  *          cases where a return value that is not #STD_OK (or a 0 casted to
  *          #STD_OK) should increase the error counter in a diagnosis channel,
  *          this function should be used instead of directly calling the
  *          #DIAG_Handler().
- * @param   cond    condition
- * @param   diagId  event ID of the event that has occurred
+ * @param   result   result to be passed
+ * @param   diagId  event ID of the diagnosis entry
  * @param   impact  #DIAG_IMPACT_LEVEL_e of #DIAG_ID_e
- * @param   data    individual information for #DIAG_ID_e e.g. string number,..
- * @return  STD_OK if ok, STD_NOT_OK if not ok
+ * @param   data    individual information for #DIAG_ID_e, e.g. string number
+ * @return  return value of #DIAG_Handler() converted to #STD_RETURN_TYPE_e
  */
-extern STD_RETURN_TYPE_e DIAG_CheckEvent(
-    STD_RETURN_TYPE_e cond,
+extern STD_RETURN_TYPE_e DIAG_ReportResultToHandler(
+    STD_RETURN_TYPE_e result,
     DIAG_ID_e diagId,
     DIAG_IMPACT_LEVEL_e impact,
     uint32_t data);

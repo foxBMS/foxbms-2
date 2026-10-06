@@ -43,8 +43,8 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,10 +69,6 @@
 #include <stdbool.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -276,17 +272,17 @@ void testDATA_IterateOverDatabaseEntries(void) {
     static DATA_BLOCK_CELL_VOLTAGE_s entry_blockCellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
     DATA_QUEUE_MESSAGE_s messages[4u]                       = {
         {
-                                  .accessType     = DATA_READ_ACCESS,
-                                  .pDatabaseEntry = (void *)&entry_blockCellVoltage,
+            .accessType     = DATA_READ_ACCESS,
+            .pDatabaseEntry = {(void *)&entry_blockCellVoltage},
         },
         {
-                                  .pDatabaseEntry = NULL_PTR,
+            .pDatabaseEntry = {NULL_PTR},
         },
         {
-                                  .pDatabaseEntry = NULL_PTR,
+            .pDatabaseEntry = {NULL_PTR},
         },
         {
-                                  .pDatabaseEntry = NULL_PTR,
+            .pDatabaseEntry = {NULL_PTR},
         },
     };
     /* ======= RT1/2: call function under test */
@@ -298,17 +294,17 @@ void testDATA_IterateOverDatabaseEntries(void) {
     static DATA_BLOCK_CELL_VOLTAGE_s entry_blockInvalidId = {.header.uniqueId = DATA_BLOCK_ID_MAX};
     DATA_QUEUE_MESSAGE_s invalidMessages[4]               = {
         {
-                          .accessType     = DATA_READ_ACCESS,
-                          .pDatabaseEntry = (void *)&entry_blockInvalidId,
+            .accessType     = DATA_READ_ACCESS,
+            .pDatabaseEntry = {(void *)&entry_blockInvalidId},
         },
         {
-                          .pDatabaseEntry = NULL_PTR,
+            .pDatabaseEntry = {NULL_PTR},
         },
         {
-                          .pDatabaseEntry = NULL_PTR,
+            .pDatabaseEntry = {NULL_PTR},
         },
         {
-                          .pDatabaseEntry = NULL_PTR,
+            .pDatabaseEntry = {NULL_PTR},
         },
     };
     /* ======= RT2/2: call function under test */
@@ -722,6 +718,9 @@ OS_STD_RETURN_e DATA_mpuInjectValuesForExecuteBISTTestCallback(
     const void *const pvItemToQueue,
     uint32_t xTicksToWait,
     int cmock_num_calls) {
+    (void)xQueue;
+    (void)xTicksToWait;
+    (void)cmock_num_calls;
     const DATA_QUEUE_BIST_INJECTED_MESSAGE_s *const injectQueueMessage = pvItemToQueue;
     /* inject the values into the message for a read access */
     if (injectQueueMessage->accesstype == DATA_READ_ACCESS) {

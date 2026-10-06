@@ -43,8 +43,8 @@
  * @file    test_nxp_mc3377x_afe_dma.c
  * @author  foxBMS Team
  * @date    2025-07-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,13 +54,57 @@
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+#include "Mockdma.h"
+#include "Mockftask.h"
+#include "Mockio.h"
+#include "Mocknxp_mc3377x.h"
+#include "Mockos.h"
+#include "Mockspi.h"
+
+#include "afe_dma.h"
+#include "fstd_types.h"
+#include "test_assert_helper.h"
+
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+uint64_t dummyVar;
+/* we dont care the actual task handle for the unit test, so we just use a
+ * dummy variable as the size of the task handle is not known in the unit test
+ * and also not relevant */
+OS_TASK_HANDLE ftsk_taskHandleAfe = (OS_TASK_HANDLE)&dummyVar;
+
+/** SPI enumeration for DMA */
+spiBASE_t *dma_spiInterfaces[DMA_NUMBER_SPI_INTERFACES] = {
+    spiREG1, /*!< SPI1 */
+    spiREG2, /*!< SPI2 */
+    spiREG3, /*!< SPI3 */
+    spiREG4, /*!< SPI4 */
+    spiREG5, /*!< SPI5 */
+};
 
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/nxp/common/mc3377x/README.md */
+
+void testAFE_DmaCallback(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(AFE_DmaCallback(1));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_NotifyIndexedFromIsr_ExpectAndReturn(ftsk_taskHandleAfe, 0x01, 0x50, OS_SUCCESS);
+    /* ======= RT1/2: Call function under test */
+    AFE_DmaCallback(0);
+    /* ======= RT1/2: Test output verification */
+    /* nothing to verify */
+}

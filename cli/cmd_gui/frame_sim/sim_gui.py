@@ -39,13 +39,15 @@
 
 """Implements the 'Simulate BMS' frame"""
 
+import threading
 import tkinter as tk
+from queue import Queue
 from threading import Thread
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
 from ...com.can_com import CAN
-from ...helpers.misc import PROJECT_BUILD_ROOT
+from ..frame_base import BaseFrame
 from .sim_bms_impl import sim_bms
 from .sim_unit_impl import sim_unit
 from .window_can_config import CanConfigWindow
@@ -54,23 +56,15 @@ if TYPE_CHECKING:
     from ...helpers.fcan import CanBusConfig
 
 
-BMS_RX_MSGS: list[str] = ["f_Debug", "f_BmsStateRequest"]
-
-
 # pylint: disable-next=too-many-instance-attributes, too-many-ancestors
-class SimulateBmsFrame(ttk.Frame):
+class SimulateBmsFrame(BaseFrame):
     """'Simulate BMS' frame"""
 
     def __init__(self, parent: ttk.Notebook, text_widget: tk.Text) -> None:
-        super().__init__(parent)
-        self.parent = parent
-        self.text = text_widget
-        self.text_index: int = 0
+        super().__init__(parent, text_widget, "output_gui_sim.txt")
         self.bms_process: Thread
         self.unit_process: Thread
-        self.file_path = PROJECT_BUILD_ROOT / "gui" / "output_gui_sim.txt"
-        (PROJECT_BUILD_ROOT / "gui").mkdir(parents=True, exist_ok=True)
-        self.file_path.touch()
+        self.log_queue: Queue[str] = Queue()
 
         self.can_bus_bms: CanBusConfig
         self.can_bus_unit: CanBusConfig
@@ -79,11 +73,6 @@ class SimulateBmsFrame(ttk.Frame):
         self.can_com_unit: CAN
 
         self.sim_active: bool = False
-
-        # Set Styles for Headings and for Notebook
-        font_heading = ("TkDefaultFont", 10, "bold")
-        ttk.Style().configure("heading.TButton", font=font_heading)
-        ttk.Style().configure("Multiline.TButton", justify="center")
 
         ## Create a Button Frame
         config_button_frame = ttk.Frame(self, padding=(0, 5))
@@ -122,29 +111,29 @@ class SimulateBmsFrame(ttk.Frame):
         self.send_msg_button.pack(in_=config_button_frame, side=tk.LEFT, padx=(5, 0))
 
     def start_stop_sim_cb(self) -> None:
-        """Start or stop the simulation"""
+        """Start and stop the simulation"""
         if not hasattr(self, "can_bus_bms") or not hasattr(self, "can_bus_unit"):
-            self.write_text("Add CAN Configurations before starting the Simulation.\n")
+            self.update_text("Add CAN Configurations before starting the Simulation.\n")
             return
         if self.sim_active:
-            self.write_text("Stopping the Simulation...\n")
+            self.update_text("Stopping the Simulation...\n")
             if hasattr(self, "can_com_bms"):
                 self.can_com_bms.shutdown(block=True, timeout=1)
             if hasattr(self, "can_com_unit"):
                 self.can_com_unit.shutdown(block=True, timeout=1)
         else:
-            self.bms_process = Thread(target=self.run_sim_bms, daemon=True)
-            self.unit_process = Thread(target=self.run_sim_unit, daemon=True)
+            self.bms_process = Thread(target=self.run_bms_sim, daemon=True)
+            self.unit_process = Thread(target=self.run_unit_sim, daemon=True)
+            self.update_text("Starting the Simulation...\n")
             self.bms_process.start()
             self.unit_process.start()
             self.sim_active = True
-            self.write_text("Starting the Simulation...\n")
             self.check_threads()
 
     def send_msg_cb(self) -> None:
         """Configure and send the selected message"""
         if not self.sim_active:
-            self.write_text("Simulation has to be started first.\n")
+            self.update_text("Start the Simulation before sending messages.\n")
             return
         try:
             msg_data = {
@@ -155,26 +144,26 @@ class SimulateBmsFrame(ttk.Frame):
                     "RequestBootTimestamp": 0,
                 },
             }
-            self.write_text("Sending message.\n")
+            self.update_text("Sending message.\n")
             self.can_com_unit.write(msg_data)
         except Exception as e:  # noqa: BLE001
-            self.write_text(str(e))
+            self.update_text(str(e) + "\n")
 
-    def run_sim_bms(self) -> None:
+    def run_bms_sim(self) -> None:
         """Run the bms simulation"""
         self.can_com_bms = CAN("CAN Bus BMS", self.can_bus_bms)
-        sim_bms(self.can_com_bms, self.write_text)
+        sim_bms(self.can_com_bms, self.log_queue)
         self.can_com_unit.shutdown(block=True, timeout=1)
 
-    def run_sim_unit(self) -> None:
-        """Run the unit simulation"""
+    def run_unit_sim(self) -> None:
+        """Run the higher-level control unit simulation"""
         self.can_com_unit = CAN("CAN Bus Unit", self.can_bus_unit)
-        sim_unit(self.can_com_unit, self.write_text)
+        sim_unit(self.can_com_unit, self.log_queue)
         self.can_com_bms.shutdown(block=True, timeout=1)
 
     def check_threads(self) -> None:
         """Stop simulation if both threads are not alive"""
-        self.write_text()
+        self.update_text()
         if self.bms_process.is_alive() or self.unit_process.is_alive():
             self.after(50, self.check_threads)
         else:
@@ -183,21 +172,26 @@ class SimulateBmsFrame(ttk.Frame):
                 del self.can_com_bms
             if hasattr(self, "can_com_unit"):
                 del self.can_com_unit
-            self.write_text("Simulation terminated.\n")
+            self.update_text("Simulation has terminated.\n")
 
-    def write_text(self, file_input: None | str = None) -> None:
+    def write_text_from_queue(self) -> None:
+        """Flush text generated by worker threads into the log file from the UI thread."""
+        while not self.log_queue.empty():
+            self.write_text(self.log_queue.get_nowait())
+
+    def update_text(self, file_input: str | None = None) -> None:
         """Writes the file content in the text box"""
         if file_input is not None:
-            with open(self.file_path, mode="a", encoding="utf-8", errors="ignore") as f:
-                f.write(file_input)
-        if self != self.parent.nametowidget(self.parent.select()):
-            return
-        self.text.config(state="normal")
-        with open(self.file_path, encoding="utf-8", errors="ignore") as f:
-            file_content = f.read()
-            text_length = len(file_content)
-            self.text.insert(tk.END, file_content[self.text_index :])
-            if text_length > self.text_index:
-                self.text_index = text_length
-                self.text.see(tk.END)
-        self.text.config(state="disabled")
+            if threading.current_thread() is threading.main_thread():
+                self.write_text(file_input)
+            else:
+                self.log_queue.put(file_input)
+                return
+        self.write_text_from_queue()
+        self.write_text()
+
+    def on_close(self) -> None:
+        """Stop the simulation if it is active"""
+        if self.sim_active:
+            self.start_stop_sim_cb()
+        super().on_close()

@@ -39,7 +39,7 @@ Description of the IMD state machine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Bender iso165C driver is interfaced and controlled by the superimposed
-:ref:`IMD state machine<INSULATION_MEASUREMENT_DEVICE>`.
+:ref:`IMD state machine<IMD_DRIVER>`.
 The required functionality, that needs to be provided by this driver is:
 
 - Initialize the Bender iso165C device
@@ -56,15 +56,14 @@ Initialization procedure
 The state flow diagram of the initialization procedure of the Bender iso165C
 state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram-initialization.drawio
-   :format: svg
+.. figure:: ../../../../../../build/docs/docs/software/modules/driver/imd/bender/state-diagrams/iso165c_state_diagram-initialization.svg
    :alt: iso165C initialization state flow diagram
    :name: iso165c-init-state-diagram
    :width: 720px
 
    iso165C initialization state flow diagram
 
-The initialization process is implemented in function `I165C_Initialize`.
+The initialization process is implemented in function ``I165C_Initialize``.
 
 Activation of insulation measurement
 """"""""""""""""""""""""""""""""""""
@@ -72,15 +71,14 @@ Activation of insulation measurement
 The state flow diagram of the enabling procedure of the Bender iso165C
 state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram-enable.drawio
-   :format: svg
+.. figure:: ../../../../../../build/docs/docs/software/modules/driver/imd/bender/state-diagrams/iso165c_state_diagram-enable.svg
    :alt: iso165C initialization state flow diagram
    :name: iso165c-enable-state-diagram
    :width: 240px
 
    iso165C initialization state flow diagram
 
-The enabling process is implemented in function `I165C_Enable`.
+The enabling process is implemented in function ``I165C_Enable``.
 
 Disable insulation measurement
 """"""""""""""""""""""""""""""
@@ -88,15 +86,14 @@ Disable insulation measurement
 The state flow diagram of the disabling procedure of the Bender iso165C
 state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram-disable.drawio
-   :format: svg
+.. figure:: ../../../../../../build/docs/docs/software/modules/driver/imd/bender/state-diagrams/iso165c_state_diagram-disable.svg
    :alt: iso165C disable state flow diagram
    :name: iso165c-disable-state-diagram
    :width: 240px
 
    iso165C disable state flow diagram
 
-The disabling process is implemented in function `I165C_Disable`.
+The disabling process is implemented in function ``I165C_Disable``.
 
 Insulation measurement
 """"""""""""""""""""""
@@ -104,12 +101,11 @@ Insulation measurement
 The state flow diagram of the periodic insulation measurement procedure of the
 Bender iso165C state machine is depicted below.
 
-.. drawio-figure:: state-diagrams/iso165c_state_diagram-running.drawio
-   :format: svg
+.. figure:: ../../../../../../build/docs/docs/software/modules/driver/imd/bender/state-diagrams/iso165c_state_diagram-running.svg
    :alt: iso165C running state flow diagram
    :name: iso165c-running-state-diagram
    :width: 240px
 
    iso165C running state flow diagram
 
-The measurement process is implemented in function `I165C_Running`.
+The measurement process is implemented in function ``I165C_Running``.

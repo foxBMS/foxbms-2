@@ -1,0 +1,12 @@
+[
+  {
+    "source": "src/app/driver/io/io.c",
+    "test": "test_io.c",
+    "includes": [
+      "src/app/driver/io"
+    ],
+    "mocks": [
+      "src/app/driver/mcu/mcu.h"
+    ]
+  }
+]

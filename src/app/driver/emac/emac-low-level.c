@@ -35,8 +35,8 @@
 /**
  * @file    emac-low-level.c
  * @date    2025-09-15 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  EMAC
  *
@@ -65,6 +65,11 @@
 /* cspell:ignore RXEN RXFREEBUFFER RXHDP RXINTMASKCLEAR RXINTMASKSET */
 /* cspell:ignore RXMBPENABLE RXMULTCH RXMULTEN RXTEARDOWN RXUNICASTCLEAR */
 /* cspell:ignore RXUNICASTSET TXCP TXDIS TXEN TXHDP TXTEARDOWN */
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
 
 /*========== Includes =======================================================*/
 #include "emac-low-level.h"
@@ -535,3 +540,8 @@ extern void EMAC_GetConfigValue(
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 #endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */

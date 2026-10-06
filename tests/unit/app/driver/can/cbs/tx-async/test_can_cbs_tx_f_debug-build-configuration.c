@@ -43,12 +43,12 @@
  * @file    test_can_cbs_tx_f_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-02-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Unit tests for CAN TX debug build configuration callbacks
  *
  */
 
@@ -67,18 +67,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_tx_f_debug-build-configuration.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/config")
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
-TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** @{
@@ -103,7 +91,6 @@ TEST_INCLUDE_PATH("../../src/version")
 #define CANTX_MUX_BATTERY_SYSTEM_CURRENT_SENSOR          (0x33u)
 #define CANTX_MUX_BATTERY_SYSTEM_FUSE                    (0x34u)
 #define CANTX_MUX_BATTERY_SYSTEM_MAX_CURRENT             (0x35u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK         (0x36u)
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS           (0x37u)
 /** @} */
 
@@ -253,22 +240,6 @@ static const CAN_SIGNAL_TYPE_s cantx_signalBatteryCellTemperatures = {
 #define CANTX_MUX_BATTERY_SYSTEM_MAXIMUM_CURRENT_MAX_PACK_CURRENT_START_BIT   (35u)
 #define CANTX_MUX_BATTERY_SYSTEM_MAXIMUM_CURRENT_MAX_PACK_CURRENT_LENGTH      (28u)
 
-/* battery system open wire check*/
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_PERIODIC_OPEN_WIRE_CHECK_START_BIT (15u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_PERIODIC_OPEN_WIRE_CHECK_LENGTH    (CAN_BIT)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_OPEN_WIRE_PERIOD_START_BIT         (14u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_OPEN_WIRE_PERIOD_LENGTH            (12u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_PERIODIC_OPEN_WIRE_CHECK_START_BIT  (18u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_PERIODIC_OPEN_WIRE_CHECK_LENGTH     (CAN_BIT)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_OPEN_WIRE_PERIOD_START_BIT          (17u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_OPEN_WIRE_PERIOD_LENGTH             (12u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_PERIODIC_OPEN_WIRE_CHECK_START_BIT  (37u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_PERIODIC_OPEN_WIRE_CHECK_LENGTH     (CAN_BIT)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_OPEN_WIRE_PERIOD_START_BIT          (36u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_OPEN_WIRE_PERIOD_LENGTH             (12u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_ERROR_OPEN_WIRE_PERIOD_START_BIT           (40u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_ERROR_OPEN_WIRE_PERIOD_LENGTH              (12u)
-
 /* battery system total cell and temperature sensor numbers*/
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS_NR_OF_CELL_BLOCKS_PER_STRING_START_BIT  (15u)
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS_NR_OF_CELL_BLOCKS_PER_STRING_LENGTH     (14u)
@@ -280,22 +251,16 @@ static const CAN_SIGNAL_TYPE_s cantx_signalBatteryCellTemperatures = {
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS_NR_OF_TEMP_SENSORS_LENGTH               (14u)
 /** @} */
 
-/** @{
- * defines for signal type for open wire period values
- */
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_MAX_VALUE (4095000.0f)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_MIN_VALUE (0.0f)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_OFFSET    (0.0f)
-/** @} */
-
+/** @brief Test message buffer values used by expectation chains. */
 uint64_t testMessageData[9u] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u};
 
+/** @brief Test signal values used by mocked signal preparation and conversion. */
 float_t testSignalData[4u] = {0u, 1u, 2u, 3u};
 
-static const CAN_SIGNAL_TYPE_s signalOpenWirePeriod = {0u, 0u, 1000.0f, 0.0f, 0.0f, 4095000.0f};
-
+/** @brief Signal conversion metadata for battery cell temperature limits. */
 static const CAN_SIGNAL_TYPE_s signalBatteryCellTemperature = {0u, 0u, 1.0f, 0.0f, -131072.0f, 131071.0f};
 
+/** @brief Placeholder values used for mocked boolean conversion results. */
 #define TEST_PLACEHOLDER_CONVERTED_BOOL      (0u)
 #define TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE (1u)
 
@@ -303,6 +268,7 @@ static const CAN_SIGNAL_TYPE_s signalBatteryCellTemperature = {0u, 0u, 1.0f, 0.0
 uint8_t testCanDataZeroArray[CAN_MAX_DLC] = {0};
 
 /* Dummy for version file implementation */
+/** @brief Build configuration fixture consumed by the unit under test. */
 const VER_BUILD_CONFIGURATION_s ver_foxbmsBuildConfiguration = {
     .socAlgorithm            = SOC_ALGORITHM_NONE,
     .soeAlgorithm            = SOE_ALGORITHM_COUNTING,
@@ -316,12 +282,21 @@ const VER_BUILD_CONFIGURATION_s ver_foxbmsBuildConfiguration = {
     .temperatureSensorMethod = TEMPERATURE_SENSOR_METHOD_POLYNOMIAL,
 };
 
+/** @brief Dummy queue handle required by linked module code. */
 OS_QUEUE ftsk_imdCanDataQueue = NULL_PTR;
 
 /*========== Setup and Teardown =============================================*/
+/**
+ * @brief   Setup function executed before each test case.
+ * @details This test module currently requires no per-test initialization.
+ */
 void setUp(void) {
 }
 
+/**
+ * @brief   Teardown function executed after each test case.
+ * @details This test module currently requires no per-test cleanup.
+ */
 void tearDown(void) {
 }
 
@@ -359,12 +334,6 @@ void testCANTX_DebugBuildConfiguration(void) {
         (float_t)BC_TEMPERATURE_MIN_DISCHARGE_MSL_ddegC,
         (float_t)BC_TEMPERATURE_MIN_DISCHARGE_RSL_ddegC,
         (float_t)BC_TEMPERATURE_MIN_DISCHARGE_MOL_ddegC};
-    /* Variables for SendBatterySystemConfiguration() */
-    float_t openWirePeriodSignals[4u] = {
-        (float_t)BS_STANDBY_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_NORMAL_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_CHARGE_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_ERROR_OPEN_WIRE_PERIOD_ms};
 
     /* ======= RT1/5: Test implementation */
     /* Messages sent by CANTX_SendApplicationConfiguration */
@@ -1059,6 +1028,7 @@ void testCANTX_DebugBuildConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system fuse message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x34u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -1085,37 +1055,6 @@ void testCANTX_DebugBuildConfiguration(void) {
         &testMessageData[0u], 15u, 28u, BS_MAXIMUM_STRING_CURRENT_mA, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 35u, 28u, BS_MAXIMUM_PACK_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x36u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[0u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 12u, openWirePeriodSignals[0u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 18u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[1u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 17u, 12u, openWirePeriodSignals[1u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 37u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[2u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 36u, 12u, openWirePeriodSignals[2u], CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[3u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 40u, 12u, openWirePeriodSignals[3u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
     CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
@@ -2603,25 +2542,20 @@ void testCANTX_SetBatteryCellMuxMinVoltageMessageData(void) {
  *          - Argument validation:
  *            - None
  *          - Routine validation:
- *            - RT1/9: CANTX_MUX_BATTERY_SYSTEM_GENERAL_1 multiplexer message isn't queued successfully
- *            - RT2/9: CANTX_MUX_BATTERY_SYSTEM_GENERAL_2 multiplexer message isn't queued successfully
- *            - RT3/9: CANTX_MUX_BATTERY_SYSTEM_CONTACTORS multiplexer message isn't queued successfully
- *            - RT4/9: CANTX_MUX_BATTERY_SYSTEM_CURRENT_SENSOR multiplexer message isn't queued successfully
- *            - RT5/9: CANTX_MUX_BATTERY_SYSTEM_FUSE multiplexer message isn't queued successfully
- *            - RT6/9: CANTX_MUX_BATTERY_SYSTEM_MAX_CURRENT multiplexer message isn't queued successfully
- *            - RT7/9: CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK multiplexer message isn't queued successfully
- *            - RT8/9: CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS multiplexer message isn't queued successfully
- *            - RT9/9: All messages are queued successfully
+ *            - RT1/8: CANTX_MUX_BATTERY_SYSTEM_GENERAL_1 multiplexer message isn't queued successfully
+ *            - RT2/8: CANTX_MUX_BATTERY_SYSTEM_GENERAL_2 multiplexer message isn't queued successfully
+ *            - RT3/8: CANTX_MUX_BATTERY_SYSTEM_CONTACTORS multiplexer message isn't queued successfully
+ *            - RT4/8: CANTX_MUX_BATTERY_SYSTEM_CURRENT_SENSOR multiplexer message isn't queued successfully
+ *            - RT5/8: CANTX_MUX_BATTERY_SYSTEM_FUSE multiplexer message isn't queued successfully
+ *            - RT6/8: CANTX_MUX_BATTERY_SYSTEM_MAX_CURRENT multiplexer message isn't queued successfully
+ *            - RT7/8: CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS multiplexer message isn't queued successfully
+ *            - RT8/8: All messages are queued successfully
  */
 void testCANTX_SendBatterySystemConfiguration(void) {
     /* ======= Routine tests =============================================== */
     uint8_t testCanDataFilled[CAN_MAX_DLC] = {0x12, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
-    float_t openWirePeriodSignals[4u]      = {
-        (float_t)BS_STANDBY_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_NORMAL_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_CHARGE_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_ERROR_OPEN_WIRE_PERIOD_ms};
-    /* ======= RT1/9: Test implementation */
+    /* ======= RT1/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -2645,12 +2579,13 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         testCanDataFilled,
         STD_NOT_OK);
 
-    /* ======= RT1/9: Call function under test */
+    /* ======= RT1/8: Call function under test */
     STD_RETURN_TYPE_e testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT1/9: Test output verification */
+    /* ======= RT1/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
-    /* ======= RT2/9: Test implementation */
+    /* ======= RT2/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -2673,6 +2608,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(
         TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
@@ -2703,12 +2639,13 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_NOT_OK);
-    /* ======= RT2/9: Call function under test */
+    /* ======= RT2/8: Call function under test */
     testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT2/9: Test output verification */
+    /* ======= RT2/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
-    /* ======= RT3/9: Test implementation */
+    /* ======= RT3/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -2731,6 +2668,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(
         TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
@@ -2761,6 +2699,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system contactors message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
@@ -2776,12 +2715,13 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_NOT_OK);
-    /* ======= RT3/9: Call function under test */
+    /* ======= RT3/8: Call function under test */
     testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT3/9: Test output verification */
+    /* ======= RT3/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
-    /* ======= RT4/9: Test implementation */
+    /* ======= RT4/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -2804,6 +2744,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(
         TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
@@ -2834,97 +2775,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 8u, BS_NR_OF_CONTACTORS, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 32u, BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x33u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 11u, 12u, BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 12u, BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 35u, 12u, BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 55u, 12u, BS_CS_THRESHOLD_NO_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_NOT_OK);
-    /* ======= RT4/9: Call function under test */
-    testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT4/9: Test output verification */
-    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
-
-    /* ======= RT5/9: Test implementation */
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 23u, 8u, BS_NR_OF_MODULES_PER_STRING, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 8u, BS_NR_OF_CELL_BLOCKS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 39u, 8u, BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 47u, 8u, SLV_NR_OF_GPIOS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 55u, 8u, SLV_NR_OF_GPAS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 63u, 8u, BS_NR_OF_TEMP_SENSORS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 13u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 12u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 11u, 12u, SLV_BALANCING_RESISTANCE_ohm, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 31u, 12u, BS_REST_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 35u, 16u, BS_RELAXATION_PERIOD_10ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
+    /* Set battery system contactors message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
@@ -2957,7 +2808,102 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID,
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
+        STD_NOT_OK);
+    /* ======= RT4/8: Call function under test */
+    testResult = TEST_CANTX_SendBatterySystemConfiguration();
+    /* ======= RT4/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
+
+    /* ======= RT5/8: Test implementation */
+    /* Set battery system general 1 message data*/
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 23u, 8u, BS_NR_OF_MODULES_PER_STRING, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 31u, 8u, BS_NR_OF_CELL_BLOCKS_PER_MODULE, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 39u, 8u, BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 47u, 8u, SLV_NR_OF_GPIOS_PER_MODULE, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 55u, 8u, SLV_NR_OF_GPAS_PER_MODULE, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 63u, 8u, BS_NR_OF_TEMP_SENSORS_PER_MODULE, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CAN_BIG_ENDIAN);
+    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_DEBUG_MESSAGE,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
+        testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(
+        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 14u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(
+        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 13u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(
+        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 12u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 11u, 12u, SLV_BALANCING_RESISTANCE_ohm, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 31u, 12u, BS_REST_CURRENT_mA, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 35u, 16u, BS_RELAXATION_PERIOD_10ms, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
+    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_DEBUG_MESSAGE,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
+        testCanDataFilled,
+        STD_OK);
+    /* Set battery system contactors message data*/
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 8u, BS_NR_OF_CONTACTORS, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 31u, 32u, BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
+    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_DEBUG_MESSAGE,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
+        testCanDataFilled,
+        STD_OK);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x33u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 11u, 12u, BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 31u, 12u, BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 35u, 12u, BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 55u, 12u, BS_CS_THRESHOLD_NO_CURRENT_mA, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
+    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_DEBUG_MESSAGE,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
+        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
+        testCanDataFilled,
+        STD_OK);
+    /* Set battery system fuse message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x34u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -2979,12 +2925,13 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_NOT_OK);
-    /* ======= RT5/9: Call function under test */
+    /* ======= RT5/8: Call function under test */
     testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT5/9: Test output verification */
+    /* ======= RT5/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
-    /* ======= RT6/9: Test implementation */
+    /* ======= RT6/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -3007,6 +2954,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(
         TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
@@ -3037,6 +2985,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system contactors message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
@@ -3052,6 +3001,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system current sensor message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x33u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 11u, 12u, BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
@@ -3070,6 +3020,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system fuse message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x34u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -3091,6 +3042,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system max current message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x35u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 28u, BS_MAXIMUM_STRING_CURRENT_mA, CAN_BIG_ENDIAN);
@@ -3105,12 +3057,13 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_NOT_OK);
-    /* ======= RT6/9: Call function under test */
+    /* ======= RT6/8: Call function under test */
     testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT6/9: Test output verification */
+    /* ======= RT6/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
-    /* ======= RT7/9: Test implementation */
+    /* ======= RT7/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -3133,6 +3086,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(
         TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
@@ -3163,6 +3117,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system contactors message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
@@ -3178,6 +3133,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system current sensor message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x33u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 11u, 12u, BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
@@ -3196,6 +3152,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system fuse message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x34u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -3217,6 +3174,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system max current message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x35u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 28u, BS_MAXIMUM_STRING_CURRENT_mA, CAN_BIG_ENDIAN);
@@ -3231,194 +3189,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x36u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[0u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 12u, openWirePeriodSignals[0u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 18u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[1u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 17u, 12u, openWirePeriodSignals[1u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 37u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[2u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 36u, 12u, openWirePeriodSignals[2u], CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[3u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 40u, 12u, openWirePeriodSignals[3u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_NOT_OK);
-    /* ======= RT7/9: Call function under test */
-    testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT7/9: Test output verification */
-    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
-
-    /* ======= RT8/9: Test implementation */
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 23u, 8u, BS_NR_OF_MODULES_PER_STRING, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 8u, BS_NR_OF_CELL_BLOCKS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 39u, 8u, BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 47u, 8u, SLV_NR_OF_GPIOS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 55u, 8u, SLV_NR_OF_GPAS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 63u, 8u, BS_NR_OF_TEMP_SENSORS_PER_MODULE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 13u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 12u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 11u, 12u, SLV_BALANCING_RESISTANCE_ohm, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 31u, 12u, BS_REST_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 35u, 16u, BS_RELAXATION_PERIOD_10ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 8u, BS_NR_OF_CONTACTORS, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 32u, BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x33u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 11u, 12u, BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 12u, BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 35u, 12u, BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 55u, 12u, BS_CS_THRESHOLD_NO_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x34u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(
-        TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 11u, 12u, BS_MAX_VOLTAGE_DROP_OVER_FUSE_mV, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 31u, 16u, BS_MAIN_FUSE_MAXIMUM_TRIGGER_DURATION_ms, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x35u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 28u, BS_MAXIMUM_STRING_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 35u, 28u, BS_MAXIMUM_PACK_CURRENT_mA, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x36u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[0u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 12u, openWirePeriodSignals[0u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 18u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[1u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 17u, 12u, openWirePeriodSignals[1u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 37u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[2u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 36u, 12u, openWirePeriodSignals[2u], CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[3u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 40u, 12u, openWirePeriodSignals[3u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
+    /* Set battery system total numbers message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x37u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 14u, BS_NR_OF_CELL_BLOCKS_PER_STRING, CAN_BIG_ENDIAN);
@@ -3435,15 +3206,16 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_NOT_OK);
-    /* ======= RT8/9: Call function under test */
+    /* ======= R7/8: Call function under test */
     testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT8/9: Test output verification */
+    /* ======= R7/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
     /* Memory runs out: starts CMock test over clean from this point on */
     resetTest();
 
-    /* ======= RT9/9: Test implementation */
+    /* ======= R8/8: Test implementation */
+    /* Set battery system general 1 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x30u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, BS_NR_OF_STRINGS, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -3466,6 +3238,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system general 2 message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x31u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(
         TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE, TEST_PLACEHOLDER_CONVERTED_BOOL_TRUE);
@@ -3496,6 +3269,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system contactors message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x32u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 8u, BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS, CAN_BIG_ENDIAN);
@@ -3511,6 +3285,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system current sensor message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x33u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 11u, 12u, BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms, CAN_BIG_ENDIAN);
@@ -3529,6 +3304,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system fuse message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x34u, CAN_BIG_ENDIAN);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -3550,6 +3326,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
+    /* Set battery system max current message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x35u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 28u, BS_MAXIMUM_STRING_CURRENT_mA, CAN_BIG_ENDIAN);
@@ -3564,37 +3341,7 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x36u, CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 15u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[0u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 14u, 12u, openWirePeriodSignals[0u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 18u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[1u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 17u, 12u, openWirePeriodSignals[1u], CAN_BIG_ENDIAN);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(TEST_PLACEHOLDER_CONVERTED_BOOL, TEST_PLACEHOLDER_CONVERTED_BOOL);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 37u, 1u, TEST_PLACEHOLDER_CONVERTED_BOOL, CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[2u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 36u, 12u, openWirePeriodSignals[2u], CAN_BIG_ENDIAN);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[3u], signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[0u], 40u, 12u, openWirePeriodSignals[3u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataFilled, CAN_BIG_ENDIAN);
-    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_DEBUG_MESSAGE,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-        testCanDataFilled,
-        STD_OK);
+    /* Set battery system total numbers message data*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x37u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 15u, 14u, BS_NR_OF_CELL_BLOCKS_PER_STRING, CAN_BIG_ENDIAN);
@@ -3611,14 +3358,14 @@ void testCANTX_SendBatterySystemConfiguration(void) {
         CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
         testCanDataFilled,
         STD_OK);
-    /* ======= RT9/9: Call function under test */
+    /* ======= RT8/8: Call function under test */
     testResult = TEST_CANTX_SendBatterySystemConfiguration();
-    /* ======= RT9/9: Test output verification */
+    /* ======= RT8/8: Test output verification */
     TEST_ASSERT_EQUAL(STD_OK, testResult);
 }
 
 /**
- * @brief   Testing CANTX_SetBatteryCellMuxMinVoltageMessageData
+ * @brief   Testing CANTX_SetBatterySystemMuxGeneral1MessageData
  * @details The following cases need to be tested:
  *          - Argument validation:
  *            - AT1/1: NULL_PTR for pMessageData -> assert
@@ -3837,61 +3584,6 @@ void testCANTX_SetBatterySystemMuxMaxCurrentMessageData(void) {
     TEST_CANTX_SetBatterySystemMuxMaxCurrentMessageData(&messageData);
     /* ======= RT1/1: Test output verification */
     TEST_ASSERT_EQUAL(testMessageData[3u], messageData);
-}
-
-/**
- * @brief   Testing CANTX_SetBatterySystemMuxOpenWireCheckMessageData
- * @details The following cases need to be tested:
- *          - Argument validation:
- *            - AT1/1: NULL_PTR for pMessageData -> assert
- *          - Routine validation:
- *            - RT1/1: Function sets expected values in the message data
- */
-void testCANTX_SetBatterySystemMuxOpenWireCheckMessageData(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_SetBatterySystemMuxOpenWireCheckMessageData(NULL_PTR));
-
-    /* ======= Routine tests =============================================== */
-    uint64_t messageData              = 0u;
-    float_t openWirePeriodSignals[4u] = {
-        (float_t)BS_STANDBY_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_NORMAL_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_CHARGE_OPEN_WIRE_PERIOD_ms,
-        (float_t)BS_ERROR_OPEN_WIRE_PERIOD_ms};
-    uint64_t convertedSignalData[3u] = {0u, 1u, 2u};
-    /* ======= RT1/1: Test implementation */
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x36u, CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK, convertedSignalData[0u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 15u, 1u, convertedSignalData[0u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[0u], signalOpenWirePeriod);
-    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[0u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[2u], 14u, 12u, testSignalData[0u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK, convertedSignalData[1u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 18u, 1u, convertedSignalData[1u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[1u], signalOpenWirePeriod);
-    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[4u], 17u, 12u, testSignalData[1u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
-    CAN_ConvertBooleanToInteger_ExpectAndReturn(BS_CHARGE_PERIODIC_OPEN_WIRE_CHECK, convertedSignalData[2u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 37u, 1u, convertedSignalData[2u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[2u], signalOpenWirePeriod);
-    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[2u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[6u], 36u, 12u, testSignalData[2u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
-    CAN_TxPrepareSignalData_Expect(&openWirePeriodSignals[3u], signalOpenWirePeriod);
-    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[3u]);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 40u, 12u, testSignalData[3u], CAN_BIG_ENDIAN);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
-    /* ======= RT1/1: Call function under test */
-    TEST_CANTX_SetBatterySystemMuxOpenWireCheckMessageData(&messageData);
-    /* ======= RT1/1: Test output verification */
-    TEST_ASSERT_EQUAL(testMessageData[8u], messageData);
 }
 
 /**

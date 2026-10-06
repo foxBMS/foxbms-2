@@ -13,8 +13,9 @@ Software Modules
     ./application/algorithm/algorithm.rst
     ./application/bal/bal.rst
     ./application/bms/bms.rst
+    ./application/bms/bms-values.rst
     ./application/ethernet/ethernet.rst
-    ./application/ethernet/networkinterface.rst
+    ./application/ethernet/network-interface.rst
     ./application/plausibility/plausibility.rst
     ./application/redundancy/redundancy.rst
     ./application/soa/soa.rst
@@ -43,7 +44,6 @@ Software Modules
 
     ./driver/adc/adc.rst
     ./driver/afe/afe.rst
-    ./driver/afe/supported-afes.rst
     ./driver/can/can.rst
     ./driver/contactor/contactor.rst
     ./driver/crc/crc.rst

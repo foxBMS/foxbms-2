@@ -11,4 +11,4 @@ The actual test binary is built through
 > The test files in this directory do **not** contain the section markers for
 > _test files_, but the on for _source files_.
 > The section marker for _test files_ is just for _test files_ on the _host_;
-> for _target test files_ the _source_ section marker is more appropiate.
+> for _target test files_ the _source_ section marker is more appropriate.

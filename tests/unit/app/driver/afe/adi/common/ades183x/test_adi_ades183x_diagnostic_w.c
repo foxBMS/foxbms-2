@@ -43,24 +43,188 @@
  * @file    test_adi_ades183x_diagnostic_w.c
  * @author  foxBMS Team
  * @date    2023-10-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Test of adi_ades183x_diagnostic_w.c
  * @details TODO
  *
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+#include "Mockdiag.h"
+#include "Mockos.h"
+
+#include "adi_ades183x_defs.h"
+#include "adi_ades183x_diagnostic.h"
+#include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+static ADI_ERROR_TABLE_s adi_errorTable = {0};
+
+ADI_STATE_s adi_stateBase = {
+    .data.errorTable = &adi_errorTable,
+};
+
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+/**
+ * @brief   Test of ADI_Diagnostic
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/1: NULL state -> assertion
+ */
+void testADI_Diagnostic(void) {
+    TEST_ASSERT_FAIL_ASSERT(ADI_Diagnostic(NULL_PTR));
+}
+
+/**
+ * @brief   Test of ADI_EvaluateDiagnosticCellVoltages
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: NULL state and invalid module -> assertion
+ *          - Routine validation:
+ *            - RT1/3: CRC error -> not okay event
+ *            - RT2/3: Stuck voltage register -> not okay event
+ *            - RT3/3: Valid CRC and voltage register -> okay event
+ */
+void testADI_EvaluateDiagnosticCellVoltages(void) {
+    const uint16_t module = 0u;
+    const uint8_t string  = 0u;
+
+    TEST_ASSERT_FAIL_ASSERT(ADI_EvaluateDiagnosticCellVoltages(NULL_PTR, module));
+    TEST_ASSERT_FAIL_ASSERT(ADI_EvaluateDiagnosticCellVoltages(&adi_stateBase, BS_NR_OF_MODULES_PER_STRING));
+
+    adi_stateBase.currentString            = string;
+    adi_errorTable.crcIsOk[string][module] = false;
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_NOT_OK, DIAG_STRING, string, DIAG_HANDLER_RETURN_OK);
+    TEST_ASSERT_FALSE(ADI_EvaluateDiagnosticCellVoltages(&adi_stateBase, module));
+
+    adi_errorTable.crcIsOk[string][module]                          = true;
+    adi_errorTable.voltageRegisterContentIsNotStuck[string][module] = false;
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_NOT_OK, DIAG_STRING, string, DIAG_HANDLER_RETURN_OK);
+    TEST_ASSERT_FALSE(ADI_EvaluateDiagnosticCellVoltages(&adi_stateBase, module));
+
+    adi_errorTable.voltageRegisterContentIsNotStuck[string][module] = true;
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_OK, DIAG_STRING, string, DIAG_HANDLER_RETURN_OK);
+    TEST_ASSERT_TRUE(ADI_EvaluateDiagnosticCellVoltages(&adi_stateBase, module));
+}
+
+/**
+ * @brief   Test of ADI_EvaluateDiagnosticGpioVoltages
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: NULL state and invalid module -> assertion
+ *          - Routine validation:
+ *            - RT1/2: Invalid and valid CRC -> matching diagnostic event
+ */
+void testADI_EvaluateDiagnosticGpioVoltages(void) {
+    const uint16_t module = 0u;
+    const uint8_t string  = 0u;
+
+    TEST_ASSERT_FAIL_ASSERT(ADI_EvaluateDiagnosticGpioVoltages(NULL_PTR, module));
+    TEST_ASSERT_FAIL_ASSERT(ADI_EvaluateDiagnosticGpioVoltages(&adi_stateBase, BS_NR_OF_MODULES_PER_STRING));
+
+    adi_stateBase.currentString            = string;
+    adi_errorTable.crcIsOk[string][module] = false;
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_NOT_OK, DIAG_STRING, string, DIAG_HANDLER_RETURN_OK);
+    TEST_ASSERT_FALSE(ADI_EvaluateDiagnosticGpioVoltages(&adi_stateBase, module));
+
+    adi_errorTable.crcIsOk[string][module] = true;
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_OK, DIAG_STRING, string, DIAG_HANDLER_RETURN_OK);
+    TEST_ASSERT_TRUE(ADI_EvaluateDiagnosticGpioVoltages(&adi_stateBase, module));
+}
+
+/**
+ * @brief   Test of ADI_EvaluateDiagnosticStringAndModuleVoltages
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/2: NULL state and invalid module -> assertion
+ *          - Routine validation:
+ *            - RT1/3: CRC error, stuck register, and valid values
+ */
+void testADI_EvaluateDiagnosticStringAndModuleVoltages(void) {
+    const uint16_t module = 0u;
+    const uint8_t string  = 0u;
+
+    TEST_ASSERT_FAIL_ASSERT(ADI_EvaluateDiagnosticStringAndModuleVoltages(NULL_PTR, module));
+    TEST_ASSERT_FAIL_ASSERT(ADI_EvaluateDiagnosticStringAndModuleVoltages(&adi_stateBase, BS_NR_OF_MODULES_PER_STRING));
+
+    adi_stateBase.currentString            = string;
+    adi_errorTable.crcIsOk[string][module] = false;
+    TEST_ASSERT_FALSE(ADI_EvaluateDiagnosticStringAndModuleVoltages(&adi_stateBase, module));
+
+    adi_errorTable.crcIsOk[string][module]                            = true;
+    adi_errorTable.auxiliaryRegisterContentIsNotStuck[string][module] = false;
+    TEST_ASSERT_FALSE(ADI_EvaluateDiagnosticStringAndModuleVoltages(&adi_stateBase, module));
+
+    adi_errorTable.auxiliaryRegisterContentIsNotStuck[string][module] = true;
+    TEST_ASSERT_TRUE(ADI_EvaluateDiagnosticStringAndModuleVoltages(&adi_stateBase, module));
+}
+
+/**
+ * @brief   Test of ADI_InitializeDiagnosis
+ * @details Cases:
+ *          - Routine validation:
+ *            - RT1/1: State is accepted without side effects
+ */
+void testADI_InitializeDiagnosis(void) {
+    ADI_InitializeDiagnosis(NULL_PTR);
+    ADI_InitializeDiagnosis(&adi_stateBase);
+}
+
+/**
+ * @brief   Test of ADI_IsFirstDiagnosticCycleFinished
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/1: NULL state -> assertion
+ *          - Routine validation:
+ *            - RT1/2: Return stored diagnostic status
+ */
+void testADI_IsFirstDiagnosticCycleFinished(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_IsFirstDiagnosticCycleFinished(NULL_PTR));
+
+    adi_stateBase.firstDiagnosticMade = true;
+    TEST_ASSERT_TRUE(TEST_ADI_IsFirstDiagnosticCycleFinished(&adi_stateBase));
+
+    adi_stateBase.firstDiagnosticMade = false;
+    TEST_ASSERT_FALSE(TEST_ADI_IsFirstDiagnosticCycleFinished(&adi_stateBase));
+}
+
+/**
+ * @brief   Test of ADI_SetFirstDiagnosticCycleFinished
+ * @details Cases:
+ *          - Argument validation:
+ *            - AT1/1: NULL state -> assertion
+ *          - Routine validation:
+ *            - RT1/1: Set status inside a critical section
+ */
+void testADI_SetFirstDiagnosticCycleFinished(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SetFirstDiagnosticCycleFinished(NULL_PTR));
+
+    adi_stateBase.firstDiagnosticMade = false;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ADI_SetFirstDiagnosticCycleFinished(&adi_stateBase);
+    TEST_ASSERT_TRUE(adi_stateBase.firstDiagnosticMade);
+}

@@ -43,8 +43,8 @@
  * @file    fram_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -59,6 +59,7 @@
 
 #include "battery_system_cfg.h"
 
+#include "fram_helper.h"
 #include "fstd_types.h"
 
 #include <math.h>
@@ -66,7 +67,7 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-
+#define FRAM_NUMBER_OF_CALIBRATION_CHANNELS (10u)
 /* Header in each entry is made of 4 bytes SPI header + 8 bytes CRC */
 #define FRAM_CRC_HEADER_SIZE (sizeof(uint64_t))
 
@@ -109,10 +110,19 @@ typedef enum {
     FRAM_BLOCK_ID_SOE,
     FRAM_BLOCK_ID_SYS_MON_RECORD,
     FRAM_BLOCK_ID_INSULATION_FLAG,
+    FRAM_BLOCK_ID_FRAM_CALIBRATION,
     FRAM_BLOCK_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } FRAM_BLOCK_ID_e;
 
 FAS_STATIC_ASSERT(((uint32_t)FRAM_BLOCK_MAX < (uint32_t)UINT8_MAX), "Looping over 'FRAM_BLOCK_MAX' assumes 'uint8_t'.");
+
+FAS_STATIC_ASSERT(
+    ((uint32_t)FRAM_CALIBRATION_CHANNEL_MAX < (uint32_t)UINT8_MAX),
+    "Looping over 'FRAM_CALIBRATION_CHANNEL_MAX' assumes 'uint8_t'.");
+
+FAS_STATIC_ASSERT(
+    ((uint32_t)FRAM_CALIBRATION_CHANNEL_MAX == FRAM_NUMBER_OF_CALIBRATION_CHANNELS),
+    "FRAM_CALIBRATION_CHANNEL_MAX must be equal to the amount of channels reserved in the FRAM");
 
 /**
  * @brief   Stores the version of the memory layout of the FRAM
@@ -169,6 +179,11 @@ typedef struct {
 typedef struct {
     bool groundErrorDetected; /*!< false (0): no error, true (1): ground error detected */
 } FRAM_INSULATION_FLAG_s;
+/** struct for ADC offset and calibration values*/
+typedef struct {
+    float_t slope[FRAM_CALIBRATION_CHANNEL_MAX];
+    float_t offset[FRAM_CALIBRATION_CHANNEL_MAX];
+} FRAM_ADC_CALIBRATION_s;
 
 /**
  * @brief struct that stores for each task the last violation of timing
@@ -213,6 +228,7 @@ extern FRAM_SBC_INIT_s fram_sbcInit;
 extern FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags;
 extern FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord;
 extern FRAM_INSULATION_FLAG_s fram_insulationFlags;
+extern FRAM_ADC_CALIBRATION_s fram_CalibrationData;
 /**@}*/
 
 /*========== Extern Function Prototypes =====================================*/

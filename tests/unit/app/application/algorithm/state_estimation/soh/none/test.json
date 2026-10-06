@@ -1,0 +1,18 @@
+[
+  {
+    "source": [
+      "src/app/application/algorithm/state_estimation/soc/none/soc_none.c",
+      "src/app/application/algorithm/state_estimation/soe/none/soe_none.c",
+      "src/app/application/algorithm/state_estimation/soh/none/soh_none.c",
+      "src/app/application/algorithm/state_estimation/state_estimation.c"
+    ],
+    "test": "test_soh_none.c",
+    "includes": [
+      "src/app/application/algorithm/state_estimation",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h"
+    ]
+  }
+]

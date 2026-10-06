@@ -1,0 +1,38 @@
+[
+  {
+    "source": "src/app/driver/imd/bender/iso165c/bender_iso165c.c",
+    "test": "test_bender_iso165c.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/rx",
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/imd/bender/iso165c",
+      "src/app/driver/imd/bender/iso165c/config",
+      "src/app/driver/io",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/can/cbs/rx/can_cbs_rx.h",
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_imd_bender-iso165c-request.h",
+      "src/app/driver/config/can_cfg.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "defines": [
+      "FOXBMS_IMD_BENDER_ISO165C=1"
+    ]
+  }
+]

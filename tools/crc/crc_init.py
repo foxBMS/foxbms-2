@@ -46,7 +46,7 @@ import sys
 LINE_LENGTH = 120
 
 
-def get_hex_rep(table):
+def get_hex_rep(table: list[int]) -> list[str]:
     """Generate nice printable hex representation of the lookup table"""
     max_str_len = len(hex(max(table)))
     hex_table = []
@@ -57,7 +57,7 @@ def get_hex_rep(table):
     return hex_table
 
 
-def generate_c_table(table, crc_len):
+def generate_c_table(table: list[int], crc_len: int) -> None:
     """Generate a CRC table as the foxBMS C style guide requires"""
     lines = [
         f"/* precomputed CRC-{crc_len} Table */",
@@ -72,10 +72,10 @@ def generate_c_table(table, crc_len):
             index += 1
             lines.append(f"    {i}, ")
     lines.append("};")
-    print("\n".join(lines))
+    print("\n".join(lines))  # noqa: T201
 
 
-def precalculate_crc_table(polynomial, width):
+def precalculate_crc_table(polynomial: int, width: int) -> list[int]:
     """Generate a CRC lookup table based on the polynomial"""
     mask = 1 << (width - 1)
     table = []
@@ -91,7 +91,7 @@ def precalculate_crc_table(polynomial, width):
     return table
 
 
-def check_positive_integer(value):
+def check_positive_integer(value: str | int) -> int:
     """Check that the provided value is castable to int"""
     try:
         value = int(value)
@@ -102,15 +102,15 @@ def check_positive_integer(value):
     return value
 
 
-def check_hex(value):
+def check_hex(value: str) -> str:
     """Check that the provided value is a hex representation"""
     if not value.lower().startswith("0x"):
         sys.exit("Polynomial must be provided as hex representation.")
     return value
 
 
-def main():
-    """This script does this and that"""
+def main() -> None:
+    """Initialize the CRC command-line interface."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",
@@ -149,10 +149,10 @@ def main():
         logging.basicConfig(level=logging.ERROR)
     polynomial = int(args.polynomial, 16)
     width = int(args.width)
-    logging.debug("polynomial: %s", f"{polynomial:#0x}")
-    logging.debug("width:      %s", width)
+    logging.debug("polynomial: %s", f"{polynomial:#0x}")  # noqa: LOG015
+    logging.debug("width:      %s", width)  # noqa: LOG015
     table = precalculate_crc_table(polynomial, width)
-    logging.debug("C code:")
+    logging.debug("C code:")  # noqa: LOG015
     generate_c_table(table, width)
 
 

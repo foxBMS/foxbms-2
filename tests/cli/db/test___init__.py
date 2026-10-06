@@ -54,6 +54,8 @@ except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.db import Cell, CellSpec, FoxDB
 
+from cli.db.model_parameter import BaseModel
+
 VALID_SPEC = {
     "name": "X1",
     "manufacturer": "ACME",
@@ -117,7 +119,12 @@ class TestFoxDBInit(unittest.TestCase):
                     "cli.db.read_json",
                     side_effect=[VALID_SPEC, VALID_MODELS, VALID_SPEC, VALID_MODELS],
                 ),
-                patch("cli.db.creates_models", return_value=[DummyModel()]),
+                patch(
+                    "cli.db.creates_models",
+                    return_value=[
+                        BaseModel(name="test_model", sources=[], _directory=Path())
+                    ],
+                ),
                 patch("cli.db.FoxDB._check_db") as mock_check,
             ):
                 db = FoxDB(root)
@@ -136,7 +143,12 @@ class TestFoxDBInit(unittest.TestCase):
                     "cli.db.read_json",
                     side_effect=[dup_spec, VALID_MODELS, dup_spec, VALID_MODELS],
                 ),
-                patch("cli.db.creates_models", return_value=[DummyModel()]),
+                patch(
+                    "cli.db.creates_models",
+                    return_value=[
+                        BaseModel(name="test_model", sources=[], _directory=Path())
+                    ],
+                ),
             ):
                 buf = io.StringIO()
                 with redirect_stderr(buf), self.assertRaises(SystemExit):
@@ -155,7 +167,10 @@ class TestFoxDBListCells(unittest.TestCase):
         spec1 = CellSpec(**VALID_SPEC)
         spec2 = CellSpec(**{**VALID_SPEC, "name": "X2"})
         db = FoxDB.__new__(FoxDB)  # Avoid init
-        db.cells = [Cell(spec1, [DummyModel()]), Cell(spec2, [DummyModel()])]
+        db.cells = [
+            Cell(spec1, [BaseModel(name="test_model", sources=[], _directory=Path())]),
+            Cell(spec2, [BaseModel(name="test_model", sources=[], _directory=Path())]),
+        ]
         self.assertEqual(db.list_cells(), ["ACME-X1", "ACME-X2"])
 
 
@@ -166,8 +181,8 @@ class TestFoxDBShowCell(unittest.TestCase):
         """Return the matching Cell for a known identifier, or None otherwise."""
         spec1 = CellSpec(**VALID_SPEC)
         spec2 = CellSpec(**{**VALID_SPEC, "name": "X2"})
-        c1 = Cell(spec1, [DummyModel()])
-        c2 = Cell(spec2, [DummyModel()])
+        c1 = Cell(spec1, [BaseModel(name="test_model", sources=[], _directory=Path())])
+        c2 = Cell(spec2, [BaseModel(name="test_model", sources=[], _directory=Path())])
         db = FoxDB.__new__(FoxDB)  # Avoid init
         db.cells = [c1, c2]
 
@@ -249,7 +264,10 @@ class TestFoxDBIterateRootDirectory(unittest.TestCase):
                 patch.object(
                     FoxDB,
                     "_get_cell",
-                    return_value=Cell(CellSpec(**VALID_SPEC), [DummyModel()]),
+                    return_value=Cell(
+                        CellSpec(**VALID_SPEC),
+                        [BaseModel(name="test_model", sources=[], _directory=Path())],
+                    ),
                 ),
                 patch.object(
                     FoxDB, "_check_cell_directory", return_value=None
@@ -284,7 +302,12 @@ class TestFoxDBGetCell(unittest.TestCase):
             create_cell_directory(Path(tmpdir), "cellA")
             with (
                 patch("cli.db.read_json", side_effect=[VALID_SPEC, VALID_MODELS]),
-                patch("cli.db.creates_models", return_value=[DummyModel()]),
+                patch(
+                    "cli.db.creates_models",
+                    return_value=[
+                        BaseModel(name="test_model", sources=[], _directory=Path())
+                    ],
+                ),
             ):
                 db = FoxDB.__new__(FoxDB)
                 cell = db._get_cell(directory)  # pylint: disable=protected-access
@@ -300,7 +323,12 @@ class TestFoxDBGetCell(unittest.TestCase):
             invalid_spec.pop("name")  # missing key -> TypeError in dataclass-init
             with (
                 patch("cli.db.read_json", side_effect=[invalid_spec, VALID_MODELS]),
-                patch("cli.db.creates_models", return_value=[DummyModel()]),
+                patch(
+                    "cli.db.creates_models",
+                    return_value=[
+                        BaseModel(name="test_model", sources=[], _directory=Path())
+                    ],
+                ),
             ):
                 db = FoxDB.__new__(FoxDB)
                 buf = io.StringIO()
@@ -331,8 +359,10 @@ class TestFoxDBCheckDb(unittest.TestCase):
     def test_check_db_raises_on_duplicates(self) -> None:
         """Exit with an error when duplicate cells are present."""
         spec1 = CellSpec(**VALID_SPEC)
-        c1 = Cell(spec1, [DummyModel()])
-        c2 = Cell(spec1, [DummyModel()])  # duplicate
+        c1 = Cell(spec1, [BaseModel(name="test_model", sources=[], _directory=Path())])
+        c2 = Cell(
+            spec1, [BaseModel(name="test_model", sources=[], _directory=Path())]
+        )  # duplicate
         db = FoxDB.__new__(FoxDB)
         db.cells = [c1, c2]
         buf = io.StringIO()
@@ -347,7 +377,10 @@ class TestFoxDBCheckDb(unittest.TestCase):
         spec1 = CellSpec(**VALID_SPEC)
         spec2 = CellSpec(**{**VALID_SPEC, "name": "X2"})
         db = FoxDB.__new__(FoxDB)
-        db.cells = [Cell(spec1, [DummyModel()]), Cell(spec2, [DummyModel()])]
+        db.cells = [
+            Cell(spec1, [BaseModel(name="test_model", sources=[], _directory=Path())]),
+            Cell(spec2, [BaseModel(name="test_model", sources=[], _directory=Path())]),
+        ]
         # No error expected
         db._check_db()  # pylint: disable=protected-access
 

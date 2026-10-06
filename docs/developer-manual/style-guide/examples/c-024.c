@@ -43,8 +43,8 @@
  * @file    c-024.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -74,7 +74,7 @@ static void ABC_CallTheCallback(void);
 static uint32_t ABC_BuildSum(uint32_t varA, uint32_t varB); /* Function prototype */
 
 /* local variable of type CALLBACK_FUNCTION_POINTER_t
-   The variable can not be initialized in the section where all other static
+   The variable cannot be initialized in the section where all other static
    variables are introduced, since the function is not known at that time. */
 static ABC_CALLBACK_FUNCTION_POINTER_t abc_callback = &ABC_BuildSum;
 

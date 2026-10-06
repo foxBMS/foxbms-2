@@ -6,9 +6,9 @@
 MAX1785x
 ========
 
-This module supports the `MAX17852` and `MAX17853` monitoring ICs by Maxim
-Integrated.
-Communication with these ICs is handled through a `MAX17841B` bridge IC.
+This module supports the |max-max17852| and |max-max17853| monitoring ICs by
+|mxm-full|.
+Communication with these ICs is handled through a |max-max17841b| bridge IC.
 The communication between bridge IC and monitoring IC is encoded
 as Maxim Battery Management UART, which is a optimized, differential variant
 of UART with a focus on robustness.
@@ -72,44 +72,46 @@ Main flow
 
 The following flow chart describes the main flow of this ``AFE`` driver.
 
-- State `Uninitialized`: This is the default state of the driver.
+- State *Uninitialized*: This is the default state of the driver.
   The driver transitions with the next execution into the
-  `Pre-Initialization Self Check` state.
-- State `Pre-Initialization Self Check`: In this state, the driver checks
+- State *Pre-Initialization Self Check*: In this state, the driver checks
   assumptions on its functions.
   If this step fails, the driver is not able to conclude its work.
-- State `Initialization`: In this state, the daisy-chain of the driver is
+- State *Pre-Initialization Self Check*: In this state, the driver checks
+  assumptions on its functions.
+  If this step fails, the driver is not able to conclude its work.
+- State *Initialization*: In this state, the daisy-chain of the driver is
   initialized and each ``AFE`` is assigned an address.
-- State `Post-Initialization Self Check`: During this state, the number of
+- State *Post-Initialization Self Check*: During this state, the number of
   found ``AFE`` is compared to the expected number of devices.
   If these mismatch the driver can halt in this state depending on the
   configuration described in :ref:`Startup_behavior`.
-- State `Idle`: The driver rests in this state as long as the system requests
+- State *Idle*: The driver rests in this state as long as the system requests
   the driver to start.
 
-- State `Operation`: This is the main state during which the ``AFE`` devices
+- State *Operation*: This is the main state during which the ``AFE`` devices
   are controlled.
 
-  - State `Initialization of AFE`: In this chain of substates the ``AFE`` is
+  - State *Initialization of AFE*: In this chain of substates the ``AFE`` is
     initialized and programmed with the expected configuration.
-  - State `Multiplexer control`: In this chain of substates the temperature
+  - State *Multiplexer control*: In this chain of substates the temperature
     multiplexer of the |bms-slave| is controlled and switched to the next
     channel.
-  - State `Measurement`: In this chain of substates the measurement the driver
+  - State *Measurement*: In this chain of substates the measurement the driver
     requests a measurement and retrieves each measurement value.
-  - State `Diagnostic measures`: In this chain of substates diagnostic
+  - State *Diagnostic measures*: In this chain of substates diagnostic
     registers are read.
     When a power on reset condition is recognized (indicating a loss of power
     and potentially undefined state in one of the ``AFE`` devices), a reset of
     the driver is triggered.
-  - State `Balancing control`: In this chain of substates the balancing
+  - State *Balancing control*: In this chain of substates the balancing
     switches are controlled.
     The driver alternates between even and odd switches in order to not create
     a connection between adjacent switches.
 
-- If any state except `Idle` or `Uninitialized` is stuck and does not advance
+- If any state except *Idle* or *Uninitialized* is stuck and does not advance
   to the next state during a predefined time frame, the driver resets itself to
-  the `Uninitialized` state.
+  to the *Uninitialized* state.
   Requests for operation are preserved during this reset as the system assumes
   that the driver has been already asked to start.
 
@@ -155,8 +157,8 @@ When a communication issue occurs, the slave boards might get stuck in a state
 that is unknown to the |foxbms-bms-master|.
 In order to prevent this situation, the driver has an error counter.
 This error counter is automatically reset after
-`MXM_TIMEOUT_RESET_ERROR_COUNTER_ms` milliseconds without any new error.
-If the error threshold of `MXM_MAXIMUM_ERROR_COUNT` is passed, the driver
+``MXM_TIMEOUT_RESET_ERROR_COUNTER_ms`` milliseconds without any new error.
+If the error threshold of ``MXM_MAXIMUM_ERROR_COUNT`` is passed, the driver
 starts an automatic reset of the whole daisy-chain.
 
 This is achieved by pulling down the shutdown line of the bridge IC,

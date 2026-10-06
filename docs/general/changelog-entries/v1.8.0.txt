@@ -73,7 +73,7 @@ Added
     - ``run-app``
 
   - Debugger: Prepared the Lauterbach configuration for the bootloader
-    (``tools/debugger/lauterbach/*`` and ``tools/waf-tools/f_lauterbach.py``).
+    (``tools/debugger/lauterbach/*`` and ``tools/waf_tools/f_lauterbach.py``).
     This is currently a dummy implementation and does not flash an elf file to
     the target.
 

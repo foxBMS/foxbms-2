@@ -43,13 +43,15 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  STD
  *
  * @brief   Definition of foxBMS standard types
- * @details TODO
+ * @details Defines the minimal common type layer used throughout the
+ *          bootloader. It supplements the HAL-provided standard types with
+ *          shared pointer macros and the project-wide standard return type.
  */
 
 #ifndef FOXBMS__FSTD_TYPES_H_

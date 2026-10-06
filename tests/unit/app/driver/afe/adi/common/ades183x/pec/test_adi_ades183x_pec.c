@@ -43,8 +43,8 @@
  * @file    test_adi_ades183x_pec.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,13 +54,100 @@
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+
+#include "adi_ades183x_pec.h"
+#include "fstd_types.h"
+#include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+/* Test for PEC15 computation on command */
+uint8_t pec15Byte2Test0[2u] = {0x12u, 0x34u};
+uint8_t pec15Byte2Test1[2u] = {0xBEu, 0xEFu};
+uint8_t pec15Byte2Test2[2u] = {0x00u, 0x01u};
+uint8_t pec15Byte2Test3[2u] = {0x07u, 0x23u};
+uint8_t pec15Byte2Test4[2u] = {0x03u, 0x60u};
+/* Test for PEC15 computation on 6 bytes of data */
+uint8_t pec15Byte6Test0[6u] = {0x12u, 0x34u, 0x56u, 0x78u, 0x9Au, 0xBCu};
+uint8_t pec15Byte6Test1[6u] = {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+uint8_t pec15Byte6Test2[6u] = {0xBEu, 0xEFu, 0xBEu, 0xEFu, 0xBEu, 0xEFu};
+uint8_t pec15Byte6Test3[6u] = {0xA0u, 0xB0u, 0xC0u, 0xD0u, 0xE0u, 0xF0u};
+uint8_t pec15Byte6Test4[6u] = {0x01u, 0x2Eu, 0x9Bu, 0x33u, 0xACu, 0x55u};
+
+/* Test for PEC10 computation on 6 bytes of data + 6 bits of command counter */
+uint8_t pec10Byte7Test0[7u] = {0x12u, 0x34u, 0x56u, 0x78u, 0x9Au, 0xBCu, 0xDEu};
+uint8_t pec10Byte7Test1[7u] = {0x12u, 0x34u, 0x56u, 0x78u, 0x9Au, 0xBCu, 0x00u};
+uint8_t pec10Byte7Test2[7u] = {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+uint8_t pec10Byte7Test3[7u] = {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0x00u};
+uint8_t pec10Byte7Test4[7u] = {0xBEu, 0xEFu, 0xBEu, 0xEFu, 0xBEu, 0xEFu, 0x35u};
+uint8_t pec10Byte7Test5[7u] = {0xBEu, 0xEFu, 0xBEu, 0xEFu, 0xBEu, 0xEFu, 0x00u};
+/* Test for PEC10 if command counter bits are handled correctly */
+uint8_t pec10Byte7Test6[7u] = {0x12u, 0x34u, 0x56u, 0x78u, 0x9Au, 0xBCu, 0x00u};
+uint8_t pec10Byte7Test7[7u] = {0x12u, 0x34u, 0x56u, 0x78u, 0x9Au, 0xBCu, 0xFFu};
+
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+
+void testAdiPec15(void) {
+    TEST_ASSERT_EQUAL(0x1DD4u, ADI_Pec15(2u, pec15Byte2Test0));
+    TEST_ASSERT_EQUAL(0xFD2Cu, ADI_Pec15(2u, pec15Byte2Test1));
+    TEST_ASSERT_EQUAL(0x3D6Eu, ADI_Pec15(2u, pec15Byte2Test2));
+    TEST_ASSERT_EQUAL(0xB9E4u, ADI_Pec15(2u, pec15Byte2Test3));
+    TEST_ASSERT_EQUAL(0xF46Cu, ADI_Pec15(2u, pec15Byte2Test4));
+
+    TEST_ASSERT_EQUAL(0xBC24u, ADI_Pec15(6u, pec15Byte6Test0));
+    TEST_ASSERT_EQUAL(0x664Cu, ADI_Pec15(6u, pec15Byte6Test1));
+    TEST_ASSERT_EQUAL(0x845Au, ADI_Pec15(6u, pec15Byte6Test2));
+    TEST_ASSERT_EQUAL(0x792Cu, ADI_Pec15(6u, pec15Byte6Test3));
+    TEST_ASSERT_EQUAL(0xD522u, ADI_Pec15(6u, pec15Byte6Test4));
+}
+
+void testAdiPec10(void) {
+    TEST_ASSERT_EQUAL(0x1CCu, ADI_Pec10(6u, pec10Byte7Test0, false));
+    TEST_ASSERT_EQUAL(0x53u, ADI_Pec10(6u, pec10Byte7Test0, true));
+    TEST_ASSERT_EQUAL(0x1CCu, ADI_Pec10(6u, pec10Byte7Test1, false));
+    TEST_ASSERT_EQUAL(0x1CCu, ADI_Pec10(6u, pec10Byte7Test1, true));
+
+    TEST_ASSERT_EQUAL(0x196u, ADI_Pec10(6u, pec10Byte7Test2, false));
+    TEST_ASSERT_EQUAL(0xFEu, ADI_Pec10(6u, pec10Byte7Test2, true));
+    TEST_ASSERT_EQUAL(0x196u, ADI_Pec10(6u, pec10Byte7Test3, false));
+    TEST_ASSERT_EQUAL(0x196u, ADI_Pec10(6u, pec10Byte7Test3, true));
+
+    TEST_ASSERT_EQUAL(0x3F3u, ADI_Pec10(6u, pec10Byte7Test4, false));
+    TEST_ASSERT_EQUAL(0x1B7u, ADI_Pec10(6u, pec10Byte7Test4, true));
+    TEST_ASSERT_EQUAL(0x3F3u, ADI_Pec10(6u, pec10Byte7Test5, false));
+    TEST_ASSERT_EQUAL(0x3F3u, ADI_Pec10(6u, pec10Byte7Test5, true));
+
+    /* pec10Test6: command counter bits set to 0 and taken into account because the receive */
+    /* parameter is set to true */
+    /* pec10Test7: command counter bits not set to 0 in data but must be ignored and replaced by 0 */
+    /* because the receive parameter is set to false */
+    /* So both function calls must return the same result */
+    TEST_ASSERT_EQUAL(ADI_Pec10(6u, pec10Byte7Test6, true), ADI_Pec10(6u, pec10Byte7Test7, false));
+}
+
+void testAdiPec15Asserts(void) {
+    /* invalid data length */
+    TEST_ASSERT_FAIL_ASSERT(ADI_Pec15(0, pec15Byte2Test0));
+    /* invalid data */
+    TEST_ASSERT_FAIL_ASSERT(ADI_Pec15(1, NULL_PTR));
+}
+
+void testAdiPec10Asserts(void) {
+    /* invalid data length */
+    TEST_ASSERT_FAIL_ASSERT(ADI_Pec10(0, pec10Byte7Test0, true));
+    /* invalid data */
+    TEST_ASSERT_FAIL_ASSERT(ADI_Pec10(1, NULL_PTR, true));
+}

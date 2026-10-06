@@ -39,6 +39,7 @@
 
 """Testing file 'cli/cmd_gui/frame_cli_unittest/cli_unittest_gui.py'."""
 
+import importlib
 import os
 import shutil
 import sys
@@ -46,17 +47,24 @@ import tkinter as tk
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
 try:
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_cli_unittest import cli_unittest_gui
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_cli_unittest import cli_unittest_gui
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 
-RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+try:
+    from tests.cli.cmd_gui.tk_helpers import managed_tk_root
+except ModuleNotFoundError:
+    from tests.cli.cmd_gui.tk_helpers import managed_tk_root
+
+RUN_TESTS = os.environ.get("DISPLAY", None) or sys.platform.startswith("win32")
 PATH_GUI = PROJECT_BUILD_ROOT / "cli_unittest_frame"
 
 
@@ -64,82 +72,22 @@ PATH_GUI = PROJECT_BUILD_ROOT / "cli_unittest_frame"
 class TestCliUnittestFrame(unittest.TestCase):
     """Test of the CliUnittestFrame class"""
 
-    def setUp(self):
-        self.start_time = datetime.now(tz=UTC)
-        cli_unittest_gui.PROJECT_BUILD_ROOT = PATH_GUI
-        self.root = tk.Tk()
-        self.root.withdraw()
-        text = tk.Text()
-        self.frame = cli_unittest_gui.CliUnittestFrame(self.root, text)
-
-    def tearDown(self):
-        self.root.update()
-        self.root.destroy()
-        cli_unittest_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
-        remove_data(self.start_time)
-
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.touch()
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("New content.\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(12, self.frame.text_index)
-
-    def test_write_text_not_selected(self):
-        """Test 'write_text' function when CliUnittestFrame is not selected"""
-        mock_select = MagicMock()
-        mock_select.return_value = ""
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-
-class TestCliUnittestFrameNoUiTestableMethods(unittest.TestCase):
-    """Test of the CliUnittestFrame class"""
-
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
         PATH_GUI.mkdir(parents=True, exist_ok=True)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         remove_data(self.start_time)
+        importlib.reload(frame_base)
 
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_cli_unittest_frame = MagicMock()
-        mock_cli_unittest_frame.file_path = Path(
-            PATH_GUI / "output_unittest_write_text_empty.txt"
-        )
-        mock_cli_unittest_frame.touch()
-        mock_cli_unittest_frame.text = MagicMock()
-        mock_cli_unittest_frame.text_index = MagicMock()
-        cli_unittest_gui.CliUnittestFrame.write_text(mock_cli_unittest_frame)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_cli_unittest_frame = MagicMock()
-        mock_cli_unittest_frame.file_path = Path(
-            PATH_GUI / "output_unittest_write_text.txt"
-        )
-        mock_cli_unittest_frame.file_path.write_text("New content.", encoding="utf-8")
-        mock_cli_unittest_frame.text = MagicMock()
-        mock_cli_unittest_frame.text_index = MagicMock()
-        cli_unittest_gui.CliUnittestFrame.write_text(mock_cli_unittest_frame)
+    def test_init(self) -> None:
+        """Test initialization of CliUnittestFrame class"""
+        with managed_tk_root() as root:
+            root.withdraw()
+            text = tk.Text(root)
+            with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+                importlib.reload(frame_base)
+                cli_unittest_gui.CliUnittestFrame(root, text)
 
 
 def remove_data(start_time: datetime) -> None:

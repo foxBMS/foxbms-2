@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _BMS_MODULE:
+.. _BMS_APPLICATION:
 
-BMS Module
-==========
+BMS
+===
 
 Module Files
 ------------
@@ -28,6 +28,28 @@ Unit Test
 Detailed Description
 --------------------
 
+The BMS module is the central control state machine of the battery system.
+It monitors system conditions, handles state requests, and controls contactors
+to transition the battery system between operating states.
+
+Use of Validated Values
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The BMS state machine is designed to run on validated measurement data.
+Validated and derived values are prepared by the :ref:`BMS_VALUES_APPLICATION`
+module which uses the :ref:`PLAUSIBILITY_APPLICATION` module for consistency
+checks.
+Plausibility (and redundancy, when enabled) are helper modules only.
+They do not drive state transitions and do not actuate contactors or similar.
+These control decisions remain solely in the BMS state machine.
+
+In the task flow, values are updated before ``BMS_Trigger()`` is executed in
+the |10ms-task|, minimizing delay between measurement evaluation and BMS
+reaction.
+
+State-machine behavior
+^^^^^^^^^^^^^^^^^^^^^^
+
 A finite state machine with two main states (**STANDBY** and **NORMAL**)
 defines the BMS behaviour.
 **STANDBY** corresponds to the state where all the contactors are open and
@@ -45,8 +67,7 @@ request is sent to the state machine.
 A simplified flow chart of the BMS state machine and the possible transitions
 between the main states is depicted in the figure below.
 
-.. drawio-figure:: bms-state-diagram.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/software/modules/application/bms/bms-state-diagram.svg
    :alt: BMS state flow diagram
    :name: bms-state-diagram
    :width: 240px
@@ -65,6 +86,9 @@ As soon as an error condition is detected by the BMS, the BMS will signal this
 the superimposed control system by setting **EmergencyShutoff** flag in CAN
 message f_BmsState.
 
+Safety behavior
+^^^^^^^^^^^^^^^
+
 Special attention must be paid to overcurrent errors when disconnecting the
 battery system from the application, because of the imminent danger of
 permanently welded contactors caused by erroneous switching actions.
@@ -80,3 +104,18 @@ interrupted.
 Only then will the contactors be opened.
 This guarantees a maximum of safety while trying to maximize the contactor
 service life.
+
+Interaction Summary
+^^^^^^^^^^^^^^^^^^^
+
+- BMS Values provides validated and derived values to the database.
+- BMS reads these values and executes request handling and safety transitions.
+- Plausibility contributes validity decisions used by BMS Values and therefore
+  indirectly determines what the BMS state machine is allowed to trust.
+
+Further Reading
+---------------
+
+- :ref:`BMS_VALUES_APPLICATION`
+- :ref:`PLAUSIBILITY_APPLICATION`
+- :ref:`REDUNDANCY_APPLICATION`

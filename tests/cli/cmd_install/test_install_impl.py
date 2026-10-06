@@ -71,14 +71,14 @@ except ModuleNotFoundError:
 class TestAllSoftwareAvailable(unittest.TestCase):
     """Test of the function 'all_software_available'"""
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         importlib.reload(install_impl)
 
     @patch(
         "cli.cmd_install.install_impl.REQUIRED_SOFTWARE",
         {"abc": {"executable": "abc", "path": False}},
     )
-    def test_all_software_not_available(self):
+    def test_all_software_not_available(self) -> None:
         """Test function with some unavailable software"""
         buf = io.StringIO()
         with redirect_stderr(buf):
@@ -91,7 +91,7 @@ class TestAllSoftwareAvailable(unittest.TestCase):
         {"git": {"executable": "git", "path": False}},
     )
     @patch("shutil.which")
-    def test_all_software_available(self, mock_which: MagicMock):
+    def test_all_software_available(self, mock_which: MagicMock) -> None:
         """Test function with only Python as required software"""
         mock_which.return_value = "git"
         buf = io.StringIO()
@@ -112,7 +112,7 @@ class TestAllSoftwareAvailable(unittest.TestCase):
         },
     )
     @patch("shutil.which")
-    def test_all_software_available_1(self, mock_which: MagicMock):
+    def test_all_software_available_1(self, mock_which: MagicMock) -> None:
         """Test function with only Python as required software"""
         mock_which.return_value = None
         err = io.StringIO()
@@ -138,7 +138,7 @@ class TestAllSoftwareAvailable(unittest.TestCase):
         },
     )
     @patch("shutil.which")
-    def test_all_software_available_2(self, mock_which: MagicMock):
+    def test_all_software_available_2(self, mock_which: MagicMock) -> None:
         """Test function with only Python as required software"""
         mock_which.return_value = None
         err = io.StringIO()
@@ -153,7 +153,7 @@ class TestAllSoftwareAvailable(unittest.TestCase):
         self.assertEqual("All required software is installed.\n", out.getvalue())
 
     @patch("cli.cmd_install.install_impl.deepcopy")
-    def test_check_for_all_softwares(self, mock_deepcopy: MagicMock):
+    def test_check_for_all_softwares(self, mock_deepcopy: MagicMock) -> None:
         """Test invalid expected required software definition"""
         mock_deepcopy.return_value = {
             "drawio": {
@@ -166,19 +166,19 @@ class TestAllSoftwareAvailable(unittest.TestCase):
         }
         with self.assertRaises(SystemExit) as cm:
             check_for_all_softwares()
-        self.assertEqual((cm.exception.code).startswith("Invalid path file "), True)
+        self.assertEqual(str(cm.exception.code).startswith("Invalid path file "), True)
 
 
 @unittest.skipUnless(sys.platform.startswith("win32"), "Windows only test.")
 class TestCreateShortcutWin32(unittest.TestCase):
     """Test of the function '_create_shortcut_win32'"""
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         importlib.reload(install_impl)
 
     @unittest.skipUnless(sys.platform.startswith("win32"), "Windows only test.")
     @patch("cli.cmd_install.install_impl.Dispatch")
-    def test_failure(self, mock_dispatch: MagicMock):
+    def test_failure(self, mock_dispatch: MagicMock) -> None:
         """Test creating of shortcut failed"""
         # pylint: disable-next=import-outside-toplevel
         from win32com.universal import com_error  # noqa: PLC0415
@@ -193,7 +193,7 @@ class TestCreateShortcutWin32(unittest.TestCase):
         self.assertEqual("", out.getvalue())
 
     @unittest.skipUnless(sys.platform.startswith("win32"), "Windows only test.")
-    def test_create_shortcut_win32_win32com_not_available(self):
+    def test_create_shortcut_win32_win32com_not_available(self) -> None:  # noqa: D102
         install_impl.WIN32COM_AVAILABLE = False
         err, out = io.StringIO(), io.StringIO()
         with redirect_stderr(err), redirect_stdout(out):
@@ -207,7 +207,7 @@ class TestCreateShortcutWin32(unittest.TestCase):
     @patch("cli.cmd_install.install_impl.Dispatch")
     def test_file_exists(
         self, mock_dispatch: MagicMock, mock_is_file: MagicMock, mock_version: MagicMock
-    ):
+    ) -> None:
         """Test shortcut already exists"""
         mock_shortcut = MagicMock()
         mock_shell = MagicMock()
@@ -218,11 +218,14 @@ class TestCreateShortcutWin32(unittest.TestCase):
         shortcut_path = Path("TOOL new - 0.0.0.lnk")
         err = io.StringIO()
         out = io.StringIO()
-        with redirect_stderr(err), redirect_stdout(out):
-            with patch("cli.cmd_install.install_impl.TOOL_NAME", new="TOOL"):
-                result = _create_shortcut_win32(
-                    Path(), " new", ["arg1", "arg2"], "cmd", "new path"
-                )
+        with (
+            redirect_stderr(err),
+            redirect_stdout(out),
+            patch("cli.cmd_install.install_impl.TOOL_NAME", new="TOOL"),
+        ):
+            result = _create_shortcut_win32(
+                Path(), " new", ["arg1", "arg2"], "cmd", "new path"
+            )
         self.assertEqual(result, 0)
         mock_is_file.assert_called_once()
         self.assertEqual(
@@ -243,7 +246,7 @@ Successfully created shortcut: {shortcut_path}\n""",
     @patch("cli.cmd_install.install_impl.Dispatch")
     def test_no_file(
         self, mock_dispatch: MagicMock, mock_is_file: MagicMock, mock_version: MagicMock
-    ):
+    ) -> None:
         """Test shortcut does not exist"""
         mock_shortcut = MagicMock()
         mock_shell = MagicMock()
@@ -254,11 +257,14 @@ Successfully created shortcut: {shortcut_path}\n""",
         shortcut_path = Path("TOOL new - 0.0.0.lnk")
         err = io.StringIO()
         out = io.StringIO()
-        with redirect_stderr(err), redirect_stdout(out):
-            with patch("cli.cmd_install.install_impl.TOOL_NAME", new="TOOL"):
-                result = _create_shortcut_win32(
-                    Path(), " new", ["arg1", "arg2"], "cmd", "new path"
-                )
+        with (
+            redirect_stderr(err),
+            redirect_stdout(out),
+            patch("cli.cmd_install.install_impl.TOOL_NAME", new="TOOL"),
+        ):
+            result = _create_shortcut_win32(
+                Path(), " new", ["arg1", "arg2"], "cmd", "new path"
+            )
         self.assertEqual(result, 0)
         mock_is_file.assert_called_once()
         self.assertEqual(
@@ -279,13 +285,13 @@ Successfully created shortcut: {shortcut_path}\n""",
 class TestInstallFoxCli(unittest.TestCase):
     """Test of the function 'install_fox_cli_tools_on_host'"""
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         importlib.reload(install_impl)
 
     @patch("cli.cmd_install.install_impl.PREFIX_LINUX", new=Path("prefix"))
     def test_env_exists(
         self, mock_platform: MagicMock, mock_version: MagicMock, mock_exists: MagicMock
-    ):
+    ) -> None:
         """Test function when the environment directory already exists"""
         install_impl.WIN32COM_AVAILABLE = True
         mock_platform.return_value = "linux"
@@ -308,7 +314,7 @@ class TestInstallFoxCli(unittest.TestCase):
         mock_platform: MagicMock,
         mock_version: MagicMock,
         mock_exists: MagicMock,
-    ):
+    ) -> None:
         """Test function when creating the environment was not successful on Windows"""
         install_impl.WIN32COM_AVAILABLE = True
         mock_setup.main.return_value = 1
@@ -330,7 +336,7 @@ class TestInstallFoxCli(unittest.TestCase):
         mock_platform: MagicMock,
         mock_version: MagicMock,
         mock_exists: MagicMock,
-    ):
+    ) -> None:
         """Test function when creating the environment was not successful on Linux"""
         install_impl.WIN32COM_AVAILABLE = False
         mock_setup.main.return_value = 1
@@ -352,7 +358,7 @@ class TestInstallFoxCli(unittest.TestCase):
         mock_platform: MagicMock,
         mock_version: MagicMock,
         mock_exists: MagicMock,
-    ):
+    ) -> None:
         """Test function when creating the environment was successful on Linux"""
         install_impl.WIN32COM_AVAILABLE = False
         mock_setup.main.return_value = 0
@@ -371,7 +377,7 @@ class TestInstallFoxCli(unittest.TestCase):
     @patch("cli.cmd_install.install_impl.Path.mkdir")
     @patch("cli.cmd_install.install_impl._create_shortcut_win32")
     @patch("cli.cmd_install.install_impl.PREFIX_WIN32", new=Path("prefix"))
-    def test_shortcut_failure(  # noqa: PLR0913
+    def test_shortcut_failure(  # noqa: PLR0913  # noqa: D102
         self,
         mock_create_shortcut: MagicMock,
         mock_mkdir: MagicMock,
@@ -379,7 +385,7 @@ class TestInstallFoxCli(unittest.TestCase):
         mock_platform: MagicMock,
         mock_version: MagicMock,
         mock_exists: MagicMock,
-    ):
+    ) -> None:
         """Test function when creating the shortcuts was not successful"""
         mock_create_shortcut.return_value = 1
         mock_setup.main.return_value = 0
@@ -399,7 +405,7 @@ class TestInstallFoxCli(unittest.TestCase):
     @patch("cli.cmd_install.install_impl.Path.mkdir")
     @patch("cli.cmd_install.install_impl._create_shortcut_win32")
     @patch("cli.cmd_install.install_impl.PREFIX_WIN32", new=Path("prefix"))
-    def test_shortcut_success(  # noqa: PLR0913
+    def test_shortcut_success(  # noqa: PLR0913  # noqa: D102
         self,
         mock_create_shortcut: MagicMock,
         mock_mkdir: MagicMock,
@@ -407,7 +413,7 @@ class TestInstallFoxCli(unittest.TestCase):
         mock_platform: MagicMock,
         mock_version: MagicMock,
         mock_exists: MagicMock,
-    ):
+    ) -> None:
         """Test function when creating the shortcuts was successful"""
         mock_create_shortcut.return_value = 0
         mock_setup.main.return_value = 0
@@ -426,11 +432,11 @@ class TestInstallFoxCli(unittest.TestCase):
 class TestImport(unittest.TestCase):
     """Test importing Dispatch"""
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         importlib.reload(install_impl)
 
     @patch("importlib.util.find_spec")
-    def test_unavailable(self, mock_find_spec: MagicMock):
+    def test_unavailable(self, mock_find_spec: MagicMock) -> None:
         """Test when 'wind32com' is not available"""
         mock_find_spec.return_value = False
         importlib.reload(install_impl)
@@ -438,7 +444,7 @@ class TestImport(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform.startswith("win32"), "Windows only test.")
     @patch("importlib.util.find_spec")
-    def test_available(self, mock_find_spec: MagicMock):
+    def test_available(self, mock_find_spec: MagicMock) -> None:
         """Test when 'wind32com' is available"""
         mock_find_spec.return_value = True
         importlib.reload(install_impl)

@@ -58,7 +58,7 @@ class DataHandlerFactory(DataHandlerFactoryInterface):  # pylint: disable=too-fe
     def get_object(
         self, handler: DataSourceTypes, config: Path | None
     ) -> CSVHandler | PARQUETHandler:
-        """Creates a DataHandler object if handler_type is 'CSV' or 'PARQUET'"""
+        """Create a DataHandler object if handler_type is 'CSV' or 'PARQUET'"""
         match handler:
             case DataSourceTypes.CSV:
                 try:

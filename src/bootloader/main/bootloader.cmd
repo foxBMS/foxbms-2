@@ -211,14 +211,14 @@ SECTIONS
     /* Load 'flash.c' objects to RAM */
     flashC:
     {
-       flash.c.1.obj (.text)
+       src/bootloader/driver/flash/flash.c.1.o (.text)
        --library= "C:\ti\Hercules\F021 Flash API\02.01.01\F021_API_CortexR4_BE_L2FMC_V3D16.lib" (.text)
     } palign=8 load = BOOTLOADER, run = RAM_FLASH_API, LOAD_START(main_textLoadStartFlashC), RUN_START(main_textRunStartFlashC), SIZE(main_textSizeFlashC)
 
     /* Load const objects in 'flash_cfg.c' to RAM */
     flashCfg:
     {
-        flash_cfg.c.1.obj (.const)
+        src/bootloader/driver/config/flash_cfg.c.1.o (.const)
      } palign=8 load = BOOTLOADER, run = RAM_FLASH_API, LOAD_START(main_constLoadStartFlashCfgC), RUN_START(main_constRunStartFlashCfgC), SIZE(main_constSizeFlashCfgC)
 
 }

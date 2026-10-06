@@ -1,0 +1,24 @@
+[
+  {
+    "platform": "win32",
+    "source": "src/bootloader/driver/config/flash_cfg.c",
+    "test": "test_flash_cfg.c",
+    "includes": [
+      "C:/ti/Hercules/F021 Flash API/02.01.01/include",
+      "src/bootloader/driver/config"
+    ]
+  },
+  {
+    "source": "src/bootloader/driver/config/can_cfg.c",
+    "test": "test_can_cfg.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/engine/can",
+      "src/bootloader/engine/config"
+    ],
+    "mocks": [
+      "src/bootloader/engine/can/can_cbs.h"
+    ]
+  }
+]

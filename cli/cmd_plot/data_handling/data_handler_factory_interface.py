@@ -56,4 +56,4 @@ class DataHandlerFactoryInterface(ABC):  # pylint: disable=too-few-public-method
     def get_object(
         self, handler: DataSourceTypes, config: Path
     ) -> CSVHandler | PARQUETHandler:
-        """Creates a DataHandler object if handler_type is 'CSV'"""
+        """Create a DataHandler object if handler_type is 'CSV'"""

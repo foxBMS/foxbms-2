@@ -118,25 +118,56 @@ Enum=f_BmsSubstate(0="ENTRY", // Substate entry state
   30="OPEN_SECOND_STRING_CONTACTOR", 31="CHECK_SECOND_STRING_CONTACTOR", 32="OPEN_STRINGS_EXIT")
 Enum=f_BalancingAlgorithmState(0="BALANCING_NOT_ALLOWED", 1="BALANCING_ALLOWED")
 Enum=f_FatalError(0="DIAG_ID_SYSTEM_MONITORING", 1="DIAG_ID_AFE_SPI", 2="DIAG_ID_AFE_COMMUNICATION_INTEGRITY",
-  3="DIAG_ID_AFE_MUX", 4="DIAG_ID_AFE_CONFIG", 5="DIAG_ID_CAN_TIMING", 8="DIAG_ID_CURRENT_SENSOR_CC_RESPONDING",
-  9="DIAG_ID_CURRENT_SENSOR_EC_RESPONDING", 10="DIAG_ID_CURRENT_SENSOR_RESPONDING",
-  17="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL", 18="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL",
-  20="DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL", 23="DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL",
-  26="DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL", 29="DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL",
-  32="DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL", 35="DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL",
-  38="DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL", 41="DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL",
-  44="DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL", 47="DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL",
+  3="DIAG_ID_AFE_MUX", 4="DIAG_ID_AFE_CONFIG", 5="DIAG_ID_CAN_TIMING", 6="DIAG_ID_CAN_RX_QUEUE_FULL",
+  7="DIAG_ID_CAN_TX_QUEUE_FULL", 8="DIAG_ID_CURRENT_SENSOR_CC_RESPONDING", 9="DIAG_ID_CURRENT_SENSOR_EC_RESPONDING",
+  10="DIAG_ID_CURRENT_SENSOR_RESPONDING", 11="DIAG_ID_REDUNDANCY_CELL_VOLTAGE",
+  12="DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR", 13="DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR",
+  14="DIAG_ID_REDUNDANCY_CELL_TEMPERATURE", 15="DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD",
+  16="DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD", 17="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL",
+  18="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL", 19="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL",
+  20="DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL", 21="DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL",
+  22="DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL", 23="DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL",
+  24="DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL", 25="DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL",
+  26="DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL", 27="DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL",
+  28="DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL", 29="DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL",
+  30="DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL", 31="DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL",
+  32="DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL", 33="DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL",
+  34="DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL", 35="DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL",
+  36="DIAG_ID_OVERCURRENT_CHARGE_CELL_RSL", 37="DIAG_ID_OVERCURRENT_CHARGE_CELL_MOL",
+  38="DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL", 39="DIAG_ID_OVERCURRENT_DISCHARGE_CELL_RSL",
+  40="DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MOL", 41="DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL",
+  42="DIAG_ID_STRING_OVERCURRENT_CHARGE_RSL", 43="DIAG_ID_STRING_OVERCURRENT_CHARGE_MOL",
+  44="DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL", 45="DIAG_ID_STRING_OVERCURRENT_DISCHARGE_RSL",
+  46="DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MOL", 47="DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL",
   48="DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL", 49="DIAG_ID_CURRENT_ON_OPEN_STRING",
-  50="DIAG_ID_DEEP_DISCHARGE_DETECTED", 53="DIAG_ID_INTERLOCK_FEEDBACK", 54="DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK",
-  55="DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK", 56="DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK", 58="DIAG_ID_SBC_RSTB_ERROR",
-  65="DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT", 66="DIAG_ID_CURRENT_MEASUREMENT_ERROR",
-  67="DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT", 68="DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT",
-  69="DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT", 70="DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT",
-  71="DIAG_ID_POWER_MEASUREMENT_ERROR", 81="DIAG_ID_ALERT_MODE", 83="DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST",
-  84="DIAG_ID_AFE_ALARM",
-  85="NO_ERROR", // use maximum flag as no error sign
-  57="DIAG_ID_SBC_FIN_ERROR", 52="DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE")
+  50="DIAG_ID_DEEP_DISCHARGE_DETECTED", 51="DIAG_ID_AFE_OPEN_WIRE", 52="DIAG_ID_BMS_VALUES_PACK_VOLTAGE",
+  53="DIAG_ID_INTERLOCK_FEEDBACK", 54="DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK",
+  55="DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK", 56="DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK", 57="DIAG_ID_SBC_FIN_ERROR",
+  58="DIAG_ID_SBC_RSTB_ERROR", 59="DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT",
+  60="DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT", 61="DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT",
+  62="DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT", 63="DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE",
+  64="DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT", 65="DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT",
+  66="DIAG_ID_CURRENT_MEASUREMENT_ERROR", 67="DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT",
+  68="DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT", 69="DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT",
+  70="DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT", 71="DIAG_ID_POWER_MEASUREMENT_ERROR",
+  72="DIAG_ID_INSULATION_MEASUREMENT_VALID", 73="DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR",
+  74="DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING", 75="DIAG_ID_INSULATION_GROUND_ERROR", 76="DIAG_ID_I2C_PEX_ERROR",
+  77="DIAG_ID_I2C_RTC_ERROR", 78="DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR", 79="DIAG_ID_RTC_BATTERY_LOW_ERROR",
+  80="DIAG_ID_FRAM_READ_CRC_ERROR", 81="DIAG_ID_ALERT_MODE", 82="DIAG_ID_AEROSOL_ALERT",
+  83="DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST", 84="DIAG_ID_AFE_ALARM")
 Enum=f_RtcRequest(0="No Request", 1="Valid Request", 2="Invalid Request")
+Enum=VtSig_IVT_Coulomb_Status(15="Error", 14="Not_Available", 13="reserved13", 12="reserved12", 11="reserved11",
+  10="reserved10", 9="reserved9", 8="reserved8", 7="reserved7", 6="reserved6", 5="reserved5", 4="reserved4",
+  3="Overcurrent L2", 2="Overcurrent L1", 1="Init", 0="Valid")
+Enum=VtSig_IVT_Energy_Status(15="Error", 14="Not_Available", 13="reserved13", 12="reserved12", 11="reserved11",
+  10="reserved10", 9="reserved9", 8="reserved8", 7="reserved7", 6="reserved6", 5="reserved5", 4="reserved4",
+  3="Overload L2", 2="Overload L1", 1="Init", 0="Valid")
+Enum=VtSig_IVT_ShuntTemp_Status(15="Error", 14="Not_Available", 13="reserved13", 12="reserved12", 11="reserved11",
+  10="reserved10", 9="reserved9", 8="reserved8", 7="reserved7", 6="reserved6", 5="reserved5", 4="reserved4",
+  3="Undertemperature", 2="Overtemperature", 1="Init", 0="Valid")
+Enum=VtSig_IVT_VoltageLinkPreCharge_S(15="Error", 14="Not_Available", 13="reserved13", 12="reserved12", 11="reserved11",
+  10="reserved10", 9="reserved9", 8="reserved8", 7="reserved7", 6="reserved6", 5="reserved5", 4="reserved4",
+  3="reserved3", 2="Overvoltage L1", 1="Init", 0="Valid")
 Enum=f_SystemState(0="SYS_FSM_STATE_DUMMY", 1="SYS_FSM_STATE_HAS_NEVER_RUN", 2="SYS_FSM_STATE_UNINITIALIZED",
   3="SYS_FSM_STATE_INITIALIZATION", 4="SYS_FSM_STATE_PRE_RUNNING", 5="SYS_FSM_STATE_RUNNING", 6="SYS_FSM_STATE_ERROR")
 Enum=f_SystemSubstate(0="SYS_FSM_SUBSTATE_DUMMY", 1="SYS_FSM_SUBSTATE_ENTRY", 2="SYS_FSM_CHECK_DEEP_DISCHARGE",
@@ -152,6 +183,8 @@ Enum=f_SystemSubstate(0="SYS_FSM_SUBSTATE_DUMMY", 1="SYS_FSM_SUBSTATE_ENTRY", 2=
   22="SYS_FSM_SUBSTATE_BAL_INITIALIZATION_ERROR", 23="SYS_FSM_SUBSTATE_BAL_GLOBAL_INITIALIZATION_ERROR",
   24="SYS_FSM_SUBSTATE_FIRST_MEAS_INITIALIZATION_ERROR", 25="SYS_FSM_SUBSTATE_CURRENT_SENSOR_PRESENCE_ERROR",
   26="SYS_FSM_SUBSTATE_IMD_INITIALIZATION_ERROR", 27="SYS_FSM_SUBSTATE_BMS_INITIALIZATION_ERROR")
+Enum=f_CalibrationChannel(0="FRAM_CHANNEL_0", 1="FRAM_CHANNEL_1", 2="FRAM_CHANNEL_2", 3="FRAM_CHANNEL_3", 4="FRAM_CHANNEL_4",
+  5="FRAM_CHANNEL_5", 6="FRAM_CHANNEL_6", 7="FRAM_CHANNEL_7", 8="FRAM_CHANNEL_8", 9="FRAM_CHANNEL_9")
 
 {SENDRECEIVE}
 
@@ -1379,6 +1412,102 @@ Var=SensorStatus unsigned 37,3 -m
 Var=SensorFaults unsigned 32,5 -m
 Var=RollingCounter unsigned 45,3 -m
 Var=CrcCheckCode unsigned 56,8 -m
+
+[CS_IsabellenhuetteIvtString0Cc]
+ID=527h // Current sensor string 0: coulomb counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_As_System_Error bit 8,1 -m
+Var=IVT_Result_As_OCS bit 11,1 -m
+Var=IVT_Result_As_Measurement_Error bit 9,1 -m
+Var=IVT_Result_As_Channel_Error bit 10,1 -m
+Var=IVT_Result_As signed 16,32 -m /u:As
+Var=IVT_MsgCount_Result_As unsigned 12,4 -m
+Var=IVT_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /e:VtSig_IVT_ID_Result_As /d:6
+
+[CS_IsabellenhuetteIvtString0Curr]
+ID=521h // Current sensor string 0: current (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_I_System_Error bit 8,1 -m
+Var=IVT_Result_I_OCS bit 11,1 -m
+Var=IVT_Result_I_Measurement_Error bit 9,1 -m
+Var=IVT_Result_I_Channel_Error bit 10,1 -m
+Var=IVT_ID_Result_I unsigned 0,8 -m /e:VtSig_IVT_ID_Result_I
+Var=IVT_MsgCount_Result_I unsigned 12,4 -m
+Var=IVT_Result_I signed 16,32 -m /u:mA
+
+[CS_IsabellenhuetteIvtString0Ec]
+ID=528h // Current sensor string 0: energy counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_Wh_System_Error bit 8,1 -m
+Var=IVT_Result_Wh_OCS bit 11,1 -m
+Var=IVT_Result_Wh_Measurement_Error bit 9,1 -m
+Var=IVT_Result_Wh_Channel_Error bit 10,1 -m
+Var=IVT_Result_Wh signed 16,32 -m /u:Wh
+Var=IVT_MsgCount_Result_Wh unsigned 12,4 -m
+Var=IVT_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /e:VtSig_IVT_ID_Result_Wh /d:7
+
+[CS_IsabellenhuetteIvtString0Pwr]
+ID=526h // Current sensor string 0: power (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_W_System_Error bit 8,1 -m
+Var=IVT_Result_W_OCS bit 11,1 -m
+Var=IVT_Result_W_Measurement_Error bit 9,1 -m
+Var=IVT_Result_W_Channel_Error bit 10,1 -m
+Var=IVT_Result_W signed 16,32 -m /u:W
+Var=IVT_MsgCount_Result_W unsigned 12,4 -m
+Var=IVT_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /e:VtSig_IVT_ID_Result_W /d:5
+
+[CS_IsabellenhuetteIvtString0Temp]
+ID=525h // Current sensor string 0: temperature (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_T_System_Error bit 8,1 -m
+Var=IVT_Result_T_OCS bit 11,1 -m
+Var=IVT_Result_T_Measurement_Error bit 9,1 -m
+Var=IVT_Result_T_Channel_Error bit 10,1 -m
+Var=IVT_ID_Result_T unsigned 0,8 -m /min:4 /max:4 /e:VtSig_IVT_ID_Result_T /d:4
+Var=IVT_Result_T signed 16,32 -m /u:degC /f:0.1 /d:0
+Var=IVT_MsgCount_Result_T unsigned 12,4 -m
+
+[CS_IsabellenhuetteIvtString0V1]
+ID=522h // Current sensor string 0: voltage 1 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_U1_System_Error bit 8,1 -m
+Var=IVT_Result_U1_Measurement_Error bit 9,1 -m
+Var=IVT_Result_U1_Channel_Error bit 10,1 -m
+Var=IVT_Result_U1_OCS bit 11,1 -m
+Var=IVT_ID_Result_U1 unsigned 0,8 -m /min:1 /max:1 /e:VtSig_IVT_ID_Result_U1 /d:1
+Var=IVT_Result_U1 signed 16,32 -m /u:mV
+Var=IVT_MsgCount_Result_U1 unsigned 12,4 -m
+
+[CS_IsabellenhuetteIvtString0V2]
+ID=523h // Current sensor string 0: voltage 2 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_U2_System_Error bit 8,1 -m
+Var=IVT_Result_U2_OCS bit 11,1 -m
+Var=IVT_Result_U2_Measurement_Error bit 9,1 -m
+Var=IVT_Result_U2_Channel_Error bit 10,1 -m
+Var=IVT_ID_Result_U2 unsigned 0,8 -m /min:2 /max:2 /e:VtSig_IVT_ID_Result_U2 /d:2
+Var=IVT_MsgCount_Result_U2 unsigned 12,4 -m
+Var=IVT_Result_U2 signed 16,32 -m /u:mV
+
+[CS_IsabellenhuetteIvtString0V3]
+ID=524h // Current sensor string 0: voltage 3 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
+Len=6
+Var=IVT_Result_U3_System_Error bit 8,1 -m
+Var=IVT_Result_U3_OCS bit 11,1 -m
+Var=IVT_Result_U3_Measurement_Error bit 9,1 -m
+Var=IVT_Result_U3_Channel_Error bit 10,1 -m
+Var=IVT_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /e:VtSig_IVT_ID_Result_U3 /d:3
+Var=IVT_Result_U3 signed 16,32 -m /u:mV
+Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
+
+[CS_LemCab500String0]
+ID=3C2h // LEM Current Sensor (in:can_cbs_rx_cs_lem-cab500.c:CANRX_CsLemCab500, fv:rx, type:Current Sensor)
+Len=8
+Var=PRODUCT_NAME unsigned 40,24 -m /max:1 // CAB5 Product name
+Var=CSM_FAIL unsigned 32,7 -m /max:1 // Error information
+Var=ERROR_INDICATION unsigned 39,1 -m // Error flag to validate sent current
+Var=CSM_BAT_CURRENT_mA unsigned 0,32 -m // Battery current field uses 0x80000000 as zero value, 0x7FFFFFFF as -1 mA and 0x80000001 as 1mA
 
 [f_BmsFatalError]
 ID=222h // Message contains the fatal error code (in:can_cbs_tx_f_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)
@@ -2739,8 +2868,30 @@ Var=RequestUptime bit 23,1 -m /ln:"RequestUptime" // Instructs the BMS to commun
 
 [f_Debug]
 Len=8
+Mux=SetSlopeFramCalibrationValue 0,8 0Bh -m // Set FRAM entry compesations values
+Var=FramCalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel /ln:"FramCalibrationChannel" // Set the calibration channel
+Var=CalibrationValue signed 32,32 -m /f:0.0001 /ln:"FramCalibrationValue" // Set slope calibration value
+
+[f_Debug]
+Len=8
 Mux=IdentifyHardware 0,8 7 -m
 Var=RequestIdentifyHardware bit 15,1
+
+[f_Debug]
+Len=8
+Mux=GetMeasValueForFramCalibration 0,8 9 -m // Request measurement value for the selected calibration channel
+Var=CalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel
+
+[f_Debug]
+Len=8
+Mux=FramRequestCalibrationValues 0,8 8 -m // Request the currently set FRAM calibration values
+Var=CalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel
+
+[f_Debug]
+Len=8
+Mux=SetOffsetFramCalibrationValue 0,8 0Ah -m // Set FRAM entry offset compesations values
+Var=CalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel /ln:"FramCalibrationChannel" // Set the calibration channel
+Var=CalibrationValue signed 32,32 -m /f:0.0001 /ln:"FramCalibrationValue" // Set offset calibration value
 
 [f_DebugBuildConfiguration]
 ID=303h // Contains the build configuration (in:can_cbs_tx_f_debug-build-configuration.c:CANTX_DebugBuildConfiguration, fv:tx, type:Debug)
@@ -2840,17 +2991,6 @@ Mux=BatterySystem_Contactors 0,8 32h
 Var=MainContactorsMaxBreakCurrent unsigned 24,32 -m /u:mA /max:1
 Var=NrOfContactors unsigned 16,8 -m /max:1
 Var=NrOfContactorsOutsideStrings unsigned 8,8 -m /max:1
-
-[f_DebugBuildConfiguration]
-Len=8
-Mux=BatterySystem_OpenWireCheck 0,8 36h
-Var=StandbyPeriodicOpenWireCheck unsigned 8,1 -m
-Var=NormalPeriodicOpenWireCheck unsigned 21,1 -m
-Var=ChargePeriodicOpenWireCheck unsigned 37,1
-Var=StandbyOpenWirePeriod unsigned 9,12 -m /u:s
-Var=NormalOpenWirePeriod unsigned 22,12 -m /u:s
-Var=ErrorOpenWirePeriod unsigned 47,12 -m /u:s
-Var=ChargeOpenWirePeriod unsigned 35,12 -m /u:s
 
 [f_DebugBuildConfiguration]
 Len=8
@@ -2985,6 +3125,24 @@ Var=GetBootMonth unsigned 40,4 -m /e:f_RtcMonth
 Var=GetBootSeconds unsigned 15,6 -m
 Var=GetbootWeekday unsigned 32,3 -m /e:f_RtcWeekday
 Var=GetBootYear unsigned 44,7 -m
+
+[f_DebugResponse]
+Len=8
+Mux=FramMeasValueForCalibration 0,8 8 -m
+Var=MeasurementValue signed 32,32 -m /ln:"AdcCalibrationValue" // Set the calibration value
+Var=CalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel /ln:"AdcCalibrationChannel" // Set the calibration channel
+
+[f_DebugResponse]
+Len=8
+Mux=FramSlopeCalibrationValue 0,8 9 -m
+Var=CalibrationValue signed 32,32 -m /f:0.0001 /ln:"SlopeCalibrationValue" // Configured slope calibration value
+Var=CalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel /ln:"AdcCalibrationChannel" // Set the calibration channel
+
+[f_DebugResponse]
+Len=8
+Mux=FramOffsetCalibrationValue 0,8 0Ah -m
+Var=CalibrationValue signed 32,32 -m /f:0.0001 /ln:"AdcCalibrationValue" // Configured offset calibration value
+Var=CalibrationChannel unsigned 8,8 -m /e:f_CalibrationChannel /ln:"AdcCalibrationChannel" // Set the calibration channel
 
 [f_DebugUnsupportedMultiplexerVal]
 ID=302h // (in:can_cbs_tx_f_debug-unsupported-multiplexer-values.c:CANTX_DebugUnsupportedMultiplexerVal, fv:tx, type:Debug)
@@ -3534,99 +3692,3 @@ Mux=S_VIFC_CTL_IMC_RESET 0,8 C8h
 [IMD_BenderIso165c_Response]
 Len=5
 Mux=S_IMC_CTL_SYS_UPDATE 0,8 23h
-
-[CS_IsabellenhuetteIvtString0Curr]
-ID=521h // Current sensor string 0: current (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_I_System_Error bit 8,1 -m
-Var=IVT_Result_I_OCS bit 11,1 -m
-Var=IVT_Result_I_Measurement_Error bit 9,1 -m
-Var=IVT_Result_I_Channel_Error bit 10,1 -m
-Var=IVT_ID_Result_I unsigned 0,8 -m /e:VtSig_IVT_ID_Result_I
-Var=IVT_MsgCount_Result_I unsigned 12,4 -m
-Var=IVT_Result_I signed 16,32 -m /u:mA
-
-[CS_IsabellenhuetteIvtString0Cc]
-ID=527h // Current sensor string 0: coulomb counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_As_System_Error bit 8,1 -m
-Var=IVT_Result_As_OCS bit 11,1 -m
-Var=IVT_Result_As_Measurement_Error bit 9,1 -m
-Var=IVT_Result_As_Channel_Error bit 10,1 -m
-Var=IVT_Result_As signed 16,32 -m /u:As
-Var=IVT_MsgCount_Result_As unsigned 12,4 -m
-Var=IVT_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /e:VtSig_IVT_ID_Result_As /d:6
-
-[CS_IsabellenhuetteIvtString0Ec]
-ID=528h // Current sensor string 0: energy counting (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_Wh_System_Error bit 8,1 -m
-Var=IVT_Result_Wh_OCS bit 11,1 -m
-Var=IVT_Result_Wh_Measurement_Error bit 9,1 -m
-Var=IVT_Result_Wh_Channel_Error bit 10,1 -m
-Var=IVT_Result_Wh signed 16,32 -m /u:Wh
-Var=IVT_MsgCount_Result_Wh unsigned 12,4 -m
-Var=IVT_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /e:VtSig_IVT_ID_Result_Wh /d:7
-
-[CS_IsabellenhuetteIvtString0Pwr]
-ID=526h // Current sensor string 0: power (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_W_System_Error bit 8,1 -m
-Var=IVT_Result_W_OCS bit 11,1 -m
-Var=IVT_Result_W_Measurement_Error bit 9,1 -m
-Var=IVT_Result_W_Channel_Error bit 10,1 -m
-Var=IVT_Result_W signed 16,32 -m /u:W
-Var=IVT_MsgCount_Result_W unsigned 12,4 -m
-Var=IVT_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /e:VtSig_IVT_ID_Result_W /d:5
-
-[CS_IsabellenhuetteIvtString0Temp]
-ID=525h // Current sensor string 0: temperature (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_T_System_Error bit 8,1 -m
-Var=IVT_Result_T_OCS bit 11,1 -m
-Var=IVT_Result_T_Measurement_Error bit 9,1 -m
-Var=IVT_Result_T_Channel_Error bit 10,1 -m
-Var=IVT_ID_Result_T unsigned 0,8 -m /min:4 /max:4 /e:VtSig_IVT_ID_Result_T /d:4
-Var=IVT_Result_T signed 16,32 -m /u:degC /f:0.1 /d:0
-Var=IVT_MsgCount_Result_T unsigned 12,4 -m
-
-[CS_IsabellenhuetteIvtString0V1]
-ID=522h // Current sensor string 0: voltage 1 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_U1_System_Error bit 8,1 -m
-Var=IVT_Result_U1_Measurement_Error bit 9,1 -m
-Var=IVT_Result_U1_Channel_Error bit 10,1 -m
-Var=IVT_Result_U1_OCS bit 11,1 -m
-Var=IVT_ID_Result_U1 unsigned 0,8 -m /min:1 /max:1 /e:VtSig_IVT_ID_Result_U1 /d:1
-Var=IVT_Result_U1 signed 16,32 -m /u:mV
-Var=IVT_MsgCount_Result_U1 unsigned 12,4 -m
-
-[CS_IsabellenhuetteIvtString0V2]
-ID=523h // Current sensor string 0: voltage 2 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_U2_System_Error bit 8,1 -m
-Var=IVT_Result_U2_OCS bit 11,1 -m
-Var=IVT_Result_U2_Measurement_Error bit 9,1 -m
-Var=IVT_Result_U2_Channel_Error bit 10,1 -m
-Var=IVT_ID_Result_U2 unsigned 0,8 -m /min:2 /max:2 /e:VtSig_IVT_ID_Result_U2 /d:2
-Var=IVT_MsgCount_Result_U2 unsigned 12,4 -m
-Var=IVT_Result_U2 signed 16,32 -m /u:mV
-
-[CS_IsabellenhuetteIvtString0V3]
-ID=524h // Current sensor string 0: voltage 3 (in:can_cbs_rx_cs_isabellenhuette-ivt-s.c:CANRX_CsIsabellenhuetteIvtS, fv:rx, type:Current Sensor)
-Len=6
-Var=IVT_Result_U3_System_Error bit 8,1 -m
-Var=IVT_Result_U3_OCS bit 11,1 -m
-Var=IVT_Result_U3_Measurement_Error bit 9,1 -m
-Var=IVT_Result_U3_Channel_Error bit 10,1 -m
-Var=IVT_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /e:VtSig_IVT_ID_Result_U3 /d:3
-Var=IVT_Result_U3 signed 16,32 -m /u:mV
-Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
-
-[CS_LemCab500String0]
-ID=3C2h // LEM Current Sensor (in:can_cbs_rx_cs_lem-cab500.c:CANRX_CsLemCab500, fv:rx, type:Current Sensor)
-Len=8
-Var=PRODUCT_NAME unsigned 40,24 -m /max:1 // CAB5 Product name
-Var=CSM_FAIL unsigned 32,7 -m /max:1 // Error information
-Var=ERROR_INDICATION unsigned 39,1 -m // Error flag to validate sent current
-Var=CSM_BAT_CURRENT_mA unsigned 0,32 -m // Battery current field uses 0x80000000 as zero value, 0x7FFFFFFF as -1 mA and 0x80000001 as 1mA

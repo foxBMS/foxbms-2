@@ -43,8 +43,8 @@
  * @file    soh_none.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOH
  *
@@ -71,10 +71,13 @@
 extern void SE_InitializeStateOfHealth(DATA_BLOCK_SOH_s *pSohValues, uint8_t stringNumber) {
     FAS_ASSERT(pSohValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    (void)pSohValues;
+    (void)stringNumber;
 }
 
 extern void SE_CalculateStateOfHealth(DATA_BLOCK_SOH_s *pSohValues) {
     FAS_ASSERT(pSohValues != NULL_PTR);
+    (void)pSohValues;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

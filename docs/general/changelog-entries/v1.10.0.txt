@@ -64,7 +64,7 @@ Changed
 - Create a common codebase for the NXP MC3377X drivers.
 - Replace the name of the function ``ADI_CopyCommandBits`` in the ADI AFE
   driver with 'ADI_CopyCommandBytes' to reflect the actual function behavior.
-- Improve unittests of the ``check_doxygen.py`` script.
+- Improve unit tests of the ``check_doxygen.py`` script.
 - Require all Python unit tests to define ``__main__`` symbol and call
   ``unittest.main`` inside ``__main__``.
 - Improve hardware documentation.
@@ -91,7 +91,7 @@ Changed
   message ``f_DebugBuildConfiguration``.
 - Change data layout of CAN message ``f_BmsFatalError`` and fix a bug to
   transmit the correct error code.
-- Update Dependencies:
+- Update dependencies:
 
   - Internal:
 

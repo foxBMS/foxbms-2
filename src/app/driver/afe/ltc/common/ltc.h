@@ -43,8 +43,8 @@
  * @file    ltc.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -77,8 +77,10 @@ extern LTC_STATE_s ltc_stateBase;
  *
  * This function contains the sequence of events in the LTC state machine.
  * It must be called time-triggered, every 1ms.
+ *
+ * @param  ltcState     state of the ltc state machine
  */
-extern void LTC_Trigger(LTC_STATE_s *ltc_state);
+extern void LTC_Trigger(LTC_STATE_s *ltcState);
 
 /**
  * @brief   sets the current state request of the state variable ltc_state.
@@ -90,22 +92,22 @@ extern void LTC_Trigger(LTC_STATE_s *ltc_state);
  * The result of the check is returned immediately, so that the requester can act in case
  * it made a non-valid state request.
  *
- * @param  ltc_state  state of the ltc state machine
- * @param  statereq    state request to set
+ * @param  ltcState     state of the ltc state machine
+ * @param  statereq     state request to set
  *
  * @return current state request, taken from LTC_STATE_REQUEST_e
  */
-extern LTC_RETURN_TYPE_e LTC_SetStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s statereq);
+extern LTC_RETURN_TYPE_e LTC_SetStateRequest(LTC_STATE_s *ltcState, LTC_REQUEST_s statereq);
 
 /**
  * @brief  gets the measurement initialization status.
  *
- * @param  ltc_state  state of the ltc state machine
+ * @param  ltcState state of the ltc state machine
  *
  * @return true if a first measurement cycle was made, false otherwise
  *
  */
-extern bool LTC_IsFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state);
+extern bool LTC_IsFirstMeasurementCycleFinished(LTC_STATE_s *ltcState);
 
 /**
  * @brief   stores the measured voltages in the database.
@@ -115,12 +117,11 @@ extern bool LTC_IsFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state);
  * At each write iteration, the variable named "state" and related to voltages in the
  * database is incremented.
  *
- * @param  ltc_state  state of the ltc state machine
- *
- * @param  stringNumber    string addressed
+ * @param  ltcState         state of the ltc state machine
+ * @param  stringNumber     string addressed
  *
  */
-extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber);
+extern void LTC_SaveVoltages(LTC_STATE_s *ltcState, uint8_t stringNumber);
 
 /**
  * @brief   stores the measured temperatures and the measured multiplexer feedback in the database.
@@ -131,11 +132,11 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber);
  * At each write iteration, the variables named "state" and related to temperatures and multiplexer feedback
  * in the database are incremented.
  *
- * @param   ltc_state                    state of the ltc state machine
- * @param  stringNumber    string addressed
+ * @param  ltcState         state of the ltc state machine
+ * @param  stringNumber     string addressed
  *
  */
-extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber);
+extern void LTC_SaveTemperatures(LTC_STATE_s *ltcState, uint8_t stringNumber);
 
 /**
  * @brief   stores the measured GPIOs in the database.
@@ -145,32 +146,32 @@ extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber);
  * At each write iteration, the variable named "state" and related to voltages in the
  * database is incremented.
  *
- * @param  ltc_state:  state of the ltc state machine
+ * @param  ltcState     state of the ltc state machine
  *
  */
-extern void LTC_SaveAllGpioMeasurement(LTC_STATE_s *ltc_state);
+extern void LTC_SaveAllGpioMeasurement(LTC_STATE_s *ltcState);
 
 /**
  * @brief   gets the current state request.
  *
  * This function is used in the functioning of the LTC state machine.
  *
- * @param  ltc_state:  state of the ltc state machine
+ * @param  ltcState     state of the ltc state machine
  *
  * @return  retval  current state request, taken from LTC_STATE_REQUEST_e
  */
-extern LTC_REQUEST_s LTC_GetStateRequest(LTC_STATE_s *ltc_state);
+extern LTC_REQUEST_s LTC_GetStateRequest(LTC_STATE_s *ltcState);
 
 /**
  * @brief   gets the current state.
  *
  * This function is used in the functioning of the LTC state machine.
  *
- * @param  ltc_state:  state of the ltc state machine
+ * @param  ltcState     state of the ltc state machine
  *
  * @return  current state, taken from LTC_STATEMACH_e
  */
-extern LTC_STATEMACH_e LTC_GetState(LTC_STATE_s *ltc_state);
+extern LTC_STATEMACH_e LTC_GetState(LTC_STATE_s *ltcState);
 
 /**
  * @brief   Sets the transceiver pins to enable LTC6820 IC.
@@ -185,8 +186,9 @@ extern uint64_t *LTC_IdentifyAfes(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_LTC_SetSerialId(LTC_STATE_s *ltcState, uint8_t stringNumber, uint8_t moduleNumber);
 extern uint8_t TEST_LTC_CheckReEntrance();
-extern void TEST_LTC_SetFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state);
+extern void TEST_LTC_SetFirstMeasurementCycleFinished(LTC_STATE_s *ltcState);
 
 /** this define is used for creating the declaration of a function for variable extraction
  *  deviate from style guide in order to make the variable name better recognizable

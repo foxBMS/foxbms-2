@@ -1,0 +1,22 @@
+[
+  {
+    "source": [
+      "src/app/driver/imd/imd.c",
+      "src/app/driver/imd/none/none/none_none.c"
+    ],
+    "test": "test_imd.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/imd",
+      "src/app/driver/imd/none/none",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

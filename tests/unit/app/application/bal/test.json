@@ -1,0 +1,16 @@
+[
+  {
+    "source": [
+      "src/app/application/bal/bal.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_bal.c",
+    "includes": [
+      "src/app/application/bal"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

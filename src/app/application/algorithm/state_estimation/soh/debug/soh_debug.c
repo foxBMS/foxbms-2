@@ -43,8 +43,8 @@
  * @file    soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOH
  *
@@ -74,6 +74,11 @@ extern void SE_InitializeStateOfHealth(DATA_BLOCK_SOH_s *pSohValues, uint8_t str
     pSohValues->averageSoh_perc[stringNumber] = 0.0f;
     pSohValues->minimumSoh_perc[stringNumber] = 0.0f;
     pSohValues->maximumSoh_perc[stringNumber] = 0.0f;
+    for (uint8_t moduleNumber = 0u; moduleNumber < BS_NR_OF_MODULES_PER_STRING; moduleNumber++) {
+        for (uint16_t cellBlockNumber = 0u; cellBlockNumber < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cellBlockNumber++) {
+            pSohValues->soh_perc[stringNumber][moduleNumber][cellBlockNumber] = 0.0f;
+        }
+    }
 }
 
 extern void SE_CalculateStateOfHealth(DATA_BLOCK_SOH_s *pSohValues) {

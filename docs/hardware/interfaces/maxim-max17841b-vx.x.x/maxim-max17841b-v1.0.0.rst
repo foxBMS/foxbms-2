@@ -3,7 +3,7 @@
 
 
 .. |local_bms_interface_version| replace:: ``v1.0.0``
-.. |local_bms_interface_identifier_short| replace:: |max-max17841b|\-based |bms-interface|
+.. |local_bms_interface_identifier_short| replace:: |max-max17841b|-based |bms-interface|
 .. |local_bms_interface_identifier_full| replace:: |local_bms_interface_identifier_short| |local_bms_interface_version|
 
 .. _MAX_MAX17841B_BASED_BMS_INTERFACE_V1_0_0:
@@ -87,8 +87,7 @@ A block diagram of the |bms-interface| is shown in
 :numref:`interface-max17841b_v1.0.0_block_diagram`.
 
 .. _interface-max17841b_v1.0.0_block_diagram:
-.. drawio-figure:: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_block_diagram.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/interfaces/maxim-max17841b-vx.x.x/maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_block_diagram.svg
    :width: 80 %
    :align: center
 

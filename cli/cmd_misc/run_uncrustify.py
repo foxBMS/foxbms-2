@@ -47,7 +47,7 @@ from shutil import which
 from ..helpers.click_helpers import recho
 from ..helpers.host_platform import get_platform
 from ..helpers.logger import logger
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 ROOT = Path(__file__).parent.parent.parent
@@ -67,8 +67,16 @@ FREERTOS_FILES = [
 def run_uncrustify_process(
     uncrustify: str, args: list[str], _file: str
 ) -> SubprocessResult:
-    """Runs uncrustify with the provided arguments on the specified file as a
-    subprocess
+    """Run uncrustify with the provided arguments on the specified files
+
+    Args:
+        uncrustify: Path to the uncrustify executable.
+        args: List of arguments to pass to uncrustify.
+        _file: Path to the file to be processed by uncrustify.
+
+    Returns:
+        A :class:`cli.helpers.spr.SubprocessResult` containing uncrustify
+        process results.
     """
     cmd = [uncrustify] + args + [_file]
     cwd = ROOT

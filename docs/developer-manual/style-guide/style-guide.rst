@@ -7,12 +7,13 @@ Style Guide
 ===========
 
 |foxbms| has its own style guide, which is a set of conventions about how to
-write code and documentation. We enforce a consistent style as it makes it
-easier to understand the overall project. This project has general rules and
-special rules for C/C++, Python, reStructuredText files and batch and shell
-scripts.
+write code and documentation.
+We enforce a consistent style as it makes it easier to understand the overall
+project.
+This project has general rules and special rules for C/C++, Python,
+reStructuredText files and batch and shell scripts.
 
-The following sections describe the project's general and language specific
+The following sections describe the project's general and language-specific
 guidelines.
 
 .. toctree::

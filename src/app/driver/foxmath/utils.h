@@ -43,8 +43,8 @@
  * @file    utils.h
  * @author  foxBMS Team
  * @date    2022-11-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  UTIL
  *
@@ -90,14 +90,14 @@
  *            this is even if the number of requested number of chars
  *            wasn't reached
  * @param pExtractedCharacters  64-bit variable where characters are written
- * @param pString               String that chars will be extracted from
+ * @param pkString              String that chars will be extracted from
  * @param stringLength          Length of the string
  * @param startChar             First char that will be extracted
  * @param numberOfChars         Number of Chars that will be extracted
  */
 extern void UTIL_ExtractCharactersFromString(
     uint64_t *pExtractedCharacters,
-    const char *pString,
+    const char *pkString,
     uint8_t stringLength,
     uint8_t startChar,
     uint8_t numberOfChars);

@@ -44,7 +44,8 @@ of model parameter objects derived from `BaseModel`.
 """
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+
+from pydantic.dataclasses import dataclass
 
 from .cell_spec import CellSpec
 from .model_parameter import BaseModel

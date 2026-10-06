@@ -43,14 +43,17 @@
  * @file    boot.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  BOOT
  *
  * @brief   Header for the boot.c that implements the booting workflow of
  *          bootloader
- * @details TODO
+ * @details Declares the public bootloader control and state-machine interface.
+ *          The API covers state derivation from the CAN workflow, load and
+ *          error handling, application validation, application start, and
+ *          bootloader reset behavior.
  */
 
 #ifndef FOXBMS__BOOT_H_

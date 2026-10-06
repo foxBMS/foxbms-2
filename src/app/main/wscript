@@ -37,91 +37,94 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
     target = bld.env.APPNAME.lower()
 
-    cflags = bld.env.CFLAGS_FOXBMS
     source = "fassert"
     bld.objects(
         source=f"{source}.c",
-        includes="include",
-        cflags=cflags,
+        includes=[bld.path.find_node("include")],
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
+
     source = "fstartup"
+    use = f"{lp}hal"
     bld.objects(
         source=f"{source}.c",
-        includes="include",
-        cflags=cflags,
+        includes=[bld.path.find_node("include")],
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
-    linker_script_elf = bld.path.find_node("app.cmd")
-    linker_script_hex = bld.path.find_node("app_hex.cmd")
-    includes = (
-        [
-            "include",
-            "../application/config",
-            "../driver/adc",
-            "../driver/config",
-            "../driver/contactor",
-            "../driver/dma",
-            "../driver/emac",
-            "../driver/foxmath",
-            "../driver/i2c",
-            "../driver/io",
-            "../driver/led",
-            "../driver/meas",
-            "../driver/pwm",
-            "../driver/spi",
-            "../driver/sps",
-            "../driver/mcu",
-            "../engine/config",
-            "../engine/database",
-            "../engine/diag",
-            "../engine/hw_info",
-            "../task/os",
-            "../task/config",
-            "../../version",
-        ]
-        + [
-            bld.root.find_node(i).path_from(bld.path)
-            for i in bld.env.FOXBMS_INCLUDES_AFE
-        ]
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL_ADDONS
-    )
+    includes = [
+        bld.path.find_node("include"),
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/adc"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/contactor"),
+        bld.srcnode.find_node("src/app/driver/dma"),
+        bld.srcnode.find_node("src/app/driver/emac"),
+        bld.srcnode.find_node("src/app/driver/foxmath"),
+        bld.srcnode.find_node("src/app/driver/i2c"),
+        bld.srcnode.find_node("src/app/driver/io"),
+        bld.srcnode.find_node("src/app/driver/led"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/meas"),
+        bld.srcnode.find_node("src/app/driver/pwm"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/driver/sps"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/engine/diag"),
+        bld.srcnode.find_node("src/app/engine/hw_info"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/os"),
+        bld.srcnode.find_node("src/version"),
+    ]
 
     if bld.env.FOXBMS_TCP_SUPPORT:
-        includes.append("../application/ethernet")
+        includes.append(bld.srcnode.find_node("src/app/application/ethernet"))
     if bld.env.FOXBMS_UART_SUPPORT:
-        includes.append("../driver/uart")
+        includes.append(bld.srcnode.find_node("src/app/driver/uart"))
 
     use = [
         f"{op}fassert",
         f"{op}fstartup",
         f"{lp}application",
-        f"{lp}task",
-        f"{lp}engine",
         f"{lp}driver",
+        f"{lp}engine",
+        f"{lp}task",
         f"{lp}os",
         f"{lp}hal",
         f"{lp}tcp",
+        f"{ip}afe",
+        f"{ip}rtos-kernel",
+        "foxbms_config",
+        "rtsv7R4_A_be_v3D16_eabi",
     ]
+    if bld.env.FOXBMS_TCP_SUPPORT:
+        use.append(f"{ip}rtos-tcp")
+
+    linker_script_elf = bld.path.find_node("app.cmd")
+    linker_script_hex = bld.path.find_node("app_hex.cmd")
     source = "main"
-    bld.tiprogram(
+    bld(
+        features="c cprogram",
         source=f"{source}.c",
+        includes=includes,
+        use=use,
+        uselib="FOXBMS",
         linker_script=linker_script_elf,
         linker_script_hex=linker_script_hex,
-        includes=includes,
-        cflags=cflags,
-        use=use,
-        target=target,
+        version=True,
         app_build_cfg=True,
-        idx=1,
+        target=target,
     )

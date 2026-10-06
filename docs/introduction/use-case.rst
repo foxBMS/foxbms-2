@@ -46,8 +46,7 @@ Example
 
 An example a battery system is shown in :numref:`example-battery-system`.
 
-.. drawio-figure:: img/example-battery-system-stationary.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/introduction/img/example-battery-system-stationary.svg
    :alt: Example of a battery system
    :name: example-battery-system
    :width: 100 %

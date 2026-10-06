@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_debug-response.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -59,7 +59,12 @@
 
 /*========== Includes =======================================================*/
 
+#include "fram_helper.h"
 #include "fstd_types.h"
+
+#ifdef UNITY_UNIT_TEST
+#include <stdint.h>
+#endif
 
 /*========== Macros and Definitions =========================================*/
 /** defines which action is performed when #CANTX_DebugResponse is called */
@@ -87,6 +92,27 @@ typedef enum {
  */
 extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e action);
 
+/**
+ * @brief   Handles Debug response message
+ * @param   calibrationChannel of the requested raw value
+ * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e CANTX_TransmitAdcRawValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
+
+/**
+ * @brief   Handles Debug response message
+ * @param   calibrationChannel  of the requested calibration value
+ * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e CANTX_TransmitAdcSlopeValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
+
+/**
+ * @brief   Handles Debug response message
+ * @param   calibrationChannel  of the requested calibration value
+ * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e CANTX_TransmitAdcOffsetValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern uint64_t TEST_CANTX_TransmitBmsVersionInfo(void);
@@ -104,6 +130,10 @@ extern uint64_t TEST_CANTX_TransmitCommitHashLow(void);
 extern uint64_t TEST_CANTX_TransmitCommitHashHigh(void);
 extern uint64_t TEST_CANTX_GetSevenChars(char *string, uint8_t stringLength, uint8_t startChar);
 extern STD_RETURN_TYPE_e TEST_CANTX_DebugResponseSendMessage(uint64_t messageData);
+extern uint64_t TEST_CANTX_GetMeasurementRawValueForFramCalibrationChannel(
+    FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationValue);
+extern STD_RETURN_TYPE_e TEST_CANTX_TransmitAdcRawValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationValue);
+extern STD_RETURN_TYPE_e TEST_CANTX_TransmitAdcCalibrationValue(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationValue);
 #endif
 
 #endif /* FOXBMS__CAN_CBS_TX_F_DEBUG_RESPONSE_H_ */

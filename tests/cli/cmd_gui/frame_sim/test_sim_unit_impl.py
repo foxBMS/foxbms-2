@@ -54,39 +54,47 @@ except ModuleNotFoundError:
 class TestSimUnit(unittest.TestCase):
     """Test 'sim_unit' function"""
 
-    def test_start_error(self):
+    def test_start_error(self) -> None:
         """Starting communication raises OSError"""
         mock_can = MagicMock()
         mock_can.start.side_effect = OSError("Error")
-        mock_write_text = MagicMock()
-        sim_unit_impl.sim_unit(mock_can, mock_write_text)
-        mock_write_text.assert_called_once_with("Error\n")
+        mock_log_queue = MagicMock()
+        sim_unit_impl.sim_unit(mock_can, mock_log_queue)
         mock_can.start.assert_called_once()
+        mock_log_queue.put.assert_called_once_with("Error\n")
 
-    def test_runtime_error(self):
+    def test_runtime_error(self) -> None:
         """Reading from communication raises RuntimeError"""
         mock_can = MagicMock()
         mock_can.is_alive.return_value = True
         mock_can.name = "CAN"
         mock_can.read.side_effect = RuntimeError("Error")
-        mock_write_text = MagicMock()
-        sim_unit_impl.sim_unit(mock_can, mock_write_text)
-        mock_write_text.assert_has_calls(
-            [call("CAN Bus Unit is running.\n"), call("End of communication of CAN.\n")]
-        )
+        mock_log_queue = MagicMock()
+        sim_unit_impl.sim_unit(mock_can, mock_log_queue)
         mock_can.start.assert_called_once()
         mock_can.read.assert_called_once_with(block=True, timeout=1)
+        mock_log_queue.put.assert_has_calls(
+            [call("CAN Bus Unit is running.\n"), call("End of communication of CAN.\n")]
+        )
         mock_can.shutdown.assert_called_once_with(block=True, timeout=1)
 
-    def test_read_message(self):
+    def test_read_message(self) -> None:
         """Read messages from communication while alive"""
         mock_can = MagicMock()
         mock_can.is_alive.side_effect = [True, True, True, False]
         mock_can.name = "CAN"
         mock_can.read.side_effect = ["Message 1", "Message 2", None, "Message 3"]
-        mock_write_text = MagicMock()
-        sim_unit_impl.sim_unit(mock_can, mock_write_text)
-        mock_write_text.assert_has_calls(
+        mock_log_queue = MagicMock()
+        sim_unit_impl.sim_unit(mock_can, mock_log_queue)
+        mock_can.start.assert_called_once()
+        mock_can.read.assert_has_calls(
+            [
+                call(block=True, timeout=1),
+                call(block=True, timeout=1),
+                call(block=True, timeout=1),
+            ]
+        )
+        mock_log_queue.put.assert_has_calls(
             [
                 call("CAN Bus Unit is running.\n"),
                 call("Unit received msg: Message 1\n"),
@@ -94,8 +102,6 @@ class TestSimUnit(unittest.TestCase):
                 call("End of communication of CAN.\n"),
             ]
         )
-        mock_can.start.assert_called_once()
-        mock_can.read.assert_called()
         mock_can.shutdown.assert_called_once_with(block=True, timeout=1)
 
 

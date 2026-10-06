@@ -1,0 +1,13 @@
+[
+  {
+    "source": "src/app/driver/ts/api/tsi_limits.c",
+    "test": "test_tsi_limits.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/ts/api"
+    ],
+    "mocks": [
+      "src/app/driver/config/tsi_plausibility_cfg.h"
+    ]
+  }
+]

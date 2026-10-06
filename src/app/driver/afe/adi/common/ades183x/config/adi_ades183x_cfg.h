@@ -43,8 +43,8 @@
  * @file    adi_ades183x_cfg.h
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ADI
  *
@@ -56,9 +56,8 @@
 #define FOXBMS__ADI_ADES183X_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "battery_system_cfg.h"
-
 #include "adi_ades183x_defs.h"
+#include "battery_system_cfg_types.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -83,7 +82,10 @@ extern const uint8_t adi_voltageInputsUsed[ADI_MAX_SUPPORTED_CELLS];
 /**
  * Lookup table to indicate which GPIO inputs are used for temperature measurement
  */
-extern const uint8_t adi_temperatureInputsUsed[SLV_NR_OF_GPIOS_PER_MODULE];
+extern const uint8_t adi_temperatureInputsUsed[ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS];
+
+/** Multiplexer measurement sequence */
+extern ADI_MUX_CH_CFG_s adi_muxSequence[ADI_MUX_SEQUENCE_LENGTH];
 
 /*========== Extern Function Prototypes =====================================*/
 

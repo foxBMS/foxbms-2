@@ -43,17 +43,22 @@
  * @file    ftask_freertos.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup TASK
  * @prefix  FTSK
  *
  * @brief   OS specific, i.e., FreeRTOS specific, creation of the tasks
- * @details TODO
+ * @details This module contains the FreeRTOS-specific task and queue setup for
+ *          the foxBMS task layer.
+ *          It defines the stack sizes, storage areas, and handles required to
+ *          create the configured tasks and communication objects.
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
 
 #include "general.h"
 
@@ -85,12 +90,12 @@
 
 #define FTSK_TASK_I2C_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_I2C_STACK_SIZE_IN_BYTES)
 
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /** @brief Stack size of continuously running task for AFEs */
 #define FTSK_TASK_AFE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_AFE_STACK_SIZE_IN_BYTES)
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /** @brief Stack size of continuously running task for UART */
 #define FTSK_TASK_UART_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_UART_STACK_SIZE_IN_BYTES)
 #endif
@@ -127,7 +132,7 @@
     (FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH * FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES)
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /** size of storage area for the UART Rx queue*/
 #define FTSK_UART_RX_QUEUE_STORAGE_AREA (FTSK_UART_RX_QUEUE_LENGTH * FTSK_UART_RX_QUEUE_ITEM_SIZE_IN_BYTES)
 #endif
@@ -135,19 +140,20 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
 /** @brief Definition of task handle for the AFE task */
 OS_TASK_HANDLE ftsk_taskHandleAfe;
 #endif
 
 OS_TASK_HANDLE ftsk_taskHandleI2c;
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 /* Task handle for the UART task */
 OS_TASK_HANDLE ftsk_taskHandleUart = NULL_PTR;
 #endif
 
-#if (defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1))
+#if defined(FOXBMS_TCP_SUPPORT) && (FOXBMS_TCP_SUPPORT == 1)
+/** @brief Definition of task handle for the EMAC task */
 OS_TASK_HANDLE ftsk_taskHandleEmac;
 #endif
 
@@ -174,7 +180,7 @@ OS_QUEUE ftsk_canToAfeCellTemperaturesQueue = NULL_PTR;
 OS_QUEUE ftsk_canToAfeCellVoltagesQueue     = NULL_PTR;
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 OS_QUEUE ftsk_uartRxQueue = NULL_PTR;
 #endif
 
@@ -317,7 +323,7 @@ extern void FTSK_CreateQueues(void) {
     FAS_ASSERT(ftsk_canToAfeCellVoltagesQueue != NULL);
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
     /* structure and array for static UART RX queue */
     static uint8_t ftsk_uartRxQueueStorageArea[FTSK_UART_RX_QUEUE_STORAGE_AREA] = {0};
     static StaticQueue_t ftsk_uartRxQueueStructure                              = {0};
@@ -427,7 +433,7 @@ extern void FTSK_CreateTasks(void) {
         &ftsk_taskI2c);
     FAS_ASSERT(ftsk_taskHandleI2c != NULL); /* Trap if initialization failed */
 
-#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+#if defined(FOXBMS_AFE_DRIVER_TYPE_NO_FSM) && (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
     /* This task is required in the BMS application and therefore declared by
        the public name as defined in 'os.h'. The details how this task is
        declared is however only important for the implementation and therefore
@@ -447,7 +453,7 @@ extern void FTSK_CreateTasks(void) {
     FAS_ASSERT(ftsk_taskHandleAfe != NULL); /* Trap if initialization failed */
 #endif
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
     static StaticTask_t ftsk_taskUart                                         = {0};
     static StackType_t ftsk_stackSizeUart[FTSK_TASK_UART_STACK_SIZE_IN_WORDS] = {0};
 

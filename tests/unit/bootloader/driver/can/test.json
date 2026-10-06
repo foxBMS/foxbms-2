@@ -1,0 +1,87 @@
+[
+  {
+    "source": "src/bootloader/driver/can/can.c",
+    "test": "test_can_can_message_notification.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/io",
+      "src/bootloader/driver/mcu",
+      "src/bootloader/driver/rti",
+      "src/bootloader/engine/can",
+      "src/bootloader/engine/config"
+    ],
+    "mocks": [
+      "src/bootloader/driver/can/can_bootloader-version-info.h",
+      "src/bootloader/driver/can/can_helper.h",
+      "src/bootloader/driver/config/can_cfg.h",
+      "src/bootloader/driver/io/io.h",
+      "src/bootloader/driver/mcu/mcu.h",
+      "src/bootloader/driver/rti/rti.h",
+      "src/bootloader/engine/can/can_cbs.h",
+      "src/bootloader/engine/config/boot_cfg.h"
+    ],
+    "defines": [
+      "COMPILE_FOR_UNIT_TEST=1"
+    ]
+  },
+  {
+    "source": "src/bootloader/driver/can/can_bootloader-version-info.c",
+    "test": "test_can_bootloader-version-info.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/foxmath",
+      "src/bootloader/engine/can",
+      "src/bootloader/engine/config",
+      "src/bootloader/main/include",
+      "src/version"
+    ],
+    "mocks": [
+      "src/bootloader/driver/can/can.h",
+      "src/bootloader/driver/can/can_helper.h",
+      "src/bootloader/driver/config/can_cfg.h",
+      "src/bootloader/driver/foxmath/foxmath.h",
+      "src/bootloader/driver/foxmath/utils.h"
+    ]
+  },
+  {
+    "source": [
+      "src/bootloader/driver/can/can.c",
+      "src/bootloader/engine/config/boot_cfg.c"
+    ],
+    "test": "test_can.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/driver/io",
+      "src/bootloader/driver/mcu",
+      "src/bootloader/driver/rti",
+      "src/bootloader/engine/can",
+      "src/bootloader/engine/config",
+      "src/bootloader/main/include"
+    ],
+    "mocks": [
+      "HL_can.h",
+      "HL_het.h",
+      "HL_reg_can.h",
+      "HL_reg_system.h",
+      "src/bootloader/driver/can/can_bootloader-version-info.h",
+      "src/bootloader/driver/can/can_helper.h",
+      "src/bootloader/driver/config/can_cfg.h",
+      "src/bootloader/driver/io/io.h",
+      "src/bootloader/driver/rti/rti.h",
+      "src/bootloader/engine/can/can_cbs.h"
+    ]
+  },
+  {
+    "source": "src/bootloader/driver/can/can_helper.c",
+    "test": "test_can_helper.c",
+    "includes": [
+      "src/bootloader/driver/can",
+      "src/bootloader/driver/config",
+      "src/bootloader/engine/config",
+      "src/bootloader/main/include"
+    ]
+  }
+]

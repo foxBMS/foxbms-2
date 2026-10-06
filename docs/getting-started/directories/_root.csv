@@ -5,5 +5,5 @@ Directory Name  ; Long Name                   ; Content Description
 ``docs``        ; Documentation               ; Documentation source files
 ``hardware``    ; Hardware                    ; Hardware schematics and layouts
 ``src``         ; Source                      ; Parent directory for all source files for the BMS embedded software
-``tests``       ; Tests                       ; Tests for embedded sources, the tool chain, and scripts
+``tests``       ; Tests                       ; Tests for embedded sources, the toolchain, and scripts
 ``tools``       ; Tools                       ; Tools needed to build |foxbms| binaries and additional tools to work with |foxbms|

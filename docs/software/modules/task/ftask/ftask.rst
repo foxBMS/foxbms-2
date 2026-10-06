@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _FTASK_MODULE:
+.. _FTASK_TASK:
 
-FTASK Module
-============
+FTASK
+=====
 
 Module Files
 ------------
@@ -111,7 +111,7 @@ This is best explained using the example of the |engine-task|:
 - Line 10: Bind the User Code Function to the task.
 
 Before and after the the User Code Function is run, the
-:ref:`SYSTEM_MONITORING_MODULE` is notified that either the User Code Function
+:ref:`SYSTEM_MONITORING_ENGINE` is notified that either the User Code Function
 will be run or has run.
 This enables to determine if a task returns within the expected time frame.
 
@@ -216,4 +216,4 @@ The functions shown in :numref:`ftask-user-code-functions` are provided by the
 Further Reading
 ---------------
 
-A How-to is found in :ref:`HOW_TO_USE_THE_FTASK_MODULE`.
+A How-to is found in :ref:`HOW_TO_USE_THE_FTASK_TASK`.

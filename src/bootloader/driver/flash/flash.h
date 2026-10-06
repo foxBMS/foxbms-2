@@ -43,13 +43,16 @@
  * @file    flash.h
  * @author  foxBMS Team
  * @date    2023-08-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FLASH
  *
  * @brief   Header for the driver for the Flash module
- * @details TODO
+ * @details Declares the flash programming interface and error codes used by
+ *          the bootloader. The API covers bank preparation, sector lookup and
+ *          erase, ECC-enabled programming, verification, and higher-level
+ *          sector or application rewrite operations.
  */
 
 #ifndef FOXBMS__FLASH_H_

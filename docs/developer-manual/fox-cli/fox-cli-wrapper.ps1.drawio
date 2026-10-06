@@ -263,7 +263,7 @@
         <mxCell id="FvWTrhxQxPpmvC0IcavU-38" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="FvWTrhxQxPpmvC0IcavU-33" target="FvWTrhxQxPpmvC0IcavU-36" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="FvWTrhxQxPpmvC0IcavU-33" value="Python 3.12 installation&lt;div&gt;exists?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="FvWTrhxQxPpmvC0IcavU-33" value="Python 3.14 installation&lt;div&gt;exists?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="315" y="445" width="110" height="93" as="geometry" />
         </mxCell>
         <mxCell id="FvWTrhxQxPpmvC0IcavU-35" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="FvWTrhxQxPpmvC0IcavU-36" target="FvWTrhxQxPpmvC0IcavU-37" edge="1">

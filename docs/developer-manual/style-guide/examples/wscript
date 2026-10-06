@@ -41,16 +41,22 @@
 # !!! This build script is not meant to be reused !!!
 
 from collections.abc import Sequence
-from typing import NamedTuple
+from dataclasses import dataclass, field
+
+from waflib.Build import BuildContext
 
 
-class Example(NamedTuple):
+@dataclass
+class Example:
     source: str
     includes: list[str]
-    cflags: Sequence[str] = []
+    cflags: Sequence[str] = field(default_factory=list)
+    use: list[str] = field(default_factory=list)
 
 
-def build(bld):
+def build(bld: BuildContext) -> None:  # pylint: disable=too-many-locals
+    cp = f"{bld.env.APPNAME.lower()}-config-"
+
     dummy_headers = [
         "config_cpu_clock_hz",
         "HL_sys_common",
@@ -69,59 +75,73 @@ def build(bld):
     for i in dummy_headers:
         bld.path.find_or_declare(f"{i}.h").write(dummy_txt)
     bld.add_group()
+
     includes = [
-        ".",
+        bld.path.get_bld(),
         bld.srcnode.find_node("src/app/main/include"),
     ]
+
     includes_freertos = [
         bld.srcnode.find_node("src/os/freertos/freertos/include"),
         bld.srcnode.find_node("src/os/freertos/freertos/portable/ccs/arm_cortex-r5"),
     ]
+    includes_c_007_abc = includes + includes_freertos
+    cflags_c_007_abc = ["-Wno-unknown-pragmas"]
+    cflags_c_008 = ["-Wno-unused-function", "-Wno-unused-variable"]
+    cflags_c_009 = ["-Wno-unused-function"]
+    cflags_c_011 = ["-Wno-unused-function", "-Wno-unused-parameter"]
+    cflags_c_012 = ["-Wno-unused-function", "-Wno-unused-variable"]
+    cflags_c_013 = ["-Wno-unused-parameter"]
+    cflags_c_015 = ["-Wno-unknown-pragmas"]
+    cflags_c_016 = ["-Wno-unused-function", "-Wno-unused-variable"]
+    cflags_c_017 = ["-Wno-unused-variable"]
+    cflags_c_018 = ["-Wno-unknown-pragmas", "-Wno-unused-function"]
+    cflags_c_021 = ["-Wno-unused-const-variable", "-Wno-unused-variable"]
+    cflags_c_024 = ["-Wno-unused-function", "-Wno-unused-variable"]
+    cflags_c_027 = ["-Wno-unknown-pragmas"]
+    cflags_c_028 = ["-Wno-unused-function", "-Wno-unknown-pragmas"]
     includes_c_028 = includes + [bld.srcnode.find_node("src/app/application/config")]
-
-    includes_c_006 = includes + [
-        bld.root.find_node(
-            "C:/foxbms/Ceedling/1.0.1/gems/ceedling-1.0.1/vendor/unity/src"
-        )
-    ]
-    cflags = ["--c11"]
+    includes_c_006 = includes + [bld.srcnode.find_node("tools/cmock/vendor/unity/src")]
+    use_c_028_battery_defines = [f"{cp}battery_system_cfg"]
     examples = [
-        Example("c-004.c", includes, cflags),
-        Example("c-005.c", includes, cflags),
-        Example("c-006-source.c", includes, cflags),
-        Example("c-006-test.c", includes_c_006, cflags),
-        Example("c-007_abc.c", includes + includes_freertos, cflags),
-        Example("c-007_abc_cfg.c", includes, cflags),
-        Example("c-008.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-009.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-011.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-012.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-013.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-015.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-016.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-017.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-018.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-019.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-020.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-021.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-022.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-023.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-024.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-025.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-026.c", includes, cflags + ["--diag_suppress=179"]),
-        Example("c-027.c", includes, cflags),
-        Example("c-028.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-004.c", includes),
+        Example("c-005.c", includes),
+        Example("c-006-source.c", includes),
+        Example("c-006-test.c", includes_c_006),
+        Example("c-007_abc.c", includes_c_007_abc, cflags_c_007_abc),
+        Example("c-007_abc_cfg.c", includes),
+        Example("c-008.c", includes, cflags_c_008),
+        Example("c-009.c", includes, cflags_c_009),
+        Example("c-011.c", includes, cflags_c_011),
+        Example("c-012.c", includes, cflags_c_012),
+        Example("c-013.c", includes, cflags_c_013),
+        Example("c-015.c", includes, cflags_c_015),
+        Example("c-016.c", includes, cflags_c_016),
+        Example("c-017.c", includes, cflags_c_017),
+        Example("c-018.c", includes, cflags_c_018),
+        Example("c-019.c", includes),
+        Example("c-020.c", includes),
+        Example("c-021.c", includes, cflags_c_021),
+        Example("c-022.c", includes),
+        Example("c-023.c", includes),
+        Example("c-024.c", includes, cflags_c_024),
+        Example("c-025.c", includes),
+        Example("c-026.c", includes),
+        Example("c-027.c", includes, cflags_c_027),
+        Example("c-028.c", includes, cflags_c_028),
         Example(
-            "c-028-battery-defines.c", includes_c_028, cflags + ["--diag_suppress=179"]
+            "c-028-battery-defines.c",
+            includes_c_028,
+            cflags=cflags_c_028,
+            use=use_c_028_battery_defines,
         ),
     ]
     for i in examples:
-        # manually set idx as this is not relevant for the documentation build
         bld(
             features="c",
             source=i.source,
             includes=i.includes,
             cflags=i.cflags,
-            use="FOXBMS DOCUMENTATION",
-            idx=1,
+            use=i.use,
+            uselib="FOXBMS DOCUMENTATION",
         )

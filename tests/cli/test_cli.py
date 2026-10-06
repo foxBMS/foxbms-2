@@ -58,38 +58,38 @@ except ModuleNotFoundError:
     from cli.helpers.package_helpers import PACKAGE_COMMANDS
 
 
-@patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True)
+@patch("cli.helpers.project_context.ROOT_IS_PROJECT", new=True)
 class TestFoxCliMain(unittest.TestCase):
     """Test of the main entry point, when it is in the foxBMS project"""
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:  # noqa: D102
         importlib.reload(cli)
 
-    def test_get_program_config(self):
+    def test_get_program_config(self) -> None:
         """Test '--show-config' option"""
         foxbms_config = cli.get_program_config()
         self.assertEqual({"foxBMS 2": __version__}, foxbms_config)
 
-    def test_main_no_args(self):
+    def test_main_no_args(self) -> None:
         """Test main entry point, when no commands are provided"""
         runner = CliRunner()
         result = runner.invoke(cli.main)
         self.assertEqual(0, result.exit_code)
 
-    def test_main_show_config(self):
+    def test_main_show_config(self) -> None:
         """Test main entry point, when no commands are provided"""
         runner = CliRunner()
         result = runner.invoke(cli.main, ["--show-config"])
         self.assertEqual(0, result.exit_code)
 
-    def test_install(self):
+    def test_install(self) -> None:
         """Check installation message"""
         runner = CliRunner()
         result = runner.invoke(cli.main, ["install"])
         self.assertEqual(0, result.exit_code)
 
-    def test_install_check(self):
+    def test_install_check(self) -> None:
         """Check installation '--check'-option"""
         runner = CliRunner()
         runner.invoke(cli.main, ["install", "--check"])
@@ -97,10 +97,10 @@ class TestFoxCliMain(unittest.TestCase):
         # therefore we can not check the exit code of this command; as long as
         # no exception is raised, everything is fine.
 
-    def test_no_project(self):
+    def test_no_project(self) -> None:
         """Check main entry point, when it is not a foxBMS project"""
         runner = CliRunner()
-        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+        with patch("cli.helpers.project_context.ROOT_IS_PROJECT", new=False):
             importlib.reload(cli)
             result = runner.invoke(cli.main, ["--help"])
             self.assertEqual(0, result.exit_code)
@@ -113,9 +113,9 @@ class TestFoxCliMain(unittest.TestCase):
 class TestFoxCliMainProject(unittest.TestCase):
     """Test configuration of the main entry point"""
 
-    def test_no_project(self):
+    def test_no_project(self) -> None:
         """Check configuration when ROOT_IS_PROJECT is False"""
-        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=False):
+        with patch("cli.helpers.project_context.ROOT_IS_PROJECT", new=False):
             importlib.reload(cli)
             command_names = cli.main.commands
             for command in PACKAGE_COMMANDS["unsupported"]:
@@ -123,9 +123,9 @@ class TestFoxCliMainProject(unittest.TestCase):
             for command in PACKAGE_COMMANDS["supported"]:
                 self.assertTrue(command in command_names)
 
-    def test_project(self):
+    def test_project(self) -> None:
         """Check configuration ROOT_IS_PROJECT is True"""
-        with patch("cli.helpers.misc.ROOT_IS_PROJECT", new=True):
+        with patch("cli.helpers.project_context.ROOT_IS_PROJECT", new=True):
             importlib.reload(cli)
             command_names = cli.main.commands
             for command in PACKAGE_COMMANDS["unsupported"]:

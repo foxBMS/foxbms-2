@@ -43,8 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -56,11 +56,12 @@
 /* cspell:ignore CHCTRL ELDOFFSET ELSOFFSET FRSOFFSET */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_debug.h"
 
 #include "dma.h"
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 #include "uart_cfg.h"
 
 #include "HL_reg_sci.h"
@@ -72,7 +73,7 @@
 #include "ftask.h"
 #include "i2c.h"
 #include "spi.h"
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
 #include "uart.h"
 #endif
 
@@ -169,7 +170,7 @@ void DMA_Initialize(void) {
         .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
     };
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
     /** DMA control packets configuration for SCI4 (UART) */
     g_dmaCTRL dma_controlPacketSci4Tx = {
         .SADD      = 0u,                               /* source address             */
@@ -226,8 +227,15 @@ void DMA_Initialize(void) {
         dmaEnableInterrupt(
             (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         dma_controlPacketSpiTx.DADD = (uint32_t)(&(dma_spiInterfaces[i]->DAT1)) + DMA_BIG_ENDIAN_ADDRESS_16BIT;
         dma_controlPacketSpiRx.SADD = (uint32_t)(&(dma_spiInterfaces[i]->BUF)) + DMA_BIG_ENDIAN_ADDRESS_16BIT;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
         /* Set dma control packet for Tx */
         dmaSetCtrlPacket((dmaChannel_t)dma_spiDmaChannels[i].txChannel, dma_controlPacketSpiTx);
@@ -254,8 +262,15 @@ void DMA_Initialize(void) {
     dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
     dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaInterrupt_t)LFS, (dmaIntGroup_t)DMA_INTA);
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     dma_controlPacketI2cTx.DADD = (uint32_t)(&(i2cREG1->DXR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
     dma_controlPacketI2cRx.SADD = (uint32_t)(&(i2cREG1->DRR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
     /* Set dma control packet for Tx */
     dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C1_TX, dma_controlPacketI2cTx);
@@ -281,8 +296,15 @@ void DMA_Initialize(void) {
     dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
     dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaInterrupt_t)LFS, (dmaIntGroup_t)DMA_INTA);
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     dma_controlPacketI2cTx.DADD = (uint32_t)(&(i2cREG2->DXR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
     dma_controlPacketI2cRx.SADD = (uint32_t)(&(i2cREG2->DRR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
     /* Set dma control packet for Tx */
     dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C2_TX, dma_controlPacketI2cTx);
@@ -294,7 +316,7 @@ void DMA_Initialize(void) {
     dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaTriggerType_t)DMA_HW);
     dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaTriggerType_t)DMA_HW);
 
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
     /* Configuration for SCI4 */
 
     /* assign DMA request to Tx channel */
@@ -305,7 +327,14 @@ void DMA_Initialize(void) {
        User software should configure only Group A interrupts */
     dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_SCI4_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
 
-    dma_controlPacketSci4Tx.DADD   = (uint32_t)(&(UART_REG->TD)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
+    dma_controlPacketSci4Tx.DADD = (uint32_t)(&(UART_REG->TD)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     dma_controlPacketSci4Tx.RDSIZE = (uint32_t)ACCESS_8_BIT;
     dma_controlPacketSci4Tx.WRSIZE = (uint32_t)ACCESS_8_BIT;
 
@@ -478,7 +507,7 @@ void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
                     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
                 }
                 break;
-#if defined(FOXBMS_UART_SUPPORT) && FOXBMS_UART_SUPPORT == 1
+#if defined(FOXBMS_UART_SUPPORT) && (FOXBMS_UART_SUPPORT == 1)
             case DMA_CHANNEL_SCI4_TX:
                 sciDisableNotification(UART_REG, (uint32)((uint32_t)1u << UART_SCI_DMA_INTERRUPT));
                 OS_SemaphoreGiveFromIsr(uart_txSemaphore, &xHigherPriorityTaskWoken);

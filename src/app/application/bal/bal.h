@@ -43,8 +43,8 @@
  * @file    bal.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -233,6 +233,10 @@ extern void BAL_Trigger(void);
 /*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST
 extern DATA_BLOCK_BALANCING_CONTROL_s *TEST_BAL_GetBalancingControl(void);
+extern DATA_BLOCK_CELL_VOLTAGE_s *TEST_BAL_GetCellVoltage(void);
+extern DATA_BLOCK_MIN_MAX_s *TEST_BAL_GetMinMax(void);
+extern bool TEST_BAL_ActivateBalancing(void);
+extern void TEST_BAL_ComputeImbalances(void);
 extern BAL_STATE_s *TEST_BAL_GetBalancingState(void);
 #endif
 

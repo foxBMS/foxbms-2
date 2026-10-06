@@ -34,9 +34,8 @@ The block diagram of the |bms-slave| is shown in
 :numref:`block_diagram_6804-1_slave_12cell_v1.x.x`.
 
 .. _block_diagram_6804-1_slave_12cell_v1.x.x:
-.. drawio-figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x.drawio
+.. figure:: ../../../../build/docs/docs/hardware/slaves/12-ltc-ltc6804-1-vx.x.x/12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x.svg
    :width: 80 %
-   :format: svg
    :align: center
 
    |bms-slave| 12-Cell Block Diagram
@@ -54,8 +53,7 @@ Mechanical Dimensions
 
 The size of the PCB is 160x100mm.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_16pins.svg
    :width: 300px
 
 .. csv-table:: |bms-master| Daisy Chain Connector
@@ -65,16 +63,15 @@ The size of the PCB is 160x100mm.
    :file: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_master_daisy_connector.csv
 
 .. note::
-   This connector pin out is only valid for use of a foxBMS Master Interface
-   board for the |ltc-ltc6804-1| monitoring IC.
+   This connector pin out is only valid for use of a |foxbms-unversioned|
+   Master Interface board for the |ltc-ltc6804-1| monitoring IC.
 
 On the |bms-slave|, the connectors indicated as
 ``Primary Daisy Chain connector`` and ``Secondary Daisy Chain connector`` in
 :numref:`block_diagram_6804-1_slave_12cell_v1.x.x` must be used.
 Their layout is described in :numref:`Table %s <primary_daisy_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_04pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_04pins.svg
    :width: 300px
 
 .. csv-table:: Primary Daisy Chain Connector
@@ -123,8 +120,7 @@ If less than 12 battery cells are used, information on how to connect them can
 be found |ltc-ltc6804-1| data sheets ([ltc_data_sheet_6804]_ and
 [ltc_data_sheet_6811]_).
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_16pins.svg
    :width: 300px
 
 .. csv-table:: |bms-slave|, battery cell voltage connector
@@ -156,8 +152,7 @@ temperature sensors to the |bms-slave|.
 connector.
 
 .. _cell_temperature_connector_layout:
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_24pins.svg
    :width: 300px
 
 .. csv-table:: Temperature Sensor Connector
@@ -169,9 +164,8 @@ connector.
 :numref:`temp_sensor` shows the functioning of a temperature sensor.
 
 .. _temp_sensor:
-.. drawio-figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_temperature-sensor.drawio
+.. figure:: ../../../../build/docs/docs/hardware/slaves/12-ltc-ltc6804-1-vx.x.x/12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_temperature-sensor.svg
    :width: 30 %
-   :format: svg
    :align: center
 
    Temperature sensor circuit.

@@ -41,11 +41,12 @@
 
 import io
 import os
+import subprocess
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, sentinel
 
 try:
     from cli.cmd_cli_unittest.cli_unittest_impl import (
@@ -53,6 +54,7 @@ try:
         PROJECT_ROOT,
         UNIT_TEST_MODULE_BASE_COMMAND,
         _add_verbosity_to_cmd_list,
+        _ensure_unpacked_waf,
         run_script_tests,
         run_unittest_module,
     )
@@ -64,20 +66,74 @@ except ModuleNotFoundError:
         PROJECT_ROOT,
         UNIT_TEST_MODULE_BASE_COMMAND,
         _add_verbosity_to_cmd_list,
+        _ensure_unpacked_waf,
         run_script_tests,
         run_unittest_module,
     )
     from cli.helpers.spr import SubprocessResult
 
 
+@patch("cli.cmd_cli_unittest.cli_unittest_impl.importlib.util.find_spec")
+@patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
+class TestEnsureUnpackedWaf(unittest.TestCase):
+    """Test of the '_ensure_unpacked_waf' function"""
+
+    def expected_cmd(self) -> list[str]:
+        """Command that is expected to be run"""
+        return [sys.executable, str(PROJECT_ROOT / "tools/waf"), "-h"]
+
+    def test_waflib_available(
+        self, run_mock: MagicMock, find_spec_mock: MagicMock
+    ) -> None:
+        """Do not call subprocess call as waflib is available"""
+        find_spec_mock.return_value = sentinel.spec
+        _ensure_unpacked_waf()
+        find_spec_mock.assert_called_once_with("waflib")
+        run_mock.assert_not_called()
+
+    def test_waflib_missing(
+        self, run_mock: MagicMock, find_spec_mock: MagicMock
+    ) -> None:
+        """Unpacked waf is called as waflib is not available"""
+        find_spec_mock.return_value = None
+        _ensure_unpacked_waf()
+        run_mock.assert_called_once_with(
+            self.expected_cmd(),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    def test_output_suppressed_and_check_disabled(
+        self, run_mock: MagicMock, find_spec_mock: MagicMock
+    ) -> None:
+        """Discard output and tolerate non-zero exit code"""
+        find_spec_mock.return_value = None
+        _ensure_unpacked_waf()
+        kwargs = run_mock.call_args.kwargs
+        self.assertIs(kwargs["stdout"], subprocess.DEVNULL)
+        self.assertIs(kwargs["stderr"], subprocess.DEVNULL)
+
+    def test_nonzero_exit_does_not_raise(
+        self, run_mock: MagicMock, find_spec_mock: MagicMock
+    ) -> None:
+        """Failing to run waf must not raise"""
+        find_spec_mock.return_value = None
+        run_mock.return_value = subprocess.CompletedProcess(args=[], returncode=1)
+        self.assertIsNone(_ensure_unpacked_waf())  # type: ignore[func-returns-value]
+
+
 class TestUnittestImpl(unittest.TestCase):
     """Test Unittest implementation script"""
 
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl._ensure_unpacked_waf")
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_unittest_module_called_with_args(self, mock_run_process: MagicMock):
+    def test_unittest_module_called_with_args(
+        self, mock_run_process: MagicMock, mock_ensure_unpacked_waf: MagicMock
+    ) -> None:
         """Check unittest module runs with args"""
         args = ["something", "some-other-thing"]
         mock_run_process.return_value = SubprocessResult(0)
+        mock_ensure_unpacked_waf.return_value = None
         result = run_unittest_module(args)
         expected_cmd = UNIT_TEST_MODULE_BASE_COMMAND + args
         mock_run_process.assert_called_once_with(
@@ -86,7 +142,7 @@ class TestUnittestImpl(unittest.TestCase):
         self.assertEqual(result, mock_run_process.return_value)
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_run_script_tests_with_coverage(self, mock_run_process: MagicMock):
+    def test_run_script_tests_with_coverage(self, mock_run_process: MagicMock) -> None:
         """Test commands with coverage"""
         mock_run_process.return_value = SubprocessResult(0)
         buf = io.StringIO()
@@ -105,16 +161,27 @@ class TestUnittestImpl(unittest.TestCase):
                 f"tests{os.sep}cli",
             ],
         ]
-        files = [
-            PROJECT_ROOT / "tests/waf-tools/test_c_template.py",
-            PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
-            PROJECT_ROOT / "tests/waf-tools/test_create_app_build_cfg.py",
-            PROJECT_ROOT / "tests/waf-tools/test_create_version.py",
-            PROJECT_ROOT / "tests/waf-tools/test_misc_helpers.py",
-            PROJECT_ROOT / "tests/waf-tools/test_vcs_git.py",
-            PROJECT_ROOT / "tests/waf-tools/test_vcs.py",
-            PROJECT_ROOT / "tests/pkg/test_hatch_build.py",
-        ]
+        files = sorted(
+            [
+                PROJECT_ROOT / "tests/waf_tools/test_app_build_config_generate.py",
+                PROJECT_ROOT / "tests/waf_tools/test_battery_config_validate_utils.py",
+                PROJECT_ROOT / "tests/waf_tools/test_c_codegen_template.py",
+                PROJECT_ROOT / "tests/waf_tools/test_config_validate_utils.py",
+                PROJECT_ROOT / "tests/waf_tools/test_crc64_ti_impl.py",
+                PROJECT_ROOT / "tests/waf_tools/test_diag_array_config_validate.py",
+                PROJECT_ROOT / "tests/waf_tools/test_misc_helpers.py",
+                PROJECT_ROOT / "tests/waf_tools/test_validate_test_json.py",
+                PROJECT_ROOT / "tests/waf_tools/test_vcs.py",
+                PROJECT_ROOT / "tests/waf_tools/test_vcs_git.py",
+                PROJECT_ROOT / "tests/waf_tools/test_version_generate.py",
+            ]
+        )
+        files.extend(
+            [
+                PROJECT_ROOT / "tests/pkg/test_hatch_build.py",
+                PROJECT_ROOT / "tests/can/test_check_ids.py",
+            ]
+        )
 
         expected_cmd.extend(
             COVERAGE_MODULE_BASE_COMMAND + ["run", "--parallel-mode", i] for i in files
@@ -148,11 +215,13 @@ class TestUnittestImpl(unittest.TestCase):
             r"Total testing time: .*s",
         )
 
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl._ensure_unpacked_waf")
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_with_coverage_several_errors(
-        self, mock_run_process: MagicMock
-    ):
+        self, mock_run_process: MagicMock, mock_ensure_unpacked_waf: MagicMock
+    ) -> None:
         """Test commands with coverage"""
+        mock_ensure_unpacked_waf.return_value = None
         mock_run_process.return_value = SubprocessResult(1)
         err = io.StringIO()
         out = io.StringIO()
@@ -162,9 +231,13 @@ class TestUnittestImpl(unittest.TestCase):
         self.assertEqual(err.getvalue(), "The cli unit tests were not successful.\n")
         self.assertRegex(out.getvalue(), r"Total testing time: .*s\n")
 
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl._ensure_unpacked_waf")
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_run_script_tests_without_coverage(self, mock_run_process: MagicMock):
+    def test_run_script_tests_without_coverage(
+        self, mock_run_process: MagicMock, mock_ensure_unpacked_waf: MagicMock
+    ) -> None:
         """Test command without coverage"""
+        mock_ensure_unpacked_waf.return_value = None
         mock_run_process.return_value = SubprocessResult(0)
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -185,22 +258,28 @@ class TestUnittestImpl(unittest.TestCase):
         )
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_run_script_tests_script_failure(self, mock_run_process: MagicMock):
+    def test_run_script_tests_script_failure(self, mock_run_process: MagicMock) -> None:
         """Test command without coverage"""
-        mock_run_process.return_value = SubprocessResult(1)
+        failure = SubprocessResult(1)
+        mock_run_process.side_effect = [None, failure]
+
         err = io.StringIO()
         out = io.StringIO()
         with redirect_stderr(err), redirect_stdout(out):
             result = run_script_tests(coverage_report=False)
+
         expected_cmd = UNIT_TEST_MODULE_BASE_COMMAND + [
             "discover",
             "-s",
             f"tests{os.sep}cli",
         ]
-        mock_run_process.assert_called_once_with(
-            expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
+        self.assertEqual(
+            mock_run_process.call_args_list[1],
+            unittest.mock.call(
+                expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
+            ),
         )
-        self.assertEqual(result, mock_run_process.return_value)
+        self.assertEqual(result, failure)
         self.assertEqual(err.getvalue(), "The cli unit tests were not successful.\n")
         self.assertRegex(out.getvalue(), r"Total testing time: .*s")
 
@@ -209,8 +288,8 @@ class TestUnittestImpl(unittest.TestCase):
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.terminal_link_print")
     def test_run_script_tests_cov_file_exists_and_tests_succeed(
-        self, mock_tlp: MagicMock, mock_run_process: MagicMock, *_
-    ):
+        self, mock_tlp: MagicMock, mock_run_process: MagicMock, *_: MagicMock
+    ) -> None:
         """Test commands with coverage"""
         mock_tlp.return_value = "foo"
         mock_run_process.return_value = SubprocessResult(0)
@@ -229,12 +308,12 @@ class TestUnittestImpl(unittest.TestCase):
 class TestUnittestImplAddVerbosityToCmdList(unittest.TestCase):
     """Test Unittest implementation script"""
 
-    def test__add_verbosity_to_cmd_list_verbosity_0(self):
+    def test__add_verbosity_to_cmd_list_verbosity_0(self) -> None:
         """Do not add verbosity flag in case of verbosity 0"""
         ret = _add_verbosity_to_cmd_list(["foo"])
         self.assertEqual(["foo"], ret)
 
-    def test__add_verbosity_to_cmd_list_verbosity_2(self):
+    def test__add_verbosity_to_cmd_list_verbosity_2(self) -> None:
         """Add verbosity flag '-vv' in case of verbosity 2"""
         ret = _add_verbosity_to_cmd_list(["foo"], verbosity=2)
         self.assertEqual(["foo", "-vv"], ret)

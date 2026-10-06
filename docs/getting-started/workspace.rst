@@ -1,7 +1,8 @@
 .. include:: ./../macros.txt
 .. include:: ./../units.txt
 
-.. cspell:ignore Folder
+..
+   cspell:ignore Folder
 
 .. _CREATING_A_WORKSPACE:
 

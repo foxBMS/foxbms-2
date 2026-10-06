@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _DIAGNOSIS_MODULE:
+.. _DIAGNOSIS_ENGINE:
 
-Diagnosis Module
-================
+Diagnosis
+=========
 
 Module Files
 ------------
@@ -61,7 +61,7 @@ Detailed Description
 --------------------
 
 A detailed description on how to use the diagnosis module can be found in
-:ref:`HOW_TO_USE_THE_DIAGNOSIS_MODULE`.
+:ref:`HOW_TO_USE_THE_DIAGNOSIS_ENGINE`.
 
 The diagnosis module is implemented as a central table
 ``diag_diagnosisIdConfiguration`` that maps the entries of ``DIAG_ID_e`` to

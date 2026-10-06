@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x_helpers.c
  * @author  foxBMS Team
  * @date    2025-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -92,13 +92,15 @@ extern void N77x_ErrorHandling(N77X_STATE_s *pState, N77X_COMMUNICATION_STATUS_e
 }
 
 extern void N77x_Wait(uint32_t milliseconds) {
-    uint32_t current_time = OS_GetTickCount();
+    uint32_t currentTime = OS_GetTickCount();
     /* Block task without possibility to wake up */
-    OS_DelayTaskUntil(&current_time, milliseconds);
+    OS_DelayTaskUntil(&currentTime, milliseconds);
 }
 
 extern int16_t N77x_ConvertVoltagesToTemperatures(uint16_t adcVoltage_mV) {
-    return TSI_GetTemperature(adcVoltage_mV); /* Convert degree Celsius to deci degree Celsius */
+    return TSI_GetTemperature(
+        adcVoltage_mV,
+        SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V); /* Convert degree Celsius to deci degree Celsius */
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

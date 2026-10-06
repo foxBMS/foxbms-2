@@ -34,6 +34,7 @@ All implementation files **SHALL** follow this naming schema:
 This set of rules enables a simple maintenance, consider the following example:
 There is a CAN-based current sensor model `foo` from manufacturer `bar` that
 periodically transmit a state message.
+
 - The test-macro is then defined as`FOXBMS_CS_BAR_FOO=1`
 - The implementation file then
   `src/app/driver/can/cbs/rx/can_cbs_rx_cs_foo-bar.c`

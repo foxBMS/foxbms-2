@@ -6,6 +6,14 @@
 Repository Structure
 ********************
 
+.. 2 rules:
+
+.. 1. This file must be kept in sync with the README.md files in the first
+   level directories of the repository.
+
+.. 2. The csv files in the ``directories`` subdirectory must be kept in sync
+   with the README.md files in the first level directories of the repository.
+
 All directory names are abbreviated (e.g., ``conf`` for ``configuration``) to
 ensure a compact repository structure and avoid long command lines during build
 steps.
@@ -21,6 +29,18 @@ The repository is generally structured as shown below:
    :delim: ;
    :widths: 14 20 66
    :name: introduction-repository-structure
+
+|fox-cli| directory ``cli``
+================================
+
+The ``cli`` directory is structured as shown below:
+
+.. csv-table:: Detailed description of the ``cli`` directory
+   :file: ./directories/cli.csv
+   :header-rows: 1
+   :delim: ;
+   :widths: 14 20 66
+   :name: introduction-repository-structure-cli-details
 
 Configuration directory ``conf``
 ================================

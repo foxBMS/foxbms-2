@@ -1,7 +1,7 @@
 Added
 =====
 
-- Added coverage reports for the unit tests of the waf-tools.
+- Added coverage reports for the unit tests of the waf_tools.
 - Added general safety information.
 - Added a rudimentary hardware change process to the hardware developer manual.
 - Added information on the criticality of used tools.

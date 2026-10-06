@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_f_crash-dump.c
  * @author  foxBMS Team
  * @date    2023-02-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,7 @@
 #include "unity.h"
 #include "Mockcan.h"
 #include "Mockcan_helper.h"
+#include "Mockos.h"
 
 #include "can_cfg.h"
 
@@ -65,16 +66,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_tx_f_crash-dump.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -94,7 +85,7 @@ void testAssertion_CANTX_CrashDump(void) {
     TEST_ASSERT_FAIL_ASSERT(CANTX_CrashDump(CANTX_FATAL_ERRORS_ACTIONS_MAX_E));
 }
 
-void test_CANTX_CrashDump(void) {
+void testCANTX_CrashDump(void) {
     /* ======= Routine tests =============================================== */
     uint64_t testMessageData                  = 0u;
     uint8_t testCanData[CANTX_CRASH_DUMP_DLC] = {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};

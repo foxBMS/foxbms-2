@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_as_honeywell-bas6c-x00.c
  * @author  foxBMS Team
  * @date    2023-08-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -123,7 +123,7 @@ static void CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanShim, 
         (signalData == CANRX_AEROSOL_SENSOR_NO_ERROR) || (signalData == CANRX_AEROSOL_SENSOR_PHOTOELECTRIC_ERROR) ||
         (signalData == CANRX_AEROSOL_SENSOR_VOLTAGE_SUPPLY_OVER_VOLTAGE_ERROR) ||
         (signalData == CANRX_AEROSOL_SENSOR_VOLTAGE_SUPPLY_UNDER_VOLTAGE_ERROR));
-    switch (signalData) {
+    switch (signalData) {                   /* GCOVR_EXCL_BR_WITHOUT_HIT: 1/5 */
         case CANRX_AEROSOL_SENSOR_NO_ERROR: /* resets error flags */
             kpkCanShim->pTableAerosolSensor->photoelectricError      = false;
             kpkCanShim->pTableAerosolSensor->supplyOvervoltageError  = false;
@@ -148,7 +148,7 @@ static void CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, 
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     FAS_ASSERT((signalData == CANRX_AEROSOL_SENSOR_STATUS_NORMAL) || (signalData == CANRX_AEROSOL_SENSOR_STATUS_ALARM));
 
-    switch (signalData) {
+    switch (signalData) {                        /* GCOVR_EXCL_BR_WITHOUT_HIT: 1/3 */
         case CANRX_AEROSOL_SENSOR_STATUS_NORMAL: /* set status to normal */
             kpkCanShim->pTableAerosolSensor->sensorStatus = 0u;
             break;

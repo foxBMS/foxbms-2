@@ -1,0 +1,7 @@
+{
+  "source": "src/app/hal/app-hl_notification.c",
+  "test": "test_app-hl_notification.c",
+  "mocks": [
+    "src/app/main/include/infinite-loop-helper.h"
+  ]
+}

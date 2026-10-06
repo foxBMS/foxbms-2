@@ -81,7 +81,7 @@ class TestTableSetup(unittest.TestCase):
     :param CANFilter_mock: Mock for the CANFilter class.
     """
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Creates the converted start date used in the tests"""
         start_date_str = "2024-01-01T00:00:00"
         self.converted_start_date = convert_start_date(start_date_str)
@@ -291,7 +291,7 @@ class TestValidateTableConfig(unittest.TestCase):
 class TestRunTable(unittest.TestCase):
     """Tests run_table method"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Creates needed table_obj Mock"""
         self.table_obj = Mock()
         self.table_obj.save_data = Mock()

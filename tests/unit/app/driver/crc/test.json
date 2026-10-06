@@ -1,0 +1,12 @@
+[
+  {
+    "source": "src/app/driver/crc/crc.c",
+    "test": "test_crc.c",
+    "includes": [
+      "src/app/driver/crc"
+    ],
+    "mocks": [
+      "src/app/main/include/fassert.h"
+    ]
+  }
+]

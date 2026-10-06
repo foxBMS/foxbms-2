@@ -43,8 +43,8 @@
  * @file    test_tdk_ntcgs103jf103ft8.c
  * @author  foxBMS Team
  * @date    2024-12-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,9 +61,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/ts")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/tdk/ntcgs103jf103ft8")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -76,12 +73,12 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testTS_Tdk00GetTemperatureFromLutFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Tdk00GetTemperatureFromLut(2445u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Tdk00GetTemperatureFromLut(75u));
-    TEST_ASSERT_EQUAL_INT16(350, TS_Tdk00GetTemperatureFromLut(1023u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Tdk00GetTemperatureFromLut(UINT16_MAX));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Tdk00GetTemperatureFromLut(4000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Tdk00GetTemperatureFromLut(75u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(75, TS_Tdk00GetTemperatureFromLut(2000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Tdk00GetTemperatureFromLut(UINT16_MAX, 3.0f));
 }
 
 void testTS_Sem00GetTemperatureFromPolynomialFixedValues(void) {
-    TEST_ASSERT_FAIL_ASSERT(TS_Tdk00GetTemperatureFromPolynomial(10000u));
+    TEST_ASSERT_FAIL_ASSERT(TS_Tdk00GetTemperatureFromPolynomial(10000u, 3.0f));
 }

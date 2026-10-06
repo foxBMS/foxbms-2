@@ -43,8 +43,8 @@
  * @file    test_state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,26 +57,29 @@
 #include "unity.h"
 #include "Mockdatabase.h"
 
+#include "battery_system_cfg.h"
+
 #include "state_estimation.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("soc_none.c")
-TEST_SOURCE_FILE("soe_none.c")
-TEST_SOURCE_FILE("soh_none.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-static DATA_BLOCK_SOC_s se_tableSocEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOC};
-static DATA_BLOCK_SOH_s se_tableSohEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOH};
-static DATA_BLOCK_SOE_s se_tableSoeEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOE};
+/** pointers to the module internal database tables @{*/
+static DATA_BLOCK_SOC_s *se_tableSocEstimation = NULL_PTR;
+static DATA_BLOCK_SOH_s *se_tableSohEstimation = NULL_PTR;
+static DATA_BLOCK_SOE_s *se_tableSoeEstimation = NULL_PTR;
+/**@}*/
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    se_tableSocEstimation = TEST_SE_GetTableSocEstimation();
+    se_tableSohEstimation = TEST_SE_GetTableSohEstimation();
+    se_tableSoeEstimation = TEST_SE_GetTableSoeEstimation();
 }
 
 void tearDown(void) {
@@ -113,25 +116,24 @@ void testInvalidInput(void) {
 void testSE_InitializeSoc(void) {
     bool ccPresent       = true;
     uint8_t stringNumber = 0u;
-    DATA_Write1DataBlock_ExpectAndReturn(&se_tableSocEstimation, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(se_tableSocEstimation, STD_OK);
     SE_InitializeSoc(ccPresent, stringNumber);
 }
 
 void testSE_InitializeSoe(void) {
     bool ecPresent       = true;
     uint8_t stringNumber = 0u;
-    DATA_Write1DataBlock_ExpectAndReturn(&se_tableSoeEstimation, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(se_tableSoeEstimation, STD_OK);
     SE_InitializeSoe(ecPresent, stringNumber);
 }
 
 void testSE_InitializeSoh(void) {
     uint8_t stringNumber = 0u;
-    DATA_Write1DataBlock_ExpectAndReturn(&se_tableSohEstimation, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(se_tableSohEstimation, STD_OK);
     SE_InitializeSoh(stringNumber);
 }
 
 void testSE_RunStateEstimations(void) {
-    DATA_Write3DataBlocks_ExpectAndReturn(
-        &se_tableSocEstimation, &se_tableSohEstimation, &se_tableSoeEstimation, STD_OK);
+    DATA_Write3DataBlocks_ExpectAndReturn(se_tableSocEstimation, se_tableSohEstimation, se_tableSoeEstimation, STD_OK);
     SE_RunStateEstimations();
 }

@@ -43,8 +43,8 @@
  * @file    soa.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOA
  *
@@ -57,8 +57,8 @@
 #include "soa.h"
 
 #include "battery_cell_cfg.h"
-#include "battery_system_cfg.h"
 
+#include "battery_system_cfg_types.h"
 #include "bms.h"
 #include "diag.h"
 #include "foxmath.h"

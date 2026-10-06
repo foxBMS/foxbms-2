@@ -1,5 +1,5 @@
 
-.. _HOW_TO_USE_THE_CONTACTOR_MODULE:
+.. _HOW_TO_USE_THE_CONTACTOR_DRIVER:
 
 How to use the Contactor module
 ===============================

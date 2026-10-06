@@ -43,8 +43,8 @@
  * @file    test_fake_functions.h
  * @author  foxBMS Team
  * @date    2024-08-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -52,8 +52,8 @@
  *          but cannot be mocked through CMock
  * @details This type of functions are basically all functions from
  *          standard headers, e.g., 'string.h'.
- *          Functions that can regularly be mocked through Ceedling
- *          **SHALL NOT** be added here, but mocked through Ceedling as usual.
+ *          Functions that can regularly be mocked through CMock
+ *          **SHALL NOT** be added here, but mocked through CMock as usual.
  *          See also https://github.com/ThrowTheSwitch/Ceedling/issues/804
  */
 

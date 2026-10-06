@@ -43,13 +43,16 @@
  * @file    libproject-example.c
  * @author  foxBMS Team
  * @date    2020-10-06 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup USER_LIB
  * @prefix  SUPER
  *
  * @brief   Example on how to create a user library that is included in foxBMS
- * @details TODO
+ * @details This example source file shows the implementation side of a user
+ *          library that is integrated into foxBMS.
+ *          Together with the matching header, it demonstrates the minimal
+ *          structure required to expose library functions to the project.
  */
 
 /*========== Includes =======================================================*/

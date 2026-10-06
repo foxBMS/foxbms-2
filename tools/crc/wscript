@@ -41,5 +41,5 @@
 
 
 def build(bld):
-    bld(features="c", source="crc-10_0x48f.c", target="crc-10_0x48f", idx=1)
-    bld(features="c", source="crc-15_0xc599.c", target="crc-15_0xc599", idx=1)
+    bld(features="c", source="crc-10_0x48f.c", target="crc-10_0x48f")
+    bld(features="c", source="crc-15_0xc599.c", target="crc-15_0xc599")

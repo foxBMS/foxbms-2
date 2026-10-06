@@ -72,9 +72,6 @@ class FoxDB:
 
         Args:
             db_root: Path to the database directory or a ZIP archive.
-
-        Raises:
-            SystemExit: If the database structure is invalid or parsing fails.
         """
         self.cells = self._get_cells(db_root)
         self._check_db()
@@ -137,10 +134,6 @@ class FoxDB:
 
         Returns:
             List of all parsed cell objects.
-
-        Raises:
-            SystemExit: If the root is not a directory or required files are
-                missing.
         """
         cells = []
         if not root_directory.is_dir():
@@ -174,12 +167,6 @@ class FoxDB:
         try:
             models = creates_models(models_dicts, directory)
             return Cell(spec=CellSpec(**cell_spec_dict), model_parameters=models)
-        except TypeError as e:
-            recho(
-                f"In directory {directory} a parameter has the wrong type, "
-                f"is missing or unexpected: '{e}'"
-            )
-            sys.exit(1)
         except ValueError as e:
             recho(f"In directory {directory} a parameter has the wrong value: '{e}'")
             sys.exit(1)
@@ -211,10 +198,6 @@ class FoxDB:
 
         Args:
             directory: Path to the cell's directory.
-
-        Raises:
-            SystemExit: If the directory is not a directory or any required file
-                is missing.
         """
         if not directory.is_dir():
             recho("Files in database root found. Invalid database format!")

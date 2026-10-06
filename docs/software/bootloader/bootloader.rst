@@ -41,8 +41,7 @@ original routine, and the timeout will no longer be activated.
 Since the timeout duration is very short, the commands to load application and
 reset the bootloader should be executed before powering on the |bms-master|.
 
-.. drawio-figure:: img/description_of_timeout_at_the_beginning.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/description_of_timeout_at_the_beginning.svg
    :alt: Description of timeout at the beginning
    :name: description_of_timeout_at_the_beginning
    :width: 55 %
@@ -62,19 +61,19 @@ bootloader application by the following command:
 
          .. code-block:: powershell
 
-            .\fox.ps1 waf build_bootloader_embedded
+            .\fox.ps1 waf build_bootloader_ti_arm_cgt
 
       .. group-tab:: Win32/Git bash
 
          .. code-block:: shell
 
-            ./fox.sh waf build_bootloader_embedded
+            ./fox.sh waf build_bootloader_ti_arm_cgt
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            ./fox.sh waf build_bootloader_embedded
+            ./fox.sh waf build_bootloader_ti_arm_cgt
 
 After flashing the binary of the bootloader onto the |bms-master| (through a
 debugger), it is possible to use the bootloader PC application to communicate
@@ -134,11 +133,11 @@ with the bootloader:
 
             ./fox.sh bootloader load-app
 
-   (To use this function, a |foxbms| binary must be built in advance
+   To use this function, a |foxbms| binary must be built in advance
    following the instructions described in :ref:`BUILDING_THE_APPLICATION`.
    In addition, the command should be executed before powering on the
    |bms-master|, and the board should be powered when the instruction
-   `"Waiting bootloader to be powered on ..."` appears on the terminal.)
+   ``"Waiting bootloader to be powered on ..."`` appears on the terminal.
 
 #. Reset the boot process:
 
@@ -165,7 +164,7 @@ with the bootloader:
    Like the command to load a new |foxbms| application, the reset command
    should also be executed before powering on the |bms-master|.
    The board should then be powered on after the instruction
-   `"Waiting bootloader to be powered on..."` appears in the terminal.
+   ``"Waiting bootloader to be powered on..."`` appears in the terminal.
    In the case of an error status, a reset command or a power-on restart
    should resolve the problem.
 
@@ -225,11 +224,10 @@ each sector.
 The *sector* used in this context has been defined based on the data block that
 can be stored in the corresponding flash sector of the physical flash memory.
 To enable data transfer via CAN messages, which have the maximum size of 8
-bytes, each sector is further divided into subsectors that contain 1024 * 8
+bytes, each sector is further divided into sub sectors that contain 1024 * 8
 bytes of data, as shown in :numref:`from_bin_file_to_8_bytes_data`:
 
-.. drawio-figure:: img/from_bin_file_to_8_bytes_data.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/from_bin_file_to_8_bytes_data.svg
    :alt: From bin file to 8 bytes data
    :name: from_bin_file_to_8_bytes_data
    :width: 60 %
@@ -261,8 +259,7 @@ Once the embedded bootloader has successfully received 1024 * 8 bytes of data,
 it responds with an *ACK message* to signal to the
 |bootloader-host-application| to send the next subsector.
 
-.. drawio-figure:: img/communication_between_pc_and_bootloader.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/communication_between_pc_and_bootloader.svg
    :alt: Communication between PC and bootloader
    :name: communication_between_pc_and_bootloader
    :width: 50 %
@@ -388,13 +385,12 @@ More details about the ECC can be found in
 Functional Mechanisms
 ---------------------
 
-.. |boot-fsm| replace:: Boot FSM
-.. |can-fsm| replace:: CAN FSM
-
+.. |boot-fsm| replace:: *Boot FSM*
+.. |can-fsm| replace:: *CAN FSM*
 
 The functions of the |embedded-bootloader| are implemented through the
 cooperation of two independent final state machines (FSMs).
-One FSM is called the|boot-fsm|, as it directly controls the boot process of
+One FSM is called the |boot-fsm|, as it directly controls the boot process of
 the |embedded-bootloader|.
 The other is called the |can-fsm| because it helps control the CAN
 communication and ensures the correct sequence of the data transfer process.
@@ -412,8 +408,7 @@ flash memory of the |bms-master|.
 The entire state diagram of the CAN FSM state machine is shown in
 :numref:`can_fsm_state`.
 
-.. drawio-figure:: img/can_fsm_state.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/can_fsm_state.svg
    :name: can_fsm_state
    :align: center
    :alt: |can-fsm| state
@@ -433,8 +428,7 @@ If any error happens during the state ``BOOT_FSM_STATE_LOAD``,
 ``BOOT_FSM_STATE_RUN`` or ``BOOT_FSM_STATE_RESET``, the state of the |boot-fsm|
 will change to  ``BOOT_FSM_STATE_ERROR``.
 
-.. drawio-figure:: img/boot_fsm_state.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/boot_fsm_state.svg
    :name: boot_fsm_state
    :align: center
    :width: 65 %
@@ -459,8 +453,7 @@ The bootloader will only jump into the application if the validation process
 was successful.
 Otherwise, it will inform the host PC that there is no valid program available.
 
-.. drawio-figure:: img/can_boot_run.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/can_boot_run.svg
    :name: can_boot_run
    :align: center
    :width: 60 %
@@ -484,8 +477,7 @@ stored will be cleared, and the flash sectors where the application data is
 supposed to be written will be erased.
 Finally, a software reset will be performed to reset the MCU.
 
-.. drawio-figure:: img/can_boot_reset.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/can_boot_reset.svg
    :name: can_boot_reset
    :align: center
    :width: 60 %
@@ -503,8 +495,7 @@ CAN FSM state will change to ``CAN_FSM_STATE_WAIT_FOR_INFO``, and the boot FSM
 state will change to ``BOOT_FSM_STATE_LOAD``, as shown in
 :numref:`can_boot_load`.
 
-.. drawio-figure:: img/can_boot_load.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/bootloader/img/can_boot_load.svg
    :name: can_boot_load
    :align: center
    :width: 60 %

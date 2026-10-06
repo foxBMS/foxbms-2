@@ -37,6 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+
+# cspell:ignore creationflags
+
 """Testing file 'cli/helpers/spr.py'."""
 
 import importlib
@@ -60,11 +63,11 @@ except ModuleNotFoundError:
 class TestSpR(unittest.TestCase):
     """Test of 'spr.py'."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         importlib.reload(spr)
         return super().setUp()
 
-    def test_prepare_subprocess_output(self):
+    def test_prepare_subprocess_output(self) -> None:
         """Basic prepare_subprocess_output test"""
         ret = prepare_subprocess_output(-1, b"foxBMS", b"dummy")
         self.assertEqual(-1, ret.returncode)
@@ -76,7 +79,7 @@ class TestSpR(unittest.TestCase):
         self.assertEqual("", ret.out)
         self.assertEqual("", ret.err)
 
-    def test_add_spr(self):
+    def test_add_spr(self) -> None:
         """Test adding of two 'SubprocessResults'"""
         ret = prepare_subprocess_output(
             -1, b"foxBMS", b"dummy"
@@ -85,7 +88,7 @@ class TestSpR(unittest.TestCase):
         self.assertEqual("foxBMS\n\n1", ret.out)
         self.assertEqual("dummy\n\n2", ret.err)
 
-    def test_run_process_no_program(self):
+    def test_run_process_no_program(self) -> None:
         """Test running a program, without providing a program"""
         buf = io.StringIO()
         with redirect_stderr(buf):
@@ -95,7 +98,7 @@ class TestSpR(unittest.TestCase):
         self.assertEqual("No program provided.", ret.err)
         self.assertIn("No program provided.", buf.getvalue())
 
-    def test_run_process_invalid_program(self):
+    def test_run_process_invalid_program(self) -> None:
         """Test running a program, without providing a valid program"""
         cmd = ["does-not-exist"]
         buf = io.StringIO()
@@ -106,7 +109,7 @@ class TestSpR(unittest.TestCase):
         self.assertEqual(f"Program '{cmd[0]}' does not exist.", ret.err)
         self.assertIn(f"Program '{cmd[0]}' does not exist.", buf.getvalue())
 
-    def test_spr_str(self):
+    def test_spr_str(self) -> None:
         """Test string-representation of the SubprocessResult class"""
         dummy = SubprocessResult(1, "abc", "def")
         self.assertEqual("return code: 1\n\nout:abc\n\ndef\n", str(dummy))
@@ -114,7 +117,9 @@ class TestSpR(unittest.TestCase):
     @patch("sys.platform", new="linux")
     @patch("shutil.which")
     @patch("cli.helpers.spr.subprocess.Popen")
-    def test_run_process_linux(self, mock_popen: MagicMock, mock_which: MagicMock):
+    def test_run_process_linux(
+        self, mock_popen: MagicMock, mock_which: MagicMock
+    ) -> None:
         """Test the 'run_process' function for Linux."""
         importlib.reload(spr)
         mock_which.return_value = "some-program"
@@ -139,15 +144,15 @@ class TestSpR(unittest.TestCase):
             result.err, mock_process.communicate.return_value[1].decode("utf-8")
         )
 
-    @patch("builtins.hasattr")
     @patch("shutil.which")
     @patch("cli.helpers.spr.subprocess.Popen")
+    @patch("cli.helpers.spr.sys")
     @unittest.skipIf(not sys.platform.startswith("win32"), "Windows specific test")
     def test_run_process_no_isatty(
-        self, mock_popen: MagicMock, mock_which: MagicMock, mock_hasattr: MagicMock
-    ):
+        self, mock_sys: MagicMock, mock_popen: MagicMock, mock_which: MagicMock
+    ) -> None:
         """Test the 'run_process' function without 'isatty' in 'sys.stdin'."""
-        mock_hasattr.return_value = False
+        mock_sys.stdin = object()
         mock_which.return_value = "some-program"
         mock_process = MagicMock()
         mock_process.communicate.return_value = (b"stdout", b"stderr")
@@ -156,13 +161,8 @@ class TestSpR(unittest.TestCase):
 
         result = run_process(["some-program", "some-arguments"])
 
-        self.assertEqual(
-            result.out, mock_process.communicate.return_value[0].decode("utf-8")
-        )
-        self.assertEqual(
-            result.err, mock_process.communicate.return_value[1].decode("utf-8")
-        )
-        mock_hasattr.assert_called_once()
+        self.assertEqual(result.out, "stdout")
+        self.assertEqual(result.err, "stderr")
         mock_popen.assert_called_once_with(
             ["some-program", "some-arguments"],
             cwd=Path(__file__).parents[3],
@@ -174,7 +174,7 @@ class TestSpR(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("cli.helpers.spr.subprocess.Popen")
-    def test_run_process(self, mock_popen, mock_which):
+    def test_run_process(self, mock_popen: MagicMock, mock_which: MagicMock) -> None:
         """Test the 'run_process' function."""
         mock_which.return_value = "some-program"
         mock_process = MagicMock()

@@ -29,7 +29,7 @@ The following rules apply for filenames of Python scripts.
     - Python scripts **MUST** use ``.py`` as file extension, except for Waf
       build scripts which use ``wscript`` as file name.
 
-For example the valid file names for Python scripts are
+For example, valid file names for Python scripts are:
 
 - ``hello.py``
 - ``my-script.py`` (**not recommended**, as the script is **not** importable)
@@ -42,7 +42,7 @@ Header (``PYTHON:002``)
 
 .. admonition:: Python file header
 
-    Python source and header files **MUST** start with the following header:
+   Python source files **MUST** start with the following header:
 
    .. literalinclude:: ./../../../conf/tpl/python_script.py
       :language: python
@@ -56,7 +56,7 @@ Header (``PYTHON:002``)
 Syntax (``PYTHON:003``)
 -----------------------
 
-The following rules apply for syntax of Python scripts
+The following rules apply to syntax of Python scripts.
 
 .. admonition:: Python syntax rules
 
@@ -81,12 +81,12 @@ Uniform formatting makes code easier to read to all developers.
 Static program analysis (``PYTHON:005``)
 ----------------------------------------
 
-Static program analysis helps to detected code smells and errors in an early
+Static program analysis helps to detect code smells and errors in an early
 stage of development.
 
 .. admonition:: Python static program analysis rules
 
-    Python sources files are statically checked by ``pylint``.
+    Python source files are statically checked by ``pylint``.
     The ``pylint`` configuration can be found in ``pyproject.toml``.
 
 .. _rule_no_platform_specific_code:
@@ -96,18 +96,18 @@ No platform specific code (``PYTHON:006``)
 
 .. admonition:: No platform specific code
 
-    Python scripts **MUST** use platform independent code where ever possible.
-    If platform specific is required, it **MUST** be guarded.
+   Python scripts **MUST** use platform independent code wherever possible.
+   If platform-specific code is required, it **MUST** be guarded.
 
-Example :numref:`platform-specific-code` shows how to write platform acceptable
-platform specific code.
+Example :numref:`platform-specific-code` shows how to write
+platform-acceptable platform-specific code.
 
 .. literalinclude:: ./examples/python-006.py
-    :language: python
-    :linenos:
-    :lines: 44-
-    :caption: Handling of platform specific code
-    :name: platform-specific-code
+   :language: python
+   :linenos:
+   :start-after: start-include-in-docs
+   :caption: Handling of platform specific code
+   :name: platform-specific-code
 
 .. _rule_python_wscript_rules:
 
@@ -119,8 +119,8 @@ platform specific code.
    - In a ``wscript`` paths that are meant to be used by task generators
      **MUST NOT** be ``path.Path`` objects, but strings using ``/`` as path
      separator.
-   - ``includes`` and ``source`` or *might* be less readable if they are split
-     over multiple lines (as ``ruff`` would format it like this on default).
+   - ``includes`` and ``source`` might be less readable if they are split
+     over multiple lines (as ``ruff`` formats them like this by default).
      Therefore ``includes`` and ``source`` **MAY** be written as shown below,
      if it increases readability:
 
@@ -134,7 +134,7 @@ platform specific code.
 - ``# fmt: off`` disables formatting starting from that line and
   ``# pylint: disable=line-too-long`` disables the pylint error message
   starting from that line.
-- ``# fmt: on`` re-activates on formatting starting from that line and
+- ``# fmt: on`` re-activates formatting starting from that line and
   ``# pylint: enable=line-too-long`` re-activates the pylint error message
   starting from that line.
 
@@ -143,8 +143,8 @@ platform specific code.
 Typing (``PYTHON:008``)
 -----------------------
 
-Typing information helps to detected errors in an early stage of development.
+Typing information helps to detect errors in an early stage of development.
 
 .. admonition:: Typing information
 
-    Python scripts **SHALL** typing information where ever possible.
+    Python scripts **SHALL** provide typing information wherever possible.

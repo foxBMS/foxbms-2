@@ -42,32 +42,12 @@
 import tkinter as tk
 from tkinter import ttk
 
-from ...helpers.misc import PROJECT_BUILD_ROOT
+from ..frame_base import BaseFrame
 
 
 # pylint: disable-next=too-many-ancestors
-class EmbeddedUtFrame(ttk.Frame):
+class EmbeddedUtFrame(BaseFrame):
     """'Embedded Unit Tests' frame"""
 
     def __init__(self, parent: ttk.Notebook, text_widget: tk.Text) -> None:
-        super().__init__(parent)
-        self.parent = parent
-        self.text = text_widget
-        self.text_index: int = 0
-        self.file_path = PROJECT_BUILD_ROOT / "gui" / "output_gui_ut.txt"
-        (PROJECT_BUILD_ROOT / "gui").mkdir(parents=True, exist_ok=True)
-        self.file_path.touch()
-
-    def write_text(self) -> None:
-        """Writes the file content in the text box"""
-        if self != self.parent.nametowidget(self.parent.select()):
-            return
-        self.text.config(state="normal")
-        with open(self.file_path, encoding="utf-8", errors="ignore") as f:
-            file_content = f.read()
-            text_length = len(file_content)
-            self.text.insert(tk.END, file_content[self.text_index :])
-            if text_length > 0:
-                self.text_index = text_length
-            self.text.see(tk.END)
-        self.text.config(state="disabled")
+        super().__init__(parent, text_widget, "output_gui_ut.txt")

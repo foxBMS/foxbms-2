@@ -43,13 +43,14 @@
  * @file    spi_cfg_initialization.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
- * @brief   Header file of some software
- * @details Some detailed explanation
+ * @brief   Public interface for SPI hardware initialization
+ * @details Declares initialization functions for PCB- and AFE-specific SPI
+ *          interfaces that are called during SPI driver startup.
  */
 
 #ifndef FOXBMS__SPI_CFG_INITIALIZATION_H_
@@ -62,7 +63,18 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief   Initializes the generic SPI interfaces.
+ * @details Configures the non-AFE-specific SPI peripherals and their
+ *          associated settings.
+ */
 extern void SPI_InitializeSpiInterfaces(void);
+
+/**
+ * @brief   Initializes AFE-specific SPI interfaces.
+ * @details Configures SPI peripherals and timing settings required for
+ *          communication with connected AFEs.
+ */
 extern void SPI_InitializeAfeSpecificSpiInterfaces(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/

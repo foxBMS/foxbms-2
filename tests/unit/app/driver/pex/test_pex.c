@@ -43,8 +43,8 @@
  * @file    test_pex.c
  * @author  foxBMS Team
  * @date    2021-09-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,13 +71,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("pex.c")
-TEST_SOURCE_FILE("pex_cfg.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/i2c")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -347,12 +340,12 @@ void testPEX_Trigger(void) {
     /* ======= Routine tests =============================================== */
     const uint8_t expectedNrOfBytesToWrite    = 3u;
     uint8_t expectedI2cDataWriteDirection[3u] = {TEST_PEX_DIRECTION_PORT0_REGISTER_ADDRESS, 0u, 0u};
-    uint32_t current_time                     = 0u;
+    uint32_t currentTime                      = 0u;
 
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
 
-    OS_GetTickCount_ExpectAndReturn(current_time);
+    OS_GetTickCount_ExpectAndReturn(currentTime);
 
     for (uint8_t i = 0; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         I2C_WriteDma_ExpectAndReturn(
@@ -362,14 +355,14 @@ void testPEX_Trigger(void) {
             expectedI2cDataWriteDirection,
             STD_OK);
     }
-    OS_DelayTaskUntil_Expect(&current_time, 2u);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
 
     uint8_t expectedI2cDataWritePolarity[3u] = {TEST_PEX_POL_INV_PORT0_REGISTER_ADDRESS, 0u, 0u};
     for (uint8_t i = 0; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         I2C_WriteDma_ExpectAndReturn(
             TEST_PEX_I2C_INTERFACE, pex_addressList[i], expectedNrOfBytesToWrite, expectedI2cDataWritePolarity, STD_OK);
     }
-    OS_DelayTaskUntil_Expect(&current_time, 2u);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
 
     uint8_t expectedI2cDataWriteInput[1u] = {TEST_PEX_INPUT_PORT0_REGISTER_ADDRESS};
     uint8_t expectedI2cDataRead[2u]       = {0u, 0u};
@@ -377,16 +370,16 @@ void testPEX_Trigger(void) {
         I2C_WriteReadDma_ExpectAndReturn(
             TEST_PEX_I2C_INTERFACE, pex_addressList[i], 1u, expectedI2cDataWriteInput, 2u, expectedI2cDataRead, STD_OK);
     }
-    OS_DelayTaskUntil_Expect(&current_time, 2u);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
 
     uint8_t expectedI2cDataWriteOutput[3u] = {TEST_PEX_OUTPUT_PORT0_REGISTER_ADDRESS, 0u, 0u};
     for (uint8_t i = 0; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         I2C_WriteDma_ExpectAndReturn(
             TEST_PEX_I2C_INTERFACE, pex_addressList[i], 3u, expectedI2cDataWriteOutput, STD_OK);
     }
-    OS_DelayTaskUntil_Expect(&current_time, 2u);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
 
-    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_PEX_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_PEX_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
 
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();

@@ -1,0 +1,219 @@
+[
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_aerosol-sensor.c",
+    "test": "test_diag_cbs_aerosol-sensor.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_afe.c",
+    "test": "test_diag_cbs_afe.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_bms.c",
+    "test": "test_diag_cbs_bms.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_can.c",
+    "test": "test_diag_cbs_can.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_clamp30c.c",
+    "test": "test_diag_cbs_clamp30c.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_contactor.c",
+    "test": "test_diag_cbs_contactor.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_current-sensor.c",
+    "test": "test_diag_cbs_current-sensor.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_current.c",
+    "test": "test_diag_cbs_current.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/config/fram_cfg.c",
+      "src/app/engine/diag/cbs/diag_cbs_deep-discharge.c"
+    ],
+    "test": "test_diag_cbs_deep-discharge.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/driver/fram/fram.h",
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_dummy.c",
+    "test": "test_diag_cbs_dummy.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_fram.c",
+    "test": "test_diag_cbs_fram.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_i2c.c",
+    "test": "test_diag_cbs_i2c.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_insulation.c",
+    "test": "test_diag_cbs_insulation.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_interlock.c",
+    "test": "test_diag_cbs_interlock.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_plausibility.c",
+    "test": "test_diag_cbs_plausibility.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_power-measurement.c",
+    "test": "test_diag_cbs_power-measurement.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_rtc.c",
+    "test": "test_diag_cbs_rtc.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_sbc.c",
+    "test": "test_diag_cbs_sbc.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_sys-mon.c",
+    "test": "test_diag_cbs_sys-mon.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h",
+      "src/app/engine/config/sys_mon_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_temperature.c",
+    "test": "test_diag_cbs_temperature.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/diag/cbs/diag_cbs_voltage.c",
+    "test": "test_diag_cbs_voltage.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/config/diag_cfg.h"
+    ]
+  }
+]

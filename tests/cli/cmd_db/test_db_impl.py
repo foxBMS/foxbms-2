@@ -55,7 +55,7 @@ except ModuleNotFoundError:
 class TestDbList(unittest.TestCase):
     """Tests for db_list()."""
 
-    def test_lists_and_prints_cells(self):
+    def test_lists_and_prints_cells(self) -> None:
         """Should instantiate FoxDB, list cells, and print them via secho."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -83,7 +83,7 @@ class TestDbList(unittest.TestCase):
                 self.assertEqual(mock_secho.call_args_list[1].args[0], "acme-X100")
                 self.assertEqual(mock_secho.call_args_list[2].args[0], "mega-Y200")
 
-    def test_systemexit_bubbles_up_and_no_output(self):
+    def test_systemexit_bubbles_up_and_no_output(self) -> None:
         """Should propagate SystemExit from FoxDB constructor and not print anything."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -105,7 +105,7 @@ class TestDbList(unittest.TestCase):
 class TestDbShow(unittest.TestCase):
     """Tests for db_show()."""
 
-    def test_prints_cell_when_found(self):
+    def test_prints_cell_when_found(self) -> None:
         """Should print the string representation of the cell when found."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -113,7 +113,7 @@ class TestDbShow(unittest.TestCase):
             class DummyCell:  # pylint: disable=too-few-public-methods
                 """Dummy Cell"""
 
-                def __str__(self):
+                def __str__(self) -> str:
                     return "CELL(ACME-X100)"
 
             with (
@@ -134,7 +134,7 @@ class TestDbShow(unittest.TestCase):
                 mock_secho.assert_called_once()
                 self.assertEqual(mock_secho.call_args.args[0], "CELL(ACME-X100)")
 
-    def test_prints_not_found_message_when_missing(self):
+    def test_prints_not_found_message_when_missing(self) -> None:
         """Should print 'not found' message when the cell is missing."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -1,0 +1,20 @@
+[
+  {
+    "source": "src/app/driver/interlock/interlock.c",
+    "test": "test_interlock.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/interlock",
+      "src/app/driver/io",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "HL_het.h",
+      "src/app/driver/io/io.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

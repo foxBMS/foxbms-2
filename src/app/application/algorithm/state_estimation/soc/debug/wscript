@@ -37,24 +37,33 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
 
     includes = [
-        ".",
-        "../../",
-        "../../../../config",
-        "../../../../../driver/mcu",
-        "../../../../../engine/config",
-        "../../../../../engine/database",
-        "../../../../../main/include",
-        "../../../../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/algorithm/state_estimation"),
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "soc_debug"
+    use = [
+        f"{ip}rtos-kernel",
+        f"{cp}battery_system_cfg",
+    ]
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
     )

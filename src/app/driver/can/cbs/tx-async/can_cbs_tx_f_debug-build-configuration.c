@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -57,9 +57,9 @@
 
 #include "app_build_cfg.h"
 #include "battery_cell_cfg.h"
-#include "battery_system_cfg.h"
 #include "bms-slave_cfg.h"
 
+#include "battery_system_cfg_types.h"
 #include "can.h"
 #include "can_cfg_tx-async-message-definitions.h"
 #include "can_helper.h"
@@ -91,7 +91,6 @@
 #define CANTX_MUX_BATTERY_SYSTEM_CURRENT_SENSOR          (0x33u)
 #define CANTX_MUX_BATTERY_SYSTEM_FUSE                    (0x34u)
 #define CANTX_MUX_BATTERY_SYSTEM_MAX_CURRENT             (0x35u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK         (0x36u)
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS           (0x37u)
 /** @} */
 
@@ -239,22 +238,6 @@ static const CAN_SIGNAL_TYPE_s cantx_signalBatteryCellTemperatures = {
 #define CANTX_MUX_BATTERY_SYSTEM_MAXIMUM_CURRENT_MAX_PACK_CURRENT_START_BIT   (35u)
 #define CANTX_MUX_BATTERY_SYSTEM_MAXIMUM_CURRENT_MAX_PACK_CURRENT_LENGTH      (28u)
 
-/* battery system open wire check*/
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_PERIODIC_OPEN_WIRE_CHECK_START_BIT (15u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_PERIODIC_OPEN_WIRE_CHECK_LENGTH    (CAN_BIT)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_OPEN_WIRE_PERIOD_START_BIT         (14u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_OPEN_WIRE_PERIOD_LENGTH            (12u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_PERIODIC_OPEN_WIRE_CHECK_START_BIT  (18u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_PERIODIC_OPEN_WIRE_CHECK_LENGTH     (CAN_BIT)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_OPEN_WIRE_PERIOD_START_BIT          (17u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_OPEN_WIRE_PERIOD_LENGTH             (12u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_PERIODIC_OPEN_WIRE_CHECK_START_BIT  (37u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_PERIODIC_OPEN_WIRE_CHECK_LENGTH     (CAN_BIT)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_OPEN_WIRE_PERIOD_START_BIT          (36u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_OPEN_WIRE_PERIOD_LENGTH             (12u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_ERROR_OPEN_WIRE_PERIOD_START_BIT           (40u)
-#define CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_ERROR_OPEN_WIRE_PERIOD_LENGTH              (12u)
-
 /* battery system total cell and temperature sensor numbers*/
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS_NR_OF_CELL_BLOCKS_PER_STRING_START_BIT  (15u)
 #define CANTX_MUX_BATTERY_SYSTEM_TOTAL_NUMBERS_NR_OF_CELL_BLOCKS_PER_STRING_LENGTH     (14u)
@@ -395,12 +378,6 @@ static void CANTX_SetBatterySystemMuxFuseMessageData(uint64_t *pMessageData);
  * @param   pMessageData message data of the CAN message
  */
 static void CANTX_SetBatterySystemMuxMaxCurrentMessageData(uint64_t *pMessageData);
-
-/**
- * @brief   Adds the data to the message
- * @param   pMessageData message data of the CAN message
- */
-static void CANTX_SetBatterySystemMuxOpenWireCheckMessageData(uint64_t *pMessageData);
 
 /**
  * @brief   Adds the data to the message
@@ -1041,19 +1018,6 @@ static STD_RETURN_TYPE_e CANTX_SendBatterySystemConfiguration(void) {
     }
 
     if (queuedSuccessfully == STD_OK) {
-        /* Set battery system open wire check message data*/
-        CANTX_SetBatterySystemMuxOpenWireCheckMessageData(&messageData);
-        /* Send battery system open wire check message*/
-        CAN_TxSetCanDataWithMessageData(messageData, canData, CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-        queuedSuccessfully = CAN_DataSend(
-            CAN_NODE_DEBUG_MESSAGE,
-            CANTX_DEBUG_BUILD_CONFIGURATION_ID,
-            CANTX_DEBUG_BUILD_CONFIGURATION_ID_TYPE,
-            canData);
-        messageData = 0u;
-    }
-
-    if (queuedSuccessfully == STD_OK) {
         /* Set battery system total numbers message data*/
         CANTX_SetBatterySystemMuxTotalNumbersMessageData(&messageData);
         /* Send battery system total numbers message*/
@@ -1332,88 +1296,6 @@ static void CANTX_SetBatterySystemMuxMaxCurrentMessageData(uint64_t *pMessageDat
         CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
 }
 
-static void CANTX_SetBatterySystemMuxOpenWireCheckMessageData(uint64_t *pMessageData) {
-    FAS_ASSERT(pMessageData != NULL_PTR);
-    /* Signal type of the open wire period values */
-    static const CAN_SIGNAL_TYPE_s cantx_signalOpenWirePeriod = {
-        0u,
-        0u,
-        UNIT_CONVERSION_FACTOR_1000_FLOAT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_OFFSET,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_MIN_VALUE,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_MAX_VALUE};
-
-    /* Set multiplexer value */
-    CANTX_SetDebugBuildConfigurationMux(pMessageData, CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK);
-
-    /* Set standby periodic open wire check flag */
-    uint64_t convertedSignalData = CAN_ConvertBooleanToInteger(BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_PERIODIC_OPEN_WIRE_CHECK_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_PERIODIC_OPEN_WIRE_CHECK_LENGTH,
-        convertedSignalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-
-    /* Set standby open wire period value */
-    float_t signalData = (float_t)BS_STANDBY_OPEN_WIRE_PERIOD_ms;
-    CAN_TxPrepareSignalData(&signalData, cantx_signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_OPEN_WIRE_PERIOD_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_STANDBY_OPEN_WIRE_PERIOD_LENGTH,
-        (uint64_t)signalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-
-    /* Set normal periodic open wire check flag */
-    convertedSignalData = CAN_ConvertBooleanToInteger(BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_PERIODIC_OPEN_WIRE_CHECK_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_PERIODIC_OPEN_WIRE_CHECK_LENGTH,
-        convertedSignalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-
-    /* Set normal open wire period value */
-    signalData = (float_t)BS_NORMAL_OPEN_WIRE_PERIOD_ms;
-    CAN_TxPrepareSignalData(&signalData, cantx_signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_OPEN_WIRE_PERIOD_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_NORMAL_OPEN_WIRE_PERIOD_LENGTH,
-        (uint64_t)signalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-
-    /* Set charge periodic open wire check flag */
-    convertedSignalData = CAN_ConvertBooleanToInteger(BS_CHARGE_PERIODIC_OPEN_WIRE_CHECK);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_PERIODIC_OPEN_WIRE_CHECK_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_PERIODIC_OPEN_WIRE_CHECK_LENGTH,
-        convertedSignalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-
-    /* Set charge open wire period value */
-    signalData = (float_t)BS_CHARGE_OPEN_WIRE_PERIOD_ms;
-    CAN_TxPrepareSignalData(&signalData, cantx_signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_OPEN_WIRE_PERIOD_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_CHARGE_OPEN_WIRE_PERIOD_LENGTH,
-        (uint64_t)signalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-
-    /* Set error open wire period value */
-    signalData = (float_t)BS_ERROR_OPEN_WIRE_PERIOD_ms;
-    CAN_TxPrepareSignalData(&signalData, cantx_signalOpenWirePeriod);
-    CAN_TxSetMessageDataWithSignalData(
-        pMessageData,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_ERROR_OPEN_WIRE_PERIOD_START_BIT,
-        CANTX_MUX_BATTERY_SYSTEM_OPEN_WIRE_CHECK_ERROR_OPEN_WIRE_PERIOD_LENGTH,
-        (uint64_t)signalData,
-        CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
-}
-
 static void CANTX_SetBatterySystemMuxTotalNumbersMessageData(uint64_t *pMessageData) {
     FAS_ASSERT(pMessageData != NULL_PTR);
 
@@ -1554,10 +1436,6 @@ extern void TEST_CANTX_SetBatterySystemMuxFuseMessageData(uint64_t *pMessageData
 
 extern void TEST_CANTX_SetBatterySystemMuxMaxCurrentMessageData(uint64_t *pMessageData) {
     CANTX_SetBatterySystemMuxMaxCurrentMessageData(pMessageData);
-}
-
-extern void TEST_CANTX_SetBatterySystemMuxOpenWireCheckMessageData(uint64_t *pMessageData) {
-    CANTX_SetBatterySystemMuxOpenWireCheckMessageData(pMessageData);
 }
 
 extern void TEST_CANTX_SetBatterySystemMuxTotalNumbersMessageData(uint64_t *pMessageData) {

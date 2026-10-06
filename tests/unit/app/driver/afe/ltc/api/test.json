@@ -1,0 +1,21 @@
+[
+  {
+    "source": "src/app/driver/afe/ltc/api/ltc_afe.c",
+    "test": "test_ltc_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ltc/common",
+      "src/app/driver/afe/ltc/common/config",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_sys_dma.h",
+      "src/app/driver/afe/ltc/common/ltc.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_LTC=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

@@ -43,8 +43,8 @@
  * @file    nxp_mc3377x_database.c
  * @author  foxBMS Team
  * @date    2025-03-21 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  N77X
  *
@@ -56,6 +56,9 @@
 #include "nxp_mc3377x_database.h"
 
 #include "database.h"
+#include "fassert.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 

@@ -42,6 +42,7 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.com.parameter import (
@@ -68,7 +69,7 @@ class TestComControl(unittest.TestCase):
     default values are set correctly.
     """
 
-    def test_default_queues_and_events_are_distinct(self):
+    def test_default_queues_and_events_are_distinct(self) -> None:
         """Queues and Events should not be shared between instances."""
         c1 = ComControl()
         c2 = ComControl()
@@ -79,11 +80,56 @@ class TestComControl(unittest.TestCase):
         self.assertIsNot(c1.logger, c2.logger)
         self.assertEqual(c1.log_level, 50)
 
+    def test_close_closes_all_queues(self) -> None:
+        """close() should close and join all queue threads."""
+        control = ComControl()
+        control.input = MagicMock()
+        control.output = MagicMock()
+        control.logger = MagicMock()
+
+        control.close()
+
+        control.input.close.assert_called_once()
+        control.input.join_thread.assert_called_once()
+        control.output.close.assert_called_once()
+        control.output.join_thread.assert_called_once()
+        control.logger.close.assert_called_once()
+        control.logger.join_thread.assert_called_once()
+
+    def test_close_ignores_queue_cleanup_errors(self) -> None:
+        """close() should ignore queue close/join errors."""
+        control = ComControl()
+        control.input = MagicMock()
+        control.output = MagicMock()
+        control.logger = MagicMock()
+        control.input.close.side_effect = AttributeError()
+        control.input.join_thread.side_effect = RuntimeError()
+        control.output.close.side_effect = OSError()
+        control.output.join_thread.side_effect = ValueError()
+        control.logger.close.side_effect = ValueError()
+        control.logger.join_thread.side_effect = OSError()
+
+        control.close()
+
+        control.input.close.assert_called_once()
+        control.input.join_thread.assert_called_once()
+        control.output.close.assert_called_once()
+        control.output.join_thread.assert_called_once()
+        control.logger.close.assert_called_once()
+        control.logger.join_thread.assert_called_once()
+
+    def test_del_calls_close(self) -> None:
+        """__del__ should delegate to close()."""
+        control = ComControl()
+        with patch.object(control, "close") as mock_close:
+            control.__del__()  # pylint: disable=unnecessary-dunder-call
+        mock_close.assert_called_once()
+
 
 class TestModbusParameter(unittest.TestCase):
     """Tests ModbusParameter defaults and immutability."""
 
-    def test_defaults_and_immutability(self):
+    def test_defaults_and_immutability(self) -> None:
         """Defaults should be set."""
         p = ModbusParameter(host="localhost")
         self.assertEqual(p.port, 502)
@@ -97,7 +143,7 @@ class TestMQTTParameter(unittest.TestCase):
     Checks initialization, default argument values, and immutability.
     """
 
-    def test_basic_init_and_frozen(self):
+    def test_basic_init_and_frozen(self) -> None:
         """Test initialization and immutability of MQTTParameter."""
         param = MQTTParameter(
             broker="localhost",
@@ -105,7 +151,7 @@ class TestMQTTParameter(unittest.TestCase):
             subscribe=["topic1", "topic2"],
             tls_cert="cert.pem",
             username="user",
-            password="pw",  # noqa
+            password="pw",  # noqa: S106
         )
         self.assertEqual(param.broker, "localhost")
         self.assertEqual(param.port, 1883)
@@ -117,7 +163,7 @@ class TestMQTTParameter(unittest.TestCase):
         with self.assertRaises(AttributeError):
             param.broker = "something"
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         """Test default values for optional MQTTParameter fields."""
         param = MQTTParameter(broker="127.0.0.1", port=1884, subscribe=[])
         self.assertIsNone(param.tls_cert)
@@ -130,7 +176,7 @@ class TestCANLoggerParameter(unittest.TestCase):
     Checks default values and custom initialization.
     """
 
-    def test_defaults_and_custom(self):
+    def test_defaults_and_custom(self) -> None:
         """Test default and custom values for CANLoggerParameter."""
         p = CANLoggerParameter()
         self.assertEqual(p.max_bytes, 65536)
@@ -147,7 +193,7 @@ class TestFileParameter(unittest.TestCase):
     Checks default values and post-initialization path conversion.
     """
 
-    def test_defaults(self):
+    def test_defaults(self) -> None:
         """Test defaults for FileParameter."""
         f = FileParameter()
         self.assertIsNone(f.input_file)
@@ -155,7 +201,7 @@ class TestFileParameter(unittest.TestCase):
         self.assertEqual(f.encoding, "utf-8")
         self.assertIsInstance(f.can_logger, CANLoggerParameter)
 
-    def test_path_conversion_in_post_init(self):
+    def test_path_conversion_in_post_init(self) -> None:
         """Test that input_file and output_file get converted to Path."""
         f = FileParameter(input_file="in.txt", output_file="out.txt")
         self.assertIsInstance(f.input_file, Path)

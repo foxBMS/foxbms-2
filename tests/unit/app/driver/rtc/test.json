@@ -1,0 +1,24 @@
+[
+  {
+    "source": "src/app/driver/rtc/rtc.c",
+    "test": "test_rtc.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/i2c",
+      "src/app/driver/rtc",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_sys_dma.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "use": "M"
+  }
+]

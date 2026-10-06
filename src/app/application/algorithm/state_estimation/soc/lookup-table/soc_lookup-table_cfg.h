@@ -43,8 +43,8 @@
  * @file    soc_lookup-table_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -60,7 +60,9 @@
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
 
-#include "database.h"
+#ifdef UNITY_UNIT_TEST
+#include "database_cfg.h"
+#endif /* UNITY_UNIT_TEST */
 
 #include <math.h>
 
@@ -83,9 +85,10 @@
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern DATA_BLOCK_MIN_MAX_s *TEST_SOC_GetTableMinMax(void);
 extern bool TEST_SE_GetSocStateInitialized(void);
 extern void TEST_SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOC_s *TableSoc, uint8_t stringNumber);
 extern void TEST_SOC_UpdateNvmValues(DATA_BLOCK_SOC_s *TableSoc, uint8_t stringNumber);
-#endif
+#endif /* UNITY_UNIT_TEST */
 
 #endif /* FOXBMS__SOC_LOOKUP_TABLE_CFG_H_ */

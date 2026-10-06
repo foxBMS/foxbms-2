@@ -1,9 +1,0 @@
-{
-  "include": [
-    ".",
-    "config",
-    "../common",
-    "../common/config",
-    "../../api"
-  ]
-}

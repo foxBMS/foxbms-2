@@ -39,6 +39,6 @@
 
 """Constants that are related to the CLI unit tests (paths etc.)"""
 
-from ..helpers.misc import PROJECT_BUILD_ROOT
+from ..helpers.project_context import PROJECT_BUILD_ROOT
 
 UNIT_TEST_BUILD_DIR_CLI = PROJECT_BUILD_ROOT / "cli-selftest"

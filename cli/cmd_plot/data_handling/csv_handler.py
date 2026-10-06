@@ -59,14 +59,14 @@ class CSVHandler(DataHandlerInterface):
     def __init__(
         self, columns: dict[str, str], skip: int, precision: int, na_value: str = "NULL"
     ) -> None:
-        """Creates the CSVHandler object"""
+        """Create the CSVHandler object."""
         self.columns = columns
         self.skip = skip
         self.precision = precision
         self.na_value = na_value
 
     def get_data(self, file_path: Path, no_tmp: bool = True) -> pd.DataFrame:
-        """Read the given file and returns the contained data."""
+        """Read the given file and return the contained data."""
         try:
             return self._get_data(file_path, no_tmp)
         except (ValueError, TypeError) as e:
@@ -90,7 +90,8 @@ class CSVHandler(DataHandlerInterface):
         if data is not None:
             return data
         # get specific column with datetime type and set values to string
-        # for later dict merge
+        # for later dict merge. Type of each column is passed dictionary to
+        # the class.
         datetime_columns = {
             x: "string" for x in self.columns if self.columns[x] == "datetime"
         }
@@ -114,13 +115,14 @@ class CSVHandler(DataHandlerInterface):
         # string columns during plotting
         for string_column in string_columns:
             data[string_column] = data[string_column].fillna(self.na_value)
-        data = data.round(self.precision)
+        num_cols = data.select_dtypes("number").columns
+        data[num_cols] = data[num_cols].round(self.precision)
         CSVHandler.write_tmp_file(data, file_path)
         return data
 
     @staticmethod
     def validate_config(config: dict) -> None:
-        """Validates the CSVHandler configuration"""
+        """Validate the CSVHandler configuration."""
         schema_path = Path(__file__).parent / "schemas" / "csv_handler.json"
         with open(schema_path, encoding="utf-8") as f:
             schema = safe_load(f)

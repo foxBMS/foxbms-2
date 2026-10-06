@@ -59,7 +59,7 @@ except ModuleNotFoundError:
 class TestPathChecker(unittest.TestCase):
     """Test path length and repository depth checking functions."""
 
-    def test_check_path_length_within_limit(self):
+    def test_check_path_length_within_limit(self) -> None:
         """Verify that _check_path_length returns 0 when path is within limit."""
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
@@ -70,19 +70,20 @@ class TestPathChecker(unittest.TestCase):
         self.assertEqual(err, "")
         self.assertEqual(out, "")
 
-    def test_check_path_length_exceeds_limit(self):
+    def test_check_path_length_exceeds_limit(self) -> None:
         """Verify that _check_path_length returns 1 and writes an error when
         path exceeds limit.
         """
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
             # pylint:disable=protected-access
-            ret = check_repository_depth._check_path_length("long/path.txt" * 3, 20)
+            ret = check_repository_depth._check_path_length("/long/path.txt" * 3, 20)
         err, out = _err.getvalue(), _out.getvalue()
         self.assertEqual(ret, 1)
         self.assertEqual(
             err,
-            "File path 'long/path.txtlong/path.txtlong/path.txt' is too long (39, allowed 20).\n",
+            "File path '/long/path.txt/long/path.txt/long/path.txt' is too "
+            "long (42, allowed 20).\n",
         )
         self.assertEqual(out, "")
 
@@ -92,7 +93,7 @@ class TestPathChecker(unittest.TestCase):
     @patch("cli.cmd_misc.check_repository_depth._check_path_length", return_value=0)
     def test_check_repository_depth(
         self, mock_cpl: MagicMock, mock_run_process: MagicMock, mock_which: MagicMock
-    ):
+    ) -> None:
         """Ensure that check_repository_depth returns 0 when all paths are
         within limits.
         """
@@ -123,7 +124,7 @@ class TestPathChecker(unittest.TestCase):
     )
     def test_check_repository_depth_exceeds(
         self, _mock_cpl: MagicMock, mock_run_process: MagicMock, mock_which: MagicMock
-    ):
+    ) -> None:
         """Check that check_repository_depth returns correct error count for
         long paths.
         """

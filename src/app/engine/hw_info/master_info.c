@@ -43,8 +43,8 @@
  * @file    master_info.c
  * @author  foxBMS Team
  * @date    2020-07-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  MINFO
  *
@@ -59,6 +59,7 @@
 #include "database.h"
 #include "diag.h"
 #include "fassert.h"
+#include "fram_helper.h"
 
 #include <stdint.h>
 
@@ -99,23 +100,25 @@ void MINFO_SetDebugProbeConnectionState(MINFO_DEBUG_PROBE_CONNECTION_STATE_e sta
 MINFO_DEBUG_PROBE_CONNECTION_STATE_e MINFO_GetDebugProbeConnectionState(void) {
     return minfo_state.debugProbe;
 }
-
+uint32_t MINFO_GetClamp30cSupplyVoltage(void) {
+    return minfo_state.supplyVoltageClamp30c_mV;
+}
 void MINFO_CheckSupplyVoltageClamp30c(void) {
     DATA_BLOCK_ADC_VOLTAGE_s tableAdcVoltage = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
     (void)DATA_READ_DATA(&tableAdcVoltage);
 
     /* Supply voltage is measured using a voltage divider U = ((R1 + R2) / R2) * ADC voltage) */
-    const float_t supplyVoltage_mV =
+    const float_t clamp30cVoltage_mV =
         ((SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R1_ohm + SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R2_ohm) /
          (SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R2_ohm)) *
         tableAdcVoltage.adc1ConvertedVoltages_mV[SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX];
 
-    if (supplyVoltage_mV >= SUPPLY_VOLTAGE_CLAMP_30C_UNDERVOLTAGE_THRESHOLD_mV) {
+    if (clamp30cVoltage_mV >= SUPPLY_VOLTAGE_CLAMP_30C_UNDERVOLTAGE_THRESHOLD_mV) {
         (void)DIAG_Handler(DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     } else {
         (void)DIAG_Handler(DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
     }
-    minfo_state.supplyVoltageClamp30c_mV = (uint32_t)supplyVoltage_mV;
+    minfo_state.supplyVoltageClamp30c_mV = FRAM_GetCalibratedValue(clamp30cVoltage_mV, FRAM_CALIBRATION_CHANNEL_0);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

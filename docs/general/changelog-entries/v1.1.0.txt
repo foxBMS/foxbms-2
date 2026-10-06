@@ -1,3 +1,6 @@
+..
+   cspell:ignore Cppcheck
+
 |foxbms| now defaults to |ti-code-composer-studio| 10.3.1 in order to build
 the binaries. If an older version of the compiler should be used, it can be
 configured in ``conf/env/paths_win32.txt``. For installation instructions

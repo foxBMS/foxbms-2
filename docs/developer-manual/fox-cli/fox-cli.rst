@@ -52,12 +52,12 @@ All this
 - shall not rely on environment variables,
 - shall not require any setup of a terminal.
 
-Getting all these different requirements to work, required some implementations
+Getting all these different requirements to work required some implementations
 that at first glance are not immediately clear and some of the reasoning
 shall be explained in the following, so that - in combination with the source
 code - the implementation is understandable and comprehensible.
 
-This is a lose list, that makes most sense to read and understand when also
+This is a loose list that makes most sense to read and understand when also
 looking at the |fox-cli| implementation.
 
 Standard Streams
@@ -106,7 +106,7 @@ Dependencies
 ============
 
 In case Python or the Python development environment are not available, the
-shell wrappers should guide the user on what to do, in order to get a working
+shell wrappers should guide the user on what to do to get a working
 setup.
 
 This includes:
@@ -116,8 +116,8 @@ This includes:
 - If not, check which part is missing
 
   - Generally Python
-  - Specifically Python 3.12
-  - Pinned Python 3.12 development environment
+  - Specifically Python 3.14
+  - Pinned Python 3.14 development environment
 
 - This check is always run when using the wrappers ``fox.ps1`` and ``fox.sh``.
   When only the pinned Python development environment is missing, the user can
@@ -134,7 +134,7 @@ For a deeper understanding see ``fox.ps1``, ``fox.sh``, and
 |fox-cli-package|
 =================
 
-This sections only covers information for developers.
+This section only covers information for developers.
 More general information on the package can be found in the following sections:
 
 - :ref:`INSTALL_FOX_CLI_PACKAGE`

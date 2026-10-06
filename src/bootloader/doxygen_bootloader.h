@@ -43,13 +43,16 @@
  * @file    doxygen_bootloader.h
  * @author  foxBMS Team
  * @date    2024-10-15 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DOXYGEN
  * @prefix  DX
  *
  * @brief   Mainpage for the foxBMS Application Doxygen documentation
- * @details TODO
+ * @details Defines the top-level Doxygen documentation entry point for the
+ *          bootloader and groups its main subsystems into structured modules.
+ *          This file organizes the generated documentation; it does not contain
+ *          runtime functionality.
  */
 
 #ifndef FOXBMS__DOXYGEN_BOOTLOADER_H_

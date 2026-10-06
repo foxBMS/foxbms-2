@@ -1,0 +1,22 @@
+[
+  {
+    "source": [
+      "src/app/engine/sys_mon/sys_mon.c",
+      "src/app/main/fassert.c"
+    ],
+    "test": "test_sys_mon.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/engine/diag",
+      "src/app/engine/sys_mon"
+    ],
+    "mocks": [
+      "src/app/driver/config/fram_cfg.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/engine/config/sys_mon_cfg.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

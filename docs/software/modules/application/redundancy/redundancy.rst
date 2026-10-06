@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _REDUNDANCY_MODULE:
+.. _REDUNDANCY_APPLICATION:
 
-Redundancy Module
-=================
+Redundancy
+==========
 
 Module Files
 ------------
@@ -56,7 +56,16 @@ The same logic is applied to the cell temperature measurement values.
 Here, the validated measurements are written into the database entry
 ``DATA_BLOCK_ID_CELL_TEMPERATURE``.
 
-The database entries ``XXX_BASE`` and ``XXX_REDUNDANCY0`` are only intended to
-be used by the redundancy module. All other modules **SHALL** only use the
-validated database entries ``DATA_BLOCK_ID_CELL_VOLTAGE`` and
-``DATA_BLOCK_ID_CELL_TEMPERATURE``.
+The database entries ``XXX_BASE`` and ``XXX_REDUNDANCY0`` are used to update
+the cell voltage and cell temperature measurements from the AFEs into the
+database. The database entry ``XXX_REDUNDANCY0`` will only be used if a redundant
+AFE measurement is available. The redundancy module checks the validity of the
+measurements and updates the validated measurements into the database entries
+``DATA_BLOCK_ID_CELL_VOLTAGE`` and ``DATA_BLOCK_ID_CELL_TEMPERATURE``, which
+are then used by all other modules, such as the SOX algorithm.
+
+Further Reading
+---------------
+
+- :ref:`BMS_VALUES_APPLICATION`
+- :ref:`PLAUSIBILITY_APPLICATION`

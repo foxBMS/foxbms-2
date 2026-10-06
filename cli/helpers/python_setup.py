@@ -81,7 +81,7 @@ def _run_worker_process(process: Process, error_message: str) -> int:
 
 
 def get_python_version(dry_run: bool = True) -> tuple[str, str]:
-    """Determine the command used to invoke Python 3.12 on this platform.
+    """Determine the command used to invoke Python 3.14 on this platform.
 
     Args:
         dry_run: If ``True``, skip process execution and use mocked output.
@@ -91,10 +91,10 @@ def get_python_version(dry_run: bool = True) -> tuple[str, str]:
     """
     if sys.platform.lower().startswith("win32"):
         py = "py"
-        ver = "-3.12"
+        ver = "-3.14"
         cmd = [py, ver, "--version"]
     else:
-        py = "python3.12"
+        py = "python3.14"
         ver = ""
         cmd = [py, ver, "--version"]
 
@@ -105,13 +105,13 @@ def get_python_version(dry_run: bool = True) -> tuple[str, str]:
     msg += f":\n -> cmd: {' '.join(cmd)}"
     print(msg)
     if dry_run:
-        out = b"Python 3.12.10"
+        out = b"Python 3.14.10"
     else:
         with Popen(cmd, cwd=ROOT, stdout=PIPE) as proc:
             out = proc.communicate(timeout=5)[0]
         if proc.returncode:
             msg = (
-                "Go To python.org and download the latest version of Python 3.12.\n"
+                "Go To python.org and download the latest version of Python 3.14.\n"
                 "Then re-run the command."
             )
             print(msg, file=sys.stderr)

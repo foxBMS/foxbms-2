@@ -1,0 +1,77 @@
+[
+  {
+    "source": [
+      "src/app/driver/afe/adi/common/ades183x/api/adi_ades183x_afe_dma.c",
+      "src/app/driver/config/dma_cfg.c"
+    ],
+    "test": "test_adi_ades183x_afe_dma.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/adi/common/ades183x/api/adi_ades183x_afe.c",
+    "test": "test_adi_ades183x_afe.c",
+    "includes": [
+      "src/app/application/config",
+      "src/app/driver/afe/adi/ades1830",
+      "src/app/driver/afe/adi/common/ades183x",
+      "src/app/driver/afe/adi/common/ades183x/config",
+      "src/app/driver/afe/adi/common/ades183x/diag",
+      "src/app/driver/afe/adi/common/ades183x/pec",
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/io",
+      "src/app/driver/pex",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_sys_dma.h",
+      "src/app/driver/afe/adi/common/ades183x/adi_ades183x.h",
+      "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1",
+      "FOXBMS_AFE_DRIVER_ADI=1u",
+      "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=16u"
+    ]
+  }
+]

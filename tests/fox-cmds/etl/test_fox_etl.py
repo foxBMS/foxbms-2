@@ -39,10 +39,10 @@
 
 """Verify the output of the 'fox etl' command."""
 
+import shutil
 import sys
 from json import loads
 from pathlib import Path
-import shutil
 
 import pandas as pd
 
@@ -126,7 +126,7 @@ EXPECTED_OUTPUTS = {
 }
 
 
-def main():
+def main() -> None:
     """Verify the output of the 'fox etl' command."""
     output = {}
     test_specification = sys.argv[1]
@@ -143,9 +143,6 @@ def main():
             for i in OUTPUT_DIR.glob("*.csv"):
                 dfs.append(pd.read_csv(i))
             expected_df = pd.DataFrame.from_dict(EXPECTED_OUTPUTS[sys.argv[1]])
-            # print(dfs[0])
-            # print(expected_df)
-            # sys.exit(1)
             if not expected_df.equals(dfs[0]):
                 print("Expected_df: ", expected_df.to_string())
                 print("Expected_df: ", expected_df.dtypes)

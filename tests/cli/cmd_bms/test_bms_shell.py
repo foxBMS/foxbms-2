@@ -39,23 +39,44 @@
 
 """Testing file 'cli/cmd_bms/bms_shell.py'."""
 
-# cspell:ignore getrtc,mcuwaferinfo,mcuid,mculotnumber
+# cspell:ignore getrtc,mcuwaferinfo,mcuid,mculotnumber,softwarereset,
+# cspell:ignore softwareversion,boottimestamp,buildconfig
 
 import io
 import sys
 import unittest
+import warnings
 from contextlib import redirect_stderr, redirect_stdout
 from multiprocessing import Manager, managers
 from pathlib import Path
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 from cantools.database.can.database import Database
+from cantools.database.can.message import Message
 
 try:
     from cli.cmd_bms.bms_shell import BMSShell, run_shell
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_bms.bms_shell import BMSShell, run_shell
+
+
+def _create_manager_with_cleanup(test_case: unittest.TestCase) -> managers.SyncManager:
+    """Create a manager while suppressing Python 3.12 fork deprecation warnings."""
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=(
+                r"This process .* is multi-threaded, use of fork\(\) "
+                r"may lead to deadlocks in the child\."
+            ),
+            category=DeprecationWarning,
+            module=r"multiprocessing\.popen_fork",
+        )
+        manager = Manager()
+    test_case.addCleanup(manager.shutdown)
+    return manager
 
 
 class TestRunShell(unittest.TestCase):
@@ -69,7 +90,7 @@ class TestRunShell(unittest.TestCase):
         mock_cmdloop: MagicMock,
         mock_load_file: MagicMock,
         mock_get_message: MagicMock,
-    ):
+    ) -> None:
         """Tests the method when the given file is a Database"""
         app_dbc = MagicMock()
         mock_load_file.return_value = Database()
@@ -87,7 +108,7 @@ class TestRunShell(unittest.TestCase):
         )
 
     @patch("cli.cmd_bms.bms_shell.database.load_file")
-    def test_not_database(self, mock_load_file: MagicMock):
+    def test_not_database(self, mock_load_file: MagicMock) -> None:
         """Tests the method when the given file is not a Database"""
         app_dbc = MagicMock()
         mock_load_file.return_value = Path()
@@ -104,39 +125,39 @@ class TestRunShell(unittest.TestCase):
 class TestDoInit(unittest.TestCase):
     """Class to test the BMSShell.do_init method"""
 
-    def setUp(self):
-        manager = Manager()
+    def setUp(self) -> None:  # noqa: D102
+        manager = _create_manager_with_cleanup(self)
         self.shell = BMSShell()
         self.shell.msg_arr = manager.list([[], [], []])
         self.shell.bus_cfg = MagicMock()
-        self.shell.app_dbc = None
+        self.shell.app_dbc = cast(Database, None)
 
-    def test_initialized_true(self, _: MagicMock):
+    def test_initialized_true(self, _: MagicMock) -> None:
         """Shell has already been initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            ret = self.shell.do_init(None)
+            ret = self.shell.do_init(cast(str, None))
         self.assertEqual("The CAN bus has already been initialized.\n", buf.getvalue())
         self.assertEqual(ret, False)
 
-    def test_fail(self, mock_initialization: MagicMock):
+    def test_fail(self, mock_initialization: MagicMock) -> None:
         """Initializing the CAN bus failed."""
         self.shell.initialized = False
         mock_initialization.return_value = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            ret = self.shell.do_init(None)
+            ret = self.shell.do_init(cast(str, None))
         self.assertEqual("", buf.getvalue())
         self.assertTrue(ret)
 
-    def test_success(self, mock_initialization: MagicMock):
+    def test_success(self, mock_initialization: MagicMock) -> None:
         """Initializing the CAN bus was successful."""
         self.shell.initialized = False
         mock_initialization.return_value = (MagicMock(), MagicMock())
         buf = io.StringIO()
         with redirect_stdout(buf):
-            ret = self.shell.do_init(None)
+            ret = self.shell.do_init(cast(str, None))
         self.assertEqual("", buf.getvalue())
         self.assertTrue(self.shell.initialized)
         self.assertFalse(ret)
@@ -145,12 +166,12 @@ class TestDoInit(unittest.TestCase):
 class TestAddMsg(unittest.TestCase):
     """Test add_msg method"""
 
-    def setUp(self):
-        self.manager = Manager()
+    def setUp(self) -> None:  # noqa: D102
+        self.manager = _create_manager_with_cleanup(self)
         self.shell = BMSShell()
         self.shell.bus_cfg = MagicMock()
 
-    def test_add_msg_str(self):
+    def test_add_msg_str(self) -> None:
         """Test add_msg function with msg_id as string"""
         self.shell.msg_arr = self.manager.list([[], [], []])
         self.shell.app_dbc = MagicMock()
@@ -160,7 +181,7 @@ class TestAddMsg(unittest.TestCase):
         self.assertEqual(self.shell.msg_arr[1], [1])
         self.assertEqual(self.shell.msg_arr[2], [1])
 
-    def test_add_msg_int(self):
+    def test_add_msg_int(self) -> None:
         """Test add_msg function with msg_id as integer"""
         self.shell.msg_arr = self.manager.list([[], [], []])
         self.shell.add_msg(msg_id=10)
@@ -168,7 +189,7 @@ class TestAddMsg(unittest.TestCase):
         self.assertEqual(self.shell.msg_arr[1], [1])
         self.assertEqual(self.shell.msg_arr[2], [1])
 
-    def test_add_msg(self):
+    def test_add_msg(self) -> None:
         """Test add_msg function when msg_arr already contains entries"""
         self.shell.msg_arr = self.manager.list([[5], [5], [0]])
         self.shell.add_msg(msg_id=10)
@@ -176,7 +197,7 @@ class TestAddMsg(unittest.TestCase):
         self.assertEqual(self.shell.msg_arr[1], [5, 1])
         self.assertEqual(self.shell.msg_arr[2], [0, 1])
 
-    def test_add_msg_amount(self):
+    def test_add_msg_amount(self) -> None:
         """Test add_msg function with amount given"""
         self.shell.msg_arr = self.manager.list([[], [], []])
         self.shell.add_msg(msg_id=10, amount=5)
@@ -184,7 +205,7 @@ class TestAddMsg(unittest.TestCase):
         self.assertEqual(self.shell.msg_arr[1], [5])
         self.assertEqual(self.shell.msg_arr[2], [1])
 
-    def test_add_msg_output(self):
+    def test_add_msg_output(self) -> None:
         """Test add_msg function with output given"""
         self.shell.msg_arr = self.manager.list([[], [], []])
         self.shell.add_msg(msg_id=10, output=0)
@@ -192,12 +213,12 @@ class TestAddMsg(unittest.TestCase):
         self.assertEqual(self.shell.msg_arr[1], [1])
         self.assertEqual(self.shell.msg_arr[2], [0])
 
-    def test_add_msg_invalid(self):
+    def test_add_msg_invalid(self) -> None:
         """Test add_msg function with invalid msg_id"""
         self.shell.msg_arr = self.manager.list([[], [], []])
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.add_msg(msg_id=None)
+            self.shell.add_msg(msg_id=cast(str, None))
         self.assertEqual("Invalid message ID\n", buf.getvalue())
         self.assertEqual(self.shell.msg_arr[0], [])
         self.assertEqual(self.shell.msg_arr[1], [])
@@ -207,22 +228,32 @@ class TestAddMsg(unittest.TestCase):
 class TestBmsShell(unittest.TestCase):
     """Class to test the BMSShell class"""
 
-    def test_preloop(self):
+    def test_preloop(self) -> None:
         """Tests the preloop function"""
         shell = BMSShell()
-        shell.preloop()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=(
+                    r"This process .* is multi-threaded, use of fork\(\) "
+                    r"may lead to deadlocks in the child\."
+                ),
+                category=DeprecationWarning,
+                module=r"multiprocessing\.popen_fork",
+            )
+            shell.preloop()
         self.assertIsInstance(shell.msg_arr, managers.ListProxy)
         self.assertEqual(shell.msg_arr[0], [])
         self.assertEqual(shell.msg_arr[1], [])
         self.assertEqual(shell.msg_arr[2], [])
 
-    def test_precmd(self):
+    def test_precmd(self) -> None:
         """Tests the precmd method"""
         shell = BMSShell()
         result = shell.precmd("EXIT")
         self.assertEqual(result, "exit")
 
-    def test_default(self):
+    def test_default(self) -> None:
         """Tests the default method"""
         shell = BMSShell()
         buf = io.StringIO()
@@ -234,233 +265,233 @@ class TestBmsShell(unittest.TestCase):
 class TestCommands(unittest.TestCase):  # pylint: disable=too-many-public-methods
     """Class to test all commands that send a message"""
 
-    def setUp(self):
-        self.manager = Manager()
+    def setUp(self) -> None:  # noqa: D102
+        self.manager = _create_manager_with_cleanup(self)
         self.shell = BMSShell()
         self.shell.msg_arr = self.manager.list([[], [], []])
-        self.shell.message = None
+        self.shell.message = cast(Message, None)
 
-    def test_do_fram_0(self):
+    def test_do_fram_0(self) -> None:
         """Tests the do_fram method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_fram(None)
+            self.shell.do_fram(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.reinitialize_fram")
-    def test_do_fram_1(self, _: MagicMock):
+    def test_do_fram_1(self, _: MagicMock) -> None:
         """Tests the do_fram method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_fram(None)
+            self.shell.do_fram(cast(str, None))
         self.assertEqual("FRAM has been reinitialized.\n", buf.getvalue())
 
-    def test_do_rtc_0(self):
+    def test_do_rtc_0(self) -> None:
         """Tests the do_rtc method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_rtc(None)
+            self.shell.do_rtc(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.set_rtc_time")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_rtc_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_rtc_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_rtc method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_rtc(None)
+            self.shell.do_rtc(cast(str, None))
         self.assertEqual("RTC time has been set:\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_softwarereset_0(self):
+    def test_do_softwarereset_0(self) -> None:
         """Tests the do_softwarereset method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_softwarereset(None)
+            self.shell.do_softwarereset(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.reset_software")
-    def test_do_softwarereset_1(self, _: MagicMock):
+    def test_do_softwarereset_1(self, _: MagicMock) -> None:
         """Tests the do_softwarereset method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_softwarereset(None)
+            self.shell.do_softwarereset(cast(str, None))
         self.assertEqual("Software reset has been triggered.\n", buf.getvalue())
 
-    def test_do_boottimestamp_0(self):
+    def test_do_boottimestamp_0(self) -> None:
         """Tests the do_boottimestamp method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_boottimestamp(None)
+            self.shell.do_boottimestamp(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_boot_timestamp")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_boottimestamp_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_boottimestamp_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_boottimestamp method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_boottimestamp(None)
+            self.shell.do_boottimestamp(cast(str, None))
         self.assertEqual("Boot Timestamp has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_getrtc_0(self):
+    def test_do_getrtc_0(self) -> None:
         """Tests the do_getrtc method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_getrtc(None)
+            self.shell.do_getrtc(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_rtc_time")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_getrtc_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_getrtc_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_getrtc method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_getrtc(None)
+            self.shell.do_getrtc(cast(str, None))
         self.assertEqual("RTC time has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_uptime_0(self):
+    def test_do_uptime_0(self) -> None:
         """Tests the do_uptime method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_uptime(None)
+            self.shell.do_uptime(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_uptime")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_uptime_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_uptime_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_uptime method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_uptime(None)
+            self.shell.do_uptime(cast(str, None))
         self.assertEqual("Uptime has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_buildconfig_0(self):
+    def test_do_buildconfig_0(self) -> None:
         """Tests the do_buildconfig method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_buildconfig(None)
+            self.shell.do_buildconfig(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_build_configuration")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_buildconfig_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_buildconfig_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_buildconfig method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_buildconfig(None)
+            self.shell.do_buildconfig(cast(str, None))
         self.assertEqual("Build Configuration has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugBuildConfiguration", 19)
 
-    def test_do_commithash_0(self):
+    def test_do_commithash_0(self) -> None:
         """Tests the do_commithash method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_commithash(None)
+            self.shell.do_commithash(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_commit_hash")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_commithash_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_commithash_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_commithash method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_commithash(None)
+            self.shell.do_commithash(cast(str, None))
         self.assertEqual("Commit Hash has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse", 2)
 
-    def test_do_mcuwaferinfo_0(self):
+    def test_do_mcuwaferinfo_0(self) -> None:
         """Tests the do_mcuwaferinfo method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_mcuwaferinfo(None)
+            self.shell.do_mcuwaferinfo(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_mcu_wafer_info")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_mcuwaferinfo_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_mcuwaferinfo_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_mcuwaferinfo method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_mcuwaferinfo(None)
+            self.shell.do_mcuwaferinfo(cast(str, None))
         self.assertEqual("MCU Wafer information has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_mculotnumber_0(self):
+    def test_do_mculotnumber_0(self) -> None:
         """Tests the do_mculotnumber method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_mculotnumber(None)
+            self.shell.do_mculotnumber(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_mcu_lot_number")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_mculotnumber_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_mculotnumber_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_mculotnumber method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_mculotnumber(None)
+            self.shell.do_mculotnumber(cast(str, None))
         self.assertEqual("MCU lot number has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_mcuid_0(self):
+    def test_do_mcuid_0(self) -> None:
         """Tests the do_mcuid method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_mcuid(None)
+            self.shell.do_mcuid(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_mcu_id")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_mcuid_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_mcuid_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_mcuid method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_mcuid(None)
+            self.shell.do_mcuid(cast(str, None))
         self.assertEqual("MCU ID has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
-    def test_do_softwareversion_0(self):
+    def test_do_softwareversion_0(self) -> None:
         """Tests the do_softwareversion method, when the CAN bus is not initialized."""
         self.shell.initialized = False
         buf = io.StringIO()
         with redirect_stderr(buf):
-            self.shell.do_softwareversion(None)
+            self.shell.do_softwareversion(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
 
     @patch("cli.cmd_bms.bms_shell.get_software_version")
     @patch("cli.cmd_bms.bms_shell.BMSShell.add_msg")
-    def test_do_softwareversion_1(self, mock_add_msg: MagicMock, _: MagicMock):
+    def test_do_softwareversion_1(self, mock_add_msg: MagicMock, _: MagicMock) -> None:
         """Tests the do_softwareversion method, when the CAN bus is initialized."""
         self.shell.initialized = True
         buf = io.StringIO()
         with redirect_stdout(buf):
-            self.shell.do_softwareversion(None)
+            self.shell.do_softwareversion(cast(str, None))
         self.assertEqual("Software version has been requested.\n", buf.getvalue())
         mock_add_msg.assert_called_once_with("f_DebugResponse")
 
@@ -468,21 +499,23 @@ class TestCommands(unittest.TestCase):  # pylint: disable=too-many-public-method
 class TestExit(unittest.TestCase):
     """Class to test the do_exit method"""
 
-    def setUp(self):
-        self.manager = Manager()
+    def setUp(self) -> None:  # noqa: D102
+        self.manager = _create_manager_with_cleanup(self)
 
-    def test_no_init(self):
+    def test_no_init(self) -> None:
         """Tests the do_exit method, when the CAN bus is not initialized."""
         buf = io.StringIO()
         shell = BMSShell()
         with redirect_stdout(buf):
-            result = shell.do_exit(None)
+            result = shell.do_exit(cast(str, None))
         self.assertEqual("Exiting...\n", buf.getvalue())
         self.assertTrue(result)
 
     @patch("cli.cmd_bms.bms_shell.shutdown")
     @patch("cli.cmd_bms.bms_shell.Process")
-    def test_with_init(self, mock_process: MagicMock, mock_shutdown: MagicMock):  # pylint: disable=unused-argument
+    def test_with_init(
+        self, _mock_process: MagicMock, _mock_shutdown: MagicMock
+    ) -> None:
         """Tests the do_exit method, when the CAN bus is initialized."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -492,7 +525,7 @@ class TestExit(unittest.TestCase):
         shell.p_read = MagicMock()
         shell.network_ok = MagicMock()
         with redirect_stdout(buf):
-            result = shell.do_exit(None)
+            result = shell.do_exit(cast(str, None))
         self.assertEqual("", buf.getvalue())
         self.assertEqual(shell.initialized, False)
         self.assertTrue(result)
@@ -505,19 +538,19 @@ class TestExit(unittest.TestCase):
 class TestDoLog(unittest.TestCase):
     """Class to test the do_log method"""
 
-    def setUp(self):
-        self.manager = Manager()
+    def setUp(self) -> None:  # noqa: D102
+        self.manager = _create_manager_with_cleanup(self)
 
-    def test_not_init(self, _: MagicMock):
+    def test_not_init(self, _: MagicMock) -> None:
         """CAN bus is not initialized"""
         buf = io.StringIO()
         shell = BMSShell()
         with redirect_stderr(buf):
-            result = shell.do_log(None)
+            result = shell.do_log(cast(str, None))
         self.assertEqual("CAN bus has to be initialized: INIT\n", buf.getvalue())
         self.assertFalse(result)
 
-    def test_wrong_input_integer(self, mock_add_msg: MagicMock):
+    def test_wrong_input_integer(self, mock_add_msg: MagicMock) -> None:
         """Input is not an integer."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -533,7 +566,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_not_called()
 
-    def test_no_input(self, mock_add_msg: MagicMock):
+    def test_no_input(self, mock_add_msg: MagicMock) -> None:
         """No input has been given."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -547,14 +580,14 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_not_called()
 
-    def test_wrong_input(self, mock_add_msg: MagicMock):
+    def test_wrong_input(self, mock_add_msg: MagicMock) -> None:
         """Input is neither an integer nor a string."""
         buf = io.StringIO()
         shell = BMSShell()
         shell.initialized = True
         shell.msg_arr = self.manager.list([[], [], []])
         with redirect_stderr(buf):
-            result = shell.do_log(None)
+            result = shell.do_log(cast(str, None))
         self.assertEqual(
             "Message ID has to be given as an integer\n"
             "or as a hexadecimal number in the format '300h' or '0x300'.\n",
@@ -563,7 +596,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_not_called()
 
-    def test_correct_input(self, mock_add_msg: MagicMock):
+    def test_correct_input(self, mock_add_msg: MagicMock) -> None:
         """Input is an integer as a string."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -578,7 +611,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(1, 1, 1)
 
-    def test_correct_input_integer(self, mock_add_msg: MagicMock):
+    def test_correct_input_integer(self, mock_add_msg: MagicMock) -> None:
         """Input is an integer."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -593,7 +626,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(1)
 
-    def test_correct_input_hex_h(self, mock_add_msg: MagicMock):
+    def test_correct_input_hex_h(self, mock_add_msg: MagicMock) -> None:
         """Input is a hexadecimal number indicated by 'h'."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -608,7 +641,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(768, 1, 1)
 
-    def test_correct_input_hex_x(self, mock_add_msg: MagicMock):
+    def test_correct_input_hex_x(self, mock_add_msg: MagicMock) -> None:
         """Input is a hexadecimal number indicated by '0x'."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -623,7 +656,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(768, 1, 1)
 
-    def test_correct_input_string_number(self, mock_add_msg: MagicMock):
+    def test_correct_input_string_number(self, mock_add_msg: MagicMock) -> None:
         """Input contains an integer as a string and a number."""
         buf = io.StringIO()
         shell = BMSShell()
@@ -638,7 +671,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(1, 4, 1)
 
-    def test_correct_input_string_file(self, mock_add_msg: MagicMock):
+    def test_correct_input_string_file(self, mock_add_msg: MagicMock) -> None:
         """Input contains an integer as a string and 'FILE'"""
         buf = io.StringIO()
         shell = BMSShell()
@@ -653,7 +686,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(1, 1, 0)
 
-    def test_correct_string_wrong_file(self, mock_add_msg: MagicMock):
+    def test_correct_string_wrong_file(self, mock_add_msg: MagicMock) -> None:
         """Input contains an integer as a string
         and an invalid argument for logging to a file.
         """
@@ -674,7 +707,7 @@ class TestDoLog(unittest.TestCase):
         self.assertFalse(result)
         mock_add_msg.assert_called_once_with(1, 1, 1)
 
-    def test_stop(self, mock_add_msg: MagicMock):
+    def test_stop(self, mock_add_msg: MagicMock) -> None:
         """Input is 'stop'."""
         buf = io.StringIO()
         shell = BMSShell()

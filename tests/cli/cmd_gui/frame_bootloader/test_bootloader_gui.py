@@ -39,6 +39,7 @@
 
 """Testing file 'cli/cmd_gui/frame_bootloader/bootloader_gui.py'."""
 
+import importlib
 import os
 import shutil
 import sys
@@ -46,89 +47,53 @@ import tkinter as tk
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 
 from click import exceptions
 
 try:
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_bootloader import bootloader_gui
     from cli.helpers import io
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_bootloader import bootloader_gui
     from cli.helpers import io
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 
-RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+RUN_TESTS = os.environ.get("DISPLAY", None) or sys.platform.startswith("win32")
 PATH_GUI = PROJECT_BUILD_ROOT / "bootloader_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
-class TestBootloaderFrame(unittest.TestCase):
-    """Test of the BootloaderFrame class"""
+@patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BaseFrame.write_text")
+class TestCheckThread(unittest.TestCase):
+    """Test of the 'check_thread' function of the BootloaderFrame class"""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
-        bootloader_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
-        self.frame = bootloader_gui.BootloaderFrame(self.root, text)
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+            self.frame = bootloader_gui.BootloaderFrame(self.root, text)
 
-    def tearDown(self):
-        io.STDERR = None
-        io.STDOUT = None
+    def tearDown(self) -> None:  # noqa: D102
         self.root.update()
         self.root.destroy()
-        bootloader_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
         remove_data(self.start_time)
 
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.touch()
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("New content.\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(12, self.frame.text_index)
-
-    def test_write_text_not_selected(self):
-        """Test 'write_text' function when BootloaderFrame is not selected"""
-        mock_select = MagicMock()
-        mock_select.return_value = ""
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-    def test_write_text_string(self):
-        """Test 'write_text' function when a string is passed"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.frame.write_text(file_input="New content.")
-        self.assertEqual("New content.\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(12, self.frame.text_index)
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
 
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BootloaderFrame.after")
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BootloaderFrame.write_text")
     def test_check_thread_alive(
-        self, mock_write_text: MagicMock, mock_after: MagicMock
-    ):
+        self, mock_after: MagicMock, mock_write_text: MagicMock
+    ) -> None:
         """Test 'check_thread' function when the Thread is still alive"""
         self.frame.bootloader_process = MagicMock()
         self.frame.bootloader_process.is_alive.return_value = True
@@ -138,8 +103,7 @@ class TestBootloaderFrame(unittest.TestCase):
         self.frame.bootloader_process.is_alive.assert_called_once()
         mock_write_text.assert_called_once()
 
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BootloaderFrame.write_text")
-    def test_check_thread_dead(self, mock_write_text: MagicMock):
+    def test_check_thread_dead(self, mock_write_text: MagicMock) -> None:
         """Test 'check_thread' function when the Thread is not alive"""
         self.frame.bootloader_process = MagicMock()
         self.frame.bootloader_process.is_alive.return_value = False
@@ -150,30 +114,117 @@ class TestBootloaderFrame(unittest.TestCase):
         self.frame.file_stream.close.assert_called_once()
         mock_write_text.assert_called_once()
 
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BootloaderFrame.write_text")
-    def test_check_thread_dead_file_stream(self, mock_write_text: MagicMock):
+    def test_check_thread_dead_file_stream(self, mock_write_text: MagicMock) -> None:
         """Test 'check_thread' function when the Thread is not alive
         and stdout and stderr have to be reset
         """
         self.frame.bootloader_process = MagicMock()
         self.frame.bootloader_process.is_alive.return_value = False
-        # pylint: disable-next=consider-using-with
-        self.frame.file_stream = open(self.frame.file_path, mode="w", encoding="utf-8")
+        self.frame.file_stream = MagicMock()
         io.STDOUT = self.frame.file_stream
         io.STDERR = self.frame.file_stream
         self.frame.check_thread()
         self.frame.bootloader_process.is_alive.assert_called_once()
-        self.assertTrue(self.frame.file_stream.closed)
+        self.frame.file_stream.close.assert_called_once()
         self.assertIsNone(io.STDERR)
         self.assertIsNone(io.STDOUT)
         mock_write_text.assert_called_once()
 
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+class TestCallback(unittest.TestCase):
+    """Test of all callback functions of the BootloaderFrame class"""
+
+    def setUp(self) -> None:  # noqa: D102
+        self.start_time = datetime.now(tz=UTC)
+        self.root = tk.Tk()
+        self.root.withdraw()
+        text = tk.Text()
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+            self.frame = bootloader_gui.BootloaderFrame(self.root, text)
+
+    def tearDown(self) -> None:  # noqa: D102
+        self.root.update()
+        self.root.destroy()
+        remove_data(self.start_time)
+
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
+
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Thread")
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BootloaderFrame.check_thread")
-    def test_load_app_command_cb(
-        self, mock_check_thread: MagicMock, mock_thread: MagicMock
-    ):
-        """Test 'load_app_command_cb' function"""
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BaseFrame.write_text")
+    def test_load_app_command_valid_files(
+        self,
+        mock_write_text: MagicMock,
+        mock_check_thread: MagicMock,
+        mock_thread: MagicMock,
+        mock_is_file: MagicMock,
+    ) -> None:
+        """Test 'load_app_command_cb' function with only valid files"""
+        mock_is_file.return_value = True
+        self.frame.bus_channel_combobox.delete(0, tk.END)
+        self.frame.bus_channel_combobox.insert(tk.END, "channel")
+        self.frame.bus_bitrate_combobox.delete(0, tk.END)
+        self.frame.bus_bitrate_combobox.insert(tk.END, "500000")
+        self.frame.bus_interface_combobox.delete(0, tk.END)
+        self.frame.bus_interface_combobox.insert(tk.END, "interface")
+        self.frame.bootloader_dbc_entry.delete(0, tk.END)
+        self.frame.bootloader_dbc_entry.insert(tk.END, "bootloader/dbc/file")
+        self.frame.app_dbc_entry.delete(0, tk.END)
+        self.frame.app_dbc_entry.insert(tk.END, "app/dbc/file")
+        self.frame.foxbms_bin_entry.delete(0, tk.END)
+        self.frame.foxbms_bin_entry.insert(tk.END, "foxbms/bin/file")
+        self.frame.foxbms_crc_csv_entry.delete(0, tk.END)
+        self.frame.foxbms_crc_csv_entry.insert(tk.END, "foxbms/crc/csv/file")
+        self.frame.foxbms_crc_json_entry.delete(0, tk.END)
+        self.frame.foxbms_crc_json_entry.insert(tk.END, "foxbms/crc/json/file")
+
+        mock_open_file = mock_open()
+        with patch("builtins.open", mock_open_file):
+            self.frame.load_app_command_cb()
+        mock_open_file.assert_has_calls(
+            [
+                call(self.frame.file_path, mode="w", encoding="utf-8"),
+                call().close(),
+                call(self.frame.file_path, mode="a", encoding="utf-8"),
+            ]
+        )
+        self.assertEqual(self.frame.load_app_button.state(), (tk.DISABLED,))
+        mock_write_text.assert_called_once_with(
+            "Running load-app with interface=interface, "
+            "channel=channel, bitrate=500000.\n"
+        )
+        mock_thread.assert_called_once_with(
+            target=self.frame.run_load_app,
+            kwargs={
+                "kwargs": {
+                    "interface": "interface",
+                    "channel": "channel",
+                    "bitrate": "500000",
+                    "bootloader_dbc": Path("bootloader/dbc/file"),
+                    "app_dbc": Path("app/dbc/file"),
+                    "foxbms_bin": Path("foxbms/bin/file"),
+                    "foxbms_app_crc": Path("foxbms/crc/csv/file"),
+                    "foxbms_app_info": Path("foxbms/crc/json/file"),
+                },
+                "timeout": None,
+            },
+            daemon=True,
+        )
+        mock_thread.return_value.start.assert_called_once()
+        mock_check_thread.assert_called_once()
+
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.BaseFrame.write_text")
+    def test_load_app_command_invalid_files(
+        self, mock_write_text: MagicMock, mock_is_file: MagicMock
+    ) -> None:
+        """Test 'load_app_command_cb' function with invalid files"""
+        mock_is_file.side_effect = [False, True, True, True, True]
         self.frame.bus_channel_combobox.delete(0, tk.END)
         self.frame.bus_channel_combobox.insert(tk.END, "channel")
         self.frame.bus_bitrate_combobox.delete(0, tk.END)
@@ -192,27 +243,11 @@ class TestBootloaderFrame(unittest.TestCase):
         self.frame.foxbms_crc_json_entry.insert(tk.END, "foxbms/crc/json/file")
 
         self.frame.load_app_command_cb()
-        self.frame.file_stream.close()
-        mock_thread.return_value.start.assert_called_once()
-        mock_check_thread.assert_called_once()
-        self.assertEqual("Started the load process\n", self.frame.file_path.read_text())
-        mock_thread.assert_called_once_with(
-            target=self.frame.run_load_app,
-            kwargs={
-                "interface": "interface",
-                "channel": "channel",
-                "timeout": None,
-                "bitrate": "500000",
-                "bootloader_dbc": "bootloader/dbc/file",
-                "app_dbc": "app/dbc/file",
-                "foxbms_bin": "foxbms/bin/file",
-                "foxbms_app_crc": "foxbms/crc/csv/file",
-                "foxbms_app_info": "foxbms/crc/json/file",
-            },
-            daemon=True,
+        mock_write_text.assert_called_once_with(
+            "Invalid input files: Bootloader DBC. \nPlease select existing files.\n"
         )
 
-    def test_change_interface_cb(self):
+    def test_change_interface(self) -> None:
         """Test 'change_interface_cb' function"""
         self.frame.bus_interface_combobox.delete(0, tk.END)
         self.frame.bus_interface_combobox.insert(tk.END, "pcan")
@@ -220,7 +255,7 @@ class TestBootloaderFrame(unittest.TestCase):
         self.frame.change_interface_cb(None)
         self.assertEqual(self.frame.bus_channel_combobox.get(), "PCAN_USBBUS1")
 
-    def test_change_interface_cb_invalid(self):
+    def test_change_interface_invalid(self) -> None:
         """Test 'change_interface_cb' function for invalid interface"""
         self.frame.bus_interface_combobox.delete(0, tk.END)
         self.frame.bus_interface_combobox.insert(tk.END, "interface")
@@ -230,14 +265,26 @@ class TestBootloaderFrame(unittest.TestCase):
         self.assertEqual(self.frame.bus_channel_combobox.get(), "channel")
 
     @patch("tkinter.filedialog.askopenfilename")
-    def test_open_file_cb(self, mock_askopenfilename: MagicMock):
-        """Test 'open_file_cb' function"""
+    def test_select_file(self, mock_askopenfilename: MagicMock) -> None:
+        """Test 'select_file_cb' function"""
         mock_askopenfilename.return_value = "File Path"
         content = self.frame.bootloader_dbc_entry.get().strip()
-        self.frame.open_file_cb("type", self.frame.bootloader_dbc_entry)
+        self.frame.select_file_cb("type", self.frame.bootloader_dbc_entry)
         new_content = self.frame.bootloader_dbc_entry.get().strip()
         self.assertEqual("File Path", new_content)
         self.assertNotEqual(content, new_content)
+        mock_askopenfilename.assert_called_once_with(
+            filetypes=[("TYPE Files", "*.type")]
+        )
+
+    @patch("tkinter.filedialog.askopenfilename")
+    def test_select_file_empty(self, mock_askopenfilename: MagicMock) -> None:
+        """Test 'select_file_cb' function when askopenfilename returns empty string"""
+        mock_askopenfilename.return_value = ""
+        content = self.frame.bootloader_dbc_entry.get().strip()
+        self.frame.select_file_cb("type", self.frame.bootloader_dbc_entry)
+        new_content = self.frame.bootloader_dbc_entry.get().strip()
+        self.assertEqual(content, new_content)
         mock_askopenfilename.assert_called_once_with(
             filetypes=[("TYPE Files", "*.type")]
         )
@@ -246,76 +293,14 @@ class TestBootloaderFrame(unittest.TestCase):
 class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the BootloaderFrame class"""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
         PATH_GUI.mkdir(parents=True, exist_ok=True)
 
-    def tearDown(self):
-        io.STDERR = None
-        io.STDOUT = None
+    def tearDown(self) -> None:  # noqa: D102
         remove_data(self.start_time)
 
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame  # pylint: disable=no-member,useless-suppression
-        mock_bootloader_frame.file_path = Path(
-            PATH_GUI / "output_bootloader_write_text_empty.txt"
-        )
-        mock_bootloader_frame.text = MagicMock()
-        mock_bootloader_frame.text_index = 0
-        mock_bootloader_frame.file_path.touch()
-        bootloader_gui.BootloaderFrame.write_text(mock_bootloader_frame)
-        mock_bootloader_frame.text.insert.assert_called_once_with(tk.END, "")
-        self.assertEqual(mock_bootloader_frame.text_index, 0)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame  # pylint: disable=no-member,useless-suppression
-        mock_bootloader_frame.file_path = Path(
-            PATH_GUI / "output_bootloader_write_text.txt"
-        )
-        mock_bootloader_frame.text = MagicMock()
-        mock_bootloader_frame.text_index = 0
-        mock_bootloader_frame.file_path.write_text("New content.", encoding="utf-8")
-        bootloader_gui.BootloaderFrame.write_text(mock_bootloader_frame)
-        mock_bootloader_frame.text.insert.assert_called_once_with(
-            tk.END, "New content."
-        )
-        self.assertEqual(mock_bootloader_frame.text_index, 12)
-
-    def test_write_text_not_selected(self):
-        """Test 'write_text' function when BootloaderFrame is not selected"""
-        mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.select.return_value = ""  # pylint: disable=no-member,useless-suppression
-        mock_bootloader_frame.file_path = Path(
-            PATH_GUI / "output_bootloader_write_text_not_selected.txt"
-        )
-        mock_bootloader_frame.text = MagicMock()
-        mock_bootloader_frame.text_index = 0
-        mock_bootloader_frame.file_path.write_text("New content.", encoding="utf-8")
-        bootloader_gui.BootloaderFrame.write_text(mock_bootloader_frame)
-        mock_bootloader_frame.text.insert.assert_not_called()
-        self.assertEqual(mock_bootloader_frame.text_index, 0)
-
-    def test_write_text_string(self):
-        """Test 'write_text' function when a string is passed"""
-        mock_bootloader_frame = MagicMock()
-        mock_bootloader_frame.parent.nametowidget.return_value = mock_bootloader_frame  # pylint: disable=no-member,useless-suppression
-        mock_bootloader_frame.file_path = Path(
-            PATH_GUI / "output_bootloader_write_text_input.txt"
-        )
-        mock_bootloader_frame.text = MagicMock()
-        mock_bootloader_frame.text_index = 0
-        mock_bootloader_frame.file_path.touch()
-        bootloader_gui.BootloaderFrame.write_text(mock_bootloader_frame, "New content.")
-        mock_bootloader_frame.text.insert.assert_called_once_with(
-            tk.END, "New content."
-        )
-        self.assertEqual(mock_bootloader_frame.text_index, 12)
-
-    def test_check_thread_alive(self):
+    def test_check_thread_alive(self) -> None:
         """Test 'check_thread' function when the Thread is still alive"""
         mock_bootloader_frame = MagicMock()
         mock_bootloader_frame.bootloader_process = MagicMock()
@@ -327,7 +312,7 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
         mock_bootloader_frame.bootloader_process.is_alive.assert_called_once()
         mock_bootloader_frame.write_text.assert_called_once()
 
-    def test_check_thread_dead(self):
+    def test_check_thread_dead(self) -> None:
         """Test 'check_thread' function when the Thread is not alive"""
         mock_bootloader_frame = MagicMock()
         mock_bootloader_frame.bootloader_process = MagicMock()
@@ -341,8 +326,51 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
         self.assertIsNone(io.STDOUT)
 
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Thread")
-    def test_load_app_command_cb(self, mock_thread: MagicMock):
-        """Test 'load_app_command_cb' function"""
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
+    def test_load_app_command_valid_files(
+        self, mock_is_file: MagicMock, mock_thread: MagicMock
+    ) -> None:
+        """Test 'load_app_command_cb' function with only valid files"""
+        mock_is_file.return_value = True
+        mock_bootloader_frame = MagicMock()
+        mock_bootloader_frame.file_path = Path(
+            PATH_GUI / "output_bootloader_load_app.txt"
+        )
+        mock_bootloader_frame.bus_channel_combobox.get.return_value = "channel"
+        mock_bootloader_frame.bus_bitrate_combobox.get.return_value = "bitrate"
+        mock_bootloader_frame.bus_interface_combobox.get.return_value = "interface"
+        mock_bootloader_frame.bootloader_dbc_file.get.return_value = (
+            "bootloader/dbc/file"
+        )
+        mock_bootloader_frame.app_dbc_file.get.return_value = "app/dbc/file"
+        mock_bootloader_frame.foxbms_bin_file.get.return_value = "foxbms/bin/file"
+        mock_bootloader_frame.foxbms_crc_csv.get.return_value = "foxbms/crc/csv/file"
+        mock_bootloader_frame.foxbms_crc_json.get.return_value = "foxbms/crc/json/file"
+
+        mock_open_file = mock_open()
+        with patch("builtins.open", mock_open_file):
+            bootloader_gui.BootloaderFrame.load_app_command_cb(mock_bootloader_frame)
+        mock_open_file.assert_has_calls(
+            [
+                call(mock_bootloader_frame.file_path, mode="w", encoding="utf-8"),
+                call().close(),
+                call(mock_bootloader_frame.file_path, mode="a", encoding="utf-8"),
+            ]
+        )
+        mock_bootloader_frame.load_app_button.state.assert_called_once_with(
+            [tk.DISABLED]
+        )
+        mock_bootloader_frame.write_text.assert_called_once_with(
+            "Running load-app with interface=interface, channel=channel, bitrate=bitrate.\n"
+        )
+        mock_thread.assert_called_once()
+        mock_thread.return_value.start.assert_called_once()
+        mock_bootloader_frame.check_thread.assert_called_once()
+
+    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
+    def test_load_app_command_invalid_files(self, mock_is_file: MagicMock) -> None:
+        """Test 'load_app_command_cb' function with only valid files"""
+        mock_is_file.side_effect = [False, True, True, True, True]
         mock_bootloader_frame = MagicMock()
         mock_bootloader_frame.file_path = Path(
             PATH_GUI / "output_bootloader_load_app.txt"
@@ -359,15 +387,11 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
         mock_bootloader_frame.foxbms_crc_json.get.return_value = "foxbms/crc/json/file"
 
         bootloader_gui.BootloaderFrame.load_app_command_cb(mock_bootloader_frame)
-        mock_bootloader_frame.file_stream.close()
-        mock_thread.return_value.start.assert_called_once()
-        mock_bootloader_frame.check_thread.assert_called_once()
-        self.assertEqual(
-            "Started the load process\n",
-            mock_bootloader_frame.file_path.read_text(encoding="utf-8"),
+        mock_bootloader_frame.write_text.assert_called_once_with(
+            "Invalid input files: Bootloader DBC. \nPlease select existing files.\n"
         )
 
-    def test_change_interface_cb(self):
+    def test_change_interface(self) -> None:
         """Test 'change_interface_cb' function"""
         mock_bootloader_frame = MagicMock()
         mock_bootloader_frame.bus_interface_combobox.get.return_value = "pcan"
@@ -377,7 +401,7 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
             "PCAN_USBBUS1"
         )
 
-    def test_change_interface_cb_invalid(self):
+    def test_change_interface_invalid(self) -> None:
         """Test 'change_interface_cb' function for invalid interface"""
         mock_bootloader_frame = MagicMock()
         mock_bootloader_frame.bus_interface_combobox.get.return_value = "interface"
@@ -386,74 +410,30 @@ class TestBootloaderFrameNoUiTestableMethods(unittest.TestCase):
         mock_bootloader_frame.bus_channel_combobox.set.assert_not_called()
 
 
+@patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
+@patch("cli.cmd_gui.frame_bootloader.bootloader_gui.click")
 class TestRunLoadApp(unittest.TestCase):
     """Test of the 'run_load_app' function"""
 
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
-    def test_run_load_app(self, mock_load_app: MagicMock):
-        """Test 'run_load_app' function"""
-        mock_bootloader_frame = MagicMock()
-        kwargs = {
-            "interface": "virtual",
-            "channel": "channel",
-            "bitrate": "500000",
-            "bootloader_dbc": "bootloader/dbc/file",
-            "app_dbc": "app/dbc/file",
-            "foxbms_bin": "foxbms/bin/file",
-            "foxbms_app_crc": "foxbms/crc/csv/file",
-            "foxbms_app_info": "foxbms/crc/json/file",
-        }
-        bootloader_gui.BootloaderFrame.run_load_app(
-            mock_bootloader_frame,
-            None,
-            "virtual",
-            "channel",
-            "500000",
-            "bootloader/dbc/file",
-            "app/dbc/file",
-            "foxbms/bin/file",
-            "foxbms/crc/csv/file",
-            "foxbms/crc/json/file",
-        )
-        mock_load_app.assert_called_once_with(**kwargs)
+    @classmethod
+    def setUpClass(cls) -> None:  # noqa: D102
+        cls.start_time = datetime.now(tz=UTC)
+        PATH_GUI.mkdir(parents=True, exist_ok=True)
 
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
-    def test_run_load_app_exit_0(self, mock_load_app: MagicMock):
-        """'run_load_app' function throws an Exit exception with
-        return_code 0
-        """
-        mock_bootloader_frame = MagicMock()
-        kwargs = {
-            "interface": "virtual",
-            "channel": "channel",
-            "bitrate": "500000",
-            "bootloader_dbc": "bootloader/dbc/file",
-            "app_dbc": "app/dbc/file",
-            "foxbms_bin": "foxbms/bin/file",
-            "foxbms_app_crc": "foxbms/crc/csv/file",
-            "foxbms_app_info": "foxbms/crc/json/file",
-        }
-        mock_load_app.side_effect = exceptions.Exit(0)
-        bootloader_gui.BootloaderFrame.run_load_app(
-            mock_bootloader_frame,
-            None,
-            "virtual",
-            "channel",
-            "500000",
-            "bootloader/dbc/file",
-            "app/dbc/file",
-            "foxbms/bin/file",
-            "foxbms/crc/csv/file",
-            "foxbms/crc/json/file",
-        )
-        mock_load_app.assert_called_once_with(**kwargs)
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        remove_data(cls.start_time)
 
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
-    def test_run_load_app_exit_1(self, mock_load_app: MagicMock):
-        """'run_load_app' function throws an Exit exception with
-        return_code 1
-        """
+    def test_run_load_app(
+        self, mock_click: MagicMock, mock_load_app: MagicMock
+    ) -> None:
+        """Test 'run_load_app' function without Exception"""
         mock_bootloader_frame = MagicMock()
+        mock_redirect_io = MagicMock()
+        # pylint: disable-next=protected-access
+        mock_bootloader_frame._redirect_io = mock_redirect_io
+        mock_context = MagicMock()
+        mock_click.Context.return_value = mock_context
         kwargs = {
             "interface": "virtual",
             "channel": "channel",
@@ -464,27 +444,29 @@ class TestRunLoadApp(unittest.TestCase):
             "foxbms_app_crc": "foxbms/crc/csv/file",
             "foxbms_app_info": "foxbms/crc/json/file",
         }
-        mock_load_app.side_effect = exceptions.Exit(1)
         bootloader_gui.BootloaderFrame.run_load_app(
             mock_bootloader_frame,
+            kwargs,
             None,
-            "virtual",
-            "channel",
-            "500000",
-            "bootloader/dbc/file",
-            "app/dbc/file",
-            "foxbms/bin/file",
-            "foxbms/crc/csv/file",
-            "foxbms/crc/json/file",
         )
-        mock_load_app.assert_called_once_with(**kwargs)
+        mock_context.invoke.assert_called_once_with(mock_load_app, **kwargs)
+        mock_redirect_io.return_value.__enter__.assert_called_once_with()
+        mock_redirect_io.return_value.__exit__.assert_called_once_with(None, None, None)
+        mock_bootloader_frame.write_text.assert_not_called()
 
-    @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.cmd_load_app")
-    def test_run_load_app_timeout(self, mock_load_app: MagicMock):
-        """Timeout is given"""
+    def test_run_load_app_exit(
+        self, mock_click: MagicMock, mock_load_app: MagicMock
+    ) -> None:
+        """Test 'run_load_app' function when 'cmd_load_app' throws exceptions.Exit"""
         mock_bootloader_frame = MagicMock()
+        mock_redirect_io = MagicMock()
+        # pylint: disable-next=protected-access
+        mock_bootloader_frame._redirect_io = mock_redirect_io
+        mock_context = MagicMock()
+        mock_invoke = MagicMock(side_effect=exceptions.Exit(0))
+        mock_context.invoke = mock_invoke
+        mock_click.Context.return_value = mock_context
         kwargs = {
-            "timeout": "timeout",
             "interface": "virtual",
             "channel": "channel",
             "bitrate": "500000",
@@ -496,58 +478,99 @@ class TestRunLoadApp(unittest.TestCase):
         }
         bootloader_gui.BootloaderFrame.run_load_app(
             mock_bootloader_frame,
+            kwargs,
+            None,
+        )
+        mock_invoke.assert_called_once_with(mock_load_app, **kwargs)
+        mock_redirect_io.return_value.__enter__.assert_called_once_with()
+        mock_redirect_io.return_value.__exit__.assert_called_once_with(None, None, None)
+        mock_bootloader_frame.write_text.assert_called_once()
+
+    def test_run_load_app_timeout(
+        self, mock_click: MagicMock, mock_load_app: MagicMock
+    ) -> None:
+        """Test 'run_load_app' function with timeout given"""
+        mock_bootloader_frame = MagicMock()
+        mock_redirect_io = MagicMock()
+        # pylint: disable-next=protected-access
+        mock_bootloader_frame._redirect_io = mock_redirect_io
+        mock_context = MagicMock()
+        mock_click.Context.return_value = mock_context
+        kwargs = {
+            "interface": "virtual",
+            "channel": "channel",
+            "bitrate": "500000",
+            "bootloader_dbc": "bootloader/dbc/file",
+            "app_dbc": "app/dbc/file",
+            "foxbms_bin": "foxbms/bin/file",
+            "foxbms_app_crc": "foxbms/crc/csv/file",
+            "foxbms_app_info": "foxbms/crc/json/file",
+        }
+        bootloader_gui.BootloaderFrame.run_load_app(
+            mock_bootloader_frame,
+            kwargs,
             "timeout",
-            "virtual",
-            "channel",
-            "500000",
-            "bootloader/dbc/file",
-            "app/dbc/file",
-            "foxbms/bin/file",
-            "foxbms/crc/csv/file",
-            "foxbms/crc/json/file",
         )
-        mock_load_app.assert_called_once_with(**kwargs)
+        mock_context.invoke.assert_called_once_with(mock_load_app, **kwargs)
+        mock_redirect_io.return_value.__enter__.assert_called_once_with()
+        mock_redirect_io.return_value.__exit__.assert_called_once_with(None, None, None)
+        mock_bootloader_frame.write_text.assert_not_called()
 
-    @patch("tkinter.filedialog.askopenfilename")
-    def test_open_file_cb(self, mock_askopenfilename: MagicMock):
-        """Test 'open_file_cb' function"""
+    def test_run_load_app_redirect_io(
+        self, mock_click: MagicMock, mock_load_app: MagicMock
+    ) -> None:
+        """Test 'run_load_app' function without Exception"""
         mock_bootloader_frame = MagicMock()
-        mock_entry = MagicMock()
-        mock_askopenfilename.return_value = "File Path"
-        bootloader_gui.BootloaderFrame.open_file_cb(
-            mock_bootloader_frame, "type", mock_entry
+        file_stream = MagicMock()
+        mock_bootloader_frame.file_stream = file_stream
+        # pylint: disable-next=protected-access
+        mock_bootloader_frame._redirect_io = bootloader_gui.BootloaderFrame._redirect_io
+        mock_context = MagicMock()
+        mock_click.Context.return_value = mock_context
+        kwargs = {
+            "interface": "virtual",
+            "channel": "channel",
+            "bitrate": "500000",
+            "bootloader_dbc": "bootloader/dbc/file",
+            "app_dbc": "app/dbc/file",
+            "foxbms_bin": "foxbms/bin/file",
+            "foxbms_app_crc": "foxbms/crc/csv/file",
+            "foxbms_app_info": "foxbms/crc/json/file",
+        }
+        bootloader_gui.BootloaderFrame.run_load_app(
+            mock_bootloader_frame,
+            kwargs,
+            None,
         )
-        mock_askopenfilename.assert_called_once_with(
-            filetypes=[("TYPE Files", "*.type")]
-        )
-        mock_entry.delete.assert_called_once_with(0, tk.END)
-        mock_entry.insert.assert_called_once_with(tk.END, "File Path")
+        mock_context.invoke.assert_called_once_with(mock_load_app, **kwargs)
+        mock_bootloader_frame.write_text.assert_not_called()
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
 class TestBootloaderFrameInit(unittest.TestCase):
     """Test initialization of the BootloaderFrame class"""
 
-    def setUp(self):
-        self.start_time = datetime.now(tz=UTC)
-        bootloader_gui.PROJECT_BUILD_ROOT = PATH_GUI
-        self.root = tk.Tk()
-        self.root.withdraw()
-        self.text = tk.Text()
+    @classmethod
+    def setUpClass(cls) -> None:  # noqa: D102
+        cls.start_time = datetime.now(tz=UTC)
+        cls.root = tk.Tk()
+        cls.root.withdraw()
+        cls.text = tk.Text()
 
-    def tearDown(self):
-        io.STDERR = None
-        io.STDOUT = None
-        self.root.update()
-        self.root.destroy()
-        bootloader_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
-        remove_data(self.start_time)
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        cls.root.update()
+        cls.root.destroy()
+        remove_data(cls.start_time)
+        importlib.reload(frame_base)
 
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
-    def test_files(self, mock_is_file: MagicMock):
+    def test_files(self, mock_is_file: MagicMock) -> None:
         """Test initialization when the files exist"""
         mock_is_file.return_value = True
-        bootloader_frame = bootloader_gui.BootloaderFrame(self.root, self.text)
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+            bootloader_frame = bootloader_gui.BootloaderFrame(self.root, self.text)
         self.assertNotEqual("", bootloader_frame.bootloader_dbc_entry.get().strip())
         self.assertNotEqual("", bootloader_frame.app_dbc_entry.get().strip())
         self.assertNotEqual("", bootloader_frame.foxbms_bin_entry.get().strip())
@@ -555,10 +578,12 @@ class TestBootloaderFrameInit(unittest.TestCase):
         self.assertNotEqual("", bootloader_frame.foxbms_crc_json_entry.get().strip())
 
     @patch("cli.cmd_gui.frame_bootloader.bootloader_gui.Path.is_file")
-    def test_no_files(self, mock_is_file: MagicMock):
+    def test_no_files(self, mock_is_file: MagicMock) -> None:
         """Test initialization when the files do not exist"""
         mock_is_file.return_value = False
-        bootloader_frame = bootloader_gui.BootloaderFrame(self.root, self.text)
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+            bootloader_frame = bootloader_gui.BootloaderFrame(self.root, self.text)
         self.assertEqual("", bootloader_frame.bootloader_dbc_entry.get().strip())
         self.assertEqual("", bootloader_frame.app_dbc_entry.get().strip())
         self.assertEqual("", bootloader_frame.foxbms_bin_entry.get().strip())

@@ -43,13 +43,16 @@
  * @file    infinite-loop-helper.h
  * @author  foxBMS Team
  * @date    2022-12-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  GEN
  *
  * @brief   Macros for implementing testable infinite loops
- * @details TODO
+ * @details Defines the FOREVER abstraction used for intentional endless loops
+ *          in embedded code. In unit-test builds the abstraction is redirected
+ *          to a testable helper so polling logic can be exercised without
+ *          blocking the test runner forever.
  */
 
 #ifndef FOXBMS__INFINITE_LOOP_HELPER_H_

@@ -69,10 +69,10 @@ class TestCheckLicenseInfo(unittest.TestCase):
     """Test of the main function"""
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:  # noqa: D102
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
 
-    def test_valid_files(self):
+    def test_valid_files(self) -> None:
         """Test with valid files"""
         for i in ["asm", "c", "pwsh", "py", "shell", "toml", "yaml"]:
             argv = [
@@ -83,7 +83,7 @@ class TestCheckLicenseInfo(unittest.TestCase):
             result = check_license_info.main(argv)
             self.assertEqual(result, 0)
 
-    def test_invalid_license(self):
+    def test_invalid_license(self) -> None:
         """Test with an invalid file"""
         test = self.tests_dir / "invalid-license.c"
         argv = [
@@ -101,7 +101,7 @@ class TestCheckLicenseInfo(unittest.TestCase):
             buf.getvalue(),
         )
 
-    def test_missing_license_information(self):
+    def test_missing_license_information(self) -> None:
         """Test with an file that misses license information"""
         test = self.tests_dir / "no-license.c"
         argv = [
@@ -151,7 +151,9 @@ class TestCheckLicenseInfo(unittest.TestCase):
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.read_text")
-    def test_check_src_unit_test_license_valid(self, mock_read_text, mock_exists):
+    def test_check_src_unit_test_license_valid(
+        self, mock_read_text: MagicMock, mock_exists: MagicMock
+    ) -> None:
         """Check src+tests/unit license headers when option is enabled."""
         valid = self._valid_c_content("BSD-3-Clause")
         source = Path("src/app/main/main.c")
@@ -166,7 +168,9 @@ class TestCheckLicenseInfo(unittest.TestCase):
 
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.read_text")
-    def test_check_src_unit_test_license_invalid(self, mock_read_text, mock_exists):
+    def test_check_src_unit_test_license_invalid(
+        self, mock_read_text: MagicMock, mock_exists: MagicMock
+    ) -> None:
         """Fail when accompanying tests/unit C file has a different header."""
         valid = self._valid_c_content("BSD-3-Clause")
         invalid = valid.replace(
@@ -196,8 +200,8 @@ class TestCheckLicenseInfo(unittest.TestCase):
     @patch("pathlib.Path.exists", return_value=False)
     @patch("pathlib.Path.read_text")
     def test_check_src_unit_test_license_missing_test_file(
-        self, mock_read_text, _mock_exists
-    ):
+        self, mock_read_text: MagicMock, _mock_exists: MagicMock
+    ) -> None:
         """Do not fail if accompanying tests/unit file does not exist."""
         source = Path("src/app/main/main.c")
         valid = self._valid_c_content("BSD-3-Clause")
@@ -212,8 +216,8 @@ class TestCheckLicenseInfo(unittest.TestCase):
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.read_text")
     def test_check_src_unit_test_license_non_src_file_ignored(
-        self, mock_read_text, mock_exists
-    ):
+        self, mock_read_text: MagicMock, mock_exists: MagicMock
+    ) -> None:
         """Option should not trigger companion lookup for non-src C files."""
         file = Path("tests/unit/app/main/test_main.c")
         valid = self._valid_c_content("BSD-3-Clause")
@@ -229,8 +233,8 @@ class TestCheckLicenseInfo(unittest.TestCase):
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.read_text")
     def test_check_src_unit_test_wscript_license_valid(
-        self, mock_read_text, mock_exists
-    ):
+        self, mock_read_text: MagicMock, mock_exists: MagicMock
+    ) -> None:
         """Check src+tests/unit wscript license headers when option is enabled."""
         valid = self._valid_py_content("BSD-3-Clause")
         source = Path("src/app/main/wscript")
@@ -246,8 +250,8 @@ class TestCheckLicenseInfo(unittest.TestCase):
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.read_text")
     def test_check_src_unit_test_wscript_license_invalid(
-        self, mock_read_text, mock_exists
-    ):
+        self, mock_read_text: MagicMock, mock_exists: MagicMock
+    ) -> None:
         """Fail when accompanying tests/unit wscript has a different header."""
         valid = self._valid_py_content("BSD-3-Clause")
         invalid = valid.replace(
@@ -277,8 +281,8 @@ class TestCheckLicenseInfo(unittest.TestCase):
     @patch("pathlib.Path.exists", return_value=False)
     @patch("pathlib.Path.read_text")
     def test_check_src_unit_test_wscript_license_missing_test_file(
-        self, mock_read_text, _mock_exists
-    ):
+        self, mock_read_text: MagicMock, _mock_exists: MagicMock
+    ) -> None:
         """Do not fail if accompanying tests/unit wscript does not exist."""
         source = Path("src/app/main/wscript")
         valid = self._valid_py_content("BSD-3-Clause")
@@ -293,8 +297,8 @@ class TestCheckLicenseInfo(unittest.TestCase):
     @patch("pathlib.Path.exists")
     @patch("pathlib.Path.read_text")
     def test_check_src_unit_test_wscript_non_src_file_ignored(
-        self, mock_read_text, mock_exists
-    ):
+        self, mock_read_text: MagicMock, mock_exists: MagicMock
+    ) -> None:
         """Companion lookup should not trigger for non-src wscript files."""
         file = Path("tests/unit/app/main/wscript")
         valid = self._valid_py_content("BSD-3-Clause")
@@ -312,7 +316,7 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
     """Tests for helper branches in check_license_info."""
 
     @patch("pathlib.Path.read_text", return_value="line-1\nline-2")
-    def test_read_text_utf8_lines_success(self, _mock_read_text):
+    def test_read_text_utf8_lines_success(self, _mock_read_text: MagicMock) -> None:
         """UTF-8 helper should return split lines on success."""
         ret = check_license_info._read_text_utf8_lines(Path("some/file.txt"))
         self.assertEqual(ret, ["line-1", "line-2"])
@@ -321,7 +325,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         "pathlib.Path.read_text",
         side_effect=UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte"),
     )
-    def test_read_text_utf8_lines_unicode_error(self, _mock_read_text):
+    def test_read_text_utf8_lines_unicode_error(
+        self, _mock_read_text: MagicMock
+    ) -> None:
         """UTF-8 helper should return None and print an error on decode failure."""
         err = io.StringIO()
         with redirect_stderr(err):
@@ -330,7 +336,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         self.assertEqual("bad/file.txt: Cannot read file as UTF-8.\n", err.getvalue())
 
     @patch("pathlib.Path.read_text", side_effect=FileNotFoundError("missing"))
-    def test_read_text_utf8_lines_file_not_found_error(self, _mock_read_text):
+    def test_read_text_utf8_lines_file_not_found_error(
+        self, _mock_read_text: MagicMock
+    ) -> None:
         """UTF-8 helper should return None and print read error on missing files."""
         err = io.StringIO()
         with redirect_stderr(err):
@@ -342,7 +350,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         )
 
     @patch("pathlib.Path.read_text", side_effect=PermissionError("denied"))
-    def test_read_text_utf8_lines_permission_error(self, _mock_read_text):
+    def test_read_text_utf8_lines_permission_error(
+        self, _mock_read_text: MagicMock
+    ) -> None:
         """UTF-8 helper should return None and print read error on permission issues."""
         err = io.StringIO()
         with redirect_stderr(err):
@@ -354,7 +364,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         )
 
     @patch("pathlib.Path.relative_to", side_effect=ValueError)
-    def test_as_repo_relative_value_error_fallback(self, _mock_relative_to):
+    def test_as_repo_relative_value_error_fallback(
+        self, _mock_relative_to: MagicMock
+    ) -> None:
         """Absolute path that cannot be relativized should be returned unchanged."""
         path = Path("D:/outside/src/file.c")
         ret = check_license_info._as_repo_relative(path)
@@ -364,7 +376,7 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         "cli.pre_commit_scripts.check_license_info._as_repo_relative",
         return_value=Path("src/app/main/main.h"),
     )
-    def test_source_to_test_file_non_c_suffix(self, _mock_relative):
+    def test_source_to_test_file_non_c_suffix(self, _mock_relative: MagicMock) -> None:
         """Non-.c files should not be mapped to test files."""
         ret = check_license_info._source_to_test_file(Path("ignored.h"))
         self.assertIsNone(ret)
@@ -373,7 +385,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         "cli.pre_commit_scripts.check_license_info._as_repo_relative",
         return_value=Path("other/place/file.c"),
     )
-    def test_source_to_test_file_without_src_segment(self, _mock_relative):
+    def test_source_to_test_file_without_src_segment(
+        self, _mock_relative: MagicMock
+    ) -> None:
         """Path without a src segment should return None."""
         ret = check_license_info._source_to_test_file(Path("ignored.c"))
         self.assertIsNone(ret)
@@ -382,7 +396,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         "cli.pre_commit_scripts.check_license_info._as_repo_relative",
         return_value=MagicMock(suffix=".c", parts=("src",)),
     )
-    def test_source_to_test_file_with_only_src_segment(self, _mock_relative):
+    def test_source_to_test_file_with_only_src_segment(
+        self, _mock_relative: MagicMock
+    ) -> None:
         """Path equal to src only should return None."""
         ret = check_license_info._source_to_test_file(Path("ignored.c"))
         self.assertIsNone(ret)
@@ -391,7 +407,9 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         "cli.pre_commit_scripts.check_license_info._as_repo_relative",
         return_value=Path("src/app/main/main.py"),
     )
-    def test_source_to_test_wscript_non_wscript_name(self, _mock_relative):
+    def test_source_to_test_wscript_non_wscript_name(
+        self, _mock_relative: MagicMock
+    ) -> None:
         """Non-wscript files should not be mapped to test wscript files."""
         ret = check_license_info._source_to_test_wscript(Path("ignored.py"))
         self.assertIsNone(ret)
@@ -400,13 +418,17 @@ class TestCheckLicenseInfoHelpers(unittest.TestCase):
         "cli.pre_commit_scripts.check_license_info._as_repo_relative",
         return_value=Path("other/place/wscript"),
     )
-    def test_source_to_test_wscript_without_src_segment(self, _mock_relative):
+    def test_source_to_test_wscript_without_src_segment(
+        self, _mock_relative: MagicMock
+    ) -> None:
         """Wscript path without a src segment should return None."""
         ret = check_license_info._source_to_test_wscript(Path("ignored/wscript"))
         self.assertIsNone(ret)
 
     @patch("cli.pre_commit_scripts.check_license_info._as_repo_relative")
-    def test_source_to_test_wscript_with_only_src_segment(self, _mock_relative):
+    def test_source_to_test_wscript_with_only_src_segment(
+        self, _mock_relative: MagicMock
+    ) -> None:
         """Wscript path equal to src only should return None."""
         mock_path = MagicMock()
         mock_path.name = "wscript"
@@ -424,10 +446,10 @@ class TestMainDispatch(unittest.TestCase):
     @patch("cli.pre_commit_scripts.check_license_info.check_py", return_value=3)
     def test_dispatches_by_extension(
         self,
-        mock_check_py,
-        mock_check_c,
-        mock_check_yaml,
-    ):
+        mock_check_py: MagicMock,
+        mock_check_c: MagicMock,
+        mock_check_yaml: MagicMock,
+    ) -> None:
         """Main should route files to checker functions by extension."""
         ret = check_license_info.main(
             [
@@ -463,8 +485,8 @@ class TestCheckerReadErrorHandling(unittest.TestCase):
         side_effect=[None, ["ok"]],
     )
     def test_check_asm_read_error_increments_and_continues(
-        self, _mock_read, mock_compare
-    ):
+        self, _mock_read: MagicMock, mock_compare: MagicMock
+    ) -> None:
         """Assembler checker should count decode errors and continue with next file."""
         ret = check_license_info.check_asm(["bad.asm", "ok.asm"], "BSD-3-Clause")
         self.assertEqual(ret, 8)
@@ -476,8 +498,8 @@ class TestCheckerReadErrorHandling(unittest.TestCase):
         side_effect=[None, ["ok"]],
     )
     def test_check_py_read_error_increments_and_continues(
-        self, _mock_read, mock_compare
-    ):
+        self, _mock_read: MagicMock, mock_compare: MagicMock
+    ) -> None:
         """Python checker should count decode errors and continue with next file."""
         ret = check_license_info.check_py(["bad.py", "ok.py"], "BSD-3-Clause")
         self.assertEqual(ret, 4)
@@ -489,8 +511,8 @@ class TestCheckerReadErrorHandling(unittest.TestCase):
         side_effect=[None, ["ok"]],
     )
     def test_check_yaml_read_error_increments_and_continues(
-        self, _mock_read, mock_compare
-    ):
+        self, _mock_read: MagicMock, mock_compare: MagicMock
+    ) -> None:
         """YAML checker should count decode errors and continue with next file."""
         ret = check_license_info.check_yaml(["bad.yml", "ok.yml"], "BSD-3-Clause")
         self.assertEqual(ret, 3)
@@ -501,7 +523,9 @@ class TestCheckerReadErrorHandling(unittest.TestCase):
         "cli.pre_commit_scripts.check_license_info._read_text_utf8_lines",
         return_value=None,
     )
-    def test_check_c_source_read_error_skips_compare(self, _mock_read, mock_compare):
+    def test_check_c_source_read_error_skips_compare(
+        self, _mock_read: MagicMock, mock_compare: MagicMock
+    ) -> None:
         """C checker should skip compare when source decoding fails."""
         ret = check_license_info.check_c(["src/app/main/main.c"], "BSD-3-Clause")
         self.assertEqual(ret, 1)
@@ -518,8 +542,12 @@ class TestCheckerReadErrorHandling(unittest.TestCase):
         side_effect=[["ok"], None],
     )
     def test_check_c_companion_read_error_counts_after_source_compare(
-        self, _mock_read, _mock_map, mock_compare, _mock_exists
-    ):
+        self,
+        _mock_read: MagicMock,
+        _mock_map: MagicMock,
+        mock_compare: MagicMock,
+        _mock_exists: MagicMock,
+    ) -> None:
         """C checker should count companion decode errors after source compare."""
         ret = check_license_info.check_c(["src/app/main/main.c"], "BSD-3-Clause")
         self.assertEqual(ret, 5)
@@ -536,15 +564,21 @@ class TestCheckerReadErrorHandling(unittest.TestCase):
         side_effect=[["ok"], None],
     )
     def test_check_py_companion_read_error_counts_after_source_compare(
-        self, _mock_read, _mock_map, mock_compare, _mock_exists
-    ):
+        self,
+        _mock_read: MagicMock,
+        _mock_map: MagicMock,
+        mock_compare: MagicMock,
+        _mock_exists: MagicMock,
+    ) -> None:
         """Python checker should count companion decode errors after source compare."""
         ret = check_license_info.check_py(["src/app/main/wscript"], "BSD-3-Clause")
         self.assertEqual(ret, 5)
         mock_compare.assert_called_once()
 
     @patch("cli.pre_commit_scripts.check_license_info.check_py", return_value=0)
-    def test_does_not_filter_by_detected_license(self, mock_check_py):
+    def test_does_not_filter_by_detected_license(
+        self, mock_check_py: MagicMock
+    ) -> None:
         """Main should always check passed files for the requested license type."""
         ret = check_license_info.main(
             [

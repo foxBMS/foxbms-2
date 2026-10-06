@@ -43,13 +43,17 @@
  * @file    sys_mon.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
  * @brief   System monitoring module
- * @details TODO
+ * @details This header declares the system monitoring interfaces used to
+ *          record task execution timing and to access stored timing-violation
+ *          information.
+ *          It defines the notification and response types shared with the
+ *          monitored modules.
  */
 
 #ifndef FOXBMS__SYS_MON_H_

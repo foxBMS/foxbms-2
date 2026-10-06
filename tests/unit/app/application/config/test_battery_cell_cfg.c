@@ -43,8 +43,8 @@
  * @file    test_battery_cell_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,7 +56,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 
-#include "battery_cell_cfg.h"
+#include "battery_cell_cfg_types.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 

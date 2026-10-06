@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _I2C_MODULE:
+.. _I2C_DRIVER:
 
-I2C Module
-==========
+I2C
+===
 
 Module Files
 ------------

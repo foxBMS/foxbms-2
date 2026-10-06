@@ -37,22 +37,42 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    source = [
-        "boot_cfg.c",
-        "boot_helper.c",
-        "boot.c",
-    ]
+
+def build(bld: BuildContext) -> None:
+    op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+
+    use = [f"{lp}hal", "_L2FMC"]
+
+    source = "boot_helper"
     includes = [
-        ".",
-        "../can",
-        "../../driver/can",
-        "../../driver/config",
-        "../../driver/crc",
-        "../../driver/flash",
-        "../../driver/rti",
-        "../../main/include",
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/flash"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
     ]
-    target = f"{bld.env.APPNAME.lower()}-bootloader-engine-boot-objects"
-    bld.objects(source=source, includes=includes, target=target)
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )
+
+    source = "boot"
+    includes = [
+        bld.path,
+        bld.srcnode.find_node("src/bootloader/driver/can"),
+        bld.srcnode.find_node("src/bootloader/driver/config"),
+        bld.srcnode.find_node("src/bootloader/driver/crc"),
+        bld.srcnode.find_node("src/bootloader/driver/flash"),
+        bld.srcnode.find_node("src/bootloader/engine/config"),
+        bld.srcnode.find_node("src/bootloader/main/include"),
+    ]
+    bld.objects(
+        source=f"{source}.c",
+        includes=includes,
+        use=use,
+        target=f"{op}{source}",
+    )

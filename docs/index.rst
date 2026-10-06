@@ -1,16 +1,16 @@
 .. include:: ./macros.txt
-.. include:: ./../build/docs/version_macro.txt
+.. include:: ./../build/docs/docs/version_macro.txt
 .. include:: ./units.txt
 
 .. _THE_FOXBMS_2_DOCUMENTATION:
 
-The foxBMS 2 Documentation
+The |foxbms| Documentation
 ==========================
 
 Welcome to the |foxbms| documentation.
 |foxbms| is the modular and open source Battery Management System (BMS)
 development platform from `Fraunhofer IISB`_.
-This is the second generation of foxBMS.
+This is the second generation of |foxbms-unversioned|.
 Its is a free, open and flexible development environment to design beyond
 state-of-the-art complex battery management systems.
 
@@ -128,7 +128,6 @@ All sections are listed here:
     ./software/structure/software-structure.rst
     ./software/modules/modules.rst
     ./software/unit-tests/unit-tests.rst
-    ./software/build-process/build-process.rst
     ./software/build-environment/build-environment.rst
     ./software/how-to/how-to.rst
     ./software/linker-script/linker-script.rst
@@ -142,7 +141,6 @@ All sections are listed here:
     :maxdepth: 1
     :caption: Hardware Documentation
 
-    ./hardware/hardware.rst
     ./hardware/design-resources.rst
     ./hardware/connectors.rst
     ./hardware/master.rst
@@ -159,9 +157,33 @@ All sections are listed here:
 
     ./system/system-introduction.rst
     ./system/system-voltage-and-current-monitoring.rst
+    ./system/bms-startup.rst
     ./system/precharging.rst
     ./system/imd-testing.rst
     ./system/communication.rst
+
+.. _SYSTEM_SETUP_OVERVIEW:
+
+.. toctree::
+    :titlesonly:
+    :numbered:
+    :maxdepth: 1
+    :caption: System Setup
+
+    ./system-setup/system-setup.rst
+    ./system-setup/communication-via-can.rst
+
+.. _BUILD_PROCESS_OVERVIEW:
+
+.. toctree::
+    :titlesonly:
+    :numbered:
+    :maxdepth: 1
+    :caption: Build Process
+
+    ./software/build-process/build-process.rst
+    ./software/build-process/wscript.rst
+    ./tools/waf_tools/waf_tools.rst
 
 .. _TOOLS_DOCUMENTATION_OVERVIEW:
 
@@ -172,7 +194,6 @@ All sections are listed here:
     :caption: Tools Documentation
 
     ./tools/fox-cli-usage.rst
-    ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst
 
@@ -190,7 +211,6 @@ All sections are listed here:
     ./developer-manual/hardware-developer-manual.rst
     ./developer-manual/fox-cli/fox-cli.rst
     ./developer-manual/dependency-management.rst
-    ./developer-manual/release-management.rst
 
 .. _GENERAL_INFORMATION_OVERVIEW:
 

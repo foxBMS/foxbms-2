@@ -1,3 +1,6 @@
+..
+   cspell:ignore miniconda,condarc
+
 Added
 =====
 

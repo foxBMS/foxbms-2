@@ -43,8 +43,8 @@
  * @file    rtc.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -67,7 +67,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-/* AXIVION Disable Style MisraC2012-21.10: Time implementation is suitable for the application */
+/* AXIVION Disable Style MisraC2012-21.10 Generic-IncludeKind: Time implementation is suitable for the application */
 #include <time.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -269,7 +269,13 @@ static void RTC_AdjustTime(void) {
     /* Convert tm struct to timer in seconds since epoch */
     rtcTimeFromTimerEpochFormat = mktime(&rtcTimeFromTimerTmFormat);
 
-    if (abs(rtcTimeFromIcEpochFormat - rtcTimeFromTimerEpochFormat) > RTC_MAX_DIFFERENCE_BETWEEN_TIMER_AND_IC_s) {
+#ifdef __GNUC__
+    long int rtcTimeDifference = rtcTimeFromIcEpochFormat - rtcTimeFromTimerEpochFormat;
+#elif defined(__TI_COMPILER_VERSION__) && defined(__ARM_32BIT_STATE) && defined(__TMS470__)
+    uint64_t rtcTimeDifference = (uint64_t)rtcTimeFromIcEpochFormat - (uint64_t)rtcTimeFromTimerEpochFormat;
+#endif
+
+    if (labs(rtcTimeDifference) > RTC_MAX_DIFFERENCE_BETWEEN_TIMER_AND_IC_s) {
         /* Difference  between RTC timer and RTC IC higher than limit: adjust RTC timer */
         RTC_InitializeSystemTimeWithRtc();
     }
@@ -386,19 +392,19 @@ static RTC_TIME_DATA_s RTC_ReadTime(void) {
         (((rtc_i2cReadBuffer[RTC_MINUTES_OFFSET] & RTC_MINUTES_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
          RTC_TENS_PLACE_FACTOR) +
         (rtc_i2cReadBuffer[RTC_MINUTES_OFFSET] & RTC_UNITS_PLACE_MASK);
-    rtcTime.hours = (((rtc_i2cReadBuffer[RTC_HOURS_OFFSET] & RTC_HOURS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
-                     RTC_TENS_PLACE_FACTOR) +
-                    (rtc_i2cReadBuffer[RTC_HOURS_OFFSET] & RTC_UNITS_PLACE_MASK);
-    rtcTime.day = (((rtc_i2cReadBuffer[RTC_DAYS_OFFSET] & RTC_DAYS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
-                   RTC_TENS_PLACE_FACTOR) +
-                  (rtc_i2cReadBuffer[RTC_DAYS_OFFSET] & RTC_UNITS_PLACE_MASK);
+    rtcTime.hours   = (((rtc_i2cReadBuffer[RTC_HOURS_OFFSET] & RTC_HOURS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
+                       RTC_TENS_PLACE_FACTOR) +
+                      (rtc_i2cReadBuffer[RTC_HOURS_OFFSET] & RTC_UNITS_PLACE_MASK);
+    rtcTime.day     = (((rtc_i2cReadBuffer[RTC_DAYS_OFFSET] & RTC_DAYS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
+                       RTC_TENS_PLACE_FACTOR) +
+                      (rtc_i2cReadBuffer[RTC_DAYS_OFFSET] & RTC_UNITS_PLACE_MASK);
     rtcTime.weekday = (rtc_i2cReadBuffer[RTC_WEEKDAYS_OFFSET] & RTC_WEEKDAYS_UNITS_PLACE_MASK);
     rtcTime.month   = (((rtc_i2cReadBuffer[RTC_MONTHS_OFFSET] & RTC_MONTHS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
-                     RTC_TENS_PLACE_FACTOR) +
-                    (rtc_i2cReadBuffer[RTC_MONTHS_OFFSET] & RTC_UNITS_PLACE_MASK);
-    rtcTime.year = (((rtc_i2cReadBuffer[RTC_YEARS_OFFSET] & RTC_YEARS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
-                    RTC_TENS_PLACE_FACTOR) +
-                   (rtc_i2cReadBuffer[RTC_YEARS_OFFSET] & RTC_UNITS_PLACE_MASK);
+                       RTC_TENS_PLACE_FACTOR) +
+                      (rtc_i2cReadBuffer[RTC_MONTHS_OFFSET] & RTC_UNITS_PLACE_MASK);
+    rtcTime.year    = (((rtc_i2cReadBuffer[RTC_YEARS_OFFSET] & RTC_YEARS_TENS_PLACE_MASK) >> RTC_TENS_PLACE_OFFSET) *
+                       RTC_TENS_PLACE_FACTOR) +
+                      (rtc_i2cReadBuffer[RTC_YEARS_OFFSET] & RTC_UNITS_PLACE_MASK);
 
     if (retVal == STD_NOT_OK) {
         DIAG_Handler(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);

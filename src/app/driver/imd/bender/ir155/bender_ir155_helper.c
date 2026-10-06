@@ -43,8 +43,8 @@
  * @file    bender_ir155_helper.c
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -146,21 +146,17 @@ static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float_t frequency_Hz) {
     if ((frequency_Hz >= IR155_NORMAL_CONDITION_LOWER_FREQUENCY_Hz) &&
         (frequency_Hz < IR155_NORMAL_CONDITION_UPPER_FREQUENCY_Hz)) {
         retVal = IR155_NORMAL_MODE;
-    } else if (
-        (frequency_Hz >= IR155_UNDERVOLTAGE_LOWER_FREQUENCY_Hz) &&
-        (frequency_Hz < IR155_UNDERVOLTAGE_UPPER_FREQUENCY_Hz)) {
+    } else if ((frequency_Hz >= IR155_UNDERVOLTAGE_LOWER_FREQUENCY_Hz) &&
+               (frequency_Hz < IR155_UNDERVOLTAGE_UPPER_FREQUENCY_Hz)) {
         retVal = IR155_UNDERVOLTAGE_MODE; /* should not be detected as default threshold 0V, EOL Bender configurable! */
-    } else if (
-        (frequency_Hz >= IR155_SPEED_START_LOWER_FREQUENCY_Hz) &&
-        (frequency_Hz < IR155_SPEED_START_UPPER_FREQUENCY_Hz)) {
+    } else if ((frequency_Hz >= IR155_SPEED_START_LOWER_FREQUENCY_Hz) &&
+               (frequency_Hz < IR155_SPEED_START_UPPER_FREQUENCY_Hz)) {
         retVal = IR155_SPEED_START_MODE;
-    } else if (
-        (frequency_Hz >= IR155_IMD_DEVICE_ERROR_LOWER_FREQUENCY_Hz) &&
-        (frequency_Hz < IR155_IMD_DEVICE_ERROR_UPPER_FREQUENCY_Hz)) {
+    } else if ((frequency_Hz >= IR155_IMD_DEVICE_ERROR_LOWER_FREQUENCY_Hz) &&
+               (frequency_Hz < IR155_IMD_DEVICE_ERROR_UPPER_FREQUENCY_Hz)) {
         retVal = IR155_IMD_ERROR_MODE;
-    } else if (
-        (frequency_Hz >= IR155_GROUND_ERROR_LOWER_FREQUENCY_Hz) &&
-        (frequency_Hz < IR155_GROUND_ERROR_UPPER_FREQUENCY_Hz)) {
+    } else if ((frequency_Hz >= IR155_GROUND_ERROR_LOWER_FREQUENCY_Hz) &&
+               (frequency_Hz < IR155_GROUND_ERROR_UPPER_FREQUENCY_Hz)) {
         retVal = IR155_GROUND_ERROR_MODE;
     } else if (frequency_Hz <= IR155_MINIMUM_FREQUENCY_Hz) {
         retVal = IR155_SHORT_CLAMP;
@@ -299,11 +295,10 @@ IR155_MEASUREMENT_s IR155_GetMeasurementValues(void) {
                 measurementResult.resistance_kOhm    = IR155_MAXIMUM_INSULATION_RESISTANCE_kOhm;
                 measurementResult.isMeasurementValid = true;
                 measurementResult.measurementState   = IR155_RESISTANCE_ESTIMATION;
-            } else if (
-                true == IR155_IsDutyCycleWithinInterval(
-                            measurementResult.pwmSignal.dutyCycle_perc,
-                            IR155_SPEED_START_ESTIMATION_BAD_LOWER_DUTY_CYCLE_LIMIT_perc,
-                            IR155_SPEED_START_ESTIMATION_BAD_UPPER_DUTY_CYCLE_LIMIT_perc)) {
+            } else if (true == IR155_IsDutyCycleWithinInterval(
+                                   measurementResult.pwmSignal.dutyCycle_perc,
+                                   IR155_SPEED_START_ESTIMATION_BAD_LOWER_DUTY_CYCLE_LIMIT_perc,
+                                   IR155_SPEED_START_ESTIMATION_BAD_UPPER_DUTY_CYCLE_LIMIT_perc)) {
                 measurementResult.resistance_kOhm    = IR155_MINIMUM_INSULATION_RESISTANCE_kOhm;
                 measurementResult.isMeasurementValid = true;
                 measurementResult.measurementState   = IR155_RESISTANCE_ESTIMATION;

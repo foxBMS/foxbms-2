@@ -47,7 +47,7 @@ from ..etl.can_filter import CANFilter
 
 
 def can_filter_setup(config: dict) -> CANFilter:
-    """Reads config file and creates the CANFilter object
+    """Read configuration file and create the CANFilter object
 
     Args:
         config: Path to the configuration file
@@ -60,7 +60,7 @@ def can_filter_setup(config: dict) -> CANFilter:
 
 
 def validate_filter_config(config: dict) -> None:
-    """Validates the configuration file of the filter subcommand
+    """Validate the configuration file of the filter subcommand
 
     Args:
         config: Dictionary with configurations
@@ -123,7 +123,7 @@ def _sanitize_args(filter_obj: CANFilter) -> None:
 
 
 def run_filter(filter_obj: CANFilter) -> None:
-    """Executes the filter step
+    """Execute the filter step
 
     Args:
         filter_obj: Object which handles the filtering

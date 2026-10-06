@@ -4,7 +4,7 @@
 .. _THE_FOXBMS_2_PLATFORM:
 
 #####################
-The foxBMS 2 Platform
+The |foxbms| Platform
 #####################
 
 The |foxbms| platform consists of two main elements:

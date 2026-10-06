@@ -1,0 +1,6 @@
+[
+  {
+    "source": "src/app/driver/mcu/mcu.c",
+    "test": "test_mcu.c"
+  }
+]

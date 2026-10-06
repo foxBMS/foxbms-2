@@ -43,13 +43,16 @@
  * @file    state-machine.h
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
  * @brief   Header file of some software
- * @details TODO
+ * @details This header declares the data types and public interface of the
+ *          example state machine used in the style-guide documentation.
+ *          It shows how states, substates, and the state container can be
+ *          structured for a module that advances through a trigger function.
  */
 
 #ifndef FOXBMS__STATE_MACHINE_H_
@@ -75,10 +78,10 @@ typedef enum {
 typedef enum {
     EG_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
     EG_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
-    EG_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
+    EG_FSM_SUBSTATE_INITIALIZATION_0,    /*!< first initialization substate */
     EG_FSM_SUBSTATE_INITIALIZATION_1,    /*!< second initialization substate */
     EG_FSM_SUBSTATE_INITIALIZATION_EXIT, /*!< last initialization substate */
-    EG_FSM_SUBSTATE_RUNNING_0,           /*!< fist running substate */
+    EG_FSM_SUBSTATE_RUNNING_0,           /*!< first running substate */
     EG_FSM_SUBSTATE_RUNNING_1,           /*!< second running substate */
     EG_FSM_SUBSTATE_RUNNING_2,           /*!< third running substate */
 } EG_FSM_SUBSTATES_e;

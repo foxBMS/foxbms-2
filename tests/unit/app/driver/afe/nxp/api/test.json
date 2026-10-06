@@ -1,0 +1,17 @@
+[
+  {
+    "source": "src/app/driver/afe/nxp/api/nxp_afe.c",
+    "test": "test_nxp_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/nxp/api"
+    ],
+    "mocks": [
+      "HL_sys_dma.h",
+      "src/app/driver/afe/nxp/api/nxp_afe.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_NXP=1u"
+    ]
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "source": "src/bootloader/driver/rti/rti.c",
+    "test": "test_rti.c",
+    "includes": [
+      "src/bootloader/driver/rti"
+    ],
+    "mocks": [
+      "HL_rti.h",
+      "HL_system.h"
+    ]
+  }
+]

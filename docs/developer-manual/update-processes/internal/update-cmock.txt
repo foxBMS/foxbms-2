@@ -1,0 +1,8 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_cmock|.
+- Replace ``tools/cmock`` with the new version.
+- |snippet_update_license|
+  ``docs/general/license-tables/internal/license-info_cmock.csv``.
+- |snippet_changelog_entry|
+- |snippet_commit|
+  ``Update dependency: <XXXX>/Q<Y>: CMock <version number>``.

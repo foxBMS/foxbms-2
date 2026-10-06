@@ -58,7 +58,7 @@ class TestFoxCliMainCommandLog(unittest.TestCase):
 
     @patch("cli.commands.c_log.CanBusConfig", MagicMock())
     @patch("cli.commands.c_log.log_impl")
-    def test_log(self, mock_log_impl):
+    def test_log(self, mock_log_impl: MagicMock) -> None:
         """Test 'fox.py bootloader check' command."""
         mock_log_impl.log.return_value = 0
         runner = CliRunner()

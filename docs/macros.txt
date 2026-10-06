@@ -2,6 +2,7 @@
 
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
+.. |foxbms-unversioned| replace:: foxBMS
 .. |foxbms| replace:: foxBMS 2
 .. |foxbms.org| replace:: https://foxbms.org
 .. |docs.foxbms.org| replace:: https://docs.foxbms.org
@@ -30,6 +31,8 @@
 .. |fox-cli| replace:: ``fox CLI``
 .. |fox-cli-api| replace:: ``fox CLI`` API
 .. |fox-cli-package| replace:: ``fox CLI`` package
+.. |fox-cli-package-name| replace:: ``foxbms-fox-cli``
+.. |fox-cli-package-name-import| replace:: ``fox_cli``
 .. |fox-py| replace:: ``fox.py``
 
 .. |graphviz| replace:: Graphviz
@@ -71,11 +74,11 @@
 .. |ruby-installer| replace:: RubyInstaller
 .. |url_ruby-installer| replace:: https://rubyinstaller.org/downloads/
 .. _Ruby: https://www.ruby-lang.org/
-.. |ruby-gems| replace:: Ruby gems
 
-.. |ceedling| replace:: Ceedling
-.. |url_Ceedling| replace:: https://github.com/ThrowTheSwitch/Ceedling
-.. |url_ceedling_releases| replace:: https://github.com/ThrowTheSwitch/Ceedling/releases
+.. |cmock| replace:: CMock
+.. |url_cmock| replace:: https://github.com/ThrowTheSwitch/CMock/releases
+.. |unity| replace:: Unity
+.. |c_exception| replace:: CException
 
 .. |mingw-w64| replace:: mingw-w64
 
@@ -97,15 +100,26 @@
 .. |rsl| replace:: *RSL*
 .. |msl| replace:: *MSL*
 
-.. |ti| replace:: Texas Instruments
-.. |adi| replace:: Analog Devices
-.. |mxm| replace:: Maxim Integrated
+.. |adi-full| replace:: Analog Devices
+.. |ltc-full| replace:: Linear Technology
+.. |ti-full| replace:: Texas Instruments
+.. |mxm-full| replace:: Maxim Integrated
+.. |nxp-full| replace:: NXP Semiconductors
+
+.. |adi| replace:: ADI
+.. |ltc| replace:: LTC
+.. |ti| replace:: TI
+.. |mxm| replace:: MAXIM
+.. |nxp| replace:: NXP
+
+.. |msd| replace:: Manual Service Disconnect
 
 .. |ti-tms570| replace:: TI TMS570
 .. |ti-tms570lc4357| replace:: TI TMS570LC4357
 
 .. |ltc-ltc6820| replace:: LTC LTC6820
 .. |max-max17852| replace:: Maxim MAX17852
+.. |max-max17853| replace:: Maxim MAX17853
 .. |nxp-mc33664| replace:: NXP MC33664
 
 .. |ltc-ltc6804-1| replace:: LTC LTC6804-1
@@ -184,10 +198,21 @@
 .. |DC-|  replace:: ``DC-``
 
 .. |spidat1|  replace:: ``SPIDAT1``
-.. |cshold|  replace:: ``CSHOLD``
+.. |cshold|   replace:: ``CSHOLD``
 
-.. |isospi_p|  replace:: ``isoSPI_P``
-.. |isospi_n|  replace:: ``isoSPI_N``
+.. |isospi|   replace:: ``isoSPI``
+.. |isospi_p| replace:: ``isoSPI_P``
+.. |isospi_n| replace:: ``isoSPI_N``
+.. |isospi1|  replace:: ``isoSPI_1``
+.. |isospi2|  replace:: ``isoSPI_2``
+.. |isospi3|  replace:: ``isoSPI_3``
+.. |isospi4|  replace:: ``isoSPI_4``
+
+.. |tpl|      replace:: ``TPL``
+.. |tpl-high| replace:: ``TPL High``
+.. |tpl-low|  replace:: ``TPL Low``
+.. |tpl1|     replace:: ``TPL_1``
+.. |tpl2|     replace:: ``TPL_2``
 
 .. |tcp-ip-stack| replace:: TCP/IP stack
 .. |tcp-ip| replace:: TCP/IP
@@ -221,3 +246,45 @@
 .. |virtual-testing-platform| replace:: Virtual Testing Platform
 .. |vtp| replace:: VTP
 .. |hlcu| replace:: HLCU
+
+
+.. |adc| replace:: ADC
+.. |pex| replace:: PEX
+.. |sps| replace:: SPS
+.. |mcu| replace:: MCU
+.. |rtc| replace:: RTC
+
+.. |fused-string-voltage-m|             replace::                 ``FusedStringVoltageM``
+.. |fused-pack-voltage|                 replace::                 ``FusedPackVoltage``
+.. |string-voltage-m|                   replace::                 ``StringVoltageM``
+.. |system-voltage|                     replace::                 ``SystemVoltage``
+.. |pack-voltage|                       replace::                 ``PackVoltage``
+.. |pack-voltage-m|                     replace::                 ``PackVoltageM``
+.. |system-voltage2|                    replace::                 ``SystemVoltage2``
+.. |pack-current|                       replace::                 ``PackCurrent``
+.. |string-current-m|                   replace::                 ``StringCurrentM``
+
+.. |fused-string-voltage-m-abbr-full|   replace:: V\ :sub:`FSm` (``FusedStringVoltageM``)
+.. |fused-pack-voltage-abbr-full|       replace:: V\ :sub:`FP`  (``FusedPackVoltage``)
+.. |string-voltage-m-abbr-full|         replace:: V\ :sub:`Sm`  (``StringVoltageM``)
+.. |system-voltage-abbr-full|           replace:: V\ :sub:`SV`  (``SystemVoltage``)
+.. |pack-voltage-abbr-full|             replace:: V\ :sub:`P`   (``PackVoltage``)
+.. |pack-voltage-m-abbr-full|           replace:: V\ :sub:`Pm`  (``PackVoltageM``)
+.. |system-voltage2-abbr-full|          replace:: V\ :sub:`SV2` (``SystemVoltage2``)
+.. |pack-current-abbr-full|             replace:: I\ :sub:`P`   (``PackCurrent``)
+.. |string-current-m-abbr-full|         replace:: I\ :sub:`Sm`  (``StringCurrentM``)
+
+.. |fused-string-voltage-m-abbr|        replace:: V\ :sub:`FSm`
+.. |fused-pack-voltage-abbr|            replace:: V\ :sub:`FP`
+.. |string-voltage-m-abbr|              replace:: V\ :sub:`Sm`
+.. |system-voltage-abbr|                replace:: V\ :sub:`SV`
+.. |pack-voltage-abbr|                  replace:: V\ :sub:`P`
+.. |pack-voltage-m-abbr|                replace:: V\ :sub:`Pm`
+.. |system-voltage2-abbr|               replace:: V\ :sub:`SV2`
+.. |pack-current-abbr|                  replace:: I\ :sub:`P`
+.. |string-current-m-abbr|              replace:: I\ :sub:`Sm`
+
+.. |sphinx| replace:: Sphinx
+
+.. |build| replace:: ``build``
+.. |configure| replace:: ``configure``

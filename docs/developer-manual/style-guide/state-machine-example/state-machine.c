@@ -43,13 +43,16 @@
  * @file    state-machine.c
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
  * @brief   Implementation of some driver that needs a state machine
- *
+ * @details This source file implements the example state machine used in the
+ *          style-guide documentation.
+ *          It demonstrates a trigger-driven state machine with main states,
+ *          substates, timing between transitions, and basic error handling.
  */
 
 /*========== Includes =======================================================*/

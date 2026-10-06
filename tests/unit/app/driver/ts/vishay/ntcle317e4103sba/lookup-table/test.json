@@ -1,0 +1,18 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/vishay/ntcle317e4103sba/lookup-table/vishay_ntcle317e4103sba_lookup-table.c"
+    ],
+    "test": "test_vishay_ntcle317e4103sba_lookup-table.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/vishay/ntcle317e4103sba"
+    ],
+    "mocks": [
+      "src/app/driver/ts/vishay/ntcle317e4103sba/vishay_ntcle317e4103sba.h"
+    ],
+    "use": "M"
+  }
+]

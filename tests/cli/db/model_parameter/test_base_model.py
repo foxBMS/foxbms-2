@@ -99,12 +99,6 @@ class TestBaseModelPostInit(unittest.TestCase):
                 self.assertTrue(src.exists())
                 self.assertEqual(src.name, "a.txt")
 
-    def test_invalid_name_type_raises_typeerror(self) -> None:
-        """Should raise TypeError if name is not a string."""
-        with self.assertRaises(TypeError) as ctx:
-            BaseModel(name=123, sources=[], _directory=Path.cwd())
-        self.assertIn("not a string", str(ctx.exception))
-
     def test_missing_string_source_raises_valueerror(self) -> None:
         """Should raise ValueError if a string source resolved against _directory does not exist."""
         with tempfile.TemporaryDirectory() as tmp:

@@ -37,5 +37,20 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-# this is a dummy wscript
-# tests/unit/app/driver/afe/adi/common/ades183x/README.md
+from waflib.Build import BuildContext
+
+
+def build(bld: BuildContext) -> None:
+    bld.add_pre_fun(create_dummy_header)
+
+
+def create_dummy_header(bld):
+    """Build a dummy header if the real one does not exist."""
+    dummy = bld.bldnode.find_or_declare("adi_ades183x_defs_diag.h")
+    if bld.srcnode.find_resource(
+        "src/app/driver/afe/adi/common/ades183x/diag/adi_ades183x_diagnostic.c"
+    ):
+        dummy.delete()
+    else:
+        data = "typedef enum {\n    ADI_SM_START,\n} ADI_DIAG_e;\n"
+        dummy.write(data, encoding="utf-8")

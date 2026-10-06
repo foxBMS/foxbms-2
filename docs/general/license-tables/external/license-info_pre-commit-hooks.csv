@@ -1,8 +1,11 @@
 Repository;                                         Version;    SPDX short identifier;  License
 https://github.com/citation-file-format/cffconvert  b6045d78aac9e02b039703b030588d54d53262ac; Apache-2.0; Apache License, Version 2.0
-https://github.com/streetsidesoftware/cspell-cli;   v9.2.0;     MIT;                    The MIT License
-https://github.com/pre-commit/mirrors-clang-format; v21.1.1;    MIT;                    The MIT License
+https://github.com/streetsidesoftware/cspell-cli;   v10.0.1;    MIT;                    The MIT License
+https://github.com/pre-commit/mirrors-clang-format; v22.1.4;    MIT;                    The MIT License
 https://github.com/pre-commit/pre-commit-hooks;     v6.0.0;     MIT;                    The MIT License
-https://github.com/astral-sh/ruff-pre-commit;       v0.13.2;    Apache-2.0, MIT;        Apache License, Version 2.0, The MIT License
+https://github.com/pre-commit/pygrep-hooks          v1.10.0;    MIT;                    The MIT License
+https://github.com/astral-sh/ruff-pre-commit;       v0.15.11;   Apache-2.0, MIT;        Apache License, Version 2.0, The MIT License
 https://github.com/shellcheck-py/shellcheck-py;     v0.11.0.1;  MIT;                    The MIT License
-https://github.com/asottile/pyupgrade;              v3.20.0;    MIT;                    The MIT License
+https://github.com/asottile/pyupgrade;              v3.21.2;    MIT;                    The MIT License
+https://github.com/tox-dev/pyproject-fmt;           v2.25.1;    MIT;                    The MIT License
+https://github.com/jackdewinter/pymarkdown          v0.9.39;    MIT;                    The MIT License

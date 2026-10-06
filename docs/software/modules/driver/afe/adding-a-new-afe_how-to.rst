@@ -17,7 +17,8 @@ the the IC is named *Vulpes G 2000 (VG2000)* from the IC family *VG*.
 Basic Directory Structure
 -------------------------
 
-#. Adapt ``tools/waf-tools/bms_config_validator.py`` to recognize the new
+#. Adapt ``tools/waf_tools/bms_config_generate.py`` and
+   ``tools/waf_tools/bms_config_validate.py`` to recognize the new
    manufacturer and the IC.
 #. Add the *SB-IC* manufacturer directory ``sb-ic``:
    ``src/app/driver/afe/sb-ic``.
@@ -143,7 +144,7 @@ To ensure the IC's name is written correctly to the
 ``VER_AFE_e`` enum in the ``app_build_cfg.h`` header.
 
 Furthermore, the ``get_afe_name`` function in
-``create_app_build_cfg`` and its helper functions (there is one for each
+``app_build_config_generate`` and its helper functions (there is one for each
 manufacturer) have to be updated or added, so the new IC's short name can
 be retrieved from its complete name in ``bms.json``.
 

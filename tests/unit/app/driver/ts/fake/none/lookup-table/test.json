@@ -1,0 +1,13 @@
+[
+  {
+    "source": [
+      "src/app/driver/ts/fake/none/fake_none.c",
+      "src/app/driver/ts/fake/none/lookup-table/fake_none_lookup-table.c"
+    ],
+    "test": "test_fake_none_lookup-table.c",
+    "includes": [
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/fake/none"
+    ]
+  }
+]

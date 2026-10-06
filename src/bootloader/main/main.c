@@ -43,8 +43,8 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2024-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
  * @prefix  MAIN
  *
@@ -99,8 +99,15 @@ int unit_test_main(void)
     rtiInit();
 
     /* Copy the flash relevant .text and .const to RAM */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     memcpy(&main_textRunStartFlashC, &main_textLoadStartFlashC, (uint32_t)&main_textSizeFlashC);
     memcpy(&main_constRunStartFlashCfgC, &main_constLoadStartFlashCfgC, (uint32_t)&main_constSizeFlashCfgC);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
     CAN_SendBootMessage();
 

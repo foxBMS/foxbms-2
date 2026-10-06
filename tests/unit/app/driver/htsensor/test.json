@@ -1,0 +1,17 @@
+[
+  {
+    "source": "src/app/driver/htsensor/htsensor.c",
+    "test": "test_htsensor.c",
+    "includes": [
+      "src/app/driver/htsensor",
+      "src/app/driver/i2c"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_sys_dma.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/engine/database/database.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

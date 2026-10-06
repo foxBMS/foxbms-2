@@ -1,0 +1,33 @@
+[
+  {
+    "source": [
+      "src/app/engine/config/database_cfg.c",
+      "src/app/engine/database/database_helper.c"
+    ],
+    "test": "test_database_helper.c",
+    "mocks": [
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ]
+  },
+  {
+    "source": [
+      "src/app/engine/config/database_cfg.c",
+      "src/app/engine/database/database.c"
+    ],
+    "test": "test_database.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/main/include/fassert.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ]
+  }
+]

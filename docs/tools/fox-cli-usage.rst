@@ -17,13 +17,13 @@ Subcommands
    :maxdepth: 1
    :caption: fox.py usage documentation
 
+
    ./fox/bootloader/fox_bootloader.rst
    ./fox/build/fox_waf.rst
    ./fox/bms/fox_bms.rst
    ./fox/cli_unittest/fox_cli-unittest.rst
    ./fox/com/fox_com.rst
    ./fox/db/fox_db.rst
-   ./fox/embedded_ut/fox_ceedling.rst
    ./fox/etl/fox_etl.rst
    ./fox/gui/fox_gui.rst
    ./fox/ide/fox_ide.rst
@@ -33,7 +33,6 @@ Subcommands
    ./fox/misc/fox_misc.rst
    ./fox/plot/fox_plot.rst
    ./fox/pre_commit/fox_pre-commit.rst
-   ./fox/release/fox_release.rst
    ./fox/run_program/fox_run-program.rst
    ./fox/run_script/fox_run-script.rst
 

@@ -43,8 +43,8 @@
  * @file    adi_ades183x_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -56,7 +56,7 @@
 #define FOXBMS__ADI_ADES183X_DEFS_H_
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 #if defined(FOXBMS_AFE_DRIVER_ADI_ADES1830)
 #include "adi_ades1830_defs.h"
 #endif
@@ -115,6 +115,12 @@ typedef enum {
     ADI_AUXILIARY_STORE_LOCATION_E_MAX,
 } ADI_AUXILIARY_STORE_LOCATION_e;
 
+#if SLV_USE_MUX_FOR_TEMP == false
+#define ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS ADI_TOTAL_GPIO_NUMBER
+#else
+#define ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS (16u)
+#endif
+
 /* configuration sanitation */
 #if BS_NR_OF_CELL_BLOCKS_PER_MODULE > ADI_MAX_SUPPORTED_CELLS
 #error "Number of cell blocks per module cannot be higher than maximum number of cells per module"
@@ -122,7 +128,7 @@ typedef enum {
 #if SLV_NR_OF_GPIOS_PER_MODULE != ADI_TOTAL_GPIO_NUMBER
 #error "Number of GPIOs must be 10"
 #endif
-#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > SLV_NR_OF_GPIOS_PER_MODULE
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS
 #error "Number of temperature sensors cannot be higher than number of GPIOs"
 #endif
 
@@ -381,13 +387,13 @@ typedef enum {
  * COMM definitions
  * @{
  */
-#define ADI_ICOM_START            (0x60u)
-#define ADI_ICOM_STOP             (0x10u)
-#define ADI_ICOM_BLANK            (0x00u)
-#define ADI_ICOM_NO_TRANSMIT      (0x70u)
-#define ADI_FCOM_MASTER_ACK       (0x00u)
-#define ADI_FCOM_MASTER_NACK      (0x08u)
-#define ADI_FCOM_MASTER_NACK_STOP (0x09u)
+#define ADI_ICOM_START            (0x6u)
+#define ADI_ICOM_STOP             (0x1u)
+#define ADI_ICOM_BLANK            (0x0u)
+#define ADI_ICOM_NO_TRANSMIT      (0x7u)
+#define ADI_FCOM_MASTER_ACK       (0x0u)
+#define ADI_FCOM_MASTER_NACK      (0x8u)
+#define ADI_FCOM_MASTER_NACK_STOP (0x9u)
 /**@}*/
 
 /* RequirementId: D7.1 V1R0 SIF-4.30.03.01 */
@@ -908,6 +914,21 @@ typedef struct {
 #define ADI_SRST_BYTE1 (0x27u)
 #define ADI_SRST_INC   (0u)
 #define ADI_SRST_LEN   (0u)
+/** WRCOMM */
+#define ADI_WRCOMM_BYTE0 (0x07u)
+#define ADI_WRCOMM_BYTE1 (0x21u)
+#define ADI_WRCOMM_INC   (0u)
+#define ADI_WRCOMM_LEN   (6u)
+/** RDCOMM */
+#define ADI_RDCOMM_BYTE0 (0x07u)
+#define ADI_RDCOMM_BYTE1 (0x22u)
+#define ADI_RDCOMM_INC   (0u)
+#define ADI_RDCOMM_LEN   (6u)
+/** STCOMM */
+#define ADI_STCOMM_BYTE0 (0x07u)
+#define ADI_STCOMM_BYTE1 (0x23u)
+#define ADI_STCOMM_INC   (0u)
+#define ADI_STCOMM_LEN   (6u)
 /**@}*/
 
 /* Configuration Register A */
@@ -1163,6 +1184,44 @@ typedef struct {
 #define ADI_STER5_REV_0_3_POS   (4u)
 #define ADI_STER5_REV_0_3_MASK  (0xF0u)
 
+/* Multiplexer defines */
+#define ADI_MUX_GPIOS_PER_MUX (8u)
+/* Length of the mux measurement sequence */
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE <= ADI_MUX_GPIOS_PER_MUX
+#define ADI_MUX_SEQUENCE_LENGTH (8u)
+#else
+#define ADI_MUX_SEQUENCE_LENGTH (18u)
+#endif
+/* Disable value in mux sequence */
+#define ADI_MUX_DISABLE_VALUE (0xFFu)
+/* GPIO position (0 to 7) used for multiplexed temperature measurement on mux 0 */
+#define ADI_MUX_0_TEMP_GPIO_POSITION (0u)
+/* GPIO position (0 to 7) used for multiplexed temperature measurement on mux 1 */
+#define ADI_MUX_1_TEMP_GPIO_POSITION (1u)
+
+/* I2C defines */
+#define ADI_I2C_ICOM_OFFSET      (4u)
+#define ADI_I2C_ICOM_MASK        (0xFu)
+#define ADI_I2C_ACK_TRIES        (5u)
+#define ADI_I2C_ICOM_BLANK       (0x0u)
+#define ADI_I2C_ICOM_START       (0x6u)
+#define ADI_I2C_ICOM_NO_TRANSMIT (0x7u)
+#define ADI_I2C_FCOM_NO_ACK      (0x8u)
+#define ADI_I2C_FCOM_NO_ACK_STOP (0x9u)
+#define ADI_I2C_FCOM_TARGET_ACK  (0x7u)
+
+/**
+ * Upper bits of ADG728 mux address byte
+ * Set to 0: bit2, bit1 (address), bit0 (R/W)
+ */
+#define ADI_ADG728_ADDRESS_UPPER_BITS (0x98u)
+/* I2C R/W bit, read */
+#define ADI_I2C_READ (1u)
+/* I2C R/W bit, write */
+#define ADI_I2C_WRITE (0u)
+/* I2C padding length in bytes for STCOMM command for transmiting two bytes */
+#define ADI_I2C_STCOMM_PADLEN (6u)
+
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /** Used to choose which configuration register must be addressed */
@@ -1171,6 +1230,12 @@ typedef enum {
     ADI_CFG_REGISTER_SET_B,
     ADI_CFG_REGISTER_SET_E_MAX,
 } ADI_CFG_REGISTER_SET_e;
+
+/** configuration of the mux channels */
+typedef struct {
+    uint8_t muxId;      /*!< multiplexer ID 0 - 3       */
+    uint8_t muxChannel; /*!< multiplexer channel 0 - 7   */
+} ADI_MUX_CH_CFG_s;
 
 /* If needed, add definition of database entries here */
 
@@ -1205,8 +1270,12 @@ typedef struct {
     bool firstMeasurementMade;   /*!< flag indicates if first measurement cycle was completed for all strings */
     bool firstDiagnosticMade;    /*!< flag indicates if all diagnostics made at least one time for all strings */
     uint8_t spiNumberInterfaces; /*!< number of SPI channels that have to be measured */
-    uint8_t currentString;       /*!< string currently being addressed */
-    ADI_DIAG_e diagnosticType[BS_NR_OF_STRINGS];         /*!< which type of diagnostic must be made */
+    uint8_t currentMux[BS_NR_OF_STRINGS];             /*!< mux currently being addressed */
+    ADI_MUX_CH_CFG_s *pMuxSequence[BS_NR_OF_STRINGS]; /*!< pointer to the multiplexer sequence to be measured (contains
+                                                          a list of elements [multiplexer id, multiplexer channels])
+                                                          (1,-1)...(3,-1),(0,1),...(0,7) */
+    uint8_t currentString;                            /*!< string currently being addressed */
+    ADI_DIAG_e diagnosticType[BS_NR_OF_STRINGS];      /*!< which type of diagnostic must be made */
     uint8_t redundantAuxiliaryChannel[BS_NR_OF_STRINGS]; /*!< auxiliary channel for which a redundant measurement must
                                                             be made */
     uint64_t serialId[BS_NR_OF_STRINGS][ADI_N_ADI];      /*!< serial ID of the IC */

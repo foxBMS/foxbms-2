@@ -43,8 +43,8 @@
  * @file    semitec_103jt.h
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -78,6 +78,9 @@
 
 /*========== Includes =======================================================*/
 
+#include "bms-slave_cfg.h"
+
+#include <math.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -92,7 +95,7 @@
 #define TS_SEMITEC_103JT_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 (false)
 
 /** Resistor divider supply voltage in volt */
-#define TS_SEMITEC_103JT_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V (2.5f)
+#define TS_SEMITEC_103JT_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V (SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V)
 
 /**
  * Resistance value of the other resistor (not the NTC) in the resistor
@@ -104,18 +107,20 @@
 /**
  * @brief   returns temperature based on measured ADC voltage
  * @param   adcVoltage_mV voltage in mV
+ * @param   supplyVoltage_V supply voltage in V
  * @return  corresponding temperature in deci &deg;C or INT16_MAX/INT16_MIN if
  *          NTC is shorted or got disconnected. The caller of this functions
  *          needs to check for these return values to prevent invalid data.
  */
-extern int16_t TS_Sem00GetTemperatureFromLut(uint16_t adcVoltage_mV);
+extern int16_t TS_Sem00GetTemperatureFromLut(uint16_t adcVoltage_mV, float_t supplyVoltage_V);
 
 /**
  * @brief   returns temperature based on measured ADC voltage
  * @param   adcVoltage_mV   voltage in mV
+ * @param   supplyVoltage_V supply voltage in V
  * @return  corresponding temperature in deci &deg;C
  */
-extern int16_t TS_Sem00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV);
+extern int16_t TS_Sem00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV, float_t supplyVoltage_V);
 
 /*========== Extern Function Prototypes =====================================*/
 

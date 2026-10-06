@@ -20,5 +20,3 @@ The changes between two releases are described in the :ref:`CHANGELOG`.
    :header-rows: 1
    :delim: ;
    :file: ./releases.csv
-
-The release process is describe in :ref:`PUBLIC_RELEASE_PROCESS`.

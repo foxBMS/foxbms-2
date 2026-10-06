@@ -43,7 +43,7 @@ import shutil
 from pathlib import Path
 
 from ..helpers.logger import logger
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 from ..helpers.spr import run_process
 
 

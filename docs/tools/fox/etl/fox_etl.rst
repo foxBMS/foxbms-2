@@ -344,7 +344,7 @@ started.
 .. note::
 
    If an output format is specified in the configuration file, the table
-   command converts each `json` file into a separate table as explained below
+   command converts each ``json`` file into a separate table as explained below
    in the use-case many to many.
 
 .. tabs::
@@ -391,7 +391,7 @@ The output parameter must be the path to a file.
 .. note::
 
    If an output format is specified in the configuration file, the table
-   command converts each `json` file into a separate table as explained below
+   command converts each ``json`` file into a separate table as explained below
    in the use-case many to many.
 
 .. tabs::

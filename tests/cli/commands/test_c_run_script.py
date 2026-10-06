@@ -59,7 +59,7 @@ class TestFoxCliMainRunScript(unittest.TestCase):
     """Test of the 'run-script' commands and options."""
 
     @patch("cli.commands.c_run_script.run_script_impl")
-    def test_run_script(self, mock_script_impl: MagicMock):
+    def test_run_script(self, mock_script_impl: MagicMock) -> None:
         """Test 'fox.py run-script dummy-argument' command."""
         mock_script_impl.run_python_script.return_value = SubprocessResult(0, "", "")
         runner = CliRunner()
@@ -71,7 +71,7 @@ class TestFoxCliMainRunScript(unittest.TestCase):
         self.assertEqual("", result.stderr)
         self.assertEqual(0, result.exit_code)
 
-    def test_run_script_help(self):
+    def test_run_script_help(self) -> None:
         """Test 'fox.py run-script --help' command."""
         runner = CliRunner()
         result = runner.invoke(main, ["run-script", "--help"])

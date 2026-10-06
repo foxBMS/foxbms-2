@@ -43,8 +43,8 @@
  * @file    adc.h
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -61,22 +61,22 @@
 
 #include "HL_adc.h"
 
+#ifdef UNITY_UNIT_TEST
+#include "database_cfg.h"
+#endif /* UNITY_UNIT_TEST */
+
 #include <stdint.h>
 
 #ifdef UNITY_UNIT_TEST
-#include "database.h"
-
 #include <math.h>
-#endif
+#endif /* UNITY_UNIT_TEST */
 
 /*========== Macros and Definitions =========================================*/
 
 /** End bit position in ADC GroupX Interrupt Flag Register */
 #define ADC_CONVERSION_ENDBIT (8u)
 
-/**
- * State for the ADC conversion
- */
+/** State for the ADC conversion */
 typedef enum {
     ADC_START_CONVERSION,
     ADC_WAIT_CONVERSION_FINISHED,
@@ -99,6 +99,6 @@ extern float_t TEST_ADC_ConvertVoltage(uint16_t adcCounts);
 extern void TEST_ADC_SetAdcConversionState(ADC_STATE_e state);
 extern ADC_STATE_e TEST_ADC_GetAdcConversionState(void);
 extern DATA_BLOCK_ADC_VOLTAGE_s *TEST_ADC_GetAdc1Voltages(void);
-#endif
+#endif /* UNITY_UNIT_TEST */
 
 #endif /* FOXBMS__ADC_H_ */

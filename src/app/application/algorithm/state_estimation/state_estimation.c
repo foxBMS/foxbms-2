@@ -43,8 +43,8 @@
  * @file    state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -57,6 +57,10 @@
 
 /*========== Includes =======================================================*/
 #include "state_estimation.h"
+
+#include "database_cfg.h"
+
+#include "database.h"
 
 #include <stdint.h>
 
@@ -102,4 +106,15 @@ extern void SE_RunStateEstimations(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-#endif
+extern DATA_BLOCK_SOC_s *TEST_SE_GetTableSocEstimation(void) {
+    return &se_tableSocEstimation;
+}
+
+extern DATA_BLOCK_SOH_s *TEST_SE_GetTableSohEstimation(void) {
+    return &se_tableSohEstimation;
+}
+
+extern DATA_BLOCK_SOE_s *TEST_SE_GetTableSoeEstimation(void) {
+    return &se_tableSoeEstimation;
+}
+#endif /* UNITY_UNIT_TEST */

@@ -24,10 +24,9 @@
       },
       "command": "fox-wrapper-place-holder",
       "args": [
-        "ceedling",
-        "--project",
-        "bootloader",
-        "test:${fileBasename}"
+        "waf",
+        "build_bootloader_unit_test_gcc",
+        "--targets=${fileBasenameNoExtension}"
       ],
       "problemMatcher": [
         "$gcc"

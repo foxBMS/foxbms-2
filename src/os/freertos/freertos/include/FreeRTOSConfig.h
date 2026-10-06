@@ -100,6 +100,9 @@ typedef enum
 
 #define configSUPPORT_STATIC_ALLOCATION     ( 1 )
 #define configSUPPORT_DYNAMIC_ALLOCATION    ( 1 )
+
+/* configTOTAL_HEAP_SIZE contributes to the amount of privileged RAM that must fit into KERNEL_DATA in app.cmd.
+ * If this value is increased, verify that the KERNEL_DATA region remains large enough.*/
 #define configTOTAL_HEAP_SIZE               ( ( size_t ) 40 * 1024 )
 #define configAPPLICATION_ALLOCATED_HEAP    ( 0 )
 
@@ -164,6 +167,17 @@ typedef enum
  * overhead of a separate task. Defaults to 0 if left undefined. */
 #define configUSE_PASSIVE_IDLE_HOOK            ( 0 )
 
-#define configASSERT( x )    if( ( x ) == pdFALSE ) { taskDISABLE_INTERRUPTS(); for( ; ; ) {; } }
+/* For unit testing the assertion method has to be defined different because
+* the freeRTOS assertion is not compiled completely and will block testing*/
+#ifdef UNITY_UNIT_TEST
+    #include "CException.h"
+    #undef configASSERT
+    #define configASSERT( x ) \
+    if( !( x ) )              \
+    Throw( 0 )
+#else
+    #define configASSERT( x )    if( ( x ) == pdFALSE ) { taskDISABLE_INTERRUPTS(); for( ; ; ) {; } }
+#endif
+
 
 #endif /* FREERTOS_CONFIG_H */

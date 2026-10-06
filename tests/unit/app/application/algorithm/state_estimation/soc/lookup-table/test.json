@@ -1,0 +1,30 @@
+[
+  {
+    "source": [
+      "src/app/application/algorithm/state_estimation/soc/lookup-table/soc_lookup-table.c",
+      "src/app/application/algorithm/state_estimation/soe/none/soe_none.c",
+      "src/app/application/algorithm/state_estimation/soh/none/soh_none.c",
+      "src/app/application/algorithm/state_estimation/state_estimation.c",
+      "src/app/driver/foxmath/foxmath.c",
+      "tests/unit/app/application/config/battery_cell_cfg.c"
+    ],
+    "test": "test_soc_lookup-table.c",
+    "includes": [
+      "src/app/application/algorithm/state_estimation",
+      "src/app/application/algorithm/state_estimation/soc/lookup-table",
+      "src/app/application/bms",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/sps",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "src/app/driver/fram/fram.h",
+      "src/app/engine/database/database.h"
+    ],
+    "use": "M"
+  }
+]

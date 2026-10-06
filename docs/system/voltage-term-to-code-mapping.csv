@@ -1,0 +1,7 @@
+Documented quantity             ; Existing reference name   ; Implementation mapping                                ; Notes
+|pack-voltage-m-abbr|           ; |pack-voltage-m|          ; ``DATA_BLOCK_SYSTEM_VOLTAGE_1_s.highVoltage_mV[s]``   ; Per-string pack voltage, used in e.g., the redundancy-module.
+|fused-string-voltage-m-abbr|   ; |fused-string-voltage-m|  ; ``DATA_BLOCK_SYSTEM_VOLTAGE_2_s.highVoltage_mV[s]``   ; TODO: Dedicated current sensor V2 measurement (after string fuse).
+|fused-pack-voltage-abbr|       ; |fused-pack-voltage|      ; ``DATA_BLOCK_SYSTEM_VOLTAGE_3_s.highVoltage_mV[s]``   ; Used to derive bus/system-level voltage.
+|string-voltage-m-abbr|         ; |string-voltage-m|        ; ``DATA_BLOCK_PACK_VALUES_s.stringVoltage_mV[s]``      ; Validated string voltage
+|system-voltage-abbr|           ; |system-voltage|          ; ``DATA_BLOCK_PACK_VALUES_s.highVoltageBusVoltage_mV`` ; Bus voltage after contactors. Computed from valid ``DATA_BLOCK_SYSTEM_VOLTAGE_3_s`` measurements of connected/precharging strings.
+|pack-voltage-abbr|             ; |pack-voltage|            ; ``DATA_BLOCK_PACK_VALUES_s.batteryVoltage_mV``        ; Battery pole-to-pole voltage, computed as average of valid string voltages of connected strings.

@@ -39,6 +39,7 @@
 
 """Testing file 'cli/cmd_gui/frame_sim/sim_gui.py'."""
 
+import importlib
 import os
 import shutil
 import sys
@@ -49,95 +50,79 @@ from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 try:
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_sim import sim_gui
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
+    from cli.cmd_gui import frame_base
     from cli.cmd_gui.frame_sim import sim_gui
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 
-RUN_TESTS = os.environ.get("DISPLAY", False) or sys.platform.startswith("win32")
+RUN_TESTS = os.environ.get("DISPLAY", None) or sys.platform.startswith("win32")
 PATH_GUI = PROJECT_BUILD_ROOT / "sim_frame"
 
 
 @unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
-class TestSimulateBmsFrame(unittest.TestCase):
-    """Test of the SimulateBmsFrame class"""
+@patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.update_text")
+class TestCheckThreads(unittest.TestCase):
+    """Test of the 'check_threads' function of the SimulateBmsFrame class"""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls) -> None:  # noqa: D102
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
-        sim_gui.PROJECT_BUILD_ROOT = PATH_GUI
         self.root = tk.Tk()
         self.root.withdraw()
         text = tk.Text()
         self.frame = sim_gui.SimulateBmsFrame(self.root, text)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
+
+    def tearDown(self) -> None:  # noqa: D102
         self.root.update()
         self.root.destroy()
-        sim_gui.PROJECT_BUILD_ROOT = PROJECT_BUILD_ROOT
         remove_data(self.start_time)
 
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.touch()
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("New content.\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(12, self.frame.text_index)
-
-    def test_write_text_not_selected(self):
-        """Test 'write_text' function when SimulateBmsFrame is not selected"""
-        mock_select = MagicMock()
-        mock_select.return_value = ""
-        self.frame.parent.select = mock_select
-        self.frame.file_path.write_text("New content.", encoding="utf-8")
-        self.frame.write_text()
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(0, self.frame.text_index)
-
-    def test_write_text_string(self):
-        """Test 'write_text' function when a string is passed"""
-        mock_select = MagicMock()
-        mock_select.return_value = self.frame
-        self.frame.parent.select = mock_select
-        self.assertEqual("\n", self.frame.text.get("1.0", tk.END))
-        self.frame.write_text(file_input="New content.")
-        self.assertEqual("New content.\n", self.frame.text.get("1.0", tk.END))
-        self.assertEqual(12, self.frame.text_index)
-
     @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.after")
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
     def test_check_threads_alive(
-        self, mock_write_text: MagicMock, mock_after: MagicMock
-    ):
-        """Test 'check_threads' function when the Threads are still alive"""
+        self, mock_after: MagicMock, mock_update_text: MagicMock
+    ) -> None:
+        """Both Threads are alive"""
         self.frame.bms_process = MagicMock()
         self.frame.bms_process.is_alive.return_value = True
         self.frame.unit_process = MagicMock()
         self.frame.unit_process.is_alive.return_value = True
         self.frame.check_threads()
 
-        mock_after.assert_called_once_with(50, self.frame.check_threads)
+        mock_update_text.assert_called_once()
         self.frame.bms_process.is_alive.assert_called_once()
         self.frame.unit_process.is_alive.assert_not_called()
-        mock_write_text.assert_called_once()
+        mock_after.assert_called_once_with(50, self.frame.check_threads)
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_check_threads_dead(self, mock_write_text: MagicMock):
-        """Test 'check_threads' function when the Threads are not alive"""
+    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.after")
+    def test_check_threads_unit_alive(
+        self, mock_after: MagicMock, mock_update_text: MagicMock
+    ) -> None:
+        """Unit Thread is alive"""
+        self.frame.bms_process = MagicMock()
+        self.frame.bms_process.is_alive.return_value = False
+        self.frame.unit_process = MagicMock()
+        self.frame.unit_process.is_alive.return_value = True
+        self.frame.check_threads()
+
+        mock_update_text.assert_called_once()
+        self.frame.bms_process.is_alive.assert_called_once()
+        self.frame.unit_process.is_alive.assert_called_once()
+        mock_after.assert_called_once_with(50, self.frame.check_threads)
+
+    def test_check_threads_dead(self, mock_update_text: MagicMock) -> None:
+        """Threads are not alive"""
         self.frame.bms_process = MagicMock()
         self.frame.bms_process.is_alive.return_value = False
         self.frame.unit_process = MagicMock()
@@ -147,205 +132,228 @@ class TestSimulateBmsFrame(unittest.TestCase):
 
         self.frame.bms_process.is_alive.assert_called_once()
         self.frame.unit_process.is_alive.assert_called_once()
-        mock_write_text.assert_has_calls([call(), call("Simulation terminated.\n")])
+        mock_update_text.assert_has_calls(
+            [call(), call("Simulation has terminated.\n")]
+        )
         self.assertFalse(self.frame.sim_active)
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_check_threads_dead_can_com(self, mock_write_text: MagicMock):
-        """Test 'check_threads' function when the Threads are not alive and
-        the 'can_com_*' attributes exist
-        """
+    def test_check_threads_dead_can_com(self, mock_update_text: MagicMock) -> None:
+        """Threads are not alive and the 'can_com_*' attributes exist"""
         self.frame.bms_process = MagicMock()
         self.frame.bms_process.is_alive.return_value = False
         self.frame.unit_process = MagicMock()
         self.frame.unit_process.is_alive.return_value = False
         self.frame.sim_active = True
         self.frame.can_com_bms = MagicMock()
-        self.frame.can_com_unit = MagicMock
+        self.frame.can_com_unit = MagicMock()
         self.frame.check_threads()
+
         self.frame.bms_process.is_alive.assert_called_once()
         self.frame.unit_process.is_alive.assert_called_once()
-        mock_write_text.assert_has_calls([call(), call("Simulation terminated.\n")])
+        mock_update_text.assert_has_calls(
+            [call(), call("Simulation has terminated.\n")]
+        )
         self.assertFalse(self.frame.sim_active)
         self.assertFalse(hasattr(self.frame, "can_com_bms"))
         self.assertFalse(hasattr(self.frame, "can_com_unit"))
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_start_stop_sim_cb_no_config(self, mock_write_text: MagicMock):
-        """Test 'start_stop_sim_cb' function when CAN Bus configs are missing"""
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+@patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.update_text")
+class TestStartStop(unittest.TestCase):
+    """Test of the 'start_stop_sim_cb' function of the SimulateBmsFrame class"""
+
+    @classmethod
+    def setUpClass(cls) -> None:  # noqa: D102
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+
+    def setUp(self) -> None:  # noqa: D102
+        self.start_time = datetime.now(tz=UTC)
+        self.root = tk.Tk()
+        self.root.withdraw()
+        text = tk.Text()
+        self.frame = sim_gui.SimulateBmsFrame(self.root, text)
+
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
+
+    def tearDown(self) -> None:  # noqa: D102
+        self.root.update()
+        self.root.destroy()
+        remove_data(self.start_time)
+
+    def test_start_stop_sim_no_config(self, mock_update_text: MagicMock) -> None:
+        """Missing CAN Bus configurations"""
         self.frame.start_stop_sim_cb()
-        mock_write_text.assert_called_once_with(
+        mock_update_text.assert_called_once_with(
             "Add CAN Configurations before starting the Simulation.\n"
         )
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_start_stop_sim_cb_active(self, mock_write_text: MagicMock):
-        """Test 'start_stop_sim_cb' function when sim_active is True"""
+    def test_start_stop_sim_active(self, mock_update_text: MagicMock) -> None:
+        """sim_active is True"""
         self.frame.can_bus_bms = MagicMock()
         self.frame.can_bus_unit = MagicMock()
         self.frame.sim_active = True
         self.frame.start_stop_sim_cb()
-        mock_write_text.assert_called_once_with("Stopping the Simulation...\n")
+        mock_update_text.assert_called_once_with("Stopping the Simulation...\n")
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_start_stop_sim_cb_active_can_com(self, mock_write_text: MagicMock):
-        """Test 'start_stop_sim_cb' function when sim_active is True
-        and 'can_com_*' attributes exist
-        """
+    def test_start_stop_sim_active_can_com(self, mock_update_text: MagicMock) -> None:
+        """sim_active is True and 'can_com_*' attributes exist"""
         self.frame.can_bus_bms = MagicMock()
         self.frame.can_bus_unit = MagicMock()
         self.frame.can_com_bms = MagicMock()
         self.frame.can_com_unit = MagicMock()
         self.frame.sim_active = True
         self.frame.start_stop_sim_cb()
-        mock_write_text.assert_called_once_with("Stopping the Simulation...\n")
+        mock_update_text.assert_called_once_with("Stopping the Simulation...\n")
         self.frame.can_com_bms.shutdown.assert_called_once_with(block=True, timeout=1)
         self.frame.can_com_unit.shutdown.assert_called_once_with(block=True, timeout=1)
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
     @patch("cli.cmd_gui.frame_sim.sim_gui.Thread")
-    def test_start_stop_sim_cb_inactive(
-        self, mock_thread: MagicMock, mock_write_text: MagicMock
-    ):
-        """Test 'start_stop_sim_cb' function when sim_active is False
-        and 'can_com_*' attributes exist
-        """
+    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.check_threads")
+    def test_start_stop_sim_inactive(
+        self,
+        mock_check_threads: MagicMock,
+        mock_thread: MagicMock,
+        mock_update_text: MagicMock,
+    ) -> None:
+        """sim_active is False and 'can_com_*' attributes exist"""
         mock_bms_process = MagicMock()
         mock_unit_process = MagicMock()
         mock_thread.side_effect = [mock_bms_process, mock_unit_process]
         self.frame.can_bus_bms = MagicMock()
         self.frame.can_bus_unit = MagicMock()
         self.frame.sim_active = False
-        self.frame.check_threads = MagicMock()
         self.frame.start_stop_sim_cb()
-        mock_write_text.assert_called_once_with("Starting the Simulation...\n")
+
+        mock_update_text.assert_called_once_with("Starting the Simulation...\n")
         self.assertTrue(self.frame.sim_active)
         mock_bms_process.start.assert_called_once()
         mock_unit_process.start.assert_called_once()
-        self.frame.check_threads.assert_called_once()
+        mock_check_threads.assert_called_once()
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_send_msg_cb_inactive(self, mock_write_text: MagicMock):
-        """Test 'send_msg_cb' function when sim_active is False"""
+
+@unittest.skipUnless(RUN_TESTS, "Non graphical tests only")
+@patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.update_text")
+class TestSendMsg(unittest.TestCase):
+    """Test of the 'send_msg_cb' function of the SimulateBmsFrame class"""
+
+    @classmethod
+    def setUpClass(cls) -> None:  # noqa: D102
+        with patch("cli.helpers.project_context.PROJECT_BUILD_ROOT", new=PATH_GUI):
+            importlib.reload(frame_base)
+
+    def setUp(self) -> None:  # noqa: D102
+        self.start_time = datetime.now(tz=UTC)
+        self.root = tk.Tk()
+        self.root.withdraw()
+        text = tk.Text()
+        self.frame = sim_gui.SimulateBmsFrame(self.root, text)
+
+    @classmethod
+    def tearDownClass(cls) -> None:  # noqa: D102
+        importlib.reload(frame_base)
+
+    def tearDown(self) -> None:  # noqa: D102
+        self.root.update()
+        self.root.destroy()
+        remove_data(self.start_time)
+
+    def test_send_msg_cb_inactive(self, mock_update_text: MagicMock) -> None:
+        """sim_active is False"""
         self.frame.sim_active = False
         self.frame.send_msg_cb()
-        mock_write_text.assert_called_once_with("Simulation has to be started first.\n")
+        mock_update_text.assert_called_once_with(
+            "Start the Simulation before sending messages.\n"
+        )
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_send_msg_cb_error(self, mock_write_text: MagicMock):
-        """Test 'send_msg_cb' function when sim_active is True and sending causes an error"""
+    def test_send_msg_cb_error(self, mock_update_text: MagicMock) -> None:
+        """sim_active is True and sending causes an error"""
         self.frame.sim_active = True
         self.frame.can_com_unit = MagicMock()
         self.frame.can_com_unit.write.side_effect = Exception("Error")
         self.frame.send_msg_cb()
-        mock_write_text.assert_has_calls([call("Sending message.\n"), call("Error")])
+        self.frame.can_com_unit.write.assert_called_once()
+        mock_update_text.assert_has_calls([call("Sending message.\n"), call("Error\n")])
 
-    @patch("cli.cmd_gui.frame_sim.sim_gui.SimulateBmsFrame.write_text")
-    def test_send_msg_cb_active(self, mock_write_text: MagicMock):
-        """Test 'send_msg_cb' function when sim_active is True"""
+    def test_send_msg_cb_active(self, mock_update_text: MagicMock) -> None:
+        """sim_active is True"""
         self.frame.sim_active = True
         self.frame.can_com_unit = MagicMock()
         self.frame.send_msg_cb()
-        mock_write_text.assert_called_once_with("Sending message.\n")
+        mock_update_text.assert_called_once_with("Sending message.\n")
         self.frame.can_com_unit.write.assert_called_once()
+
+
+class TestUpdateText(unittest.TestCase):
+    """Test of the 'update_text' function of the SimulateBmsFrame class"""
+
+    def test_no_input(self) -> None:
+        """No file input given"""
+        mock_sim_frame = MagicMock()
+        sim_gui.SimulateBmsFrame.update_text(mock_sim_frame)
+        mock_sim_frame.write_text_from_queue.assert_called_once()
+        mock_sim_frame.write_text.assert_called_once()
+
+    @patch("cli.cmd_gui.frame_sim.sim_gui.threading")
+    def test_sub_thread(self, mock_threading: MagicMock) -> None:
+        """current_thread is not main_thread"""
+        mock_sim_frame = MagicMock()
+        mock_threading.current_thread.return_value = "sub thread"
+        mock_threading.main_thread.return_value = "main thread"
+        sim_gui.SimulateBmsFrame.update_text(mock_sim_frame, "file input")
+        mock_sim_frame.log_queue.put.assert_called_once_with("file input")
+        mock_sim_frame.write_text_from_queue.assert_not_called()
+        mock_sim_frame.write_text.assert_not_called()
+
+    @patch("cli.cmd_gui.frame_sim.sim_gui.threading")
+    def test_main_thread(self, mock_threading: MagicMock) -> None:
+        """current_thread is main_thread"""
+        mock_sim_frame = MagicMock()
+        mock_threading.current_thread.return_value = "main thread"
+        mock_threading.main_thread.return_value = "main thread"
+        sim_gui.SimulateBmsFrame.update_text(mock_sim_frame, "file input")
+        mock_sim_frame.write_text_from_queue.assert_called_once()
+        mock_sim_frame.write_text.assert_has_calls([call("file input"), call()])
 
 
 class TestSimulateBmsFrameNoUiTestableMethods(unittest.TestCase):
     """Test of the SimulateBmsFrame class"""
 
-    def setUp(self):
-        self.start_time = datetime.now(tz=UTC)
-        PATH_GUI.mkdir(parents=True, exist_ok=True)
-
-    def tearDown(self):
-        remove_data(self.start_time)
-
-    def test_write_text_empty(self):
-        """Test 'write_text' function when the file is empty"""
-        mock_sim_frame = MagicMock()
-        mock_sim_frame.parent.nametowidget.return_value = mock_sim_frame  # pylint: disable=no-member,useless-suppression
-        mock_sim_frame.file_path = Path(PATH_GUI / "output_sim_write_text_empty.txt")
-        mock_sim_frame.text = MagicMock()
-        mock_sim_frame.text_index = 0
-        mock_sim_frame.file_path.touch()
-        sim_gui.SimulateBmsFrame.write_text(mock_sim_frame)
-        mock_sim_frame.text.insert.assert_called_once_with(tk.END, "")
-        self.assertEqual(mock_sim_frame.text_index, 0)
-
-    def test_write_text(self):
-        """Test 'write_text' function when the file is not empty"""
-        mock_sim_frame = MagicMock()
-        mock_sim_frame.parent.nametowidget.return_value = mock_sim_frame  # pylint: disable=no-member,useless-suppression
-        mock_sim_frame.file_path = Path(PATH_GUI / "output_sim_write_text.txt")
-        mock_sim_frame.text = MagicMock()
-        mock_sim_frame.text_index = 0
-        mock_sim_frame.file_path.write_text("New content.", encoding="utf-8")
-        sim_gui.SimulateBmsFrame.write_text(mock_sim_frame)
-        mock_sim_frame.text.insert.assert_called_once_with(tk.END, "New content.")
-        self.assertEqual(mock_sim_frame.text_index, 12)
-
-    def test_write_text_not_selected(self):
-        """Test 'write_text' function when SimulateBmsFrame is not selected"""
-        mock_sim_frame = MagicMock()
-        mock_sim_frame.parent.select.return_value = ""  # pylint: disable=no-member,useless-suppression
-        mock_sim_frame.file_path = Path(
-            PATH_GUI / "output_sim_write_text_not_selected.txt"
-        )
-        mock_sim_frame.text = MagicMock()
-        mock_sim_frame.text_index = 0
-        mock_sim_frame.file_path.write_text("New content.", encoding="utf-8")
-        sim_gui.SimulateBmsFrame.write_text(mock_sim_frame)
-        mock_sim_frame.text.insert.assert_not_called()
-        self.assertEqual(mock_sim_frame.text_index, 0)
-
-    def test_write_text_string(self):
-        """Test 'write_text' function when a string is passed"""
-        mock_sim_frame = MagicMock()
-        mock_sim_frame.parent.nametowidget.return_value = mock_sim_frame  # pylint: disable=no-member,useless-suppression
-        mock_sim_frame.file_path = Path(PATH_GUI / "output_sim_write_text_input.txt")
-        mock_sim_frame.text = MagicMock()
-        mock_sim_frame.text_index = 0
-        mock_sim_frame.file_path.touch()
-        sim_gui.SimulateBmsFrame.write_text(mock_sim_frame, "New content.")
-        mock_sim_frame.text.insert.assert_called_once_with(tk.END, "New content.")
-        self.assertEqual(mock_sim_frame.text_index, 12)
-
     @patch("cli.cmd_gui.frame_sim.sim_gui.CAN")
     @patch("cli.cmd_gui.frame_sim.sim_gui.sim_unit")
-    def test_run_sim_unit(self, mock_sim_unit: MagicMock, mock_can: MagicMock):
-        """Test 'run_sim_unit' function"""
-        mock_shutdown = MagicMock()
+    def test_run_unit_sim(self, mock_sim_unit: MagicMock, mock_can: MagicMock) -> None:
+        """Test 'run_unit_sim' function"""
         mock_can.return_value = "can"
-        mock_write_text = MagicMock()
         mock_sim_frame = MagicMock()
         mock_sim_frame.can_bus_unit = "can_config"
-        mock_sim_frame.write_text = mock_write_text
-        mock_sim_frame.can_com_bms.shutdown = mock_shutdown
-        sim_gui.SimulateBmsFrame.run_sim_unit(mock_sim_frame)
+        sim_gui.SimulateBmsFrame.run_unit_sim(mock_sim_frame)
 
         mock_can.assert_called_once_with("CAN Bus Unit", "can_config")
-        mock_sim_unit.assert_called_once_with("can", mock_write_text)
-        mock_shutdown.assert_called_once_with(block=True, timeout=1)
+        mock_sim_unit.assert_called_once_with("can", mock_sim_frame.log_queue)
+        mock_sim_frame.can_com_bms.shutdown.assert_called_once_with(
+            block=True, timeout=1
+        )
 
     @patch("cli.cmd_gui.frame_sim.sim_gui.CAN")
     @patch("cli.cmd_gui.frame_sim.sim_gui.sim_bms")
-    def test_run_sim_bms(self, mock_sim_bms: MagicMock, mock_can: MagicMock):
-        """Test 'run_sim_bms' function"""
-        mock_shutdown = MagicMock()
+    def test_run_bms_sim(self, mock_sim_bms: MagicMock, mock_can: MagicMock) -> None:
+        """Test 'run_bms_sim' function"""
         mock_can.return_value = "can"
-        mock_write_text = MagicMock()
         mock_sim_frame = MagicMock()
         mock_sim_frame.can_bus_bms = "can_config"
-        mock_sim_frame.write_text = mock_write_text
-        mock_sim_frame.can_com_unit.shutdown = mock_shutdown
-        sim_gui.SimulateBmsFrame.run_sim_bms(mock_sim_frame)
+        sim_gui.SimulateBmsFrame.run_bms_sim(mock_sim_frame)
 
         mock_can.assert_called_once_with("CAN Bus BMS", "can_config")
-        mock_sim_bms.assert_called_once_with("can", mock_write_text)
-        mock_shutdown.assert_called_once_with(block=True, timeout=1)
+        mock_sim_bms.assert_called_once_with("can", mock_sim_frame.log_queue)
+        mock_sim_frame.can_com_unit.shutdown.assert_called_once_with(
+            block=True, timeout=1
+        )
 
-    def test_check_threads_alive(self):
-        """Test 'check_threads' function when the Threads are still alive"""
+    def test_check_threads_alive(self) -> None:
+        """Test 'check_threads' function when the Threads are alive"""
         mock_bms_process = MagicMock()
         mock_bms_process.is_alive.return_value = True
         mock_unit_process = MagicMock()
@@ -354,12 +362,13 @@ class TestSimulateBmsFrameNoUiTestableMethods(unittest.TestCase):
         mock_sim_frame.bms_process = mock_bms_process
         mock_sim_frame.unit_process = mock_unit_process
         sim_gui.SimulateBmsFrame.check_threads(mock_sim_frame)
+
+        mock_sim_frame.update_text.assert_called_once()
         mock_sim_frame.after.assert_called_once_with(50, mock_sim_frame.check_threads)
         mock_bms_process.is_alive.assert_called_once()
         mock_unit_process.is_alive.assert_not_called()
-        mock_sim_frame.write_text.assert_called_once()
 
-    def test_check_threads_dead_alive(self):
+    def test_check_threads_dead_alive(self) -> None:
         """Test 'check_threads' function when only one Thread is alive"""
         mock_bms_process = MagicMock()
         mock_bms_process.is_alive.return_value = False
@@ -369,12 +378,13 @@ class TestSimulateBmsFrameNoUiTestableMethods(unittest.TestCase):
         mock_sim_frame.bms_process = mock_bms_process
         mock_sim_frame.unit_process = mock_unit_process
         sim_gui.SimulateBmsFrame.check_threads(mock_sim_frame)
+
+        mock_sim_frame.update_text.assert_called_once()
         mock_sim_frame.after.assert_called_once_with(50, mock_sim_frame.check_threads)
         mock_bms_process.is_alive.assert_called_once()
         mock_unit_process.is_alive.assert_called_once()
-        mock_sim_frame.write_text.assert_called_once()
 
-    def test_check_threads_dead(self):
+    def test_check_threads_dead(self) -> None:
         """Test 'check_threads' function when both Threads are dead"""
         mock_bms_process = MagicMock()
         mock_bms_process.is_alive.return_value = False
@@ -385,12 +395,41 @@ class TestSimulateBmsFrameNoUiTestableMethods(unittest.TestCase):
         mock_sim_frame.unit_process = mock_unit_process
         mock_sim_frame.sim_active = True
         sim_gui.SimulateBmsFrame.check_threads(mock_sim_frame)
+
         mock_bms_process.is_alive.assert_called_once()
         mock_unit_process.is_alive.assert_called_once()
-        mock_sim_frame.write_text.assert_has_calls(
-            [call(), call("Simulation terminated.\n")]
+        mock_sim_frame.update_text.assert_has_calls(
+            [call(), call("Simulation has terminated.\n")]
         )
         self.assertFalse(mock_sim_frame.sim_active)
+
+    def test_write_text_from_queue(self) -> None:
+        """Test 'write_text_from_queue' function"""
+        mock_sim_frame = MagicMock()
+        mock_log_queue = MagicMock()
+        mock_log_queue.empty.side_effect = [False, True]
+        mock_log_queue.get_nowait.return_value = "content"
+        mock_sim_frame.log_queue = mock_log_queue
+        sim_gui.SimulateBmsFrame.write_text_from_queue(mock_sim_frame)
+        mock_sim_frame.write_text.assert_called_once_with("content")
+
+    @patch("builtins.super")
+    def test_on_close_active(self, mock_super: MagicMock) -> None:
+        """Test 'on_close' function when simulation is active"""
+        mock_sim_frame = MagicMock()
+        mock_sim_frame.sim_active = True
+        sim_gui.SimulateBmsFrame.on_close(mock_sim_frame)
+        mock_sim_frame.start_stop_sim_cb.assert_called_once()
+        mock_super.return_value.on_close.assert_called_once()
+
+    @patch("builtins.super")
+    def test_on_close_inactive(self, mock_super: MagicMock) -> None:
+        """Test 'on_close' function when simulation is inactive"""
+        mock_sim_frame = MagicMock()
+        mock_sim_frame.sim_active = False
+        sim_gui.SimulateBmsFrame.on_close(mock_sim_frame)
+        mock_sim_frame.start_stop_sim_cb.assert_not_called()
+        mock_super.return_value.on_close.assert_called_once()
 
 
 def remove_data(start_time: datetime) -> None:

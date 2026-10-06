@@ -44,7 +44,7 @@ import sys
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_run_script import run_script_impl
@@ -57,14 +57,14 @@ class TestRunProgram(unittest.TestCase):
     """Class to test the run precommit"""
 
     @patch("cli.cmd_run_script.run_script_impl.run_process")
-    def test_run_python_script(self, mock_process):
-        """TODO"""
+    def test_run_python_script(self, mock_process: MagicMock) -> None:
+        """Test that Python script arguments are forwarded to run_process."""
         run_script_impl.run_python_script(["--help"])
         _, args, _ = mock_process.mock_calls[0]
         self.assertEqual(args, ([sys.executable, "--help"],))
 
-    def test_run_python_script_no_args(self):
-        """TODO"""
+    def test_run_python_script_no_args(self) -> None:
+        """Test that missing script arguments are reported to the caller."""
         buf = io.StringIO()
         with redirect_stdout(buf):
             result = run_script_impl.run_python_script([])

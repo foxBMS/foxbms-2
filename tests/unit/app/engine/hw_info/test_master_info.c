@@ -43,8 +43,8 @@
  * @file    test_master_info.c
  * @author  foxBMS Team
  * @date    2020-07-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,18 +56,42 @@
 #include "unity.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
+#include "Mockfram_helper.h"
+
+#include "diag_cfg.h"
+#include "fram_cfg.h"
 
 #include "master_info.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/engine/config")
-TEST_INCLUDE_PATH("../../src/app/engine/database")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-#define NUM_DATA_READ_SUB_CALLS                        (3)
-#define SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX (6u)
+#define NUM_DATA_READ_SUB_CALLS (3)
+/* master_info.c::SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX */
+#define TEST_SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX (6u)
+/* master_info.c::SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R1_ohm */
+#define TEST_SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R1_ohm (10000.0f)
+/* master_info.c::SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R2_ohm */
+#define TEST_SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R2_ohm (866.0f)
+/* Input supplied to MINFO_CheckSupplyVoltageClamp30c() by the test callback. */
+#define TEST_MINFO_CLAMP30C_ADC_VOLTAGE_HIGH_mV (2000)
+/* Related to the divider calculation before FRAM_GetCalibratedValue() in master_info.c. */
+#define TEST_MINFO_CLAMP30C_EXPECTED_CALIBRATION_INPUT_HIGH_MV  \
+    (((TEST_SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R1_ohm +  \
+       TEST_SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R2_ohm) / \
+      TEST_SUPPLY_VOLTAGE_CLAMP_30C_RESISTOR_DIVIDER_R2_ohm) *  \
+     (float_t)TEST_MINFO_CLAMP30C_ADC_VOLTAGE_HIGH_mV)
+
+FRAM_ADC_CALIBRATION_s fram_CalibrationData;
+
+float_t ADC_GetCalibratedAdcValue(float_t uncalibratedValue, FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel) {
+
+    const float_t slope  = fram_CalibrationData.slope[(uint32_t)calibrationChannel];
+    const float_t offset = fram_CalibrationData.offset[(uint32_t)calibrationChannel];
+
+    const float_t retValue = (uncalibratedValue - offset) / slope;
+    return retValue;
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -150,7 +174,7 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
         case 0:
         case 1:
             /* Set ADC voltage to 2000mV */
-            adcVoltage_mV = 2000;
+            adcVoltage_mV = TEST_MINFO_CLAMP30C_ADC_VOLTAGE_HIGH_mV;
             break;
         case 2:
             /* Set ADC voltage to 0mV */
@@ -168,9 +192,13 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
 
     /* cast to correct struct */
     ((DATA_BLOCK_ADC_VOLTAGE_s *)pDataToReceiver)
-        ->adc1ConvertedVoltages_mV[SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX] = adcVoltage_mV;
+        ->adc1ConvertedVoltages_mV[TEST_SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX] = adcVoltage_mV;
 
     return STD_OK;
+}
+
+void testMINFOGetClamp30cSupplyVoltage(void) {
+    MINFO_GetClamp30cSupplyVoltage();
 }
 
 void testMINFO_CheckSupplyVoltageClamp30c(void) {
@@ -182,18 +210,22 @@ void testMINFO_CheckSupplyVoltageClamp30c(void) {
 
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
-
+    FRAM_GetCalibratedValue_ExpectAndReturn(
+        TEST_MINFO_CLAMP30C_EXPECTED_CALIBRATION_INPUT_HIGH_MV, FRAM_CALIBRATION_CHANNEL_0, 0.0f);
     MINFO_CheckSupplyVoltageClamp30c();
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: OK event -> database entry must not change */
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    FRAM_GetCalibratedValue_ExpectAndReturn(
+        TEST_MINFO_CLAMP30C_EXPECTED_CALIBRATION_INPUT_HIGH_MV, FRAM_CALIBRATION_CHANNEL_0, 0.0f);
     MINFO_CheckSupplyVoltageClamp30c();
 
     /* ======= RT2/2: NOT_OK event -> database entry must change */
 
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    FRAM_GetCalibratedValue_ExpectAndReturn(0.0f, FRAM_CALIBRATION_CHANNEL_0, 0.0f);
     MINFO_CheckSupplyVoltageClamp30c();
 }

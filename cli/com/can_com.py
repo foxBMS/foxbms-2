@@ -72,7 +72,7 @@ class CAN(ComInterface):
     """
 
     def __init__(self, name: str, parameter: CanBusConfig) -> None:
-        """Initializes the CAN communication interface.
+        """Initialize the CAN communication interface.
 
         Args:
             name (str): Name of the CAN interface.
@@ -82,7 +82,7 @@ class CAN(ComInterface):
         self._processes[CANProcess.__name__] = CANProcess(name, self.control, parameter)
 
     def read(self, block: bool = False, timeout: float | None = None) -> Message | None:
-        """Reads a CAN message from the output queue.
+        """Read a CAN message from the output queue.
 
         Args:
             block (bool): Whether to block if the queue is empty.
@@ -100,7 +100,7 @@ class CAN(ComInterface):
         return self.control.output.get(block=block, timeout=timeout)
 
     def write(self, msg: Message | dict) -> None:
-        """Sends a CAN message by placing it on the input queue.
+        """Send a CAN message by placing it on the input queue.
 
         Args:
             msg (Message): The CAN message to send.
@@ -120,7 +120,7 @@ class CANProcess(ProcessInterface):
     """
 
     def __init__(self, name: str, control: ComControl, parameter: CanBusConfig) -> None:
-        """Initializes the CAN process.
+        """Initialize the CAN process.
 
         Args:
             name (str): Name of the process.
@@ -135,10 +135,11 @@ class CANProcess(ProcessInterface):
         self._op_errs: list[float] = []
 
     def run(self) -> None:
-        """Starts the CAN process:
-        - Connects to the CAN bus
-        - Starts a thread for sending messages
-        - Receives CAN messages in the main thread
+        """Start the CAN process.
+
+        - Connect to the CAN bus
+        - Start a thread for sending messages
+        - Receive CAN messages in the main thread
         """
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         add_queue_handler(self.control.logger)
@@ -151,7 +152,7 @@ class CANProcess(ProcessInterface):
             self._write_can_messages()
 
     def _connect(self) -> BusABC | None:
-        """Creates a connection to the CAN bus.
+        """Create a connection to the CAN bus.
 
         Returns:
             Any | None: The CAN bus object if successful, None otherwise.
@@ -238,7 +239,11 @@ class CANProcess(ProcessInterface):
                 self.control.output.put(msg, timeout=0.1)
 
     def _load_database(self) -> Database | None:
-        """Loads the CAN database from a dbc file"""
+        """Load the CAN database from a dbc file
+
+        Returns:
+            The loaded CAN database, or None if loading fails.
+        """
         try:
             return cast(
                 Database, database.load_file(self.parameter.dbc, encoding="utf-8")
@@ -255,7 +260,7 @@ class CANProcess(ProcessInterface):
     def _get_can_msg(
         msg: Message | dict, start_time: float, dbc: Database | None
     ) -> Message | None:
-        """Provides a valid CAN message with respect to the passed parameter."""
+        """Provide a valid CAN message with respect to the passed parameter."""
         if isinstance(msg, Message):
             return msg
         if isinstance(msg, dict):

@@ -43,13 +43,16 @@
  * @file    rti.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  RTI
  *
  * @brief   Driver for the RTI module.
- * @details TODO
+ * @details Implements timing helpers based on the RTI free-running counter and
+ *          its overflow indicator. The functions convert raw counter values
+ *          into elapsed time information and provide overflow-safe timeout
+ *          evaluation for the bootloader.
  */
 
 /*========== Includes =======================================================*/

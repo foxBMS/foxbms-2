@@ -43,8 +43,8 @@
  * @file    test_spi_spi_notification.c
  * @author  foxBMS Team
  * @date    2025-08-06 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,12 +72,6 @@
 #include <stdbool.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("spi.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -181,6 +175,10 @@ void spiInit(void) {
 }
 
 uint32 spiTransmitData(spiBASE_t *spi, spiDAT1_t *dataconfig_t, uint32 blocksize, uint16 *srcbuff) {
+    (void)spi;
+    (void)dataconfig_t;
+    (void)blocksize;
+    (void)srcbuff;
     return 0u;
 }
 uint32 spiTransmitAndReceiveData(
@@ -189,22 +187,40 @@ uint32 spiTransmitAndReceiveData(
     uint32 blocksize,
     uint16 *srcbuff,
     uint16 *destbuff) {
+    (void)spi;
+    (void)dataconfig_t;
+    (void)blocksize;
+    (void)srcbuff;
+    (void)destbuff;
     return 0u;
 }
 
 void spi1GetConfigValue(spi_config_reg_t *config_reg, config_value_type_t type) {
+    (void)config_reg;
+    (void)type;
 }
 void spi2GetConfigValue(spi_config_reg_t *config_reg, config_value_type_t type) {
+    (void)config_reg;
+    (void)type;
 }
 void spi3GetConfigValue(spi_config_reg_t *config_reg, config_value_type_t type) {
+    (void)config_reg;
+    (void)type;
 }
 void spi4GetConfigValue(spi_config_reg_t *config_reg, config_value_type_t type) {
+    (void)config_reg;
+    (void)type;
 }
 void spi5GetConfigValue(spi_config_reg_t *config_reg, config_value_type_t type) {
+    (void)config_reg;
+    (void)type;
 }
 void spiSetFunctional(spiBASE_t *spi, uint32 port) {
+    (void)spi;
+    (void)port;
 }
 SpiDataStatus_t SpiTxStatus(spiBASE_t *spi) {
+    (void)spi;
     return (SpiDataStatus_t)0;
 }
 

@@ -55,7 +55,7 @@ except ModuleNotFoundError:
 class TestFCan(unittest.TestCase):
     """Class to test the host platform script."""
 
-    def test_can_dataclass(self):
+    def test_can_dataclass(self) -> None:
         """Validate provided CAN interface"""
         # PCAN checks
         CanBusConfig("pcan", "PCAN_USBBUS1")  # ok

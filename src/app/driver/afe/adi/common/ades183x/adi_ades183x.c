@@ -43,8 +43,8 @@
  * @file    adi_ades183x.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -64,6 +64,7 @@
 #include "adi_ades183x_gpio_voltages.h"
 #include "adi_ades183x_helpers.h"
 #include "adi_ades183x_initialization.h"
+#include "adi_ades183x_mux.h"
 #include "adi_ades183x_pec.h"
 #include "adi_ades183x_temperatures.h"
 #include "adi_ades183x_voltages.h"
@@ -122,6 +123,8 @@ ADI_STATE_s adi_stateBase = {
     .currentString                     = 0u,
     .diagnosticType                    = {ADI_SM_START},
     .redundantAuxiliaryChannel         = {0u},
+    .currentMux                        = {0},
+    .pMuxSequence                      = {0},
     .data.txBuffer                     = adi_bufferTxPec,
     .data.rxBuffer                     = adi_bufferRxPec,
     .data.cellVoltage                  = &adi_cellVoltage,
@@ -144,11 +147,16 @@ ADI_STATE_s adi_stateBase = {
 /*========== Static Function Prototypes =====================================*/
 
 /**
+ * @brief   Initialize database entries
+ * @param   pAdiState state of the ADI driver
+ */
+extern void ADI_InitializeDatabase(ADI_STATE_s *pAdiState);
+
+/**
  * @brief   Read local variables from database and write local variables to
  *          database.
  * @param   pAdiState state of the ADI driver
  */
-
 static void ADI_AccessToDatabase(ADI_STATE_s *pAdiState);
 
 /**
@@ -329,7 +337,7 @@ static void ADI_SanityConfigurationCheck(ADI_STATE_s *pAdiState) {
 
     /* Check configuration for temperature sensors */
     uint8_t configuredTemperatureSensorInputs = 0u;
-    for (uint16_t gpioIndex = 0u; gpioIndex < SLV_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
+    for (uint16_t gpioIndex = 0u; gpioIndex < ADI_MAXIMUM_NUMBER_OF_SUPPORTED_TEMP_SENSORS; gpioIndex++) {
         if (adi_temperatureInputsUsed[gpioIndex] != 0u) {
             configuredTemperatureSensorInputs++;
         }
@@ -339,6 +347,40 @@ static void ADI_SanityConfigurationCheck(ADI_STATE_s *pAdiState) {
          * configured in AFE driver then in overall battery system configuration */
         FAS_ASSERT(FAS_TRAP);
     }
+}
+
+extern void ADI_InitializeDatabase(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
+
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        pAdiState->data.cellVoltage->state = 0u;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pAdiState->data.cellVoltage->cellVoltage_mV[s][m][cb]     = 0;
+                pAdiState->data.cellVoltage->invalidCellVoltage[s][m][cb] = true;
+            }
+        }
+
+        pAdiState->data.cellTemperature->state = 0u;
+
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                pAdiState->data.cellTemperature->cellTemperature_ddegC[s][m][ts]  = 0;
+                pAdiState->data.cellTemperature->invalidCellTemperature[s][m][ts] = true;
+            }
+        }
+
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pAdiState->data.balancingControl->activateBalancing[s][m][cb] = false;
+            }
+        }
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            pAdiState->serialId[s][m] = 0u;
+        }
+    }
+
+    DATA_WRITE_DATA(pAdiState->data.cellVoltage, pAdiState->data.cellTemperature, pAdiState->data.balancingControl);
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -392,14 +434,24 @@ extern void ADI_MeasurementCycle(ADI_STATE_s *pAdiState) {
     STD_RETURN_TYPE_e requestReceived = STD_OK;
     AFE_REQUEST_e request             = AFE_NO_REQUEST;
 
+    ADI_InitializeDatabase(pAdiState);
     /* AXIVION Next Line Style MisraC2012-2.2 FaultDetection-DeadBranches: non-blocking driver requires an infinite
      * loop for the driver implementation */
     while (FOREVER()) {
         if (pAdiState->measurementStarted == false) { /* Wait until requested to start */
+#if (SLV_USE_MUX_FOR_TEMP == true)
+            ADI_ResetAllMuxIndices(pAdiState);
+            ADI_SetMuxChannel(pAdiState);
+#endif
             pAdiState->measurementStarted = ADI_ProcessMeasurementNotStartedState(pAdiState, &request);
         } else {
             while (pAdiState->currentString < pAdiState->spiNumberInterfaces) {
                 ADI_RunCurrentStringMeasurement(pAdiState);
+#if (SLV_USE_MUX_FOR_TEMP == true)
+                /* Set mux channel according to mux sequence */
+                ADI_IncrementMuxIndex(pAdiState);
+                ADI_SetMuxChannel(pAdiState);
+#endif
                 ++pAdiState->currentString;
             }
             pAdiState->currentString = 0u;

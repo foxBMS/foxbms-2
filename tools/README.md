@@ -2,12 +2,10 @@
 
 | Directory Name   | Long Name                   | Content Description                                          |
 | ---------------- | --------------------------- | ------------------------------------------------------------ |
-| `crc`            | Cyclic Redundancy Check     | Various Cyclic Redundancy Check helpers and scripts          |
-| `dbc`            | CAN database                | CAN database for foxBMS 2                                    |
-| `debugger`       | Debugger                    | Configuration files for debugger settings                    |
-| `deploy`         | Deploy                      | Scripts for deploying the generated documentation internally |
-| `ide`            | Editor/IDEs                 | Configuration file templates for VS Code settings            |
-| `precharge`      | Precharge                   | Script to help dimensioning the precharge resistor           |
-| `utils`          | Utils                       | Utility scripts                                              |
-| `waf-tools`      | Waf tools                   | Waf tools that are not part of vendored Waf                  |
-| `waf`            | Waf                         | The build tool binary                                        |
+| `cmock`          | CMock                       | vendored CMock sources                                       |
+| `crc`            | Cyclic redundancy check     | Helper script and information for working with CRC-functions |
+| `dbc`            | CAN database                | CAN message and signal description                           |
+| `debugger`       | Debugger                    | Debugger setups and usage                                    |
+| `ide`            | Editor/IDEs                 | Setups for editors and Integrated Development Environments   |
+| `waf_tools`      | Waf tools                   | Waf tools that are not part of vendored Waf                  |
+| `waf`            | Waf                         | Waf binary                                                   |

@@ -43,13 +43,16 @@
  * @file    io.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  IO
  *
  * @brief   Driver for the IO module
- * @details TODO
+ * @details Implements the low-level IO helpers by validating register pointers
+ *          and pin numbers before updating the corresponding hardware bits.
+ *          This file provides a thin convenience layer over direct register
+ *          manipulation for output control.
  */
 
 /*========== Includes =======================================================*/

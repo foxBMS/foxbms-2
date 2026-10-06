@@ -43,8 +43,8 @@
  * @file    imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -105,10 +105,10 @@ typedef enum {
 typedef enum {
     IMD_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
     IMD_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
-    IMD_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
+    IMD_FSM_SUBSTATE_INITIALIZATION_0,    /*!< first initialization substate */
     IMD_FSM_SUBSTATE_INITIALIZATION_1,    /*!< second initialization substate */
     IMD_FSM_SUBSTATE_INITIALIZATION_EXIT, /*!< last initialization substate */
-    IMD_FSM_SUBSTATE_RUNNING_0,           /*!< fist running substate */
+    IMD_FSM_SUBSTATE_RUNNING_0,           /*!< first running substate */
     IMD_FSM_SUBSTATE_RUNNING_1,           /*!< second running substate */
     IMD_FSM_SUBSTATE_RUNNING_2,           /*!< third running substate */
 } IMD_FSM_SUBSTATES_e;

@@ -43,13 +43,17 @@
  * @file    sys_mon.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
  * @brief   System monitoring module
- * @details TODO
+ * @details This module tracks timing notifications from the monitored tasks,
+ *          detects timing violations, and stores persistent violation records
+ *          in FRAM.
+ *          It also provides the interfaces used to query and clear recorded
+ *          monitoring results.
  */
 
 /*========== Includes =======================================================*/

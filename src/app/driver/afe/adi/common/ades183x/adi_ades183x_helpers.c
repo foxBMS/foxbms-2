@@ -43,8 +43,8 @@
  * @file    adi_ades183x_helpers.c
  * @author  foxBMS Team
  * @date    2022-12-06 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -214,7 +214,7 @@ extern void ADI_WriteCommandConfigurationBits(
 
     uint16_t command = (((uint16_t)configuredCommand[ADI_COMMAND_FIRST_BYTE_POSITION]) << ADI_BYTE_SHIFT) |
                        configuredCommand[ADI_COMMAND_SECOND_BYTE_POSITION];
-    uint16_t mask = (~(ADI_COMMAND_MASK_SEED << length)) << position;
+    uint16_t mask    = (~(ADI_COMMAND_MASK_SEED << length)) << position;
     /* Set bits to modify to 0 */
     command &= ~mask;
     /* Now set bits, works if 0 or not */
@@ -612,12 +612,12 @@ extern void ADI_WriteRegister(
     adiState->data.txBuffer[ADI_COMMAND_FIRST_BYTE_POSITION]  = registerToWrite[ADI_COMMAND_FIRST_BYTE_POSITION];
     adiState->data.txBuffer[ADI_COMMAND_SECOND_BYTE_POSITION] = registerToWrite[ADI_COMMAND_SECOND_BYTE_POSITION];
     if (pecFaultInjection == ADI_COMMAND_PEC_FAULT_INJECTION) {
-        adiState->data.txBuffer[ADI_COMMAND_PEC_FIRST_BYTE_POSITION] = (PEC_result >> ADI_BYTE_SHIFT) &
-                                                                       ADI_ONE_BYTE_MASK;
+        adiState->data.txBuffer[ADI_COMMAND_PEC_FIRST_BYTE_POSITION]  = (PEC_result >> ADI_BYTE_SHIFT) &
+                                                                        ADI_ONE_BYTE_MASK;
         adiState->data.txBuffer[ADI_COMMAND_PEC_SECOND_BYTE_POSITION] = (PEC_result & ADI_ONE_BYTE_MASK) + 1u;
     } else {
-        adiState->data.txBuffer[ADI_COMMAND_PEC_FIRST_BYTE_POSITION] = (PEC_result >> ADI_BYTE_SHIFT) &
-                                                                       ADI_ONE_BYTE_MASK;
+        adiState->data.txBuffer[ADI_COMMAND_PEC_FIRST_BYTE_POSITION]  = (PEC_result >> ADI_BYTE_SHIFT) &
+                                                                        ADI_ONE_BYTE_MASK;
         adiState->data.txBuffer[ADI_COMMAND_PEC_SECOND_BYTE_POSITION] = PEC_result & ADI_ONE_BYTE_MASK;
     }
 

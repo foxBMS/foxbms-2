@@ -1,3 +1,6 @@
+..
+   cspell:ignore Cppcheck
+
 |foxbms| updated to TI ARM CGT 20.2.5.LTS.
 Installation instructions are found at :numref:`css_install`.
 
@@ -97,7 +100,7 @@ Changed
 
 - Function names are now checked by Axivion to conform to the guidelines.
 - Improved the MISRA-C conformance of of the database module
-  (:ref:`DATABASE_MODULE`).
+  (:ref:`DATABASE_ENGINE`).
 - Fixed the pack current check in ``SOA_CheckCurrent``.
 - Fixed LLVM install script to check for permissions before running the script.
 

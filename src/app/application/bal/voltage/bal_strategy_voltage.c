@@ -43,8 +43,8 @@
  * @file    bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -53,9 +53,8 @@
  */
 
 /*========== Includes =======================================================*/
-#include "battery_cell_cfg.h"
-
 #include "bal.h"
+#include "battery_cell_cfg_types.h"
 #include "bms.h"
 #include "database.h"
 #include "os.h"
@@ -68,10 +67,12 @@
 /*========== Static Constant and Variable Definitions =======================*/
 /** local storage of the #DATA_BLOCK_BALANCING_CONTROL_s table */
 static DATA_BLOCK_BALANCING_CONTROL_s bal_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+/** local storage of the #DATA_BLOCK_CELL_VOLTAGE_s table */
+static DATA_BLOCK_CELL_VOLTAGE_s bal_tableCellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+/** local storage of the #DATA_BLOCK_MIN_MAX_s table */
+static DATA_BLOCK_MIN_MAX_s bal_tableMinMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 
-/**
- * @brief   contains the state of the contactor state machine
- */
+/** contains the state of the contactor state machine */
 static BAL_STATE_s bal_state = {
     .timer                  = 0,
     .stateRequest           = BAL_STATE_NO_REQUEST,
@@ -92,13 +93,14 @@ static BAL_STATE_s bal_state = {
 
 /*========== Static Function Prototypes =====================================*/
 /**
- * @brief   Activates voltage based balancing
- * @details TODO
+ * @brief   Activate voltage-based balancing for eligible cells
+ * @details Decrease the charge difference of each cell that is currently
+ *          being balanced.
  */
 static bool BAL_ActivateBalancing(void);
 
 /**
- * @brief   Deactivates voltage based balancing
+ * @brief   Deactivate history-based balancing
  * @details The balancing state of all cells in all strings set to inactivate
  *          (that is 0) and the delta charge is set to 0 As. The balancing
  *          enable bit is deactivate (that is 0).
@@ -106,40 +108,40 @@ static bool BAL_ActivateBalancing(void);
 static void BAL_Deactivate(void);
 
 /**
- * @brief   State machine subfunction to check if balancing is allowed
- * @details Checks if balancing is allowed. If it is it transfers in the actual
+ * @brief   Process the balancing permission state
+ * @details Handle global balancing permission. If it is it transfers in the actual
  *          balancing state.
  */
 static void BAL_ProcessStateCheckBalancing(BAL_STATE_REQUEST_e state_request);
 
 /**
- * @brief   State machine subfunction to balance the battery cell
+ * @brief   Process the history-based balancing state
  * @details TODO
  */
 static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request);
 
 /*========== Static Function Implementations ================================*/
 static bool BAL_ActivateBalancing(void) {
-    bool finished               = true;
-    DATA_BLOCK_MIN_MAX_s minMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
-    /* Database entry is declared static, to place it in the data segment and not on the stack */
-    static DATA_BLOCK_CELL_VOLTAGE_s cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+    bool finished = true;
 
-    DATA_READ_DATA(&cellVoltage, &minMax);
+    DATA_READ_DATA(&bal_tableCellVoltage, &bal_tableMinMax);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        int16_t min              = minMax.minimumCellVoltage_mV[s];
-        uint16_t nrBalancedCells = 0u;
+        int16_t minimumCellVoltage_mV = bal_tableMinMax.minimumCellVoltage_mV[s];
+        uint16_t nrBalancedCells      = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if (cellVoltage.cellVoltage_mV[s][m][cb] > (min + bal_state.balancingThreshold)) {
+                const int16_t minimumCellVoltageWithThreshold_mV = minimumCellVoltage_mV + bal_state.balancingThreshold;
+                const bool mustBalance                           = bal_tableCellVoltage.cellVoltage_mV[s][m][cb] >
+                                                                   minimumCellVoltageWithThreshold_mV;
+                if (mustBalance) {
                     bal_tableBalancingControl.activateBalancing[s][m][cb] = true;
-                    finished                                              = false;
+                    nrBalancedCells++;
+                    finished = false;
                     /* set without hysteresis so that we now balance all cells that are below the initial threshold */
                     bal_state.balancingThreshold              = BAL_GetBalancingThreshold_mV();
                     bal_state.active                          = true;
                     bal_tableBalancingControl.enableBalancing = true;
-                    nrBalancedCells++;
                 } else {
                     bal_tableBalancingControl.activateBalancing[s][m][cb] = false;
                 }
@@ -147,6 +149,7 @@ static bool BAL_ActivateBalancing(void) {
         }
         bal_tableBalancingControl.nrBalancedCells[s] = nrBalancedCells;
     }
+
     DATA_WRITE_DATA(&bal_tableBalancingControl);
 
     return finished;
@@ -155,7 +158,7 @@ static bool BAL_ActivateBalancing(void) {
 static void BAL_Deactivate(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 bal_tableBalancingControl.activateBalancing[s][m][cb] = false;
                 bal_tableBalancingControl.deltaCharge_mAs[s][m][cb]   = 0u;
             }
@@ -351,6 +354,18 @@ extern BAL_FSM_e BAL_GetState(void) {
 
 extern DATA_BLOCK_BALANCING_CONTROL_s *TEST_BAL_GetBalancingControl(void) {
     return &bal_tableBalancingControl;
+}
+
+extern DATA_BLOCK_CELL_VOLTAGE_s *TEST_BAL_GetCellVoltage(void) {
+    return &bal_tableCellVoltage;
+}
+
+extern DATA_BLOCK_MIN_MAX_s *TEST_BAL_GetMinMax(void) {
+    return &bal_tableMinMax;
+}
+
+extern bool TEST_BAL_ActivateBalancing(void) {
+    return BAL_ActivateBalancing();
 }
 
 extern BAL_STATE_s *TEST_BAL_GetBalancingState(void) {

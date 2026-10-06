@@ -43,14 +43,17 @@
  * @file    can_how-to_tx_cyclic.c
  * @author  foxBMS Team
  * @date    2022-09-12 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
  * @brief   Documentation file to show how a new cyclic transmitted CAN
  *          message is added to the project.
- * @details TODO
+ * @details This example code demonstrates how cyclically transmitted CAN
+ *          messages must be added.
+ *          It shows the required message property macros, message table entry,
+ *          and transmit callback declaration and definition.
  *
  */
 

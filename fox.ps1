@@ -37,6 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore LASTEXITCODE
+
 <#
 .SYNOPSIS
 Runs the foxBMS entry-point script with the configured Python environment.
@@ -104,7 +106,7 @@ function InstallHelper($env_dir, $cli_args) {
     # we have at least some 'py' executable.
     $PYTHON_SETUP_SCRIPT = Join-Path "$PSScriptRoot" "cli" "helpers" "python_setup.py"
     if ($cli_args.Contains("gui")) {
-        # in GUI mode we need to ensure that 'py -3.12' succeeds in the
+        # in GUI mode we need to ensure that 'py -3.14' succeeds in the
         # python_setup.py script, so we need to run this test here also and exit
         # in case Python3.12 is not available.
         py -3.12 --version *> $null
@@ -168,6 +170,24 @@ function InstallHelper($env_dir, $cli_args) {
     exit 1
 }
 
+# Before anything: If the path to the project contains whitespace, print or
+# show an error message and exit.
+if ($PSCommandPath -match '\s') {
+    if ($args.Contains("gui")) {
+    [System.Windows.MessageBox]::Show(
+        "The project path contains whitespace:`n$PSScriptRoot`n`n" +
+        "Move the project to a path without spaces.",
+        "Invalid Project Path",
+        "OK",
+        "Error"
+    ) | Out-Null
+    } else {
+        Write-Host "The project path contains whitespace: $PSScriptRoot" -ForegroundColor Red
+        Write-Host "Move the project to a path without spaces." -ForegroundColor Red
+    }
+    exit 1
+}
+
 # Push into the repository root
 Push-Location "$PSScriptRoot"
 
@@ -175,7 +195,7 @@ Push-Location "$PSScriptRoot"
 $env:PREFIX = "C:\foxbms"
 
 # Name of the Python environment
-$env:ENV_NAME = "2025-11-pale-fox"
+$env:ENV_NAME = "2026-07-pale-fox"
 
 $env:FOXBMS_PYTHON_ENV_DIRECTORY = Join-Path "$env:PREFIX" "envs" "$env:ENV_NAME"
 

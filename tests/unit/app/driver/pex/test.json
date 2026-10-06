@@ -1,0 +1,24 @@
+[
+  {
+    "source": [
+      "src/app/driver/config/pex_cfg.c",
+      "src/app/driver/pex/pex.c"
+    ],
+    "test": "test_pex.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/i2c",
+      "src/app/driver/pex",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/engine/config/diag_cfg.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ]
+  }
+]

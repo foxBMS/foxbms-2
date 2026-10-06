@@ -1,5 +1,5 @@
-Symbol          ; Reference Name            ; Description
-V\ :sub:`Sm`    ; ``StringVoltageM``        ; Voltage of string m
-V\ :sub:`FSm`   ; ``FusedStringVoltageM``   ; Voltage after string fuse of string m
-V\ :sub:`Pm`    ; ``PackVoltageM``          ; Pack voltage
-I\ :sub:`Sm`    ; ``StringCurrentM``        ; Current in string m
+Symbol                          ; Reference Name            ; Description
+|string-voltage-m-abbr|         ; |string-voltage-m|        ; Voltage of string m
+|fused-string-voltage-m-abbr|   ; |fused-string-voltage-m|  ; Voltage after string fuse of string m
+|pack-voltage-m-abbr|           ; |pack-voltage-m|          ; Pack voltage
+|string-current-m-abbr|         ; |string-current-m|        ; Current in string m

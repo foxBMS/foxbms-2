@@ -62,7 +62,7 @@ import click
 from click._termui_impl import ProgressBar  # pylint:disable=unused-import
 
 from ..helpers.logger import logger
-from ..helpers.misc import (
+from ..helpers.project_context import (
     FOXBMS_APP_CRC_FILE,
     FOXBMS_APP_INFO_FILE,
     FOXBMS_BIN_FILE,
@@ -113,6 +113,7 @@ class BootloaderInterface(ABC):
 
         Args:
             time_to_wait: time to wait for bootloader to reset itself.
+            num_of_repeat: number of retries while polling for bootloader state.
 
         Returns:
             True if the bootloader has been successfully reset, False
@@ -243,13 +244,13 @@ class Bootloader:
         crc_table: Path = FOXBMS_APP_CRC_FILE,
         program_info: Path = FOXBMS_APP_INFO_FILE,
     ) -> None:
-        """Initialization function.
+        """Initialize the bootloader.
 
         Args:
-            interface: the communication interface of the bootloader
-            path_app_binary: the path of the binary file
-            path_crc_64_table: the path of the temporary file that stores the
-                CRC table
+            interface: communication interface to the bootloader.
+            app: path to the application binary file.
+            crc_table: path to the generated CRC table file.
+            program_info: path to the generated program info JSON file.
         """
         # Initialize the binary file object for bootloader
         self.binary_file = BootloaderBinaryFile(
@@ -400,6 +401,8 @@ class Bootloader:
         Args:
             i_loop_start: start index of data loops to send (min. 1)
             i_loop_end: end index of data loops to send
+            is_first_sub_sector: True if this is the first subsector in the
+                current sector transfer.
 
         Returns:
             True if the data has been successfully sent, False otherwise
@@ -484,8 +487,12 @@ class Bootloader:
         Args:
             i_loop: start loop number
             total_num_of_loops: total loop number
+            size_of_sector_in_loops: number of loops contained in this sector.
             times_of_repeat: time to repeat if a subsector cannot be
                 successfully sent
+            progressbar: optional progress bar to update while sending data.
+            progressbar_sector_steps: number of progress bar steps assigned to
+                this sector.
 
         Returns:
             True if this sector data has been successfully sent, False
@@ -579,6 +586,7 @@ class Bootloader:
 
         Args:
            i_loop: the start data loop number (must be 1 or greater).
+           progressbar: optional progress bar to update during transfer.
         """
         if i_loop < 1:
             sys.exit("The input loop number is smaller than the minimum (1).")

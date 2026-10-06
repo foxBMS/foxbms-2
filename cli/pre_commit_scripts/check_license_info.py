@@ -140,7 +140,14 @@ def _checker_for_file(path: Path) -> str | None:
 
 
 def _as_repo_relative(path: Path) -> Path:
-    """Return a repository-relative path when possible."""
+    """Return a repository-relative path when possible.
+
+    Args:
+        path: The path to convert.
+
+    Returns:
+        The repository-relative path if possible, otherwise the original path.
+    """
     if not path.is_absolute():
         return path
     try:
@@ -150,7 +157,14 @@ def _as_repo_relative(path: Path) -> Path:
 
 
 def _source_to_test_file(path: Path) -> Path | None:
-    """Map a src C file to its accompanying tests/unit test file path."""
+    """Map a src C file to its accompanying tests/unit test file path.
+
+    Args:
+        path: The path to the src C file.
+
+    Returns:
+        The path to the corresponding tests/unit test file, or ``None`` if not applicable.
+    """
     rel_path = _as_repo_relative(path)
     if rel_path.suffix != ".c":
         return None
@@ -167,7 +181,15 @@ def _source_to_test_file(path: Path) -> Path | None:
 
 
 def _source_to_test_wscript(path: Path) -> Path | None:
-    """Map a src wscript file to its accompanying tests/unit wscript path."""
+    """Map a src wscript file to its accompanying tests/unit wscript path.
+
+    Args:
+        path: The path to the src wscript file.
+
+    Returns:
+        The path to the corresponding tests/unit wscript file, or ``None`` if
+        not applicable.
+    """
     rel_path = _as_repo_relative(path)
     if rel_path.name != "wscript":
         return None
@@ -186,7 +208,11 @@ def _source_to_test_wscript(path: Path) -> Path | None:
 def _read_text_utf8_lines(file: Path) -> list[str] | None:
     """Read text file as UTF-8 and return split lines.
 
-    Returns ``None`` and emits an error when decoding fails.
+    Args:
+        file: The path to the file to read.
+
+    Returns:
+        List of lines if successful, otherwise ``None`` on error.
     """
     try:
         return file.read_text(encoding="utf-8").splitlines()
@@ -214,7 +240,6 @@ def compare_header(
 
     Returns:
         ``1`` if the selected header range differs, otherwise ``0``.
-
     """
     err = 0
     if len(actual) < end:
@@ -244,7 +269,6 @@ def check_asm(files: Sequence[str], license_type: LicenseTypes = "confidential")
 
     Returns:
         Count of files with incorrect headers.
-
     """
     err = 0
     prolog = [
@@ -287,7 +311,6 @@ def check_c(files: Sequence[str], license_type: LicenseTypes = "confidential") -
 
     Returns:
         Count of files with incorrect headers.
-
     """
     err = 0
     prolog = [
@@ -346,7 +369,6 @@ def check_py(files: Sequence[str], license_type: LicenseTypes = "confidential") 
 
     Returns:
         Count of files with incorrect headers.
-
     """
     err = 0
     prolog = [
@@ -405,7 +427,6 @@ def check_yaml(
 
     Returns:
         Count of files with incorrect headers.
-
     """
     err = 0
     prolog = [
@@ -449,7 +470,6 @@ def check_toml(
 
     Returns:
         Count of files with incorrect headers.
-
     """
     # same header
     return check_yaml(files, license_type)
@@ -466,7 +486,6 @@ def check_pwsh(
 
     Returns:
         Count of files with incorrect headers.
-
     """
     # same header
     return check_py(files, license_type)
@@ -483,7 +502,6 @@ def check_shell(
 
     Returns:
         Count of files with incorrect headers.
-
     """
     # same header
     return check_py(files, license_type)
@@ -497,7 +515,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Returns:
         Exit code (0 if all headers are correct, >0 otherwise).
-
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")

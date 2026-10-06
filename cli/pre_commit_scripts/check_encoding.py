@@ -59,7 +59,14 @@ ENCODING_MAP = {
 
 
 def _encoding_for_file(path: Path) -> str:
-    """Return expected file encoding based on suffix, defaulting to UTF-8."""
+    """Return expected file encoding based on suffix, defaulting to UTF-8.
+
+    Args:
+        path: The path to the file.
+
+    Returns:
+        The expected file encoding.
+    """
     return ENCODING_MAP.get(path.suffix.lower(), "utf-8")
 
 

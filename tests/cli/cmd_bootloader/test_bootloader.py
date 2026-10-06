@@ -56,14 +56,14 @@ try:
     from cli.cmd_bootloader.bootloader_binary_file import BootloaderBinaryFile
     from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan
     from cli.cmd_bootloader.bootloader_can_messages import BootFsmState, CanFsmState
-    from cli.helpers.misc import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
+    from cli.helpers.project_context import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_bootloader.bootloader import Bootloader, BootloaderStatus
     from cli.cmd_bootloader.bootloader_binary_file import BootloaderBinaryFile
     from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan
     from cli.cmd_bootloader.bootloader_can_messages import BootFsmState, CanFsmState
-    from cli.helpers.misc import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
+    from cli.helpers.project_context import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
 
 # Other paths
 PATH_TEMP = Path(__file__).parent / "temp"
@@ -78,9 +78,13 @@ class TestBootloader(unittest.TestCase):
     @patch.object(np, "genfromtxt")
     @patch.object(json, "loads")
     @patch.object(Path, "read_text")
-    def setUp(
-        self, mock_read_text, mock_loads, mock_genfromtxt, mock_get_sha256_file_hash_str
-    ):
+    def setUp(  # noqa: D102
+        self,
+        mock_read_text: MagicMock,
+        mock_loads: MagicMock,
+        mock_genfromtxt: MagicMock,
+        mock_get_sha256_file_hash_str: MagicMock,
+    ) -> None:
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus(
             "test", interface="virtual", preserve_timestamps=True
@@ -142,10 +146,10 @@ class TestBootloader(unittest.TestCase):
         # Load dbc file
         self.db = database.load_file(BOOTLOADER_DBC_FILE)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.can_bus.shutdown()
 
-    def test_get_sub_sector_loops(self, *_):
+    def test_get_sub_sector_loops(self, *_: object) -> None:
         """Function to test function _get_sub_sector_loops()."""
         with self.assertRaises(SystemExit) as cm:
             self.bd._get_sub_sector_loops(idx=0, max_idx=1024)
@@ -196,7 +200,7 @@ class TestBootloader(unittest.TestCase):
         self.assertEqual(i_loop_sub_sector_start, 2050)
         self.assertEqual(i_loop_sub_sector_end, 2050)
 
-    def test_get_sector_size_using_num_of_data_loops(self, *_):
+    def test_get_sector_size_using_num_of_data_loops(self, *_: object) -> None:
         """Function to test function _get_sector_size_using_num_of_data_loops()."""
         i_loops_start = 1
         for i_sector in range(7, 32):
@@ -226,12 +230,12 @@ class TestBootloader(unittest.TestCase):
     @patch.object(BootloaderInterfaceCan, "get_bootloader_state")
     def test_check_target(
         self,
-        mock_get_bootloader_state,
-        mock_get_current_num_of_loops,
-        mock_get_foxbms_state,
-        mock_get_bootloader_version_num,
-        *_,
-    ):
+        mock_get_bootloader_state: MagicMock,
+        mock_get_current_num_of_loops: MagicMock,
+        mock_get_foxbms_state: MagicMock,
+        mock_get_bootloader_version_num: MagicMock,
+        *_: MagicMock,
+    ) -> None:
         """Function to test function check_target()."""
         # Case 1-1: return 3, the information of bootloader can not be reached.
         mock_get_bootloader_state.return_value = (None, None)
@@ -389,8 +393,12 @@ class TestBootloader(unittest.TestCase):
     @patch.object(BootloaderInterfaceCan, "wait_can_ack_msg")
     @patch.object(BootloaderInterfaceCan, "send_data_to_bootloader")
     def test_send_and_validate_vector_table(
-        self, mock_send_data_to_bootloader, mock_wait_can_ack_msg, mock_send_crc, *_
-    ):
+        self,
+        mock_send_data_to_bootloader: MagicMock,
+        mock_wait_can_ack_msg: MagicMock,
+        mock_send_crc: MagicMock,
+        *_args: MagicMock,
+    ) -> None:
         """Function to test function send_and_validate_vector_table()."""
         mock_send_data_to_bootloader.return_value = None
         # False Exit Case 1
@@ -441,12 +449,12 @@ class TestBootloader(unittest.TestCase):
     @patch.object(BootloaderBinaryFile, "get_crc_and_data_by_index")
     def test_send_data_as_a_sub_sector(
         self,
-        mock_get_crc_and_data_by_index,
-        mock_send_loop_number_to_bootloader,
-        mock_send_data_to_bootloader,
-        mock_wait_can_ack_msg,
-        *_,
-    ):
+        mock_get_crc_and_data_by_index: MagicMock,
+        mock_send_loop_number_to_bootloader: MagicMock,
+        mock_send_data_to_bootloader: MagicMock,
+        mock_wait_can_ack_msg: MagicMock,
+        *_args: MagicMock,
+    ) -> None:
         """Function to test function send_data_as_a_sub_sector()."""
         mock_send_loop_number_to_bootloader.return_value = None
         # False Case
@@ -485,11 +493,11 @@ class TestBootloader(unittest.TestCase):
     @patch.object(Bootloader, "send_data_as_a_sub_sector")
     def test_send_data_as_a_sector(
         self,
-        mock_send_data_as_a_sub_sector,
-        mock_get_crc_and_data_by_index,
-        mock_send_crc,
-        *_,
-    ):
+        mock_send_data_as_a_sub_sector: MagicMock,
+        mock_get_crc_and_data_by_index: MagicMock,
+        mock_send_crc: MagicMock,
+        *_args: MagicMock,
+    ) -> None:
         """Function to test function send_data_as_a_sector()."""
         # Case 1: each subsector has been successfully sent.
         mock_send_data_as_a_sub_sector.return_value = True
@@ -634,10 +642,10 @@ class TestBootloader(unittest.TestCase):
     @patch.object(Bootloader, "send_data_as_a_sector")
     def test_send_app_data(
         self,
-        mock_send_data_as_a_sector,
-        mock_get_sector_size_using_num_of_data_loops,
-        *_,
-    ):
+        mock_send_data_as_a_sector: MagicMock,
+        mock_get_sector_size_using_num_of_data_loops: MagicMock,
+        *_args: MagicMock,
+    ) -> None:
         """Function to test function send_app_data()."""
         with self.assertRaises(SystemExit) as cm:
             self.bd.send_app_data(i_loop=0)
@@ -680,7 +688,9 @@ class TestBootloader(unittest.TestCase):
         self.assertTrue(self.bd.send_app_data(1))
 
     @patch.object(BootloaderInterfaceCan, "reset_bootloader")
-    def test_reset_bootloader(self, mock_reset_bootloader, *_):
+    def test_reset_bootloader(
+        self, mock_reset_bootloader: MagicMock, *_args: MagicMock
+    ) -> None:
         """Function to test function reset_bootloader()."""
         # Case 1: return True.
         mock_reset_bootloader.return_value = True
@@ -695,7 +705,9 @@ class TestBootloader(unittest.TestCase):
         self.assertEqual(["ERROR:fox.py:Cannot reset bootloader."], log.output)
 
     @patch.object(BootloaderInterfaceCan, "run_app_on_bootloader")
-    def test_run_app(self, mock_run_app_on_bootloader, *_):
+    def test_run_app(
+        self, mock_run_app_on_bootloader: MagicMock, *_args: MagicMock
+    ) -> None:
         """Function to test function run_app()."""
         # Case 1: False case.
         mock_run_app_on_bootloader.return_value = False
@@ -713,7 +725,12 @@ class TestBootloader(unittest.TestCase):
 
     @patch.object(BootloaderInterfaceCan, "send_program_info")
     @patch.object(BootloaderInterfaceCan, "start_transfer")
-    def test_send_pre_info(self, mock_start_transfer, mock_send_program_info, *_):
+    def test_send_pre_info(
+        self,
+        mock_start_transfer: MagicMock,
+        mock_send_program_info: MagicMock,
+        *_args: MagicMock,
+    ) -> None:
         """Function to test function send_pre_info()."""
         # Case 1: start_transfer fails.
         mock_start_transfer.return_value = False
@@ -741,7 +758,7 @@ class TestBootloader(unittest.TestCase):
         mock_send_program_info.return_value = True
         self.assertTrue(self.bd.send_pre_info())
 
-    def test_check_if_bootloader_at_the_beginning(self, *_):
+    def test_check_if_bootloader_at_the_beginning(self, *_: MagicMock) -> None:
         """Function to test function _check_if_bootloader_at_the_beginning()."""
         self.assertFalse(
             self.bd._check_if_bootloader_at_the_beginning(
@@ -790,20 +807,20 @@ class TestBootloader(unittest.TestCase):
     @patch.object(json, "loads")
     @patch.object(Path, "read_text")
     # pylint: disable-next=too-many-statements
-    def test_send_app_binary(  # noqa: PLR0913
+    def test_send_app_binary(  # noqa: PLR0913  # noqa: D102
         self,
-        mock_read_text,
-        mock_loads,
-        mock_genfromtxt,
-        mock_get_sha256_file_hash_str,
-        mock_check_if_bootloader_at_the_beginning,
-        mock_send_pre_info,
-        mock_reset_bootloader,
-        mock_send_app_data,
-        mock_send_and_validate_vector_table,
-        mock_sleep,
-        *_,
-    ):
+        mock_read_text: MagicMock,
+        mock_loads: MagicMock,
+        mock_genfromtxt: MagicMock,
+        mock_get_sha256_file_hash_str: MagicMock,
+        mock_check_if_bootloader_at_the_beginning: MagicMock,
+        mock_send_pre_info: MagicMock,
+        mock_reset_bootloader: MagicMock,
+        mock_send_app_data: MagicMock,
+        mock_send_and_validate_vector_table: MagicMock,
+        mock_sleep: MagicMock,
+        *_: MagicMock,
+    ) -> None:
         """Function to test function send_app_binary()."""
         mock_sleep.return_value = None
         mock_read_text.return_value = None
@@ -1020,7 +1037,7 @@ except ModuleNotFoundError:
 class TestBootloaderInitialization(unittest.TestCase):
     """Test initialization"""
 
-    def test_initialization(self, _: MagicMock):
+    def test_initialization(self, _: MagicMock) -> None:
         """Check that the attribute exists"""
         ret = Bootloader(MagicMock())
         self.assertTrue(ret.interface)
@@ -1029,13 +1046,13 @@ class TestBootloaderInitialization(unittest.TestCase):
 class TestBootloaderStartApp(unittest.TestCase):
     """Test 'run_app' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.run_app = Bootloader.run_app
         return super().setUp()
 
-    def test_run_app_error(self):
+    def test_run_app_error(self) -> None:
         """Function to test function run_app()."""
         self.bl.interface.run_app_on_bootloader.return_value = False
         with self.assertLogs("fox.py", level="ERROR") as log:
@@ -1047,7 +1064,7 @@ class TestBootloaderStartApp(unittest.TestCase):
             log.output,
         )
 
-    def test_run_app_success(self):
+    def test_run_app_success(self) -> None:
         """Function to test function run_app()."""
         self.bl.interface.run_app_on_bootloader.return_value = True
         ret = self.bl.run_app(self.bl)
@@ -1057,13 +1074,13 @@ class TestBootloaderStartApp(unittest.TestCase):
 class TestBootloaderResetBootloader(unittest.TestCase):
     """Test 'reset_bootloader' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.reset_bootloader = Bootloader.reset_bootloader
         return super().setUp()
 
-    def test_reset_bootloader_error(self):
+    def test_reset_bootloader_error(self) -> None:
         """Function to test function reset_bootloader()."""
         self.bl.interface.reset_bootloader.return_value = False
         with self.assertLogs("fox.py", level="INFO") as log:
@@ -1077,7 +1094,7 @@ class TestBootloaderResetBootloader(unittest.TestCase):
             log.output,
         )
 
-    def test_reset_bootloader_success(self):
+    def test_reset_bootloader_success(self) -> None:
         """Function to test function reset_bootloader()."""
         self.bl.interface = MagicMock()
         self.bl.interface.reset_bootloader.return_value = True
@@ -1096,7 +1113,7 @@ class TestBootloaderResetBootloader(unittest.TestCase):
 class TestBootloaderSendPreInfo(unittest.TestCase):
     """Test 'send_pre_info' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.binary_file = MagicMock()
@@ -1105,7 +1122,7 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
         self.bl.send_pre_info = Bootloader.send_pre_info
         return super().setUp()
 
-    def test_send_pre_info_error(self):
+    def test_send_pre_info_error(self) -> None:
         """Function to test function send_pre_info()."""
         self.bl.interface.start_transfer.return_value = False
         with self.assertLogs("fox.py", level="INFO") as log:
@@ -1119,7 +1136,7 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
             log.output,
         )
 
-    def test_send_pre_info_sending_fails(self):
+    def test_send_pre_info_sending_fails(self) -> None:
         """Function to test function send_pre_info()."""
         self.bl.interface.start_transfer.return_value = True
         self.bl.interface.send_program_info.return_value = False
@@ -1137,7 +1154,7 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
             log.output,
         )
 
-    def test_send_pre_info_success(self):
+    def test_send_pre_info_success(self) -> None:
         """Function to test function send_pre_info()."""
         self.bl.interface.start_transfer.return_value = True
         self.bl.interface.send_program_info.return_value = True
@@ -1161,7 +1178,7 @@ class TestBootloaderSendPreInfo(unittest.TestCase):
 class TestBootloaderSendDataAsASubSector(unittest.TestCase):
     """Test 'send_data_as_a_sub_sector' method of the 'Bootloader' class."""
 
-    def setUp(self, *_):
+    def setUp(self, *_: MagicMock) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.interface.send_loop_number_to_bootloader.return_value = None
@@ -1174,7 +1191,7 @@ class TestBootloaderSendDataAsASubSector(unittest.TestCase):
         self.bl.send_data_as_a_sub_sector = Bootloader.send_data_as_a_sub_sector
         return super().setUp()
 
-    def test_send_data_as_a_sub_sector_success(self, *_: tuple[MagicMock]):
+    def test_send_data_as_a_sub_sector_success(self, *_: tuple[MagicMock]) -> None:  # noqa: D102
         self.bl.interface.wait_can_ack_msg.return_value = {"foo": "bar"}
 
         with self.assertLogs("fox.py", level="INFO") as log:
@@ -1197,7 +1214,7 @@ class TestBootloaderSendDataAsASubSector(unittest.TestCase):
             AcknowledgeMessage.ReceivedSubSectorData
         )
 
-    def test_send_data_as_a_sub_sector_error(self, *_: tuple[MagicMock]):
+    def test_send_data_as_a_sub_sector_error(self, *_: tuple[MagicMock]) -> None:  # noqa: D102
         self.bl.interface.wait_can_ack_msg.return_value = None
 
         with self.assertLogs("fox.py", level="ERROR") as log:
@@ -1218,15 +1235,15 @@ class TestBootloaderSendDataAsASubSector(unittest.TestCase):
         )
 
 
-class TestBootloader_GetSubSectorLoops(unittest.TestCase):
+class TestBootloader_GetSubSectorLoops(unittest.TestCase):  # noqa: N801
     """Test '_get_sub_sector_loops' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl._get_sub_sector_loops = Bootloader._get_sub_sector_loops  # pylint:disable=protected-access
         return super().setUp()
 
-    def test_get_sub_sector_loops_too_small_index(self):
+    def test_get_sub_sector_loops_too_small_index(self) -> None:
         """Function to test function _get_sub_sector_loops()."""
         with self.assertRaises(SystemExit) as cm:
             self.bl._get_sub_sector_loops(self.bl, idx=0, max_idx=1024)  # pylint:disable=protected-access
@@ -1234,7 +1251,7 @@ class TestBootloader_GetSubSectorLoops(unittest.TestCase):
             cm.exception.code, "The index of the loop number must be > 1, it is 0."
         )
 
-    def test_get_sub_sector_loops_too_small_max_index(self):
+    def test_get_sub_sector_loops_too_small_max_index(self) -> None:  # noqa: D102
         with self.assertRaises(SystemExit) as cm:
             self.bl._get_sub_sector_loops(self.bl, idx=1, max_idx=1023)  # pylint:disable=protected-access
         self.assertEqual(
@@ -1242,7 +1259,7 @@ class TestBootloader_GetSubSectorLoops(unittest.TestCase):
             "The max_idx is smaller than size_of_sub_sector_in_loops 1024.",
         )
 
-    def test_get_sub_sector_loops_multiple_runs(self):
+    def test_get_sub_sector_loops_multiple_runs(self) -> None:  # noqa: D102
         start, end = self.bl._get_sub_sector_loops(self.bl, 1, 2050)  # pylint:disable=protected-access
         self.assertEqual(start, 1)
         self.assertEqual(end, 1024)
@@ -1271,12 +1288,12 @@ class TestBootloader_GetSubSectorLoops(unittest.TestCase):
 class TestBootloaderCheckTarget(unittest.TestCase):
     """Test 'check_target' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         return super().setUp()
 
-    def test_check_target_1_1(self):
+    def test_check_target_1_1(self) -> None:
         """Function to test function check_target()."""
         # Case 1-1: return 3, the information of bootloader can not be reached.
 
@@ -1292,7 +1309,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             ["ERROR:fox.py:Can not retrieve any bootloader information."], log.output
         )
 
-    def test_check_target_2_1(self):
+    def test_check_target_2_1(self) -> None:  # noqa: D102
         # Case 2-1: return 1, partial information of bootloader can not be retrieved.
         self.bl.interface.get_bootloader_state.return_value = (None, "BootFsmStateWait")
         self.bl.interface.get_current_num_of_loops.return_value = 2
@@ -1306,7 +1323,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_2_2(self):
+    def test_check_target_2_2(self) -> None:  # noqa: D102
         # Case 2-2: return 1, partial information of bootloader can not be reached.
         self.bl.interface.get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
@@ -1325,7 +1342,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_2_3(self):
+    def test_check_target_2_3(self) -> None:  # noqa: D102
         # Case 2-3: return 1, partial information of bootloader can not be reached.
         self.bl.interface.get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
@@ -1350,7 +1367,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_2_4(self):
+    def test_check_target_2_4(self) -> None:  # noqa: D102
         # Case 2-4: return 1, partial information of bootloader can not be reached.
         self.bl.interface.get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
@@ -1369,7 +1386,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_2_5(self):
+    def test_check_target_2_5(self) -> None:  # noqa: D102
         # Case 2-5: return 1, partial information of bootloader can not be reached.
         self.bl.interface.get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
@@ -1388,7 +1405,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_2_6(self):
+    def test_check_target_2_6(self) -> None:  # noqa: D102
         # Case 2-6: return 1, partial information of bootloader can not be reached.
         self.bl.interface.get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
@@ -1407,7 +1424,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_2_7(self):
+    def test_check_target_2_7(self) -> None:  # noqa: D102
         # Case 2-7: return 1, partial information of bootloader can not be reached.
         self.bl.interface.get_bootloader_state.return_value = (None, None)
         self.bl.interface.get_current_num_of_loops.return_value = None
@@ -1421,7 +1438,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_3_1(self):
+    def test_check_target_3_1(self) -> None:  # noqa: D102
         # Case 3-1: return 2, foxBMS is running.
         self.bl.interface.get_bootloader_state.return_value = (None, None)
         self.bl.interface.get_current_num_of_loops.return_value = None
@@ -1438,7 +1455,7 @@ class TestBootloaderCheckTarget(unittest.TestCase):
             log.output,
         )
 
-    def test_check_target_4_1(self):
+    def test_check_target_4_1(self) -> None:  # noqa: D102
         # Case 4-1: return 0, bootloader is runnning, and all information can
         # be received.
         self.bl.interface.get_bootloader_state.return_value = (
@@ -1457,13 +1474,13 @@ class TestBootloaderCheckTarget(unittest.TestCase):
 class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
     """Test 'send_and_validate_vector_table' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.binary_file = MagicMock()
         return super().setUp()
 
-    def test_send_and_validate_vector_table_1(self):
+    def test_send_and_validate_vector_table_1(self) -> None:
         """Function to test function send_and_validate_vector_table()."""
         self.bl.interface.send_data_to_bootloader.return_value = None
         # False Exit Case 1
@@ -1482,7 +1499,7 @@ class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
         self.assertFalse(ret)
         self.assertEqual(["ERROR:fox.py:Cannot send the vector table."], log.output)
 
-    def test_send_and_validate_vector_table_2(self):
+    def test_send_and_validate_vector_table_2(self) -> None:  # noqa: D102
         # False Exit Case 2
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (False, True)
@@ -1494,7 +1511,7 @@ class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
             ["ERROR:fox.py:Cannot send the CRC of the vector table."], log.output
         )
 
-    def test_send_and_validate_vector_table_3(self):
+    def test_send_and_validate_vector_table_3(self) -> None:  # noqa: D102
         # False Exit Case 3
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (False, False)
@@ -1505,7 +1522,7 @@ class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
             ["ERROR:fox.py:Cannot send the CRC of the vector table."], log.output
         )
 
-    def test_send_and_validate_vector_table_4(self):
+    def test_send_and_validate_vector_table_4(self) -> None:  # noqa: D102
         # False Exit Case 4
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (True, False)
@@ -1514,7 +1531,7 @@ class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
         self.assertFalse(ret)
         self.assertEqual(["ERROR:fox.py:Vector table is not validated."], log.output)
 
-    def test_send_and_validate_vector_table_success(self):
+    def test_send_and_validate_vector_table_success(self) -> None:  # noqa: D102
         # True Exit Case
         self.bl.interface.wait_can_ack_msg.return_value = {"fake message": 1}
         self.bl.interface.send_crc.return_value = (True, True)
@@ -1534,13 +1551,13 @@ class TestBootloaderSendAndValidateVectorTable(unittest.TestCase):
 class TestBootloaderSendADataAsASubSector(unittest.TestCase):
     """Test 'send_data_as_a_sub_sector' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.binary_file = MagicMock()
         return super().setUp()
 
-    def test_send_data_as_a_sub_sector_1(self):
+    def test_send_data_as_a_sub_sector_1(self) -> None:
         """Function to test function send_data_as_a_sub_sector()."""
         self.bl.interface.send_loop_number_to_bootloader.return_value = None
         # False Case
@@ -1557,7 +1574,7 @@ class TestBootloaderSendADataAsASubSector(unittest.TestCase):
             log.output,
         )
 
-    def test_send_data_as_a_sub_sector_2(self):
+    def test_send_data_as_a_sub_sector_2(self) -> None:  # noqa: D102
         # True Case
         self.bl.binary_file.get_crc_and_data_by_index.return_value = (
             0xFFFFFFFFFFFFFFFF,
@@ -1573,7 +1590,7 @@ class TestBootloaderSendADataAsASubSector(unittest.TestCase):
             r"It takes in total .* s",
         )
 
-    def test_send_data_as_a_sub_sector_3(self):
+    def test_send_data_as_a_sub_sector_3(self) -> None:  # noqa: D102
         # Check if the data has been sent 1024 times
         self.bl.binary_file.get_crc_and_data_by_index.return_value = (
             0xFFFFFFFFFFFFFFFF,
@@ -1583,7 +1600,7 @@ class TestBootloaderSendADataAsASubSector(unittest.TestCase):
         Bootloader.send_data_as_a_sub_sector(self.bl, 1, 1024)
         self.assertEqual(self.bl.interface.send_data_to_bootloader.call_count, 1024)
 
-    def test_send_data_as_a_sub_sector_4(self):
+    def test_send_data_as_a_sub_sector_4(self) -> None:  # noqa: D102
         # Check if the data has been sent 1 times
         self.bl.binary_file.get_crc_and_data_by_index.return_value = (
             0xFFFFFFFFFFFFFFFF,
@@ -1597,7 +1614,7 @@ class TestBootloaderSendADataAsASubSector(unittest.TestCase):
 class TestBootloaderSendADataAsASector(unittest.TestCase):
     """Test 'send_data_as_a_sector' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         self.bl.binary_file = MagicMock()
@@ -1612,7 +1629,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         return super().setUp()
 
     @patch.object(time, "time", return_value=0.0)
-    def test_send_data_as_a_sector_1(self, _):
+    def test_send_data_as_a_sector_1(self, _time: MagicMock) -> None:
         """Function to test function send_data_as_a_sector()."""
         # Case 1: each subsector has been successfully sent.
         self.bl.send_data_as_a_sub_sector.return_value = True
@@ -1638,7 +1655,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
             log.output,
         )
 
-    def test_send_data_as_a_sector_2(self):
+    def test_send_data_as_a_sector_2(self) -> None:  # noqa: D102
         # Case 2: one subsector has been not successfully sent.
         self.bl.send_data_as_a_sub_sector.return_value = False
         self.bl.interface.send_crc.return_value = (True, True)
@@ -1659,7 +1676,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
             ["ERROR:fox.py:Error when sending data as subsector."], log.output
         )
 
-    def test_send_data_as_a_sector_3(self):
+    def test_send_data_as_a_sector_3(self) -> None:  # noqa: D102
         # Case 3: one subsector has been not successfully sent, but
         # times_of_repeat is 1 .
         self.bl.send_data_as_a_sub_sector.return_value = False
@@ -1680,7 +1697,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
             ["ERROR:fox.py:Error when sending data as subsector."], log.output
         )
 
-    def test_send_data_as_a_sector_4(self):
+    def test_send_data_as_a_sector_4(self) -> None:  # noqa: D102
         # Case 4: CRC has not been received by bootloader.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (False, True)
@@ -1699,7 +1716,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
             log.output,
         )
 
-    def test_send_data_as_a_sector_5(self):
+    def test_send_data_as_a_sector_5(self) -> None:  # noqa: D102
         # Case 5: the validation process in bootloader fails.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (True, False)
@@ -1724,7 +1741,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
         )
 
     @patch.object(time, "time", return_value=0.0)
-    def test_send_data_as_a_sector_6(self, _):
+    def test_send_data_as_a_sector_6(self, _time: MagicMock) -> None:  # noqa: D102
         # Case 6: true case.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (True, True)
@@ -1748,7 +1765,7 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
             log.output,
         )
 
-    def test_send_data_as_a_sector_7(self):
+    def test_send_data_as_a_sector_7(self) -> None:  # noqa: D102
         # Case 7: true case, show progressbar.
         self.bl.send_data_as_a_sub_sector.return_value = True
         self.bl.interface.send_crc.return_value = (True, True)
@@ -1770,13 +1787,13 @@ class TestBootloaderSendADataAsASector(unittest.TestCase):
 class TestBootloaderSendAppData(unittest.TestCase):
     """Test 'send_app_data' method of the 'Bootloader' class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.binary_file = MagicMock()
         self.bl.binary_file.len_of_program_in_8_bytes = 32768
         return super().setUp()
 
-    def test_send_app_data_invalid_argument(self):
+    def test_send_app_data_invalid_argument(self) -> None:
         """Function to test function send_app_data()."""
         with self.assertRaises(SystemExit) as cm:
             Bootloader.send_app_data(self.bl, i_loop=0)
@@ -1785,7 +1802,7 @@ class TestBootloaderSendAppData(unittest.TestCase):
             "The input loop number is smaller than the minimum (1).",
         )
 
-    def test_send_app_data_2(self):
+    def test_send_app_data_2(self) -> None:  # noqa: D102
         # Case return false 1: resume sending with the current loop number of 16384
         self.bl._get_sector_size_using_num_of_data_loops.return_value = None  # pylint:disable=protected-access
         self.bl.send_data_as_a_sector.return_value = True
@@ -1800,7 +1817,7 @@ class TestBootloaderSendAppData(unittest.TestCase):
             log.output,
         )
 
-    def test_send_app_data_3(self):
+    def test_send_app_data_3(self) -> None:  # noqa: D102
         # Case return false 2: resume sending with the current loop number of 16384
         self.bl._get_sector_size_using_num_of_data_loops.return_value = 16384  # pylint:disable=protected-access
         self.bl.send_data_as_a_sector.return_value = False
@@ -1814,7 +1831,7 @@ class TestBootloaderSendAppData(unittest.TestCase):
 
     @patch.object(time, "sleep", return_value=None)
     @patch.object(time, "time", return_value=0.0)
-    def test_send_app_data_4(self, *_: tuple[MagicMock]):
+    def test_send_app_data_4(self, *_: tuple[MagicMock]) -> None:  # noqa: D102
         # Case return true: resume sending with the current loop number of 16384
         self.bl._get_sector_size_using_num_of_data_loops.return_value = 16384  # pylint:disable=protected-access
         self.bl.send_data_as_a_sector.return_value = True
@@ -1831,12 +1848,14 @@ class TestBootloaderSendAppData(unittest.TestCase):
 class TestBootloaderSendAppBinary(unittest.TestCase):
     """Class to test Bootloader class."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.bl = MagicMock(spec=Bootloader)
         self.bl.interface = MagicMock()
         return super().setUp()
 
-    def test_send_app_binary_success_including_progress_bar(self, *_):
+    def test_send_app_binary_success_including_progress_bar(
+        self, *_: MagicMock
+    ) -> None:
         """Function to test function send_app_binary()."""
         # Case 1-8: bootloader is at the initial status, every thing runs well,
         # the progress progressbar will be shown.
@@ -1852,7 +1871,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             )
         self.assertTrue(ret)
 
-    def test_send_app_binary_success(self, *_):
+    def test_send_app_binary_success(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 2-8: bootloader is at the initial status, every thing runs well.
         self.bl._check_if_bootloader_at_the_beginning.return_value = True  # pylint:disable=protected-access
         self.bl.send_pre_info.return_value = True
@@ -1865,7 +1884,9 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
         )
         self.assertTrue(ret)
 
-    def test_send_app_binary_current_loop_number_unavailable(self, *_):
+    def test_send_app_binary_current_loop_number_unavailable(  # noqa: D102
+        self, *_: MagicMock
+    ) -> None:
         # Case 3-8: bootloader is at the initial status, but PC cannot get
         # the current loop number from bootloader.
         self.bl._check_if_bootloader_at_the_beginning.return_value = True  # pylint:disable=protected-access
@@ -1882,7 +1903,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             )
         self.assertEqual(cm.exception.code, "Cannot get all states of the bootloader.")
 
-    def test_send_app_binary_reset_fails(self, *_):
+    def test_send_app_binary_reset_fails(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 4-8: bootloader is not at the initial status, reset bootloader
         # fails.
         self.bl._check_if_bootloader_at_the_beginning.return_value = False  # pylint:disable=protected-access
@@ -1898,7 +1919,8 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             )
         )
 
-    def test_send_app_binary_reset_success_pre_info_fails(self, *_):
+    # pylint: disable-next=line-too-long
+    def test_send_app_binary_reset_success_pre_info_fails(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 5-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info fails.
         self.bl._check_if_bootloader_at_the_beginning.return_value = False  # pylint:disable=protected-access
@@ -1914,7 +1936,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             )
         )
 
-    def test_send_app_binary_6_8(self, *_):
+    def test_send_app_binary_6_8(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 6-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data fails, show progressbar.
         self.bl._check_if_bootloader_at_the_beginning.return_value = False  # pylint:disable=protected-access
@@ -1940,7 +1962,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             log.output,
         )
 
-    def test_send_app_binary_6_8_2(self, *_):
+    def test_send_app_binary_6_8_2(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 6-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data fails.
         self.bl._check_if_bootloader_at_the_beginning.return_value = False  # pylint:disable=protected-access
@@ -1966,7 +1988,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             log.output,
         )
 
-    def test_send_app_binary_7_8(self, *_):
+    def test_send_app_binary_7_8(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 7-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data successfully,
         # send and validate vector table fails, show progressbar.
@@ -1993,7 +2015,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
             log.output,
         )
 
-    def test_send_app_binary_7_8_2(self, *_):
+    def test_send_app_binary_7_8_2(self, *_: MagicMock) -> None:  # noqa: D102
         # Case 7-8: bootloader is not at the initial status, reset bootloader
         # successfully, send pre-info successfully, send app data successfully,
         # send and validate vector table fails.
@@ -2022,7 +2044,7 @@ class TestBootloaderSendAppBinary(unittest.TestCase):
 class TestBootloaderCheckIfBootloaderAtTheBeginning(unittest.TestCase):
     """Test static method '_check_if_bootloader_at_the_beginning'."""
 
-    def test_check_if_bootloader_at_the_beginning(self, *_):
+    def test_check_if_bootloader_at_the_beginning(self, *_: MagicMock) -> None:
         """Function to test function _check_if_bootloader_at_the_beginning()."""
         self.assertFalse(
             Bootloader._check_if_bootloader_at_the_beginning(  # pylint:disable=protected-access
@@ -2061,10 +2083,10 @@ class TestBootloaderCheckIfBootloaderAtTheBeginning(unittest.TestCase):
         )
 
 
-class TestBootloader_GetSectorSizeUsingNumOfDataLoops(unittest.TestCase):
+class TestBootloader_GetSectorSizeUsingNumOfDataLoops(unittest.TestCase):  # noqa: N801
     """Test static method '_get_sector_size_using_num_of_data_loops'."""
 
-    def test_get_sector_size_using_num_of_data_loops(self, *_):
+    def test_get_sector_size_using_num_of_data_loops(self, *_args: MagicMock) -> None:
         """Function to test function _get_sector_size_using_num_of_data_loops()."""
         i_loops_start = 1
         for i_sector in range(7, 32):

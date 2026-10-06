@@ -48,12 +48,12 @@ from click.testing import CliRunner
 
 try:
     from cli.cli import main
-    from cli.helpers.misc import PROJECT_ROOT
+    from cli.helpers.project_context import PROJECT_ROOT
     from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cli import main
-    from cli.helpers.misc import PROJECT_ROOT
+    from cli.helpers.project_context import PROJECT_ROOT
     from cli.helpers.spr import SubprocessResult
 
 
@@ -61,7 +61,7 @@ class TestFoxCliMainCommandWaf(unittest.TestCase):
     """Test of the 'waf' commands and options."""
 
     @patch("cli.cmd_build.build_impl.run_top_level_waf")
-    def test_waf_0(self, mock_run_top_level_waf: MagicMock):
+    def test_waf_0(self, mock_run_top_level_waf: MagicMock) -> None:
         """Test 'fox.py waf --help' options."""
         mock_run_top_level_waf.return_value = SubprocessResult(0)
         runner = CliRunner()
@@ -69,12 +69,23 @@ class TestFoxCliMainCommandWaf(unittest.TestCase):
         self.assertEqual(0, result.exit_code)
 
     @patch("cli.cmd_build.build_impl.run_waf")
-    def test_waf_1(self, mock_run_waf: MagicMock):
+    def test_waf_1(self, mock_run_waf: MagicMock) -> None:
         """Test 'fox.py waf --cwd <option> --help' options."""
         mock_run_waf.return_value = SubprocessResult(0)
         runner = CliRunner()
         result = runner.invoke(main, ["waf", "--cwd", str(PROJECT_ROOT), "--help"])
         self.assertEqual(0, result.exit_code)
+
+    @patch("cli.cmd_build.build_impl.run_top_level_waf")
+    def test_waf_2(self, mock_run_top_level_waf: MagicMock) -> None:
+        """Test 'fox.py -v waf --help' forwards verbosity to waf args."""
+        mock_run_top_level_waf.return_value = SubprocessResult(0)
+        runner = CliRunner()
+        result = runner.invoke(main, ["waf", "-v", "--help"])
+        self.assertEqual(0, result.exit_code)
+        mock_run_top_level_waf.assert_called_once_with(
+            ["-v", "--help"], stdout=None, stderr=None
+        )
 
 
 if __name__ == "__main__":

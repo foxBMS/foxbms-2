@@ -65,13 +65,14 @@ class TestModbusInit(unittest.TestCase):
     def test_init_registers_process(self) -> None:
         """Creating Modbus should register a ModbusProcess in its internal process map."""
         m = Modbus(name="test", parameter=ModbusParameter(host="localhost"))
-        self.assertIn("ModbusProcess", m._processes)  # type: ignore[attr-defined] pylint: disable=protected-access
+        # pylint: disable-next=protected-access
+        self.assertIn("ModbusProcess", m._processes)  # type: ignore[attr-defined]
 
 
 class TestModbusRead(unittest.TestCase):
     """Tests Modbus.read()."""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.modbus = Modbus(name="test", parameter=ModbusParameter(host="localhost"))
 
     def test_returns_item_when_available(self) -> None:
@@ -96,7 +97,7 @@ class TestModbusRead(unittest.TestCase):
 class TestModbusWrite(unittest.TestCase):
     """Tests Modbus.write()."""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.modbus = Modbus(name="test", parameter=ModbusParameter(host="localhost"))
 
     def test_puts_command_when_alive(self) -> None:
@@ -300,7 +301,7 @@ class DummyReadResult:  # pylint: disable=too-few-public-methods
 class TestModbusProcessExecuteCommandSub(unittest.TestCase):
     """Tests ModbusProcess._execute_command_sub()."""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.control = ComControl()
         self.parameter = ModbusParameter(host="localhost", ignore=True)
         self.proc = ModbusProcess(
@@ -319,7 +320,7 @@ class TestModbusProcessExecuteCommandSub(unittest.TestCase):
         self.proc._client = client  # pylint: disable=protected-access
 
     def test_no_valid_client(self) -> None:
-        """Verifys the interrupt if no valid client is passed."""
+        """Verifies the interrupt if no valid client is passed."""
         parameter = ModbusParameter(host="localhost", ignore=False)
         proc = ModbusProcess(name="proc", control=self.control, parameter=parameter)
         proc._client = MagicMock()  # pylint: disable=protected-access

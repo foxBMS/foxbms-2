@@ -58,16 +58,27 @@ except ModuleNotFoundError:
 
 
 class TestFoxCliMainCommandGui(unittest.TestCase):
-    """Test of the 'gui' commands and options."""
+    """Test of the 'gui' command and options."""
 
-    def test_cli_gui_0(self):
+    def test_cli_gui_help(self) -> None:
         """Test 'fox.py gui --help' command."""
         runner = CliRunner()
         result = runner.invoke(main, ["gui", "--help"])
         self.assertEqual(result.exit_code, 0)
 
     @patch("importlib.util.find_spec")
-    def test_cli_gui_1(self, mock_find_spec: MagicMock):
+    @patch("cli.cmd_gui.gui_impl.run_gui")
+    def test_cli_gui(self, mock_gui: MagicMock, mock_find_spec: MagicMock) -> None:
+        """Test 'fox.py gui' command if tkinter is available."""
+        mock_find_spec.return_value = True
+        importlib.reload(c_gui)
+        runner = CliRunner()
+        result = runner.invoke(main, ["gui"])
+        self.assertEqual(result.exit_code, 0)
+        mock_gui.assert_called_once_with()
+
+    @patch("importlib.util.find_spec")
+    def test_cli_gui_error(self, mock_find_spec: MagicMock) -> None:
         """Test 'fox.py gui' command if tkinter is not available."""
         mock_find_spec.return_value = False
         importlib.reload(c_gui)
@@ -79,13 +90,29 @@ class TestFoxCliMainCommandGui(unittest.TestCase):
 
     @patch("importlib.util.find_spec")
     @patch("cli.cmd_gui.gui_impl.run_gui")
-    def test_cli_gui_2(self, mock_gui: MagicMock, mock_find_spec: MagicMock):  # pylint: disable=unused-argument
-        """Test 'fox.py gui' command if tkinter is available."""
+    def test_cli_gui_debug(
+        self, mock_gui: MagicMock, mock_find_spec: MagicMock
+    ) -> None:
+        """Test 'fox.py gui --debug-gui' command."""
         mock_find_spec.return_value = True
         importlib.reload(c_gui)
         runner = CliRunner()
-        result = runner.invoke(main, ["gui"])
+        result = runner.invoke(main, ["gui", "--debug-gui"])
         self.assertEqual(result.exit_code, 0)
+        mock_gui.assert_called_once_with()
+
+    @patch("importlib.util.find_spec")
+    @patch("cli.cmd_gui.gui_impl.run_gui")
+    def test_cli_gui_verbosity(
+        self, mock_gui: MagicMock, mock_find_spec: MagicMock
+    ) -> None:
+        """Test 'fox.py gui -v' command."""
+        mock_find_spec.return_value = True
+        importlib.reload(c_gui)
+        runner = CliRunner()
+        result = runner.invoke(main, ["gui", "-v"])
+        self.assertEqual(result.exit_code, 0)
+        mock_gui.assert_called_once_with()
 
 
 if __name__ == "__main__":

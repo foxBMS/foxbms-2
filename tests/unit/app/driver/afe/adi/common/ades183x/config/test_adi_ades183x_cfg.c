@@ -43,8 +43,8 @@
  * @file    test_adi_ades183x_cfg.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,13 +54,29 @@
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+#include "Mocktsi.h"
+
+#include "adi_ades183x_cfg.h"
+
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+#define TEST_TEMPERATURE (10)
 
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+
+void testADI_ConvertGpioVoltageToTemperature(void) {
+    TSI_GetTemperature_ExpectAndReturn(2u, SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V, 10);
+    int16_t testResultTemperature = ADI_ConvertGpioVoltageToTemperature(2u);
+    TEST_ASSERT_EQUAL(TEST_TEMPERATURE, testResultTemperature);
+}

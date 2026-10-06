@@ -43,8 +43,8 @@
  * @file    test_fake_none.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,6 @@
 #include "fake_none.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/ts/fake/none")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -74,12 +73,12 @@ void tearDown(void) {
 
 void testTS_Fak00GetTemperatureFromLut(void) {
     float fakeTemperature = 0.0;
-    fakeTemperature       = TS_Fak00GetTemperatureFromLut(1);
+    fakeTemperature       = TS_Fak00GetTemperatureFromLut(1, 3.0f);
     TEST_ASSERT_EQUAL(1.0, fakeTemperature);
 }
 
 void testTS_Fak00GetTemperatureFromPolynomial(void) {
     float fakeTemperature = 0.0;
-    fakeTemperature       = TS_Fak00GetTemperatureFromPolynomial(1);
+    fakeTemperature       = TS_Fak00GetTemperatureFromPolynomial(1, 3.0f);
     TEST_ASSERT_EQUAL(1.0, fakeTemperature);
 }

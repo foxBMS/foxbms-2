@@ -1,0 +1,25 @@
+Quantity    ; Derived Quantity      ; Symbol Suffix in ``C``
+\-          ; per mille             ; ``perm``
+\-          ; percent               ; ``perc``
+Ampere      ; \-                    ; ``A``
+Ampere      ; Ampere second         ; ``As``
+Ampere      ; Milliampere           ; ``mA``
+Ampere      ; Milliampere hour      ; ``mAh``
+Ampere      ; Milliampere second    ; ``mAs``
+Celsius     ; deci degree Celsius   ; ``ddegC``
+Celsius     ; degree Celsius        ; ``degC``
+Farad       ; \-                    ; ``nF``
+Farad       ; Nanofarad             ; ``nF``
+Hertz       ; \-                    ; ``Hz``
+Hertz       ; kilo Hertz            ; ``kHz``
+Kelvin      ; \-                    ; ``K``
+Kelvin      ; deci Kelvin           ; ``dK``
+Ohm         ; \-                    ; ``Ohm``
+Ohm         ; kilo Ohm              ; ``kOhm``
+Second      ; \-                    ; ``s``
+Second      ; microsecond           ; ``us``
+Second      ; millisecond           ; ``ms``
+V           ; \-                    ; ``V``
+V           ; millivolt             ; ``mV``
+Watt        ; Watt                  ; ``W``
+Watt        ; Watt hours            ; ``Wh``

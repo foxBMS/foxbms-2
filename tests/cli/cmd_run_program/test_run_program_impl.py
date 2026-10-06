@@ -42,7 +42,7 @@
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_run_program import run_program_impl
@@ -55,8 +55,8 @@ class TestRunProgram(unittest.TestCase):
     """Class to test the run precommit"""
 
     @patch("cli.cmd_run_program.run_program_impl.run_process")
-    def test_run_program(self, mock_process):
-        """TODO"""
+    def test_run_program(self, mock_process: MagicMock) -> None:
+        """Test that program arguments are forwarded unchanged."""
         run_program_impl.run_program(["some-program.exe", "--help"])
         _, args, _ = mock_process.mock_calls[0]
         self.assertEqual(args, (["some-program.exe", "--help"],))

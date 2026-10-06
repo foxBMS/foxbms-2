@@ -43,13 +43,17 @@
  * @file    sys.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
  * @brief   Sys driver header
- * @details TODO
+ * @details This header declares the system state machine that coordinates the
+ *          startup and high-level operating states of foxBMS.
+ *          It provides the public types and interfaces used to request and
+ *          observe transitions between initialization, running, and error
+ *          handling.
  */
 
 #ifndef FOXBMS__SYS_H_
@@ -78,7 +82,7 @@ typedef enum {
 typedef enum {
     SYS_FSM_SUBSTATE_DUMMY,                    /*!< dummy state - always the first substate */
     SYS_FSM_SUBSTATE_ENTRY,                    /*!< entry state - always the second substate */
-    SYS_FSM_CHECK_DEEP_DISCHARGE,              /*!< Substate to read the FRAM */
+    SYS_FSM_CHECK_NON_VOLATILE_STORAGE,        /*!< Substate to read the FRAM */
     SYS_FSM_SUBSTATE_START_INITIALIZATION_SBC, /*!< Substate to start the initialization of the sbc state machine */
     SYS_FSM_SUBSTATE_INITIALIZE_INTERLOCK,     /*!< Substate to initialize the interlock*/
     SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_SBC,  /*!< Substate to wait for initialization of the sbc state machine */
@@ -193,7 +197,7 @@ extern SYS_FSM_SUBSTATES_e SYS_GetSystemSubstate(void);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 STD_RETURN_TYPE_e TEST_SYS_RunStateMachine(SYS_STATE_s *pSystemState);
-STD_RETURN_TYPE_e TEST_SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest);
+SYS_RETURN_TYPE_e TEST_SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest);
 SYS_CHECK_MULTIPLE_CALLS_e TEST_SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState);
 void TEST_SYS_SetSubstate(SYS_STATE_s *pSystemState, SYS_FSM_SUBSTATES_e nextState, uint16_t idleTime);
 void TEST_SYS_SetState(

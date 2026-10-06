@@ -1,0 +1,25 @@
+[
+  {
+    "source": "src/app/task/timer/timer.c",
+    "test": "test_timer.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/rtc",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/app/task/timer",
+      "src/os/freertos/freertos/include"
+    ],
+    "mocks": [
+      "src/app/task/ftask/ftask.h",
+      "src/os/freertos/freertos/include/task.h",
+      "src/os/freertos/freertos/include/timers.h"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  }
+]

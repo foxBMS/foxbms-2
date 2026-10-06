@@ -1,0 +1,25 @@
+[
+  {
+    "source": "src/app/application/soa/soa.c",
+    "test": "test_soa.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/soa",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/foxmath",
+      "src/app/driver/sps",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "src/app/application/config/soa_cfg.h",
+      "src/app/driver/contactor/contactor.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h"
+    ],
+    "use": "M"
+  }
+]

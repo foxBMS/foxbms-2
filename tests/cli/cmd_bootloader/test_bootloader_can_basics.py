@@ -43,6 +43,7 @@ import logging  # noqa: TID251
 import sys
 import unittest
 from pathlib import Path
+from typing import NoReturn
 from unittest.mock import MagicMock, create_autospec, patch
 
 import can
@@ -78,7 +79,7 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
     """Class to test BootloaderCanBasics object instantiation."""
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=False)
-    def test_dbc_file_does_not_exist(self, _: MagicMock):
+    def test_dbc_file_does_not_exist(self, _: MagicMock) -> None:
         """DBC file needs to exist."""
         with self.assertRaises(SystemExit) as cm:
             BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
@@ -86,7 +87,9 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
     @patch("cli.cmd_bootloader.bootloader_can_basics.database.load_file")
-    def test_init_files_wrong_database_type(self, m_database: MagicMock, _: MagicMock):
+    def test_init_files_wrong_database_type(
+        self, m_database: MagicMock, _: MagicMock
+    ) -> None:
         """Test invalid initialization due to wrong type of database file."""
         m_database.return_value = create_autospec(
             database.diagnostics.database.Database
@@ -94,14 +97,16 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertRegex(
-            cm.exception.code,  # type:ignore
+            cm.exception.code,
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
         )
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
     @patch("cli.cmd_bootloader.bootloader_can_basics.database.load_file")
     @patch("cli.cmd_bootloader.bootloader_can_basics.can.Bus")
-    def test_init_ok(self, m_bus: MagicMock, m_database: MagicMock, _: MagicMock):
+    def test_init_ok(
+        self, m_bus: MagicMock, m_database: MagicMock, _: MagicMock
+    ) -> None:
         """Function to test the init function."""
         m_bus.return_value.__enter__.return_value.recv.return_value = None
         m_database.return_value = create_autospec(database.can.database.Database)
@@ -119,7 +124,7 @@ class TestBootloaderCanBasicsInitialization1(unittest.TestCase):
 class TestBootloaderCanBasics(unittest.TestCase):
     """Class to test the class BootloaderCanBasics."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus("test", interface="virtual")
         self.can_bus_test = can.interface.Bus("test", interface="virtual")
@@ -127,11 +132,11 @@ class TestBootloaderCanBasics(unittest.TestCase):
         # Initialize BootloaderCanBasics instance with virtual CAN bus instance
         self.bl = BootloaderCanBasics(can_bus=self.can_bus_test)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.can_bus.shutdown()
         self.can_bus_test.shutdown()
 
-    def test_init(self, *_):
+    def test_init(self, *_: object) -> None:
         """Function to test the init function."""
         # Test if the system exception will be raised if dbc_file is not a file
         dbc_file = Path("./fake")
@@ -141,7 +146,9 @@ class TestBootloaderCanBasics(unittest.TestCase):
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
     @patch("cli.cmd_bootloader.bootloader_can_basics.database.load_file")
-    def test_init_files_wrong_database_type(self, m_database: MagicMock, *_: MagicMock):
+    def test_init_files_wrong_database_type(
+        self, m_database: MagicMock, *_: MagicMock
+    ) -> None:
         """Test invalid initialization due to wrong type of database file."""
         m_database.return_value = create_autospec(
             database.diagnostics.database.Database
@@ -149,11 +156,11 @@ class TestBootloaderCanBasics(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             self.bl.wait_can_message(0x110, dbc_file=Path())
         self.assertRegex(
-            cm.exception.code,  # type:ignore
+            cm.exception.code,
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
         )
 
-    def test_wait_can_message(self, *_):
+    def test_wait_can_message(self, *_: object) -> None:
         """Function to test function wait_can_message."""
         # Case 1: invalid dbc_file
         dbc_file = Path("./fake")
@@ -280,42 +287,42 @@ class TestBootloaderCanBasics(unittest.TestCase):
             cm.exception.code, "'Receive error': Could not read from CAN bus."
         )
 
-    def test_send_request_to_bootloader(self, *_):
+    def test_send_request_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_request_to_bootloader()."""
         self.bl.send_request_to_bootloader(BootloaderAction.CmdToRunProgram)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"BootloaderAction": "CmdToRunProgram"})
 
-    def test_send_data_to_bootloader(self, *_):
+    def test_send_data_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_data_to_bootloader()."""
         self.bl.send_data_to_bootloader(0x1FFFFFFFFFFFFFFF)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"Data": 0x1FFFFFFFFFFFFFFF})
 
-    def test_send_crc_to_bootloader(self, *_):
+    def test_send_crc_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_crc_to_bootloader()."""
         self.bl.send_crc_to_bootloader(0x1FFFFFFFFFFFFFF0)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"Crc": 0x1FFFFFFFFFFFFFF0})
 
-    def test_send_transfer_program_info_to_bootloader(self, *_):
+    def test_send_transfer_program_info_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_transfer_program_info_to_bootloader()."""
         self.bl.send_transfer_program_info_to_bootloader(16, 2)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"ProgramLength": 16, "RequiredTransferLoops": 2})
 
-    def test_send_loop_number_to_bootloader(self, *_):
+    def test_send_loop_number_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_loop_number_to_bootloader()."""
         self.bl.send_loop_number_to_bootloader(3)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"LoopNumber": 3})
 
-    def test_wait_bootloader_state_msg(self, *_):
+    def test_wait_bootloader_state_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_bootloader_state_msg()."""
         msg = {
             "BootFsmState": BootFsmState.BootFsmStateWait.value,
@@ -335,7 +342,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
             },
         )
 
-    def test_wait_data_transfer_info_msg(self, *_):
+    def test_wait_data_transfer_info_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_data_transfer_info_msg()."""
         msg = {"CurrentLoopNumber": 100}
         db_message = self.bl.db.get_message_by_name("f_BootloaderDataTransferInfo")
@@ -346,7 +353,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
         msg_waited = self.bl.wait_data_transfer_info_msg()
         self.assertEqual(msg_waited, msg)
 
-    def test_wait_bootloader_version_info_msg(self, *_):
+    def test_wait_bootloader_version_info_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_bootloader_version_info_msg()."""
         msg = {
             "f_BootloaderVersionInfo_Mux": 0x00,
@@ -372,7 +379,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
         self.assertEqual(msg_waited.get("DirtyFlag"), "Yes")
         self.assertEqual(msg_waited.get("UnderVersionControl"), "Yes")
 
-    def test_wait_can_ack_msg(self, *_):
+    def test_wait_can_ack_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_can_ack_msg()."""
         # Case 1: received the ACK message with the StatusCode ReceivedAndProcessed
         msg = {
@@ -435,7 +442,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
             cm.exception.code, "'Receive error': Could not read from CAN bus."
         )
 
-    def test_send_can_message_to_bootloader(self, *_):
+    def test_send_can_message_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_can_message_to_bootloader()."""
         with self.assertRaises(SystemExit) as cm:
             can_bus = MagicMock()
@@ -453,7 +460,7 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
     """Class to test BootloaderCanBasics object instantiation."""
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=False)
-    def test_dbc_file_does_not_exist(self, _: MagicMock):
+    def test_dbc_file_does_not_exist(self, _: MagicMock) -> None:
         """DBC file needs to exist."""
         with self.assertRaises(SystemExit) as cm:
             BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
@@ -461,7 +468,9 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
     @patch("cli.cmd_bootloader.bootloader_can_basics.database.load_file")
-    def test_init_files_wrong_database_type(self, m_database: MagicMock, _: MagicMock):
+    def test_init_files_wrong_database_type(
+        self, m_database: MagicMock, _: MagicMock
+    ) -> None:
         """Test invalid initialization due to wrong type of database file."""
         m_database.return_value = create_autospec(
             database.diagnostics.database.Database
@@ -469,14 +478,16 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             BootloaderCanBasics(can_bus=MagicMock(), dbc_file=Path())
         self.assertRegex(
-            cm.exception.code,  # type:ignore
+            cm.exception.code,
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
         )
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
     @patch("cli.cmd_bootloader.bootloader_can_basics.database.load_file")
     @patch("cli.cmd_bootloader.bootloader_can_basics.can.Bus")
-    def test_init_ok(self, m_bus: MagicMock, m_database: MagicMock, _: MagicMock):
+    def test_init_ok(
+        self, m_bus: MagicMock, m_database: MagicMock, _: MagicMock
+    ) -> None:
         """Function to test the init function."""
         m_bus.return_value.__enter__.return_value.recv.return_value = None
         m_database.return_value = create_autospec(database.can.database.Database)
@@ -491,7 +502,7 @@ class TestBootloaderCanBasicsInitialization(unittest.TestCase):
 class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
     """Class to test BootloaderCanBasics object instantiation."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus("test", interface="virtual")
         self.can_bus_test = can.interface.Bus("test", interface="virtual")
@@ -499,12 +510,12 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
         # Initialize BootloaderCanBasics instance with virtual CAN bus instance
         self.bl = BootloaderCanBasics(can_bus=self.can_bus_test)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.can_bus.shutdown()
         self.can_bus_test.shutdown()
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=False)
-    def test_wait_can_message_dbc_file_does_not_exist(self, _):
+    def test_wait_can_message_dbc_file_does_not_exist(self, _: MagicMock) -> None:
         """DBC file needs to exist."""
         with self.assertRaises(SystemExit) as cm:
             self.bl.wait_can_message(0x110, dbc_file=Path())
@@ -512,7 +523,9 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
 
     @patch("cli.cmd_bootloader.bootloader_can_basics.Path.is_file", return_value=True)
     @patch("cli.cmd_bootloader.bootloader_can_basics.database.load_file")
-    def test_init_files_wrong_database_type(self, m_database: MagicMock, _: MagicMock):
+    def test_init_files_wrong_database_type(
+        self, m_database: MagicMock, _: MagicMock
+    ) -> None:
         """Test invalid initialization due to wrong type of database file."""
         m_database.return_value = create_autospec(
             database.diagnostics.database.Database
@@ -520,11 +533,11 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             self.bl.wait_can_message(0x110, dbc_file=Path())
         self.assertRegex(
-            cm.exception.code,  # type:ignore
+            cm.exception.code,
             r"Expected '.*' to contain a CAN database, but type is '.*'\.",
         )
 
-    def test_wait_can_message_message_can_not_be_received(self):
+    def test_wait_can_message_message_can_not_be_received(self) -> None:
         """Function to test function test_wait_can_message()."""
         msg = {
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
@@ -537,8 +550,9 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
 
-        def recv(*_, **__):
-            raise CanOperationError("foo")
+        def recv(*_: object, **__) -> NoReturn:
+            err = "foo"
+            raise CanOperationError(err)
 
         self.bl.can_bus.recv = recv
         with self.assertRaises(SystemExit) as cm:
@@ -547,11 +561,11 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
                 params={"AcknowledgeMessage": "ReceivedCmdToTransferProgram"},
             )
         self.assertEqual(
-            cm.exception.code,  # type:ignore
+            cm.exception.code,
             "'foo': Could not read from CAN bus.",
         )
 
-    def test_wait_can_message(self):
+    def test_wait_can_message(self) -> None:
         """Function to test function wait_can_message."""
         msg = {
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
@@ -671,42 +685,42 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
             cm.exception.code, "'Receive error': Could not read from CAN bus."
         )
 
-    def test_send_request_to_bootloader(self, *_):
+    def test_send_request_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_request_to_bootloader()."""
         self.bl.send_request_to_bootloader(BootloaderAction.CmdToRunProgram)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"BootloaderAction": "CmdToRunProgram"})
 
-    def test_send_data_to_bootloader(self, *_):
+    def test_send_data_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_data_to_bootloader()."""
         self.bl.send_data_to_bootloader(0x1FFFFFFFFFFFFFFF)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"Data": 0x1FFFFFFFFFFFFFFF})
 
-    def test_send_crc_to_bootloader(self, *_):
+    def test_send_crc_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_crc_to_bootloader()."""
         self.bl.send_crc_to_bootloader(0x1FFFFFFFFFFFFFF0)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"Crc": 0x1FFFFFFFFFFFFFF0})
 
-    def test_send_transfer_program_info_to_bootloader(self, *_):
+    def test_send_transfer_program_info_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_transfer_program_info_to_bootloader()."""
         self.bl.send_transfer_program_info_to_bootloader(16, 2)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"ProgramLength": 16, "RequiredTransferLoops": 2})
 
-    def test_send_loop_number_to_bootloader(self, *_):
+    def test_send_loop_number_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_loop_number_to_bootloader()."""
         self.bl.send_loop_number_to_bootloader(3)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"LoopNumber": 3})
 
-    def test_wait_bootloader_state_msg(self, *_):
+    def test_wait_bootloader_state_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_bootloader_state_msg()."""
         msg = {
             "BootFsmState": BootFsmState.BootFsmStateWait.value,
@@ -726,7 +740,7 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
             },
         )
 
-    def test_wait_data_transfer_info_msg(self, *_):
+    def test_wait_data_transfer_info_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_data_transfer_info_msg()."""
         msg = {"CurrentLoopNumber": 100}
         db_message = self.bl.db.get_message_by_name("f_BootloaderDataTransferInfo")
@@ -737,7 +751,7 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
         msg_waited = self.bl.wait_data_transfer_info_msg()
         self.assertEqual(msg_waited, msg)
 
-    def test_wait_bootloader_version_info_msg(self, *_):
+    def test_wait_bootloader_version_info_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_bootloader_version_info_msg()."""
         msg = {
             "f_BootloaderVersionInfo_Mux": 0x00,
@@ -767,7 +781,7 @@ class TestBootloaderCanBasicsWaitCanMessage(unittest.TestCase):
 class TestBootloaderCanBasicsWaitCanAckMessage(unittest.TestCase):
     """Class to test BootloaderCanBasics object instantiation."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus("test", interface="virtual")
         self.can_bus_test = can.interface.Bus("test", interface="virtual")
@@ -775,11 +789,11 @@ class TestBootloaderCanBasicsWaitCanAckMessage(unittest.TestCase):
         # Initialize BootloaderCanBasics instance with virtual CAN bus instance
         self.bl = BootloaderCanBasics(can_bus=self.can_bus_test)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.can_bus.shutdown()
         self.can_bus_test.shutdown()
 
-    def test_wait_can_ack_msg_0(self, *_):
+    def test_wait_can_ack_msg_0(self, *_: MagicMock) -> None:
         """Function to test function wait_can_ack_msg()."""
         # Case 0: received the ACK message with the StatusCode ReceivedAndProcessed
         msg = {
@@ -793,8 +807,9 @@ class TestBootloaderCanBasicsWaitCanAckMessage(unittest.TestCase):
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.bl.can_bus.send(test_message)
 
-        def recv(*_, **__):
-            raise CanOperationError("foo")
+        def recv(*_: object, **__) -> NoReturn:
+            err = "foo"
+            raise CanOperationError(err)
 
         self.bl.can_bus.recv = recv
         with self.assertRaises(SystemExit) as cm:
@@ -805,11 +820,11 @@ class TestBootloaderCanBasicsWaitCanAckMessage(unittest.TestCase):
                 processed_level=StatusCode.ReceivedAndProcessed,
             )
         self.assertEqual(
-            cm.exception.code,  # type:ignore
+            cm.exception.code,
             "'foo': Could not read from CAN bus.",
         )
 
-    def test_wait_can_ack_msg(self, *_):
+    def test_wait_can_ack_msg(self, *_: MagicMock) -> None:
         """Function to test function wait_can_ack_msg()."""
         # Case 1: received the ACK message with the StatusCode ReceivedAndProcessed
         msg = {
@@ -861,7 +876,7 @@ class TestBootloaderCanBasicsWaitCanAckMessage(unittest.TestCase):
 class TestBootloaderCanBasicsSendCanMessageToBootloader(unittest.TestCase):
     """Class to test BootloaderCanBasics object instantiation."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus("test", interface="virtual")
         self.can_bus_test = can.interface.Bus("test", interface="virtual")
@@ -869,11 +884,11 @@ class TestBootloaderCanBasicsSendCanMessageToBootloader(unittest.TestCase):
         # Initialize BootloaderCanBasics instance with virtual CAN bus instance
         self.bl = BootloaderCanBasics(can_bus=self.can_bus_test)
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.can_bus.shutdown()
         self.can_bus_test.shutdown()
 
-    def test_send_can_message_to_bootloader(self, *_):
+    def test_send_can_message_to_bootloader(self, *_: MagicMock) -> None:
         """Function to test function send_can_message_to_bootloader()."""
         with self.assertRaises(SystemExit) as cm:
             can_bus = MagicMock()

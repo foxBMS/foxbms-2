@@ -43,8 +43,8 @@
  * @file    crc.h
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -92,13 +92,6 @@ typedef enum {
     CRC_REGISTER_LOW,  /* low part of register to be written */
     CRC_REGISTER_HIGH, /* high part of register to be written */
 } CRC_REGISTER_SIDE_e;
-
-#ifdef UNITY_UNIT_TEST
-/* While in test environment we use a fake register. */
-#undef crcREG1
-crcBASE_t test_register;
-#define crcREG1 ((crcBASE_t *)&test_register)
-#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 #ifdef UNITY_UNIT_TEST

@@ -11,14 +11,15 @@ Programming Language
 System Programming Language and Standards
 -----------------------------------------
 
-Special care has to be taken for coding C-code as the core functions of the
-BMS software rely on this language. This project uses the ISO C11 standard
-(a working document is for example available in :cite:`ISO-9899:2011`) as a
-language basis.
+Special care is required when writing C code, as the core functions of the
+BMS software rely on this language.
+This project uses the ISO C11 standard (a working document is for example
+available in :cite:`ISO-9899:2011`) as a language basis.
 
-The C programming language is very flexible. This flexibility has to be
-reduced to a safe language sub-set which is done by additional coding
-standards. Code contributed to this project **MUST** be compatible with
+The C programming language is very flexible.
+This flexibility must be reduced to a safe language sub-set which is done by
+additional coding standards.
+Code contributed to this project **MUST** be compatible with
 MISRA C:2012 which is described in :cite:`MISRA-C:2012`.
 
 .. admonition:: Abstract of System Programming Language and Standards

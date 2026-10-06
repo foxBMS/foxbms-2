@@ -1,0 +1,20 @@
+[
+  {
+    "source": [
+      "src/app/driver/config/pex_cfg.c",
+      "src/app/driver/phy/dp83869.c"
+    ],
+    "test": "test_dp83869.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/io",
+      "src/app/driver/phy"
+    ],
+    "mocks": [
+      "HL_mdio.h",
+      "src/app/driver/io/io.h",
+      "src/app/engine/database/database.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

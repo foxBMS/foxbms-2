@@ -43,8 +43,8 @@
  * @file    test_contactor.c
  * @author  foxBMS Team
  * @date    2020-03-31 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,11 +68,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
@@ -143,7 +138,7 @@ void testCONT_CheckFeedback(void) {
 
     /* ======= RT1/2 ======= */
     for (CONT_CONTACTOR_INDEX contactor = 0; contactor < BS_NR_OF_CONTACTORS - 1; contactor++) {
-        SPS_GetChannelPexFeedback_ExpectAndReturn(cont_contactorStates[contactor].spsChannel, true, STD_OK);
+        SPS_GetChannelPexFeedback_ExpectAndReturn(cont_contactorStates[contactor].spsChannel, true, CONT_SWITCH_OFF);
     }
     /* Different DIAG_Handlers for all three test contactorStates */
     DIAG_Handler_ExpectAndReturn(
@@ -151,25 +146,22 @@ void testCONT_CheckFeedback(void) {
         feedbackStatus,
         DIAG_STRING,
         (uint8_t)cont_contactorStates[0].stringIndex,
-        STD_OK);
+        DIAG_HANDLER_RETURN_OK);
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK,
         feedbackStatus,
         DIAG_STRING,
         (uint8_t)cont_contactorStates[1].stringIndex,
-        STD_OK);
+        DIAG_HANDLER_RETURN_OK);
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK,
         feedbackStatus,
         DIAG_STRING,
         (uint8_t)cont_contactorStates[2].stringIndex,
-        STD_OK);
+        DIAG_HANDLER_RETURN_OK);
 
     CONT_CheckFeedback();
     /* ======= RT2/2 ======= */
-    /*for (CONT_CONTACTOR_INDEX contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-    }
-    CONT_CheckFeedback();*/
 }
 
 /**

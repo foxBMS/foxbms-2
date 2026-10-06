@@ -1,0 +1,49 @@
+[
+  {
+    "source": "src/app/driver/imd/bender/ir155/bender_ir155_helper.c",
+    "test": "test_bender_ir155_helper.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/imd/bender/ir155",
+      "src/app/driver/imd/bender/ir155/config",
+      "src/app/driver/io",
+      "src/app/driver/pwm",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/fram/fram.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/pwm/pwm.h"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/imd/bender/ir155/bender_ir155.c",
+      "src/app/driver/imd/imd.c"
+    ],
+    "test": "test_bender_ir155.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/driver/imd/bender/ir155",
+      "src/app/driver/imd/bender/ir155/config",
+      "src/app/driver/io",
+      "src/app/driver/pwm",
+      "src/app/engine/diag",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/driver/fram/fram.h",
+      "src/app/driver/imd/bender/ir155/bender_ir155_helper.h",
+      "src/app/driver/io/io.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

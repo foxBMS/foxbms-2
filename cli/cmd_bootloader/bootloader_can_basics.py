@@ -37,8 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""This file implement the basic functions of CAN module (CanInterface) to send
-and receive bootloader relevant CAN messages via CAN bus.
+"""Implement the basic CAN module (CanInterface) functions to send and receive
+bootloader relevant CAN messages via CAN bus.
 """
 
 import sys
@@ -52,7 +52,7 @@ from cantools import database
 from cantools.typechecking import DecodeResultType, SignalDictType
 
 from ..helpers.logger import logger
-from ..helpers.misc import BOOTLOADER_DBC_FILE
+from ..helpers.project_context import BOOTLOADER_DBC_FILE
 from .bootloader_can_messages import (
     AcknowledgeMessageType,
     BootloaderFsmStatesType,
@@ -64,8 +64,8 @@ from .bootloader_can_messages import (
 
 
 class BootloaderCanBasics:
-    """This class implements all CAN relevant functions and can be used to wait or
-    receive specified messages on CAN bus.
+    """Implement all CAN-relevant functions used to wait for or receive
+    specified messages on CAN bus.
     """
 
     def __init__(
@@ -74,7 +74,8 @@ class BootloaderCanBasics:
         """Init function.
 
         Args:
-            can_bus: CAN bus object
+            can_bus: CAN bus object.
+            dbc_file: path to the CAN DBC file.
         """
         if not dbc_file.is_file():
             sys.exit(f"File '{dbc_file}' does not exist.")
@@ -97,15 +98,16 @@ class BootloaderCanBasics:
         timeout_total: float = 1.0,
         timeout_bus_recv: float = 1.0,
     ) -> DecodeResultType | None:
-        """This function wait for a specified CAN message.
+        """Wait for a specified CAN message.
 
         Args:
             arbitration_id: id of the CAN message e.g., 0x480
-            params: a dictionary that contains the variable name
-            and its value to be filtered. e.g., {'AcknowledgeFlag':'Received'}.
-            In this case, a message (with the required arbitration_id) will
-            be thrown away if the value of 'AcknowledgeFlag' is different
-            from 'Received'.
+            dbc_file: optional DBC file used to decode the received message.
+            mux_value: optional multiplexer value that must match for the
+                decoded message.
+            params: optional dictionary with signal names and required values,
+                for example ``{"AcknowledgeFlag": "Received"}``.
+                Messages with mismatching values are ignored.
             timeout_total: the time limit [s] for the whole waiting process.
             timeout_bus_recv: the time limit [s] to receive one message.
 
@@ -135,7 +137,7 @@ class BootloaderCanBasics:
             except can.CanOperationError as e:
                 sys.exit(f"'{e}': Could not read from CAN bus.")
             if message and (message.arbitration_id == arbitration_id):
-                msg = db.decode_message(message.arbitration_id, message.data)
+                msg = db.decode_message(message.arbitration_id, bytes(message.data))
                 msg = cast(SignalDictType, msg)
                 if mux_value:
                     # Exit in advance if mux value does not match
@@ -157,7 +159,7 @@ class BootloaderCanBasics:
         return None
 
     def send_can_message_to_bootloader(self, *args: dict) -> None:
-        """The function is to send any CAN messages contained in the dbc file.
+        """Send any CAN messages from dbc file.
 
         Args:
             *args: list of CAN messages to be sent.
@@ -179,7 +181,7 @@ class BootloaderCanBasics:
                 sys.exit(f"'{e}': Could not send message on CAN bus.")
 
     def send_request_to_bootloader(self, request_code: Enum) -> None:
-        """The function is to send a request CAN message to bootloader.
+        """Send a request CAN message to bootloader.
 
         Args:
             request_code: a member of the enum BootloaderAction.
@@ -189,7 +191,7 @@ class BootloaderCanBasics:
         )
 
     def send_data_to_bootloader(self, data_8_bytes: int) -> None:
-        """The function is to send a data CAN message (8 bytes) to bootloader.
+        """Send a data CAN message (8 bytes) to bootloader.
 
         Args:
             data_8_bytes: maximal 0xffffffffffffffff.
@@ -199,7 +201,7 @@ class BootloaderCanBasics:
         )
 
     def send_crc_to_bootloader(self, crc_8_bytes: int) -> None:
-        """The function is to send a CRC CAN message (8 bytes) to bootloader.
+        """Send a CRC CAN message (8 bytes) to bootloader.
 
         Args:
             crc_8_bytes: maximal 0xffffffffffffffff.
@@ -211,11 +213,10 @@ class BootloaderCanBasics:
     def send_transfer_program_info_to_bootloader(
         self, len_of_program_in_bytes: int, num_of_transfer_loops: int
     ) -> None:
-        """The function is to send a transfer process info CAN message to the
-        bootloader.
+        """Send a transfer process info CAN message to the bootloader.
 
         Args:
-           len_of_program: the length of the program in bytes.
+           len_of_program_in_bytes: the length of the program in bytes.
            num_of_transfer_loops: the number of total transfer loops.
         """
         # len_of_program: check int value (uint32 max?)
@@ -237,7 +238,7 @@ class BootloaderCanBasics:
         )
 
     def wait_bootloader_state_msg(self) -> BootloaderFsmStatesType | None:
-        """Waits for the CAN messages containing the state of bootloader.
+        """Wait for the CAN messages containing the state of bootloader.
 
         Returns:
             CAN message containing FSM states of bootloader.
@@ -249,7 +250,7 @@ class BootloaderCanBasics:
         return cast(BootloaderFsmStatesType, msg)
 
     def wait_data_transfer_info_msg(self) -> DataTransferInfoType | None:
-        """This function is to wait for the messages contain the information of the data transfer.
+        """Wait for the messages containing the information of the data transfer.
 
         Returns:
             CAN message containing data transfer info (the current loop number).
@@ -261,11 +262,10 @@ class BootloaderCanBasics:
         return cast(DataTransferInfoType, msg)
 
     def wait_bootloader_version_info_msg(self) -> BootloaderVersionInfoType | None:
-        """This function is to wait for the messages contain the version information
-        of the bootloader.
+        """Wait for the messages containing the version information of the bootloader.
 
         Returns:
-            CAN message containing data transfer info (the current loop number).
+            CAN message containing bootloader version info.
         """
         arbitration_id_bootloader_version_info = self.db.get_message_by_name(
             "f_BootloaderVersionInfo"
@@ -301,7 +301,9 @@ class BootloaderCanBasics:
             except can.CanOperationError as e:
                 sys.exit(f"'{e}': Could not read from CAN bus.")
             if message and (message.arbitration_id == 0x480):
-                msg = self.db.decode_message(message.arbitration_id, message.data)
+                msg = self.db.decode_message(
+                    message.arbitration_id, bytes(message.data)
+                )
                 msg_ack = cast(AcknowledgeMessageType, msg)
                 if (
                     (msg_ack["AcknowledgeFlag"] == "Received")

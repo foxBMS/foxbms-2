@@ -1,0 +1,36 @@
+[
+  {
+    "source": "src/app/driver/afe/debug/can/api/debug_can_afe_dma.c",
+    "test": "test_debug_can_afe_dma.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/debug/can",
+      "src/app/driver/config"
+    ],
+    "mocks": [
+      "src/app/driver/afe/debug/can/debug_can.h",
+      "src/app/main/include/fassert.h"
+    ],
+    "defines": [
+      "TEST_BS_NR_OF_STRINGS=2u",
+      "TEST_BS_NR_OF_MODULES_PER_STRING=4u"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/debug/can/api/debug_can_afe.c",
+    "test": "test_debug_can_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/debug/can",
+      "src/app/engine/database"
+    ],
+    "mocks": [
+      "src/app/driver/afe/debug/can/debug_can.h",
+      "src/app/engine/database/database.h"
+    ],
+    "defines": [
+      "TEST_BS_NR_OF_STRINGS=2u",
+      "TEST_BS_NR_OF_MODULES_PER_STRING=4u"
+    ]
+  }
+]

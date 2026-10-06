@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_plausibility.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,9 +63,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("diag_cbs_plausibility.c")
-
-TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
@@ -97,45 +94,47 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /** tests invalid input values */
 void testDIAG_ErrorPlausibilityInvalidInput(void) {
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorPlausibility(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorPlausibility(DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorPlausibility(DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_EVENT_OK, NULL_PTR, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorPlausibility(
-        DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorBmsValuesPackVoltage(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_ErrorBmsValuesPackVoltage(DIAG_ID_BMS_VALUES_PACK_VOLTAGE, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_ErrorBmsValuesPackVoltage(DIAG_ID_BMS_VALUES_PACK_VOLTAGE, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorBmsValuesPackVoltage(
+        DIAG_ID_BMS_VALUES_PACK_VOLTAGE, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }
 
 /** tests invalid input values */
 void testDIAG_PlausibilityCheckInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_PlausibilityCheck(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_PlausibilityCheck(DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_PlausibilityCheck(DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_PlausibilityCheck(DIAG_ID_REDUNDANCY_CELL_VOLTAGE, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_PlausibilityCheck(DIAG_ID_REDUNDANCY_CELL_VOLTAGE, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_PlausibilityCheck(
-        DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+        DIAG_ID_REDUNDANCY_CELL_VOLTAGE, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }
 
 void testDIAG_ErrorPlausibility(void) {
-    DIAG_ID_e diagId   = DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE;
+    DIAG_ID_e diagId   = DIAG_ID_BMS_VALUES_PACK_VOLTAGE;
     DIAG_EVENT_e event = DIAG_EVENT_RESET;
-    DIAG_ErrorPlausibility(diagId, event, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorBmsValuesPackVoltage(diagId, event, &diag_kpkDatabaseShim, 0u);
     TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->plausibilityCheckPackVoltageError[0u]);
 
     event = DIAG_EVENT_NOT_OK;
-    DIAG_ErrorPlausibility(diagId, event, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorBmsValuesPackVoltage(diagId, event, &diag_kpkDatabaseShim, 0u);
     TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->plausibilityCheckPackVoltageError[0u]);
 }
 
 void testDIAG_PlausibilityCheck(void) {
-    DIAG_ID_e diagId   = DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE;
+    DIAG_ID_e diagId   = DIAG_ID_REDUNDANCY_CELL_VOLTAGE;
     DIAG_EVENT_e event = DIAG_EVENT_RESET;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
-    diagId = DIAG_ID_PLAUSIBILITY_CELL_TEMP;
+    diagId = DIAG_ID_REDUNDANCY_CELL_TEMPERATURE;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
-    diagId = DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD;
+    diagId = DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
-    diagId = DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD;
+    diagId = DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
     /* --- */
@@ -143,13 +142,13 @@ void testDIAG_PlausibilityCheck(void) {
 
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
-    diagId = DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE;
+    diagId = DIAG_ID_REDUNDANCY_CELL_VOLTAGE;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
-    diagId = DIAG_ID_PLAUSIBILITY_CELL_TEMP;
+    diagId = DIAG_ID_REDUNDANCY_CELL_TEMPERATURE;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
-    diagId = DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD;
+    diagId = DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD;
     DIAG_PlausibilityCheck(diagId, event, &diag_kpkDatabaseShim, 0u);
 
     /* else branch */

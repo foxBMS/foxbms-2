@@ -59,11 +59,11 @@ except ModuleNotFoundError:
 class TestLogImpl(unittest.TestCase):
     """Test of the 'log' implementation."""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.max_gets = 5
         self.max_sets = 4
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         self.max_gets = 5
         self.max_sets = 4
 
@@ -71,7 +71,7 @@ class TestLogImpl(unittest.TestCase):
     @patch("cli.cmd_log.log_impl.Bus")
     def test_receive_can_message_initialization_error(
         self, m_bus: MagicMock, _: MagicMock
-    ):
+    ) -> None:
         """Test an initialization error of the CAN bus."""
         m_bus.side_effect = CanInitializationError
         err = io.StringIO()
@@ -81,7 +81,9 @@ class TestLogImpl(unittest.TestCase):
 
     @patch("cli.cmd_log.log_impl.asdict")
     @patch("cli.cmd_log.log_impl.Bus")
-    def test_receive_can_message_stop_logging_0(self, m_bus: MagicMock, _: MagicMock):
+    def test_receive_can_message_stop_logging_0(
+        self, m_bus: MagicMock, _: MagicMock
+    ) -> None:
         """Test that the CAN bus is stopped on a stop event and the case that
         'recv' method of the CAN bus is empty
         """
@@ -99,17 +101,16 @@ class TestLogImpl(unittest.TestCase):
 
     @patch("cli.cmd_log.log_impl.asdict")
     @patch("cli.cmd_log.log_impl.Bus")
-    def test_receive_can_message_stop_logging_1(self, m_bus: MagicMock, _: MagicMock):
+    def test_receive_can_message_stop_logging_1(
+        self, m_bus: MagicMock, _: MagicMock
+    ) -> None:
         """Test that the CAN bus is stopped on a stop event and the case that
         'recv' method of the CAN bus receives a few messages.
         """
 
-        def is_set():
+        def is_set() -> bool:
             self.max_sets -= 1
-
-            if self.max_sets <= 0:
-                return False
-            return True
+            return not self.max_sets <= 0
 
         data = MagicMock()
         network_ok = MagicMock()
@@ -126,7 +127,9 @@ class TestLogImpl(unittest.TestCase):
 
     @patch("cli.cmd_log.log_impl.asdict")
     @patch("cli.cmd_log.log_impl.Bus")
-    def test_receive_can_message_too_many_errors(self, m_bus: MagicMock, _: MagicMock):
+    def test_receive_can_message_too_many_errors(
+        self, m_bus: MagicMock, _: MagicMock
+    ) -> None:
         """Too many errors shall create also a stop"""
         data = MagicMock()
         network_ok = MagicMock()
@@ -141,7 +144,7 @@ class TestLogImpl(unittest.TestCase):
             "Too many errors occurred while receiving messages.\n", err.getvalue()
         )
 
-    def test_log_can_message(self):
+    def test_log_can_message(self) -> None:
         """Test the 'log_can_message' function"""
         data = MagicMock()
         network_ok = MagicMock()
@@ -151,19 +154,16 @@ class TestLogImpl(unittest.TestCase):
             log_can_message(data, network_ok, logger=MagicMock())
         self.assertEqual("Start Logging\n", buf.getvalue())
 
-        def dummy_get(**_):
+        def dummy_get(**_: object) -> bool | MagicMock:
             self.max_gets -= 1
 
             if self.max_gets <= 0:
                 return False
             return MagicMock()
 
-        def dummy_is_set():
+        def dummy_is_set() -> bool:
             self.max_sets -= 1
-
-            if self.max_sets <= 0:
-                return False
-            return True
+            return not self.max_sets <= 0
 
         data.get = dummy_get
         network_ok.reset_mock()
@@ -189,12 +189,16 @@ class TestLogImpl(unittest.TestCase):
             log_can_message(data, network_ok, logger=MagicMock())
         self.assertEqual("Start Logging\n", buf.getvalue())
 
+    @patch("cli.cmd_log.log_impl.Queue")
     @patch("cli.cmd_log.log_impl.Process")
-    def test_log_failure_0(self, mock_process: MagicMock):
+    def test_log_failure_0(
+        self, mock_process: MagicMock, mock_queue: MagicMock
+    ) -> None:
         """Creating the receive process failed"""
         # test RECEIVE_PROCESS_NOT_STARTED
         mock_process = mock_process.return_value
         mock_process.start.side_effect = RuntimeError
+        mock_queue.return_value = MagicMock()
         buf = io.StringIO()
         with redirect_stderr(buf):
             ret = log(MagicMock(), Path("mock"))
@@ -202,16 +206,25 @@ class TestLogImpl(unittest.TestCase):
             "Could not start receive process.\nExiting...\n", buf.getvalue()
         )
         self.assertEqual(ret, 1)
+        mock_queue.return_value.close.assert_called_once()
+        mock_queue.return_value.join_thread.assert_called_once()
 
+    @patch("cli.cmd_log.log_impl.Queue")
     @patch("cli.cmd_log.log_impl.Event")
     @patch("cli.cmd_log.log_impl.Process")
-    def test_log_failure_1(self, mock_process: MagicMock, mock_event: MagicMock):
+    def test_log_failure_1(
+        self,
+        mock_process: MagicMock,
+        mock_event: MagicMock,
+        mock_queue: MagicMock,
+    ) -> None:
         """Initializing the CAN bus failed"""
         # test CAN_BUS_INITIALIZATION_FAILED
         mock_instance_process = mock_process.return_value
         mock_instance_process.start.return_value = 0
         mock_instance_event = mock_event.return_value
         mock_instance_event.wait.return_value = False
+        mock_queue.return_value = MagicMock()
         buf = io.StringIO()
         with redirect_stderr(buf), TemporaryDirectory() as tmpdir:
             ret = log(MagicMock(), Path(tmpdir))
@@ -219,7 +232,10 @@ class TestLogImpl(unittest.TestCase):
             "Could not initialize CAN bus. Timeout\nShutdown...\n", buf.getvalue()
         )
         self.assertEqual(ret, 2)
+        mock_queue.return_value.close.assert_called_once()
+        mock_queue.return_value.join_thread.assert_called_once()
 
+    @patch("cli.cmd_log.log_impl.Queue")
     @patch("cli.cmd_log.log_impl.SizedRotatingLogger")
     @patch("cli.cmd_log.log_impl.Event")
     @patch("cli.cmd_log.log_impl.Process")
@@ -228,10 +244,12 @@ class TestLogImpl(unittest.TestCase):
         mock_process: MagicMock,
         mock_event: MagicMock,
         mock_srl: MagicMock,
-    ):
+        mock_queue: MagicMock,
+    ) -> None:
         """Instantiating the logger object failed"""
         # test LOGGER_NOT_STARTED
         mock_instance_process = mock_process.return_value
+        mock_queue.return_value = MagicMock()
         mock_instance_process.start.return_value = 0
         mock_instance_process.join.return_value = 0
         mock_instance_process.is_alive.return_value = 0
@@ -264,24 +282,29 @@ class TestLogImpl(unittest.TestCase):
             buf.getvalue(),
         )
         self.assertEqual(ret, 3)
+        self.assertEqual(mock_queue.return_value.close.call_count, 2)
+        self.assertEqual(mock_queue.return_value.join_thread.call_count, 2)
 
+    @patch("cli.cmd_log.log_impl.Queue")
     @patch("cli.cmd_log.log_impl.sleep")
     @patch("cli.cmd_log.log_impl.log_can_message")
     @patch("cli.cmd_log.log_impl.SizedRotatingLogger")
     @patch("cli.cmd_log.log_impl.Event")
     @patch("cli.cmd_log.log_impl.Process")
     # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def test_log_success_0(
+    def test_log_success_0(  # noqa: PLR0913
         self,
         mock_process: MagicMock,
         mock_event: MagicMock,
         mock_srl: MagicMock,
         mock_log_can_message: MagicMock,
         mock_sleep: MagicMock,
-    ):
+        mock_queue: MagicMock,
+    ) -> None:
         """Test successfully logging"""
         # receive process got gracefully canceled
         mock_instance_process = mock_process.return_value
+        mock_queue.return_value = MagicMock()
         mock_instance_process.start.return_value = 0
         mock_instance_process.join.return_value = 0
         mock_instance_process.is_alive.return_value = 0
@@ -296,24 +319,29 @@ class TestLogImpl(unittest.TestCase):
             ret = log(MagicMock(), Path(tmpdir))
         self.assertEqual("Use Ctrl+C to stop logging.\nShutdown...\n", buf.getvalue())
         self.assertEqual(ret, 0)
+        mock_queue.return_value.close.assert_called_once()
+        mock_queue.return_value.join_thread.assert_called_once()
 
+    @patch("cli.cmd_log.log_impl.Queue")
     @patch("cli.cmd_log.log_impl.sleep")
     @patch("cli.cmd_log.log_impl.log_can_message")
     @patch("cli.cmd_log.log_impl.SizedRotatingLogger")
     @patch("cli.cmd_log.log_impl.Event")
     @patch("cli.cmd_log.log_impl.Process")
     # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-    def test_log_success_1(
+    def test_log_success_1(  # noqa: PLR0913
         self,
         mock_process: MagicMock,
         mock_event: MagicMock,
         mock_srl: MagicMock,
         mock_log_can_message: MagicMock,
         mock_sleep: MagicMock,
-    ):
+        mock_queue: MagicMock,
+    ) -> None:
         """Test another branch when successfully logging"""
         # receive process got gracefully canceled
         mock_instance_process = mock_process.return_value
+        mock_queue.return_value = MagicMock()
         mock_instance_process.start.return_value = 0
         mock_instance_process.join.return_value = 0
         mock_instance_process.is_alive.return_value = True
@@ -325,15 +353,35 @@ class TestLogImpl(unittest.TestCase):
         mock_sleep.return_value = 0
         out = io.StringIO()
         err = io.StringIO()
-        with redirect_stdout(out), redirect_stderr(err):
-            with TemporaryDirectory() as tmpdir:
-                ret = log(MagicMock(), Path(tmpdir))
+        with redirect_stdout(out), redirect_stderr(err), TemporaryDirectory() as tmpdir:
+            ret = log(MagicMock(), Path(tmpdir))
         self.assertEqual("Use Ctrl+C to stop logging.\nShutdown...\n", out.getvalue())
         self.assertEqual(
             "Could could not cancel the receive process gracefully.\nTerminating...\n",
             err.getvalue(),
         )
         self.assertEqual(ret, 0)
+        mock_queue.return_value.close.assert_called_once()
+        mock_queue.return_value.join_thread.assert_called_once()
+
+    @patch("cli.cmd_log.log_impl.Queue")
+    @patch("cli.cmd_log.log_impl.Process")
+    def test_log_failure_0_ignores_queue_cleanup_errors(
+        self, mock_process: MagicMock, mock_queue: MagicMock
+    ) -> None:
+        """Queue cleanup errors should be ignored on early exit."""
+        mock_process.return_value.start.side_effect = RuntimeError
+        queue = MagicMock()
+        queue.close.side_effect = AttributeError()
+        queue.join_thread.side_effect = RuntimeError()
+        mock_queue.return_value = queue
+
+        with redirect_stderr(io.StringIO()):
+            ret = log(MagicMock(), Path("mock"))
+
+        self.assertEqual(ret, 1)
+        queue.close.assert_called_once()
+        queue.join_thread.assert_called_once()
 
 
 if __name__ == "__main__":

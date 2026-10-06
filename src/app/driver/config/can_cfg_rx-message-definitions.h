@@ -43,8 +43,8 @@
  * @file    can_cfg_rx-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -56,7 +56,10 @@
 #define FOXBMS__CAN_CFG_RX_MESSAGE_DEFINITIONS_H_
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_aerosol_sensor.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_current_sensor.h"
+#include "foxbms_config_imd_sensor.h"
 
 #include "can_cfg.h"
 
@@ -293,7 +296,9 @@
 #define CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_ENDIANNESS (CANRX_CS_MESSAGES_ISABELLENHUETTE_IVT_ENDIANNESS)
 #define CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_DLC        (CANRX_CS_MESSAGES_ISABELLENHUETTE_IVT_DLC)
 /**@} */
+
 #endif /* FOXBMS_CS_ISABELLENHUETTE_IVT_S */
+
 /* composed Rx  messages */
 
 /* AXIVION Disable Style Generic-NoUnsafeMacro: These macros MUST only be used
@@ -352,7 +357,7 @@
     {                                                         \
         .period = CANRX_AFE_CELL_TEMPERATURES_PERIOD_ms       \
     }
-#endif
+#endif /* FOXBMS_AFE_DRIVER_DEBUG_CAN */
 
 #if (defined(FOXBMS_IMD_BENDER_ISO165C) && (FOXBMS_IMD_BENDER_ISO165C == 1))
 #define CANRX_IMD_BENDER_ISO165C_INFO_MESSAGE                   \
@@ -376,7 +381,7 @@
     {                                                               \
         .period = CANRX_IMD_BENDER_ISO165C_RESPONSE_PERIOD_ms       \
     }
-#endif
+#endif /* FOXBMS_IMD_BENDER_ISO165C */
 
 #define CANRX_BMS_STATE_REQUEST_MESSAGE                   \
     {                                                     \

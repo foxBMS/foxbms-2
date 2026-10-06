@@ -37,8 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     # The LTC6804-1 is a build variant of 6811-1 (it mostly is an older version
     # of that IC).
     bld.recurse("../6813-1")

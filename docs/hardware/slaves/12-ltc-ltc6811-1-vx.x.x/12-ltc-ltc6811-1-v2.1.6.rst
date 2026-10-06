@@ -39,8 +39,7 @@ The pinout of this |bms-slave| is shown in the
 :numref:`pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-img` and
 :numref:`pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-table`.
 
-.. drawio-figure:: 12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_pinout.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/slaves/12-ltc-ltc6811-1-vx.x.x/12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_pinout.svg
    :alt: pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-img
    :name: pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-img
    :width: 800px
@@ -94,9 +93,8 @@ The block diagram of the |bms-slave| is shown in
 :numref:`block_diagram_6811-1_slave_12cell_v2.1.6`.
 
 .. _block_diagram_6811-1_slave_12cell_v2.1.6:
-.. drawio-figure:: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6.drawio
+.. figure:: ../../../../build/docs/docs/hardware/slaves/12-ltc-ltc6811-1-vx.x.x/12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6.svg
    :width: 100 %
-   :format: svg
    :align: center
 
    |bms-slave| 12-Cell Block Diagram
@@ -125,8 +123,7 @@ The cell voltage sense lines are input on the connector X200.
 The pinout is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.6_cell_sense_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_24pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_24pins.svg
    :width: 300px
 
 .. csv-table:: Cell voltage sense connector
@@ -196,8 +193,7 @@ and X202 (secondary).
 The pinout is identical for the primary and secondary and is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.6_temp_sense_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_16pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_16pins.svg
    :width: 300px
 
 .. csv-table:: Temperature sensor connector
@@ -297,36 +293,35 @@ be selected by register settings.
 Each of the 8 digital inputs/outputs has a discrete pull up resistor that for
 example can be used for directly connecting a tactile switch.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-isoSPI Daisy Chain Connection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+|isospi| Daisy Chain Connection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The data transmission between the slaves and between the slaves and the basic
-board takes place using the isoSPI interface.
-The isoSPI signals are input on the connectors X500 (primary) and X502
+board takes place using the |isospi| interface.
+The |isospi| signals are input on the connectors X500 (primary) and X502
 (secondary).
-The isoSPI signals for daisy-chaining are output on the connectors X501
+The |isospi| signals for daisy-chaining are output on the connectors X501
 (primary) and X503 (secondary).
-The isoSPI connections are isolated galvanically using pulse transformers
+The |isospi| connections are isolated galvanically using pulse transformers
 (TR1400-1/2).
 The voltage amplitude of the differential signal can be adjusted by setting
 resistors (see paragraph :ref:`hardware_slave_daisy_current_12cell_v2.1.6`).
 
-The pinout of the isoSPI connectors is described in
+The pinout of the |isospi| connectors is described in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.6_daisy_input_connectors>` and
 :numref:`Table %s <6811-1_slave_12cell_v2.1.6_daisy_output_connectors>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_02pins.svg
    :width: 300px
 
-.. csv-table:: isoSPI Daisy Chain Input Connectors
+.. csv-table:: |isospi| Daisy Chain Input Connectors
    :name: 6811-1_slave_12cell_v2.1.6_daisy_input_connectors
    :header-rows: 1
    :delim: ;
    :file: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_daisy-input-connectors.csv
 
-.. csv-table:: isoSPI Daisy Chain Output Connectors
+.. csv-table:: |isospi| Daisy Chain Output Connectors
    :name: 6811-1_slave_12cell_v2.1.6_daisy_output_connectors
    :header-rows: 1
    :delim: ;
@@ -355,10 +350,10 @@ Daisy Chain Communication Current
 
 The daisy chain communication current can be set by the resistors R1419-1/2 and
 R1421-1/2.
-The default value is 820 |Ohm| for R14211/2 and 1.21\ |kOhm| for R1419-1/2.
-This values result in a bias current of approximately 1mA and a differential
+The default value is 820 |Ohm| for R1421-1/2 and 1.21\ |kOhm| for R1419-1/2.
+These values result in a bias current of approximately 1mA and a differential
 signal amplitude of 1.18V.
-Theses values are suitable for high noise environments with cable lengths of
+These values are suitable for high noise environments with cable lengths of
 over 50m.
 More information can be found in the |ltc-ltc6811-1| datasheet.
 
@@ -416,8 +411,7 @@ connectors are in parallel for daisy chaining the supply).
 The pinout of the connectors X1001 and X1002 is shown in
 :numref:`Table %s <6811-1_slave_12cell_v2.1.6_external_dc_supply_connector>`.
 
-.. drawio-figure:: ./../../img/connectors_molex_micro_fit_02pins.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/img/connectors_molex_micro_fit_02pins.svg
    :width: 300px
 
 .. csv-table:: External DC supply connector

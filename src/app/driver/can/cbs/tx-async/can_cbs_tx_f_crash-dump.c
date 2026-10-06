@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_crash-dump.c
  * @author  foxBMS Team
  * @date    2022-11-16 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -90,7 +90,7 @@ extern void CANTX_CrashDump(CANTX_FATAL_ERRORS_ACTIONS_e action) {
     uint8_t data[CANTX_CRASH_DUMP_DLC] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
     uint64_t messageData               = 0u;
 
-    switch (action) { /* GCOVR_EXCL_BR_WITHOUT_HIT: 1/2 */
+    switch (action) {
         case CANTX_FATAL_ERRORS_ACTIONS_STACK_OVERFLOW:
             CAN_TxSetMessageDataWithSignalData(
                 &messageData,

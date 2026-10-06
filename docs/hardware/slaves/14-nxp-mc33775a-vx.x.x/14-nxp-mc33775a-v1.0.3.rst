@@ -39,8 +39,7 @@ The pinout of this |bms-slave| is shown in the
 :numref:`pinout-overview-for-14-nxp-mc33775a-v1.0.3_pinout-img` and
 :numref:`pinout-overview-for-14-nxp-mc33775a-v1.0.3_pinout-table`.
 
-.. drawio-figure:: 14-nxp-mc33775a-v1.0.3/14-nxp-mc33775a-v1.0.3_pinout.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/slaves/14-nxp-mc33775a-vx.x.x/14-nxp-mc33775a-v1.0.3/14-nxp-mc33775a-v1.0.3_pinout.svg
    :alt: pinout-overview-for-14-nxp-mc33775a-v1.0.3_pinout-img
    :name: pinout-overview-for-14-nxp-mc33775a-v1.0.3_pinout-img
    :width: 800px
@@ -126,7 +125,7 @@ Daisy Chain Connection
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The data transmission between the slaves and between the slaves and the basic
-board takes place using the TPL interface.
+board takes place using the |tpl| interface.
 
 |tbc|
 

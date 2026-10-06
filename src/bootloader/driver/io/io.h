@@ -43,13 +43,15 @@
  * @file    io.h
  * @author  foxBMS Team
  * @date    2020-03-19 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  IO
  *
  * @brief   Header for the driver for the IO module
- * @details TODO
+ * @details Declares the minimal register-level IO helper interface used by the
+ *          bootloader. The functions configure pins as outputs and drive pins
+ *          high through caller-supplied peripheral register addresses.
  */
 
 #ifndef FOXBMS__IO_H_

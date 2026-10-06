@@ -164,7 +164,7 @@ def common_can_options(fun: FC) -> FC:
         "-c",
         "--channel",
         default=None,
-        help="CAN channel (must be appropiate for the selected interface; "
+        help="CAN channel (must be appropriate for the selected interface; "
         f"defaults are {DEFAULT_CHANNELS}).\n\n{tmp}",
     )(fun)
     return click.option(

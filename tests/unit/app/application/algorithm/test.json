@@ -1,0 +1,15 @@
+[
+  {
+    "source": "src/app/application/algorithm/algorithm.c",
+    "test": "test_algorithm.c",
+    "includes": [
+      "src/app/application/algorithm",
+      "src/app/application/algorithm/config"
+    ],
+    "mocks": [
+      "src/app/application/algorithm/config/algorithm_cfg.h",
+      "src/app/task/os/os.h",
+      "tests/unit/support/test_algorithm_stubs.h"
+    ]
+  }
+]

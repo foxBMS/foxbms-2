@@ -39,10 +39,10 @@ The following steps should pass and result in the application being built.
    tool can not run on Linux.
    Therefore, in order to build on Linux, the build process needs to be run on
    Windows first, and then the entire directory
-   ``build/app_embedded/src/app/hal`` needs to be copied to the Linux machine.
+   ``build/app_ti_arm_cgt/src/app/hal`` needs to be copied to the Linux machine.
    These files should be converted to LF.
    After that Linux builds are possible.
-   This procedure needs to be repeated everytime the HAL configuration files
+   This procedure needs to be repeated every time the HAL configuration files
    (``conf/hcg/app.hcg``, ``conf/hcg/app.dil``) are changed.
 
 .. tabs::
@@ -51,19 +51,19 @@ The following steps should pass and result in the application being built.
 
       .. code-block:: powershell
 
-        .\fox.ps1 waf configure build_app_embedded
+        .\fox.ps1 waf configure build_app_ti_arm_cgt
 
   .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
-        ./fox.sh waf configure build_app_embedded
+        ./fox.sh waf configure build_app_ti_arm_cgt
 
   .. group-tab:: Linux
 
       .. code-block:: shell
 
-        ./fox.sh waf configure build_app_embedded
+        ./fox.sh waf configure build_app_ti_arm_cgt
 
 If any error messages occurs, they have to be investigated before continuing.
 
@@ -82,8 +82,7 @@ accompanying :numref:`bms-master-connectors-description`.
 More details on the position and type of connectors can be found in
 :ref:`CONNECTORS`.
 
-.. drawio-figure:: ./img/bms-master-connectors.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/getting-started/img/bms-master-connectors.svg
    :alt: |bms-master| connectors
    :name: bms-master-connectors
    :width: 1040px
@@ -115,19 +114,19 @@ The following steps are needed to flash the bootloader:
 
          .. code-block:: powershell
 
-            .\fox.ps1 waf configure build_bootloader_embedded
+            .\fox.ps1 waf configure build_bootloader_ti_arm_cgt
 
       .. group-tab:: Win32/Git bash
 
          .. code-block:: shell
 
-            ./fox.sh waf configure build_bootloader_embedded
+            ./fox.sh waf configure build_bootloader_ti_arm_cgt
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            ./fox.sh waf configure build_bootloader_embedded
+            ./fox.sh waf configure build_bootloader_ti_arm_cgt
 
 #. Flash the binary file of the bootloader into the |bms-master| using the
    debugger (e.g., `Lauterbach Trace32 debugger <http://www.lauterbach.com>`_):
@@ -195,7 +194,7 @@ Steps to flash/update the the |foxbms| application using the bootloader of the
 
 #. Flash/update the |foxbms| binary into the |bms-master|:
 
-   **[Option 1]: If no foxBMS binary has ever been flashed into the target:**
+   **[Option 1]: If no app binary has ever been flashed into the target:**
 
       Entering the following command in the terminal:
 
@@ -219,7 +218,7 @@ Steps to flash/update the the |foxbms| application using the bootloader of the
 
                ./fox.sh bootloader load-app
 
-      The following message indicates that the foxBMS application has been
+      The following message indicates that the |foxbms| application has been
       successfully uploaded to the |bms-master| and should be started:
 
       .. code-block:: text

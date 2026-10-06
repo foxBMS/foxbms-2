@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-# cspell:ignore creationflags
+# cspell:ignore PATHEXT,creationflags
 
 """Standardized process execution and result handling utilities for Python's subprocess.
 
@@ -57,7 +57,9 @@ from typing import IO, Any
 from .click_helpers import recho
 from .host_platform import get_platform
 from .logger import logger
-from .misc import PROJECT_ROOT
+from .project_context import PROJECT_ROOT
+
+DEVNULL = subprocess.DEVNULL
 
 
 @dataclass
@@ -68,15 +70,11 @@ class SubprocessResult:
         returncode: The return code from the process.
         out: The standard output captured from the process.
         err: The standard error output captured from the process.
-
     """
 
     returncode: int = 1
-    """returncode of the process"""
     out: str = ""
-    """standard out of the process"""
     err: str = ""
-    """standard error of the process"""
 
     def __add__(self, other: "SubprocessResult") -> "SubprocessResult":
         """Combine two subprocess results.
@@ -86,7 +84,6 @@ class SubprocessResult:
 
         Returns:
             A new result combining return codes, outputs, and errors.
-
         """
         returncode = abs(self.returncode)
         if other.returncode:
@@ -104,7 +101,6 @@ class SubprocessResult:
 
         Returns:
             Formatted string with return code, stdout, and stderr.
-
         """
         return f"return code: {self.returncode}\n\nout:{self.out}\n\n{self.err}\n"
 
@@ -121,7 +117,6 @@ def prepare_subprocess_output(
 
     Returns:
         The decoded result.
-
     """
     out_str = out.decode("utf-8").strip() if out else ""
     err_str = err.decode("utf-8").strip() if err else ""
@@ -146,7 +141,6 @@ def run_process(
 
     Returns:
         The result of the executed process.
-
     """
     logger.debug("Original cmd: %s", cmd)
     if len(cmd) == 0:
@@ -163,6 +157,7 @@ def run_process(
     # fix executable name (required on Windows because of PATHEXT)
     cmd_str = [str(shutil.which(executable))] + [str(i) for i in cmd[1:]]
     logger.debug("Stringified cmd: %s", " ".join(cmd_str))
+    logger.debug("env: %s", env)
     if get_platform() == "win32" and not hasattr(sys.stdin, "isatty"):
         # on Windows, when the GUI starts a process this would create a
         # popping up window without using 'CREATE_NO_WINDOW'

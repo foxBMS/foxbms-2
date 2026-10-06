@@ -54,7 +54,7 @@ def pre_commit(
     ctx: click.Context,
     pre_commit_args: tuple[str],
 ) -> None:
-    """Run the ``pre-commit`` tool with forwarded raw arguments."""
+    """Run the 'pre-commit' tool with forwarded raw arguments."""
     ret = pre_commit_impl.run_pre_commit(
         list(pre_commit_args), stdout=None, stderr=None
     )

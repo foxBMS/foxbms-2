@@ -46,7 +46,6 @@ import colorama
 
 from .commands.c_bms import bms
 from .commands.c_bootloader import bootloader
-from .commands.c_com import com_test
 from .commands.c_db import db
 from .commands.c_etl import etl
 from .commands.c_gui import gui
@@ -55,14 +54,11 @@ from .commands.c_plot import plot
 from .commands.c_run_program import run_program
 from .commands.c_run_script import run_script
 from .foxbms_version import __version__
-from .helpers.click_helpers import HELP_NAMES, echo
+from .helpers.click_helpers import HELP_NAMES, echo, verbosity_option
 from .helpers.logger import ignore_third_party_logging
-from .helpers.misc import (
-    ROOT_IS_PROJECT,
-    create_pre_commit_file,
-    initialize_path_variable_for_foxbms,
-    set_other_environment_variables_for_foxbms,
-)
+from .helpers.misc import create_pre_commit_file
+from .helpers.path_initialization import initialize_path_variable_for_foxbms
+from .helpers.project_context import ROOT_IS_PROJECT
 
 colorama.init()
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -85,17 +81,12 @@ def get_program_config() -> dict[str, str]:
     is_flag=True,
     help="Shows foxBMS configuration information.",
 )
+@verbosity_option
 @click.pass_context
-def main(ctx: click.Context, show_config: bool) -> None:
-    """Run the top-level ``fox.py`` command group.
-
-    Args:
-        ctx: Click context for command dispatch and help rendering.
-        show_config: If ``True``, print version/configuration information.
-    """
+def main(ctx: click.Context, show_config: bool, verbose: int) -> None:
+    """Run the top-level 'fox.py' command group."""
     ignore_third_party_logging()
     initialize_path_variable_for_foxbms()
-    set_other_environment_variables_for_foxbms()
     create_pre_commit_file()
     if show_config:
         config = get_program_config()
@@ -109,25 +100,20 @@ def main(ctx: click.Context, show_config: bool) -> None:
 if ROOT_IS_PROJECT:
     from .commands.c_build import waf
     from .commands.c_cli_unittest import cli_unittest
-    from .commands.c_embedded_ut import ceedling
     from .commands.c_ide import ide
     from .commands.c_install import install
     from .commands.c_misc import misc
     from .commands.c_pre_commit import pre_commit
-    from .commands.c_release import release
 
-    main.add_command(ceedling)
     main.add_command(cli_unittest)
     main.add_command(ide)
     main.add_command(install)
     main.add_command(misc)
     main.add_command(pre_commit)
-    main.add_command(release)
     main.add_command(waf)
 
 main.add_command(bootloader)
 main.add_command(bms)
-main.add_command(com_test)
 main.add_command(db)
 main.add_command(etl)
 main.add_command(gui)

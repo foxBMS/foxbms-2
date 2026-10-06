@@ -41,6 +41,7 @@
 
 import csv
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -48,6 +49,8 @@ import shutil
 import sys
 import time
 from dataclasses import dataclass
+from importlib.machinery import SourceFileLoader
+from json import loads
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from subprocess import PIPE, Popen
@@ -61,22 +64,39 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FILE_RE = r"\(in:([a-z_\-0-9]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx)), type:(.*)\)"
 FILE_RE_COMPILED = re.compile(FILE_RE)
-WAF_VERSION = "2.1.6-6a38d8c49406d2fef32d6f6600c8f033"
+WAF_VERSION = "2.1.9-beba77c244731800bf15a003232e7040"
 sys.path = [
     str(ROOT.resolve()),
     str((ROOT / "docs").resolve()),
-    str((ROOT / f"tools/waf3-{WAF_VERSION}/waflib").resolve()),
-    str((ROOT / f"tools/.waf3-{WAF_VERSION}/waflib").resolve()),
-    str((ROOT / "tools/waf-tools").resolve()),
+    str((ROOT / "tools").resolve()),
+    str((ROOT / f"tools/waf3-{WAF_VERSION}").resolve()),
+    str((ROOT / f"tools/.waf3-{WAF_VERSION}").resolve()),
+    str((ROOT / "tools/waf_tools").resolve()),
 ] + sys.path
 
-# pylint: disable-next=wrong-import-position
-from cli.foxbms_version import __version__  # noqa: E402
+# The top-level 'wscript' has no .py extension, so Python's default import
+# machinery cannot locate it. We register it manually in sys.modules with an
+# explicit SourceFileLoader so that Sphinx autodoc can resolve
+# '.. automodule:: wscript' directives and extract its docstrings.
+wscript_path = ROOT / "wscript"
+if wscript_path.is_file():
+    loader = SourceFileLoader("wscript", str(wscript_path))
+    spec = importlib.util.spec_from_file_location(
+        "wscript", str(wscript_path), loader=loader
+    )
+    wscript_mod = importlib.util.module_from_spec(spec)
+    sys.modules["wscript"] = wscript_mod
+    spec.loader.exec_module(wscript_mod)
 
-# pylint: disable-next=wrong-import-position
-from cli.helpers.package_helpers import PACKAGE_COMMANDS  # noqa: E402
 
-project = f"foxBMS 2 - {__version__}"
+PACKAGE_COMMANDS = loads(
+    (ROOT / "cli/helpers/supported_commands.json").read_text(encoding="utf-8")
+)
+
+version = "0.0.0"  # Placeholder - overridden by -D version=...
+release = "0.0.0"  # Placeholder - overridden by -D release=...
+project = ""  # placeholder - overridden by -D project=...
+
 project_copyright = (
     "2010 - 2026, Fraunhofer-Gesellschaft zur Foerderung der angewandten "
     "Forschung e.V. All rights reserved. See license section for further "
@@ -92,13 +112,12 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
-    "sphinxcontrib.drawio",
 ]
 
 source_suffix = {".rst": "restructuredtext"}
 master_doc = "index"
 
-html_favicon = "_static/favicon.ico"
+html_favicon = "_static/fav_icon.ico"
 
 version = time.ctime() + " " + time.tzname[time.daylight]
 release = version
@@ -120,7 +139,10 @@ numfig = True
 bibtex_bibfiles = [(ROOT / "docs/references.bib").absolute()]
 bibtex_default_style = "alpha"
 
-autodoc_mock_imports = ["waflib"]
+# Do not mock waflib: waf_tools uses waf decorators (@conf, @feature, ...),
+# and mocking replaces decorated functions with mock objects in module scope.
+# That prevents autosummary/autodoc from listing these functions.
+autodoc_mock_imports: list[str] = []
 
 linkcheck_ignore = [
     "https://docs.foxbms.org",
@@ -136,11 +158,78 @@ html_theme_options = {
     "prev_next_buttons_location": "bottom",
 }
 autosummary_generate = True
+autodoc_type_aliases = {
+    "F": "typing.Any",
+    "R": "typing.Any",
+    "V": "typing.Any",
+}
+
+# Build in nit-picky mode, but ignore unresolved references to external
+# libraries/stdlib types that do not provide inventories in this build.
+nitpick_ignore_regex = [
+    (
+        "py:class",
+        r"("
+        r"waflib|"
+        r"matplotlib|"
+        r"collections\.abc|"
+        r"zipfile|"
+        r"click|"
+        r"logging|"
+        r"multiprocessing|"
+        r"git\.repo\.base|"
+        r"pathlib|"
+        r"hashlib|"
+        r"re|"
+        r"can|"
+        r"cantools|"
+        r"tkinter|"
+        r"queue|"
+        r"string|"
+        r"abc|"
+        r"enum|"
+        r"pandas|"
+        r"pyarrow|"
+        r"cmd"
+        r")\..*",
+    ),
+    ("py:class", r"annotated_types\..*"),
+    ("py:class", r"ast\.AST"),
+    ("py:class", r"battery_config_validate_utils\._(float|int)_from_number"),
+    ("py:class", r"Database"),
+    ("py:class", r"database\.can\.message\.Message"),
+    ("py:class", r"Exit code"),
+    ("py:class", r"F"),
+    ("py:class", r"FieldInfo"),
+    ("py:class", r"git\.repo\.base\.Repo"),
+    ("py:class", r"hashlib\._Hash"),
+    ("py:class", r"managers\.ListProxy"),
+    ("py:class", r"Message"),
+    ("py:class", r"NamedSignalValue"),
+    ("py:class", r"Node"),
+    ("py:class", r"NoneType"),
+    ("py:class", r"Path"),
+    ("py:class", r"pathlib\.Path"),
+    ("py:class", r"pd\.DataFrame"),
+    ("py:class", r"Process"),
+    ("py:class", r"pydantic\..*"),
+    ("py:class", r"PydanticUndefined"),
+    ("py:class", r"Queue"),
+    ("py:class", r"QueueListener"),
+    ("py:class", r"R"),
+    ("py:class", r"SizedRotatingLogger"),
+    ("py:class", r"Strict"),
+    ("py:class", r"synchronize\.Event"),
+    ("py:class", r"T"),
+    ("py:class", r"TypeAliasForwardRef"),
+    ("py:class", r"V"),
+    ("py:class", r"waf_tools\.bms_config_model\._.*"),
+    ("py:exc", r"JSONDecodeError"),
+    ("py:exc", r"pandas\.errors\..*"),
+    ("py:exc", r"yaml\.YAMLError"),
+]
 
 sphinx_tabs_valid_builders = ["linkcheck"]
-
-if sys.platform.lower() == "linux":
-    drawio_headless = False
 
 
 # At this point, we are done with setting up Sphinx, and we implement checks
@@ -148,7 +237,7 @@ if sys.platform.lower() == "linux":
 
 
 def log_err(msg: str) -> None:
-    """Print an erorr message to stderr"""
+    """Print an error message to stderr"""
     print(msg, file=sys.stderr)
 
 
@@ -195,88 +284,45 @@ def has_directory_changed(directory: Path, hash_file: Path) -> bool:
     return True
 
 
-def create_version_info() -> int:
-    """Create the version macro replacement."""
-    with open("version_macro.txt", "w", encoding="utf-8") as f:
-        f.write(f".. |version_foxbms| replace:: ``{__version__}``")
-    return 0
+def _cleanup_autosummary(src: Path, out: Path, hash_file: str, label: str) -> None:
+    """Remove generated autosummary output when its source directory changed."""
+    root = Path(__file__).parent.parent
+    bld_out = root / "build/docs" / out.relative_to(root)
+    bld_doctrees = root / "build/docs/.docstrees" / out.relative_to(root)
+
+    out.mkdir(exist_ok=True, parents=True)
+    bld_out.mkdir(exist_ok=True, parents=True)
+    bld_doctrees.mkdir(exist_ok=True, parents=True)
+
+    if has_directory_changed(src, out.parent / hash_file):
+        print(f"Remove existing autosummary for {label}, to rerun code generation.")
+        shutil.rmtree(out.absolute())
+        shutil.rmtree(bld_out.absolute())
+        shutil.rmtree(bld_doctrees.absolute())
+    else:
+        print(f"Autosummary sources for {label} are uptodate.")
 
 
 def cleanup_autosummary() -> int:
     """Remove the autodoc created summary to force a rebuild."""
-    autosummary_src = Path(__file__).parent.parent / "cli"
-    autosummary_out = Path(__file__).parent / "developer-manual/fox-cli/_autosummary"
-    autosummary_out.mkdir(exist_ok=True, parents=True)
-
-    if has_directory_changed(
-        autosummary_src, autosummary_out.parent / "_autosummary_hash.json"
-    ):
-        print("Remove existing autosummary, to rerun code generation.")
-        shutil.rmtree(autosummary_out.absolute())
-    else:
-        print("Autosummary sources are uptodate.")
+    _cleanup_autosummary(
+        Path(__file__).parent.parent / "cli",
+        Path(__file__).parent / "developer-manual/fox-cli/cli_autosummary",
+        "cli_autosummary_hash.json",
+        "fox-cli",
+    )
+    _cleanup_autosummary(
+        Path(__file__).parent.parent / "tools/waf_tools",
+        Path(__file__).parent / "tools/waf_tools/waf_tools_autosummary",
+        "waf_tools_autosummary_hash.json",
+        "waf_tools",
+    )
     return 0
-
-
-def validate_bms_fatal_error_messages() -> int:
-    """Validate that the DBC file and the source code are aligned with respect
-    to the fatal errors.
-    """
-    # get all diagnosis IDs from the sources
-    txt = (ROOT / "src/app/engine/config/diag_cfg.h").read_text(encoding="ascii")
-
-    pattern = r"typedef enum \{.*?\} DIAG_ID_e;"
-    matches = re.search(pattern, txt, re.DOTALL)
-    x = matches.group(0).splitlines()
-
-    # the index in the array corresponds to the ID as the enumeration starts
-    # with 0 in C
-    diag_ids = [
-        i.split(",")[0].strip()
-        for i in x
-        if i.strip().startswith("DIAG_ID") and i.split(",")[0].strip() != "DIAG_ID_MAX"
-    ]
-
-    txt = (ROOT / "src/app/engine/config/diag_cfg.c").read_text(encoding="ascii")
-
-    pattern = r"DIAG_ID_CFG_s diag_diagnosisIdConfiguration\[\] = \{.*?\n\};\n"
-    matches = re.search(pattern, txt, re.DOTALL)
-    x = matches.group(0).splitlines()
-    tmp = [i.strip() for i in x if i.strip().startswith("{DIAG_ID_")]
-    diag_cfg = {}
-    for i in tmp:
-        name, _, fatal, *_ = i.split(",")
-        name = name[1:].strip()
-        fatal = fatal.strip()
-        if fatal == "DIAG_FATAL_ERROR":
-            diag_cfg[name] = diag_ids.index(name)
-    db = cantools.database.load_file(ROOT / "tools/dbc/foxbms.dbc")
-
-    if not isinstance(db, cantools.database.can.database.Database):
-        log_err("DBC file is not of type 'Database'.")
-        return 1
-    err = 0
-    message = db.get_message_by_name("f_BmsFatalError")
-    signal_name = "FatalErrorCode"
-    signal = next(sig for sig in message.signals if sig.name == signal_name)
-
-    if not signal.choices:
-        log_err(f"Signal '{signal_name}' does not support choices.")
-        return 1
-
-    for name, _id in diag_cfg.items():
-        if _id != signal.choice_to_number(name):
-            err += 1
-            log_err(
-                f"Signal '{name}' and its id '{_id}' are not correctly "
-                "documented in the DBC file.",
-            )
-    return err
 
 
 def document_can_messages() -> int:
     """Remove the autodoc created summary to force a rebuild."""
-    txt = """Supported CAN Messages\n~~~~~~~~~~~~~~~~~~~~~~\n"""
+    txt = """Supported CAN Messages\n----------------------\n"""
     with open("supported_can_messages.txt", "w", encoding="utf-8") as f:
         f.write(txt)
 
@@ -328,14 +374,14 @@ def document_can_messages() -> int:
         # Append entry to the category list
         categorized_data[message_type].append(entry)
 
-    txt = """Supported CAN Messages\n~~~~~~~~~~~~~~~~~~~~~~\n\n"""
+    txt = """Supported CAN Messages\n----------------------\n\n"""
     with open("supported_can_messages.txt", "w", encoding="utf-8") as txt_file:
         txt_file.write(txt)
 
     # Save data in seperate .csv files
     for message_type, entries in categorized_data.items():
         entries.sort(key=lambda x: x[0])
-        title = message_type + "\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+        title = message_type + "\n" + "^" * len(message_type) + "\n\n"
         add_csv = (
             ".. csv-table::\n   :delim: ;\n   :file: ./../../build/docs/"
             + message_type
@@ -384,21 +430,6 @@ def gen_fox_build_help() -> int:
 def gen_fox_cli_unittest_help() -> int:
     """Create cli-unittest usage file."""
     return _runner("cli-unittest")
-
-
-def gen_fox_cli_embedded_ut_help() -> int:
-    """Create ceedling usage file."""
-    return _runner("ceedling")
-
-
-def gen_fox_com_can_help() -> int:
-    """Create com-test can usage file."""
-    return _runner("com-test can")
-
-
-def gen_fox_com_mqtt_help() -> int:
-    """Create com-test mqtt usage file."""
-    return _runner("com-test mqtt")
 
 
 def gen_fox_etl_help() -> int:
@@ -482,16 +513,6 @@ def gen_fox_misc_help() -> int:
     return _runner("misc")
 
 
-def gen_fox_modbus_client_help() -> int:
-    """Create modbus client usage file."""
-    return _runner("com-test modbus client")
-
-
-def gen_fox_modbus_device_help() -> int:
-    """Create modbus device usage file."""
-    return _runner("com-test modbus device")
-
-
 def gen_fox_plot_help() -> int:
     """Create plot usage file."""
     return _runner("plot")
@@ -500,11 +521,6 @@ def gen_fox_plot_help() -> int:
 def gen_fox_pre_commit_help() -> int:
     """Create pre-commit usage file."""
     return _runner("pre-commit")
-
-
-def gen_fox_release_help() -> int:
-    """Create release usage file."""
-    return _runner("release")
 
 
 def gen_fox_run_program_help() -> int:
@@ -557,26 +573,26 @@ def wrapper(func: ...) -> int:
 
 def validate_python_version_consistency() -> int:
     """Validate the documented Python version."""
-    # Linux reference: python3.12
-    # Windows reference: py -3.12
+    # Linux reference: python3.14
+    # Windows reference: py -3.14
     err = 0
 
     install_summary = ROOT / "INSTALL.md"
     install_summary_txt = install_summary.read_text(encoding="utf-8")
     expected_references = 9
-    if install_summary_txt.count("3.12") != expected_references:
+    if install_summary_txt.count("3.14") != expected_references:
         log_err(
             f"File '{install_summary}' does not reference the expected "
-            "Python version 3.12.",
+            "Python version 3.14.",
         )
         err += 1
 
     python_setup = ROOT / "cli/helpers/python_setup.py"
     python_setup_txt = python_setup.read_text(encoding="utf-8")
     expected_references = 5
-    if python_setup_txt.count("3.12") != expected_references:
+    if python_setup_txt.count("3.14") != expected_references:
         log_err(
-            f"File '{python_setup}' does not reference the expected Python version 3.12.",
+            f"File '{python_setup}' does not reference the expected Python version 3.14.",
         )
         err += 1
 
@@ -590,9 +606,9 @@ def validate_python_version_consistency() -> int:
     ]
     for i, refs in docs:
         txt = i.read_text(encoding="utf-8")
-        if len(re.findall(r"((py -)|(python))3\.12", txt)) != refs:
+        if len(re.findall(r"((py -)|(python))3\.14", txt)) != refs:
             log_err(
-                f"File '{i}' does not reference the expected Python version 3.12.",
+                f"File '{i}' does not reference the expected Python version 3.14.",
             )
             err += 1
     return err
@@ -649,7 +665,7 @@ def validate_environment_name() -> int:
         (ROOT / "docs/getting-started/software-installation.rst", 7),
         (ROOT / "docs/software/build-environment/build-environment.rst", 1),
     ]
-    expected_env_name = "2025-11-pale-fox"
+    expected_env_name = "2026-07-pale-fox"
     for i, refs in docs:
         txt = i.read_text(encoding="utf-8")
         if txt.count(expected_env_name) != refs:
@@ -701,6 +717,25 @@ def add_supported_afes_to_toc() -> int:
     afes_txt += "".join(f"   ./{i}\n" for i in afes)
 
     Path("supported_afes.txt").write_text(afes_txt, encoding="utf-8")
+
+    return 0
+
+
+def add_supported_temperature_sensors_to_toc() -> int:
+    """Create temperature sensor TOC"""
+    sensor_root = ROOT / "docs/software/modules/driver/ts"
+    sensors = []
+    for i in sensor_root.glob("*"):
+        if i.is_dir():
+            sensors.extend(
+                sensor.relative_to(sensor_root).as_posix() for sensor in i.glob("*.rst")
+            )
+    sensors_txt = """.. toctree::
+   :maxdepth: 1
+   :caption: List of supported temperature sensors\n\n"""
+    sensors_txt += "".join(f"   ./{i}\n" for i in sensors)
+
+    Path("supported_temperature_sensors.txt").write_text(sensors_txt, encoding="utf-8")
 
     return 0
 
@@ -771,18 +806,14 @@ def create_doc_sources(_app: Sphinx, _cfg: Config) -> None:
         validate_python_version_consistency,
         validate_environment_name,
         validate_requirements_txt_versions,
-        create_version_info,
         add_supported_afes_to_toc,
+        add_supported_temperature_sensors_to_toc,
         cleanup_autosummary,
         document_can_messages,
-        validate_bms_fatal_error_messages,
         gen_fox_bms_help,
         gen_fox_bootloader_help,
         gen_fox_build_help,
         gen_fox_cli_unittest_help,
-        gen_fox_cli_embedded_ut_help,
-        gen_fox_com_can_help,
-        gen_fox_com_mqtt_help,
         gen_fox_etl_help,
         gen_fox_etl_filter_help,
         gen_fox_etl_decode_help,
@@ -795,12 +826,9 @@ def create_doc_sources(_app: Sphinx, _cfg: Config) -> None:
         gen_fox_ide_help,
         gen_fox_install_help,
         gen_fox_log_help,
-        gen_fox_modbus_client_help,
-        gen_fox_modbus_device_help,
         gen_fox_misc_help,
         gen_fox_plot_help,
         gen_fox_pre_commit_help,
-        gen_fox_release_help,
         gen_fox_run_program_help,
         gen_fox_run_script_help,
         gen_fox_plot,
@@ -817,13 +845,12 @@ def create_doc_sources(_app: Sphinx, _cfg: Config) -> None:
 
 def setup(app: Sphinx) -> None:
     """Custoimze build"""
+
+    # pylint: disable-next=unused-argument
+    def update_project(app: Sphinx, config: Config) -> None:
+        config.version = config.version
+        config.release = config.release
+        config.project = f"{config.project} 2 - {config.version}"
+
+    app.connect("config-inited", update_project)
     app.connect("config-inited", create_doc_sources)
-
-
-def main() -> int:
-    """For debugging purposes"""
-    return validate_bms_fatal_error_messages()
-
-
-if __name__ == "__main__":
-    sys.exit(main())

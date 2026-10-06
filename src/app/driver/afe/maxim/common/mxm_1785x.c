@@ -43,8 +43,8 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -291,9 +291,8 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadAll(
         /* without alive counter rx-buffer always should be of even length */
         /* TODO impact of alive-counter-byte */
         retval = STD_NOT_OK;
-    } else if (
-        (conversionType != MXM_CONVERSION_UNIPOLAR) && (conversionType != MXM_CONVERSION_BIPOLAR) &&
-        (conversionType != MXM_CONVERSION_BLOCK_VOLTAGE)) {
+    } else if ((conversionType != MXM_CONVERSION_UNIPOLAR) && (conversionType != MXM_CONVERSION_BIPOLAR) &&
+               (conversionType != MXM_CONVERSION_BLOCK_VOLTAGE)) {
         /* conversion type is not supported */
         retval = STD_NOT_OK;
     } else {
@@ -1153,7 +1152,8 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
             const uint16_t temperatureIndexMxm = ((uint16_t)i_mod * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE) + 2u;
             const uint16_t auxVoltage_mV       = kpkInstance->localVoltages.auxVoltages_mV[temperatureIndexMxm];
             /* const uint16_t temporaryVoltage    = (auxVoltage_mV / ((float_t)3300 - auxVoltage_mV)) * 1000; */
-            const int16_t temperature_ddegC = TSI_GetTemperature(auxVoltage_mV);
+            const int16_t temperature_ddegC =
+                TSI_GetTemperature(auxVoltage_mV, SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V);
             kpkInstance->pCellTemperatures_table
                 ->cellTemperature_ddegC[stringNumber][moduleNumber][temperatureIndexDb] = temperature_ddegC;
             const STD_RETURN_TYPE_e valueIsPlausible = AFE_PlausibilityCheckTempMinMax(temperature_ddegC);
@@ -1283,7 +1283,7 @@ extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState)
         retval = STD_NOT_OK;
     }
     /* report to diag module, Maxim driver reports always to string 0 (current implementation just has one interface) */
-    (void)DIAG_CheckEvent(retval, DIAG_ID_AFE_CONFIG, DIAG_SYSTEM, 0u);
+    (void)DIAG_ReportResultToHandler(retval, DIAG_ID_AFE_CONFIG, DIAG_SYSTEM, 0u);
 
     return retval;
 }
@@ -1400,7 +1400,7 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
                     MXM_5XGetNumberOfSatellitesGood(pInstance->pInstance5X);
                 /* report to diag module, Maxim driver reports always to string 0 (current implementation just has one
                  * interface) */
-                (void)DIAG_CheckEvent(resultNumberOfSatellitesGood, DIAG_ID_AFE_CONFIG, DIAG_STRING, 0u);
+                (void)DIAG_ReportResultToHandler(resultNumberOfSatellitesGood, DIAG_ID_AFE_CONFIG, DIAG_STRING, 0u);
                 if ((pInstance->resultSelfCheck == STD_OK) && (pInstance->selfCheck.fmeaStatusASCI == STD_OK) &&
                     (resultNumberOfSatellitesGood == STD_OK)) {
                     pInstance->resultSelfCheck = STD_OK;

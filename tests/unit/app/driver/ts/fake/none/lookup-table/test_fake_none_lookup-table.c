@@ -43,8 +43,8 @@
  * @file    test_fake_none_lookup-table.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -60,10 +60,6 @@
 #include "tsi.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("fake_none_lookup-table.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/fake/none")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -77,12 +73,12 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testTSI_GetTemperatureFromFakeLookupTable(void) {
     float fakeTemperature = 0.0;
-    fakeTemperature       = TSI_GetTemperature(1);
+    fakeTemperature       = TSI_GetTemperature(1, 3.0f);
     TEST_ASSERT_EQUAL(1.0, fakeTemperature);
 }
 
 void testTSI_GetTemperatureFromFakePolynomial(void) {
     float fakeTemperature = 0.0;
-    fakeTemperature       = TSI_GetTemperature(1);
+    fakeTemperature       = TSI_GetTemperature(1, 3.0f);
     TEST_ASSERT_EQUAL(1.0, fakeTemperature);
 }

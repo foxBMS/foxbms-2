@@ -43,8 +43,8 @@
  * @file    adi_ades183x_afe.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -53,7 +53,7 @@
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 
 /* clang-format off */
 #include "afe.h"
@@ -88,35 +88,35 @@ extern STD_RETURN_TYPE_e AFE_Initialize(void) {
 extern STD_RETURN_TYPE_e AFE_RequestEepromRead(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
     STD_RETURN_TYPE_e retval = STD_OK;
-
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e AFE_RequestEepromWrite(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
     STD_RETURN_TYPE_e retval = STD_OK;
-
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
     STD_RETURN_TYPE_e retval = STD_OK;
-
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e AFE_RequestBalancingFeedbackRead(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
-
+    (void)string;
     return retval;
 }
 
 extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string) {
     /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
     STD_RETURN_TYPE_e retval = STD_OK;
-
+    (void)string;
     return retval;
 }
 

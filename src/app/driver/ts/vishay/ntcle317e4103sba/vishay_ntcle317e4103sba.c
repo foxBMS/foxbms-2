@@ -43,8 +43,8 @@
  * @file    vishay_ntcle317e4103sba.c
  * @author  foxBMS Team
  * @date    2021-11-03 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -153,7 +153,7 @@ static const uint16_t ts_ntcle317e4103sbaLutSize = sizeof(ts_ntcle317e4103sbaLut
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
+extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     int16_t temperature_ddegC = INT16_MIN;
     float_t adcVoltage_V      = (float_t)adcVoltage_mV / TS_SCALING_FACTOR_1V_IN_MV_FLOAT; /* Convert mV to V */
 
@@ -169,14 +169,12 @@ extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
 #if defined(TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && \
     (TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
-        const float_t resistance_Ohm =
-            TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-            ((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
+        const float_t resistance_Ohm = TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
+                                       ((supplyVoltage_V / adcVoltage_V) - 1);
 #else  /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
         /* formula: R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
-        const float_t resistance_Ohm =
-            TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-            (adcVoltage_V / (TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
+        const float_t resistance_Ohm = TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
+                                       (adcVoltage_V / (supplyVoltage_V - adcVoltage_V));
 #endif /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
@@ -205,8 +203,9 @@ extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     return temperature_ddegC;
 }
 
-extern int16_t TS_Vis01GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+extern int16_t TS_Vis01GetTemperatureFromPolynomial(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
     (void)adcVoltage_mV;
+    (void)supplyVoltage_V;
     FAS_ASSERT(FAS_TRAP);
     int16_t temperature_ddegC = 0;
     /* TODO this is not implemented */

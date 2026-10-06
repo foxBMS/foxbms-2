@@ -13,8 +13,7 @@ In detail, this means that various tasks with different priorities are used to
 ensure the necessary real-time behavior of the BMS as shown in
 :numref:`sw-tasks-priorities`.
 
-.. drawio-figure:: img/sw-tasks-setup-tasks-and-priorities.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/sw-tasks-setup-tasks-and-priorities.svg
    :alt: Tasks & Priorities
    :name: sw-tasks-priorities
    :width: 800px
@@ -32,8 +31,7 @@ Four scheduled tasks with a period of 1\ |ms|, 10\ |ms|, and 100\ |ms|, are
 configured to execute the various deterministic finite-state machines that
 describe the behavior of the BMS as shown in :numref:`sw-tasks-cyclic`.
 
-.. drawio-figure:: img/sw-tasks-setup-cyclic.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/sw-tasks-setup-cyclic.svg
    :alt: Task Model - Cyclic Tasks
    :name: sw-tasks-cyclic
    :width: 800px
@@ -58,8 +56,7 @@ the actual timing behavior (e.g., running time, blocking duration).
 The continuous running tasks are shown in
 :numref:`sw-tasks-continuous-blocking`.
 
-.. drawio-figure:: img/sw-tasks-setup-continuous.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/sw-tasks-setup-continuous.svg
    :alt: Task Model - Continuous Running Tasks
    :name: sw-tasks-continuous-blocking
    :width: 800px
@@ -76,9 +73,9 @@ and functional correctness.
 Depending on the selected AFE, the respective driver is either implemented as
 non-blocking variant (executed in the |1ms-task|) or blocking and
 then running in the |afe-task|.
-All drivers for hardware peripherals with an :ref:`I2C_MODULE` interface on the
+All drivers for hardware peripherals with an :ref:`I2C_DRIVER` interface on the
 |foxbms-bms-master| are called within the |i2c-task|.
-The |uart-task| is used to handle the |uart| software flowcontrol.
+The |uart-task| is used to handle the |uart| software flow control.
 The |idle-task| is executed if all other tasks are currently blocked or are
 waiting to be executed again.
 
@@ -88,8 +85,7 @@ are the |emac-task|, the |ip-task| and the |ip-application-tasks| which
 can be more than one.
 These Tasks are displayed in figure :numref:`sw-tasks-priority-diagram`.
 
-.. drawio-figure:: img/task-priority-diagram.drawio
-   :format: svg
+.. figure:: ../../../build/docs/docs/software/structure/img/task-priority-diagram.svg
    :alt: Task Model - Priority diagram
    :name: sw-tasks-priority-diagram
    :width: 800px

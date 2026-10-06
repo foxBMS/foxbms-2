@@ -55,21 +55,37 @@ class TestHostPlatform(unittest.TestCase):
     """Class to test the host platform script."""
 
     @patch("sys.platform", new="linux")
-    def test_platform_linux(self):
+    def test_platform_linux(self) -> None:
         """Test for Linux."""
         self.assertEqual(host_platform.get_platform(), "linux")
 
     @patch("sys.platform", new="win32")
-    def test_platform_win32(self):
+    def test_platform_win32(self) -> None:
         """Test for Windows."""
         self.assertEqual(host_platform.get_platform(), "win32")
 
     @patch("sys.platform", new="foo")
-    def test_platform_unsupported(self):
+    def test_platform_unsupported(self) -> None:
         """Test for unsupported platform."""
         with self.assertRaises(SystemExit) as cm:
             host_platform.get_platform()
         self.assertEqual(cm.exception.code, "Running on an unsupported platform.")
+
+    def test_get_platform_prefix_win32(self) -> None:
+        """Select the Windows prefix for win32."""
+        self.assertEqual(host_platform.get_platform_prefix("win32"), Path("C:/foxbms"))
+
+    def test_get_platform_prefix_linux(self) -> None:
+        """Select the Linux prefix for linux."""
+        self.assertEqual(
+            host_platform.get_platform_prefix("linux"), Path("/opt/foxbms")
+        )
+
+    def test_get_platform_prefix_unsupported(self) -> None:
+        """Reject unsupported platforms."""
+        with self.assertRaises(NotImplementedError) as cm:
+            host_platform.get_platform_prefix("darwin")
+        self.assertEqual(str(cm.exception), "Unsupported platform: darwin")
 
 
 if __name__ == "__main__":

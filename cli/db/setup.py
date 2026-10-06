@@ -75,8 +75,7 @@ def creates_models(
             Constructed model parameter objects.
 
     Raises:
-        ValueError
-            If a model ``name`` is unknown.
+        ValueError: If a model ``name`` is unknown.
     """
     model_parameters = []
     for model_dict in models_dicts:
@@ -100,10 +99,6 @@ def read_json(json_file: zipfile.Path | Path, directory: zipfile.Path | Path) ->
 
     Returns:
         Parsed JSON content as dictionary.
-
-    Raises:
-        SystemExit: If the JSON file does not exist.
-        JSONDecodeError: Propagated if the file content is not valid JSON.
     """
     if json_file.exists():
         if isinstance(json_file, zipfile.Path):

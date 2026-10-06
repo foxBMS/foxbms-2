@@ -43,13 +43,16 @@
  * @file    fstartup.h
  * @author  foxBMS Team
  * @date    2024-10-29 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
  * @prefix  STU
  *
  * @brief   Startup code
- * @details TODO
+ * @details Declares the startup and initialization symbols that the
+ *          bootloader uses from the toolchain startup code. This header forms
+ *          the interface between the bootloader C code and low-level reset,
+ *          auto-initialization, and entry-point routines.
  */
 
 #ifndef FOXBMS__FSTARTUP_H_

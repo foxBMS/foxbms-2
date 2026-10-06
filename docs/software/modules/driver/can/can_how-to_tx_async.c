@@ -43,8 +43,8 @@
  * @file    can_how-to_tx_async.c
  * @author  foxBMS Team
  * @date    2023-09-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
@@ -63,6 +63,7 @@
 #include "can_cfg.h"
 
 #include "can_cbs_tx_f_debug-response.h"
+#include "fram_helper.h"
 #include "fstd_types.h"
 
 /*========== Macros and Definitions =========================================*/

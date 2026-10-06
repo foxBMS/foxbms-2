@@ -43,8 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -57,8 +57,8 @@
 #include "debug_default.h"
 
 #include "battery_cell_cfg.h"
-#include "battery_system_cfg.h"
 
+#include "battery_system_cfg_types.h"
 #include "database.h"
 #include "diag.h"
 #include "fstd_types.h"
@@ -297,7 +297,7 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
 
         pFakeState->data.balancingFeedback->state = 0;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 pFakeState->data.balancingControl->activateBalancing[s][m][cb] = false;
             }
         }
@@ -347,7 +347,7 @@ static STD_RETURN_TYPE_e FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *pFake
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         pFakeState->data.cellVoltage->nrValidCellVoltages[s] = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 pFakeState->data.cellVoltage->cellVoltage_mV[s][m][cb] = FAKE_CELL_VOLTAGE_mV;
                 pFakeState->data.cellVoltage->nrValidCellVoltages[s] += 1u;
             }

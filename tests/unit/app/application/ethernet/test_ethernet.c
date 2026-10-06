@@ -43,8 +43,8 @@
  * @file    test_ethernet.c
  * @author  foxBMS Team
  * @date    2025-07-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -79,17 +79,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ethernet.c")
-TEST_INCLUDE_PATH("../../src/app/application/ethernet")
-TEST_INCLUDE_PATH("../../src/app/application/config")
-TEST_INCLUDE_PATH("../../src/app/driver/phy")
-TEST_INCLUDE_PATH("../../src/app/driver/emac")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/uart")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/include")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/NetworkInterface/tms570lc435")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 const uint8_t eth_emacAddress[6u]      = {0x0u, 0x08u, 0xEEu, 0x03u, 0xA6u, 0x6Cu};

@@ -43,8 +43,8 @@
  * @file    test_crc_semi_auto_crc_calculation.c
  * @author  foxBMS Team
  * @date    2025-01-10 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,11 +65,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("crc.c")
-
-TEST_INCLUDE_PATH("../../src/bootloader/driver/crc")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/crc/vendor")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/rti")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

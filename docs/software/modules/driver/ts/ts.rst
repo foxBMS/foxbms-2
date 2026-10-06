@@ -8,8 +8,8 @@ Temperature Sensor API
 
 |foxbms| supports various temperature sensors from different manufacturers as
 shown in :ref:`SUPPORTED_TEMPERATURE_SENSORS`.
-This is achieved by drivers that implement the Temperature Sensor Interface
-(TSI).
+This is achieved by drivers that implement the
+Temperature Sensor Interface (TSI).
 
 This document describes how the TSI works.
 
@@ -20,10 +20,11 @@ Configuration
 -------------
 
 The TSI is configured through the |bms-config-file| described in
-:numref:`BMS_APPLICATION`.
+:ref:`BMS_APPLICATION_CONFIGURATION`.
 As of now it is only possible to configure one temperature sensor
 implementation.
-The configuration is specified as in :numref:`tsi-bms-json`.
+The configuration is specified as e.g., in :numref:`tsi-bms-json`
+for the EPCOS B57251V5103J060.
 
 .. code-block:: json
    :linenos:
@@ -41,11 +42,12 @@ The configuration is specified as in :numref:`tsi-bms-json`.
         }
     }
 
-The key `manufacturer` describes the manufacturer of the temperature sensor.
-The key `model` describes the exact part number of the temperature sensor.
-The key `method` describes the implementation that is used in order to
-calculate the temperature of the sensor. While this is dependent of the
-implementation typical values of this key are `lookup-table` and `polynomial`.
+The key ``manufacturer`` describes the manufacturer of the temperature sensor.
+The key ``model`` describes the exact part number of the temperature sensor.
+The key ``method`` describes the implementation that is used in order to
+calculate the temperature of the sensor.
+While this is dependent of the implementation typical values of this key are
+``lookup-table`` and ``polynomial``.
 
 Usage
 -----
@@ -68,4 +70,4 @@ like ``manufacturer/model/manufacturer_model_method.c``.
     :maxdepth: 1
     :caption: List of supported temperature sensors
 
-    ./ts-sensors.rst
+    ./supported-ts.rst

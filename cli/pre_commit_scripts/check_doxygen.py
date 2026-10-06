@@ -123,12 +123,12 @@ IGNORE_ERROR = {
         "src/bootloader/main/fstartup.c",
     ],
     "file": [
-        "tests/waf-tools/fixtures/create_app_build_cfg/expected-app_build_cfg.c",
-        "tests/waf-tools/fixtures/create_version/expected-version.c",
+        "tests/waf_tools/fixtures/app_build_config_generate/expected-app_build_cfg.c",
+        "tests/waf_tools/fixtures/version_generate/expected-version.c",
     ],
     "version": [
-        "tests/waf-tools/fixtures/create_app_build_cfg/expected-app_build_cfg.c",
-        "tests/waf-tools/fixtures/create_version/expected-version.c",
+        "tests/waf_tools/fixtures/app_build_config_generate/expected-app_build_cfg.c",
+        "tests/waf_tools/fixtures/version_generate/expected-version.c",
     ],
 }
 
@@ -143,7 +143,6 @@ def run_check(filename: Path, version: str) -> int:
 
     Returns:
         Number of detected formatting and presence errors.
-
     """
     fp = filename.as_posix()
     try:
@@ -264,7 +263,6 @@ def check_doxygen(files: Sequence[Path], version: str) -> int:
 
     Returns:
         Total number of issues found across all files.
-
     """
     err = 0
     for i in files:
@@ -280,7 +278,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Returns:
         Exit code (``0`` if all files are correct, ``>0`` otherwise).
-
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")

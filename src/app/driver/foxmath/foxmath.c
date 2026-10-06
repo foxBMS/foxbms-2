@@ -43,8 +43,8 @@
  * @file    foxmath.c
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -129,7 +129,7 @@ extern uint32_t MATH_SwapBytesUint32(const uint32_t val) {
     const uint32_t alternating2PatternStartFF = 0xFF00FF00u;
     const uint32_t alternating2PatternStart00 = 0x00FF00FFu;
     const uint32_t intermediate               = ((val << UTIL_SHIFT_ONE_BYTE) & alternating2PatternStartFF) |
-                                  ((val >> UTIL_SHIFT_ONE_BYTE) & alternating2PatternStart00);
+                                                ((val >> UTIL_SHIFT_ONE_BYTE) & alternating2PatternStart00);
     return (intermediate << UTIL_SHIFT_TWO_BYTES) | (intermediate >> UTIL_SHIFT_TWO_BYTES);
 #endif
 }
@@ -142,8 +142,8 @@ extern uint64_t MATH_SwapBytesUint64(const uint64_t val) {
 
     uint64_t intermediate = ((val << UTIL_SHIFT_ONE_BYTE) & alternating2PatternStartFF) |
                             ((val >> UTIL_SHIFT_ONE_BYTE) & alternating2PatternStart00);
-    intermediate = ((intermediate << UTIL_SHIFT_TWO_BYTES) & alternating4PatternStartFFFF) |
-                   ((intermediate >> UTIL_SHIFT_TWO_BYTES) & alternating4PatternStart0000);
+    intermediate          = ((intermediate << UTIL_SHIFT_TWO_BYTES) & alternating4PatternStartFFFF) |
+                            ((intermediate >> UTIL_SHIFT_TWO_BYTES) & alternating4PatternStart0000);
     return (intermediate << UTIL_SHIFT_FOUR_BYTES) | (intermediate >> UTIL_SHIFT_FOUR_BYTES);
 }
 
@@ -161,6 +161,14 @@ extern uint8_t MATH_MinimumOfTwoUint8_t(const uint8_t value1, const uint8_t valu
 
 extern uint16_t MATH_MinimumOfTwoUint16_t(const uint16_t value1, const uint16_t value2) {
     uint16_t minimumValue = value1;
+    if (minimumValue > value2) {
+        minimumValue = value2;
+    }
+    return minimumValue;
+}
+
+extern uint32_t MATH_MinimumOfTwoUint32_t(const uint32_t value1, const uint32_t value2) {
+    uint32_t minimumValue = value1;
     if (minimumValue > value2) {
         minimumValue = value2;
     }

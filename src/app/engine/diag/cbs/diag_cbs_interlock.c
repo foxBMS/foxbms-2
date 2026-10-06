@@ -43,8 +43,8 @@
  * @file    diag_cbs_interlock.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -78,7 +78,7 @@ extern void DIAG_ErrorInterlock(
     FAS_ASSERT(diagId == DIAG_ID_INTERLOCK_FEEDBACK);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
-
+    (void)data;
     if (event == DIAG_EVENT_RESET) {
         kpkDiagShim->pTableError->interlockOpenedError = false;
     }

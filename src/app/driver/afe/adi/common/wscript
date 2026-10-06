@@ -37,7 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
-    if bld.env.FOXBMS_BMS_SLAVE_AFE_IC in ("ades1830",):
+
+def build(bld: BuildContext) -> None:
+    if bld.env.FOXBMS_BMS_SLAVE_AFE_IC in ("ades1830"):
         bld.recurse("ades183x")

@@ -1,0 +1,14 @@
+[
+  {
+    "source": "src/app/driver/pwm/pwm.c",
+    "test": "test_pwm.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/pwm"
+    ],
+    "mocks": [
+      "HL_etpwm.h"
+    ],
+    "use": "M"
+  }
+]

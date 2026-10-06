@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _ETHERNET_MODULE:
+.. _ETHERNET_APPLICATION:
 
-Ethernet Module
-===============
+Ethernet
+========
 
 Module Files
 ------------
@@ -65,8 +65,7 @@ The |echo-server| consists of two |ip-application-tasks| that are integrated in
 the task scheme as described in :ref:`OS_CONFIGURATION`.
 :numref:`echo-server-sequence` shows this communication in a simplified way.
 
-.. drawio-figure:: img/echo_server.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/software/modules/application/ethernet/img/echo_server.svg
    :alt: Echo Server Sequence Diagram
    :name: echo-server-sequence
    :width: 800px
@@ -89,8 +88,8 @@ The usage is explained in detail in :ref:`HOW_TO_TEST_TCP_IP`.
 Random Numbers
 ^^^^^^^^^^^^^^
 
-The externalized functions `ulApplicationGetNextSequenceNumber()` and
-`xApplicationGetRandomNumber()` return just a simple random number.
+The externalized functions ``ulApplicationGetNextSequenceNumber()`` and
+``xApplicationGetRandomNumber()`` return just a simple random number.
 
  .. warning::
     The random number generator is presently implemented in a simple approach.
@@ -103,7 +102,7 @@ The externalized functions `ulApplicationGetNextSequenceNumber()` and
 IP Event Hook
 ^^^^^^^^^^^^^
 
-The `vApplicationIPNetworkEventHook_Multi()` is called by the
+The ``vApplicationIPNetworkEventHook_Multi()`` is called by the
 |freertos-plus-tcp-library| when the network connects or disconnects.
 This can be used to implement server tasks that depend on network connectivity.
 
@@ -117,7 +116,7 @@ received is the same as the one device is looking for.
 See Also
 --------
 
-- :ref:`PHY_MODULE`
+- :ref:`PHY_DRIVER`
 - :ref:`NETWORK_INTERFACE`
 - :ref:`EMAC`
 - :ref:`HOW_TO_IMPLEMENT_ETHERNET_PORT`

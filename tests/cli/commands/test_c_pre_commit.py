@@ -59,7 +59,7 @@ class TestFoxCliMainCommandPreCommit(unittest.TestCase):
     """Test of the 'pre-commit' commands and options."""
 
     @patch("cli.commands.c_pre_commit.pre_commit_impl")
-    def test_pre_commit(self, mock_run_program: MagicMock):
+    def test_pre_commit(self, mock_run_program: MagicMock) -> None:
         """Test 'fox.py pre-commit' command."""
         mock_run_program.run_pre_commit.return_value = SubprocessResult(0, "", "")
         runner = CliRunner()

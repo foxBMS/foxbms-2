@@ -1,0 +1,14 @@
+[
+  {
+    "source": "src/app/application/algorithm/moving_average/moving_average.c",
+    "test": "test_moving_average.c",
+    "includes": [
+      "src/app/application/algorithm/config",
+      "src/app/application/algorithm/moving_average"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

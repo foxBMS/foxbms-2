@@ -43,8 +43,8 @@
  * @file    uart.c
  * @author  foxBMS Team
  * @date    2025-08-12 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  UART
  *
@@ -126,7 +126,7 @@ OS_SEMAPHORE_HANDLE uart_txSemaphore = NULL_PTR;
  * @note    This function does not implement a locking mechanism itself. It is
  *          the responsibility of the caller to ensure no one else calls it
  *          until the DAM transfer is done.
- *          Therefor this function assumes that uart_txSemaphore has been taken
+ *          Therefore this function assumes that uart_txSemaphore has been taken
  *          before it is called.
  */
 static void UART_Write(sciBASE_t *const pSciInterface, const uint8_t *const writeData, const uint16_t nrBytes);
@@ -179,7 +179,14 @@ static void UART_Write(sciBASE_t *const pSciInterface, const uint8_t *const writ
         const int32_t raisePrivilegeResult = FSYS_RaisePrivilege();
         FAS_ASSERT(raisePrivilegeResult == 0);
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         UART_dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_SCI4_TX].ISADDR = (uint32_t)(&writeData[0u]);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         UART_dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_SCI4_TX].ITCOUNT =
             (uint32_t)((uint32_t)((uint32_t)nrBytes << DMA_INITIAL_FRAME_COUNTER_POSITION) | (uint32_t)1u);
 
@@ -229,8 +236,8 @@ extern void UART_HandleFlowControl(void) {
             uart_softwareFlowControlReceiving = false;
             OS_SemaphoreGive(uart_txSemaphore);
         }
-    } else if (
-        (uart_softwareFlowControlReceiving == false) && (numberOfStoredMessages <= UART_LOWER_CUTOFF_MESSAGE_COUNT)) {
+    } else if ((uart_softwareFlowControlReceiving == false) &&
+               (numberOfStoredMessages <= UART_LOWER_CUTOFF_MESSAGE_COUNT)) {
         if (OS_SemaphoreTake(uart_txSemaphore, portMAX_DELAY) == OS_SUCCESS) {
             sciSendByte(UART_REG, UART_XON);
             uart_softwareFlowControlReceiving = true;

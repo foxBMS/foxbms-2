@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_debug-identify-hardware.h
  * @author  foxBMS Team
  * @date    2022-11-16 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -60,6 +60,11 @@
 #include "can_cfg.h"
 
 #include "afe.h"
+#ifdef UNITY_UNIT_TEST
+#include "fstd_types.h"
+#endif /* UNITY_UNIT_TEST */
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -74,11 +79,9 @@ extern STD_RETURN_TYPE_e CANTX_DebugIdentifyHardware(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-
+extern void TEST_CANTX_SetSlaveSerialIdMessageData(uint64_t *pMessageData, uint16_t afeNumber);
 extern void TEST_CANTX_DebugIdentifyHardwareMux(uint64_t *pMessageData, uint8_t muxValue);
-
 extern STD_RETURN_TYPE_e TEST_CANTX_SendMasterIdentification(void);
-
 extern STD_RETURN_TYPE_e TEST_CANTX_SendSlaveIdentification(uint16_t afeNumber);
 
 #endif

@@ -42,10 +42,6 @@
 # cspell:ignore getrtc, mcuwaferinfo, fcanmcuid, mculotnumber, boottimestamp,
 # cspell:ignore buildconfig, softwarereset, softwareversion, mcuid
 
-# we need this as long as we are on Python3.12 due to the annotation parsing
-# of Queue[Message]
-from __future__ import annotations
-
 import cmd
 from multiprocessing import Event, Manager, Process, Queue, managers
 from pathlib import Path
@@ -96,7 +92,7 @@ class BMSShell(cmd.Cmd):
     message: database.can.message.Message
 
     def add_msg(self, msg_id: str | int, amount: int = 1, output: int = 1) -> None:
-        """Adds a new message to the array"""
+        """Add a new message to the array."""
         id_array = self.msg_arr[0]
         amount_array = self.msg_arr[1]
         output_array = self.msg_arr[2]
@@ -115,7 +111,7 @@ class BMSShell(cmd.Cmd):
         self.msg_arr[2] = output_array
 
     def do_init(self, _: str) -> bool:
-        """Starts the receive and send process, the read process and initializes the CAN bus."""
+        """Start the receive and send process, the read process and initialize the CAN bus."""
         if self.initialized:
             secho("The CAN bus has already been initialized.")
             return False
@@ -134,7 +130,7 @@ class BMSShell(cmd.Cmd):
         return not self.initialized
 
     def do_fram(self, _: str) -> None:
-        """Reinitializes the FRAM"""
+        """Reinitialize the FRAM."""
         if self.initialized:
             reinitialize_fram(self.send_q, self.message)
             secho("FRAM has been reinitialized.")
@@ -142,7 +138,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_rtc(self, _: str) -> None:
-        """Sets the rtc time to the current time"""
+        """Set the RTC time to the current time"""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             set_rtc_time(self.send_q, self.message)
@@ -159,7 +155,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_boottimestamp(self, _: str) -> None:
-        """Requests the Boot Timestamp"""
+        """Request the Boot Timestamp"""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             get_boot_timestamp(self.send_q, self.message)
@@ -168,7 +164,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_getrtc(self, _: str) -> None:
-        """Gets the rtc time"""
+        """Get the RTC time"""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             get_rtc_time(self.send_q, self.message)
@@ -186,7 +182,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_buildconfig(self, _: str) -> None:
-        """Gets the Build Configuration"""
+        """Get the Build Configuration"""
         if self.initialized:
             self.add_msg("f_DebugBuildConfiguration", 19)
             get_build_configuration(self.send_q, self.message)
@@ -195,7 +191,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_commithash(self, _: str) -> None:
-        """Gets the Commit Hash the software version was built with"""
+        """Get the Commit Hash the software version was built with."""
         if self.initialized:
             self.add_msg("f_DebugResponse", 2)
             get_commit_hash(self.send_q, self.message)
@@ -204,7 +200,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_mcuwaferinfo(self, _: str) -> None:
-        """Gets the wafer information of the MCU"""
+        """Get the wafer information of the MCU."""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             get_mcu_wafer_info(self.send_q, self.message)
@@ -213,7 +209,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_mculotnumber(self, _: str) -> None:
-        """Gets the lot number of the MCU"""
+        """Get the lot number of the MCU."""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             get_mcu_lot_number(self.send_q, self.message)
@@ -222,7 +218,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_mcuid(self, _: str) -> None:
-        """Gets the unique ID of the MCU"""
+        """Get the unique ID of the MCU."""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             get_mcu_id(self.send_q, self.message)
@@ -231,7 +227,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_softwareversion(self, _: str) -> None:
-        """Gets the software version of the BMS"""
+        """Get the software version of the BMS."""
         if self.initialized:
             self.add_msg("f_DebugResponse")
             get_software_version(self.send_q, self.message)
@@ -240,7 +236,7 @@ class BMSShell(cmd.Cmd):
             recho("CAN bus has to be initialized: INIT")
 
     def do_log(self, arg: int | str) -> bool:
-        """Logs message with the given ID as often as specified and to the
+        """Log message with the given ID as often as specified and to the
         given output: LOG [ID] [#, DEFAULT: 1] [OUTPUT, FILE / stdout]
         """
         if self.initialized:
@@ -300,11 +296,11 @@ class BMSShell(cmd.Cmd):
         return True
 
     def default(self, line: str) -> None:
-        """Method called on an input line when the command is not recognized."""
+        """Handle input line for an unrecognized command."""
         recho(f"Invalid command: {line}")
 
     def precmd(self, line: str) -> str:
-        """Converts the input to lowercase."""
+        """Convert the input to lowercase."""
         return str(line.lower())
 
     def preloop(self) -> None:
@@ -314,7 +310,7 @@ class BMSShell(cmd.Cmd):
 
 
 def run_shell(bus_cfg: CanBusConfig, app_dbc: Path) -> int:
-    """Runs the bms shell"""
+    """Run the bms shell"""
     shell = BMSShell()
     shell.bus_cfg = bus_cfg
     tmp = database.load_file(app_dbc)

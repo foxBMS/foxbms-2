@@ -1,0 +1,15 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/vishay/ntcle317e4103sba/vishay_ntcle317e4103sba.c"
+    ],
+    "test": "test_vishay_ntcle317e4103sba.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts",
+      "src/app/driver/ts/vishay/ntcle317e4103sba"
+    ],
+    "use": "M"
+  }
+]

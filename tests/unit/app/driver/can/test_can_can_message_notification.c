@@ -43,8 +43,8 @@
  * @file    test_can_can_message_notification.c
  * @author  foxBMS Team
  * @date    2025-08-06 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,19 +72,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/mcu")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/engine/config")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -136,6 +123,10 @@ static uint32_t TEST_CANTX_DummyCallback(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
+    (void)message;
+    (void)pCanData;
+    (void)pMuxId;
+    (void)kpkCanShim;
     return 0;
 }
 
@@ -143,6 +134,9 @@ static uint32_t TEST_CANRX_DummyCallback(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
+    (void)message;
+    (void)kpkCanData;
+    (void)kpkCanShim;
     return 0;
 }
 
@@ -168,16 +162,24 @@ void canInit(void) {
 
 /* not called for this test; no implementation details needed */
 uint32 canTransmit(canBASE_t *node, uint32 messageBox, const uint8 *data) {
+    (void)node;
+    (void)messageBox;
+    (void)data;
     return 0u;
 }
 
 /* not called for this test; no implementation details needed */
 uint32 canIsTxMessagePending(canBASE_t *node, uint32 messageBox) {
+    (void)node;
+    (void)messageBox;
     return 0u;
 }
 
 /* not called for this test; no implementation details needed */ /* cspell:disable-next-line */
 void canUpdateID(canBASE_t *node, uint32 messageBox, uint32 msgBoxArbitVal) {
+    (void)node;
+    (void)messageBox;
+    (void)msgBoxArbitVal; /* cspell:ignore Arbit */
 }
 
 /* The return value of 'canGetData' determines the function flow in
@@ -187,6 +189,9 @@ void canUpdateID(canBASE_t *node, uint32 messageBox, uint32 msgBoxArbitVal) {
  */
 uint32_t canGetDataReturnValue = 0u;
 uint32 canGetData(canBASE_t *node, uint32 messageBox, uint8 *const data) {
+    (void)node;
+    (void)messageBox;
+    (void)data;
     return canGetDataReturnValue;
 }
 /* The return value of 'canGetID' determines the function flow in
@@ -196,6 +201,8 @@ uint32 canGetData(canBASE_t *node, uint32 messageBox, uint8 *const data) {
  */
 uint32_t canGetIDReturnValue = 0u;
 uint32 canGetID(canBASE_t *node, uint32 messageBox) {
+    (void)node;
+    (void)messageBox;
     return canGetIDReturnValue;
 }
 

@@ -37,11 +37,33 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-
+import battery_system_config_validate
+import diag_array_config_validate
 from waflib.Build import POST_LAZY, BuildContext
 
 
 def build(bld: BuildContext):
+    cp = f"{bld.env.APPNAME.lower()}-config-"
+
+    if bld.variant in {"docs", "app_doxygen"}:
+        source = "battery_system_cfg"
+        bld(
+            features="codegen_config",
+            json=bld.srcnode.find_node(f"conf/bms/{source}.json"),
+            validator=battery_system_config_validate.validate_battery_system_configuration,
+            export_includes=[bld.bldnode.find_or_declare("src/app/application/config")],
+            target=f"{cp}{source}",
+        )
+
+        source = "diag_array_cfg"
+        bld(
+            features="codegen_config",
+            json=bld.srcnode.find_node(f"conf/bms/{source}.json"),
+            validator=diag_array_config_validate.validate_diag_array_configuration,
+            export_includes=[bld.bldnode.find_or_declare("src/app/engine/config")],
+            target=f"{cp}{source}",
+        )
+
     if bld.variant == "docs":
         # C source code examples that should build
         if bld.env.CC:
@@ -50,21 +72,24 @@ def build(bld: BuildContext):
                     "../tools/crc",
                     "developer-manual/style-guide/examples",
                     "developer-manual/style-guide/state-machine-example",
+                    "software/configuration",
                     "software/modules/driver/can",
                     "software/modules/engine/database",
                     "software/modules/task/ftask",
                     "software/unit-tests",
+                    "system",
                 ],
             )
-        # build the sphinx documentation
+
+        bld(source=bld.path.ant_glob("**/*.drawio"))
         config = bld.path.find_node("conf.py")
         bld(
             features="sphinx",
             builders="html",
             out_dir=".",
             conf_py=config,
-            VERSION=bld.env.version,
-            RELEASE=bld.env.version,
+            version=bld.env.VERSION,
+            project=bld.env.APPNAME,
         )
         bld.post_mode = POST_LAZY
 
@@ -72,7 +97,7 @@ def build(bld: BuildContext):
         feature = "doxygen"
         common_input = {
             "doxygen_conf": "doxygen.conf.in",
-            "project_number": f"{bld.env.APPNAME} {bld.env.VERSION}",
+            "project_number": f"{bld.env.APPNAME} - {bld.env.VERSION}",
             "project_logo": "_static/foxbms250px.png",
             "layout_file": "doxygen_layout.xml",
             "image_path": "_static/cc.large.png",
@@ -87,11 +112,14 @@ def build(bld: BuildContext):
         if bld.variant == "app_doxygen":
             specific_input = {
                 "project_brief": base_name % (bld.env.APPNAME, "Application"),
-                "project_name": f"{bld.env.APPNAME} Bootloader",
-                "input": "developer-manual/style-guide/state-machine-example ../src/app",
+                "project_name": f"{bld.env.APPNAME} Application",
+                "input": (
+                    "developer-manual/style-guide/state-machine-example "
+                    f"../src/app ../build/{bld.variant}/src/app/application/config"
+                ),
                 "exclude_patterns": "*/vendor/*",
             }
-        elif bld.variant == "app_doxygen_unit_test":
+        elif bld.variant == "app_unit_test_doxygen":
             specific_input = {
                 "project_brief": base_name % (bld.env.APPNAME, "Application Unit Test"),
                 "project_name": f"{bld.env.APPNAME} Application",
@@ -107,7 +135,7 @@ def build(bld: BuildContext):
                 "input": "../src/bootloader",
                 "exclude_patterns": "*/vendor/*",
             }
-        elif bld.variant == "bootloader_doxygen_unit_test":
+        elif bld.variant == "bootloader_unit_test_doxygen":
             specific_input = {
                 "project_brief": base_name % (bld.env.APPNAME, "Bootloader Unit Test"),
                 "project_name": f"{bld.env.APPNAME} Bootloader",

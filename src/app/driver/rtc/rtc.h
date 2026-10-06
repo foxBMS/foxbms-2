@@ -43,8 +43,8 @@
  * @file    rtc.h
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -64,6 +64,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+/* AXIVION Disable Style MisraC2012-21.10 Generic-IncludeKind: Time implementation is suitable for the application */
 #include <time.h>
 
 /*========== Macros and Definitions =========================================*/

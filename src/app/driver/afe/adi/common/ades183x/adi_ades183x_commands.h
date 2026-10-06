@@ -43,8 +43,8 @@
  * @file    adi_ades183x_commands.h
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -116,6 +116,10 @@ extern const uint16_t adi_cmdRdpwma[ADI_COMMAND_DEFINITION_LENGTH];
 
 extern const uint16_t adi_cmdRdsid[ADI_COMMAND_DEFINITION_LENGTH];
 extern const uint16_t adi_cmdSrst[ADI_COMMAND_DEFINITION_LENGTH];
+
+extern const uint16_t adi_cmdWrcomm[ADI_COMMAND_DEFINITION_LENGTH];
+extern const uint16_t adi_cmdRdcomm[ADI_COMMAND_DEFINITION_LENGTH];
+extern const uint16_t adi_cmdStcomm[ADI_COMMAND_DEFINITION_LENGTH];
 /**@}*/
 
 /*========== Extern Function Prototypes =====================================*/

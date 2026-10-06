@@ -43,8 +43,8 @@
  * @file    diag_cbs_plausibility.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -69,17 +69,17 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void DIAG_ErrorPlausibility(
+extern void DIAG_ErrorBmsValuesPackVoltage(
     DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(diagId == DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE);
+    FAS_ASSERT(diagId == DIAG_ID_BMS_VALUES_PACK_VOLTAGE);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (diagId == DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE) {
+    if (diagId == DIAG_ID_BMS_VALUES_PACK_VOLTAGE) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->plausibilityCheckPackVoltageError[stringNumber] = false;
         }
@@ -95,42 +95,41 @@ extern void DIAG_PlausibilityCheck(
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
     FAS_ASSERT(
-        (diagId == DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE) || (diagId == DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD) ||
-        (diagId == DIAG_ID_PLAUSIBILITY_CELL_TEMP) || (diagId == DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD));
+        (diagId == DIAG_ID_REDUNDANCY_CELL_VOLTAGE) || (diagId == DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD) ||
+        (diagId == DIAG_ID_REDUNDANCY_CELL_TEMPERATURE) || (diagId == DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (diagId == DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE) {
+    if (diagId == DIAG_ID_REDUNDANCY_CELL_VOLTAGE) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->plausibilityCheckCellVoltageError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->plausibilityCheckCellVoltageError[stringNumber] = true;
         }
-    } else if (diagId == DIAG_ID_PLAUSIBILITY_CELL_TEMP) {
+    } else if (diagId == DIAG_ID_REDUNDANCY_CELL_TEMPERATURE) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->plausibilityCheckCellTemperatureError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->plausibilityCheckCellTemperatureError[stringNumber] = true;
         }
-    } else if (diagId == DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD) {
+    } else if (diagId == DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->plausibilityCheckCellVoltageSpreadError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->plausibilityCheckCellVoltageSpreadError[stringNumber] = true;
         }
-    } else if (diagId == DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD) {
+    } else if (diagId == DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->plausibilityCheckCellTemperatureSpreadError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->plausibilityCheckCellTemperatureSpreadError[stringNumber] = true;
         }
-    } else {
-        /* do nothing - trap? */
+    } else { /* for MISRA compliance; cannot happen due to argument assert */
     }
 }
 

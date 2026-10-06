@@ -43,13 +43,13 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from jsonschema import exceptions, validate
 from matplotlib import dates, ticker
 from matplotlib.axes import Axes
+from matplotlib.lines import Line2D
 from yaml import safe_load
 
 from ...helpers.click_helpers import echo, recho
@@ -60,7 +60,6 @@ from .settings_graph import Description, GraphSettings, LinesSettings, Mapping
 class LineGraphDrawer(LineGraphDrawerInterface):
     """Class that implements the interface LineGraphDrawer"""
 
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
     def __init__(
         self,
         graph: GraphSettings,
@@ -100,7 +99,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
             sys.exit(1)
 
     def show(self) -> None:
-        """Shows the plot if wanted"""
+        """Show the plot if requested."""
         if self._graph.show:
             plt.show()
         else:
@@ -108,7 +107,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
             plt.close("all")
 
     def save(self, output_dir: Path) -> None:
-        """Saves the plot if wanted"""
+        """Save the plot if requested."""
         if self._graph.save:
             fname = Path(output_dir) / Path(self.name + "." + self._graph.format)
             echo(f"Save plot at {fname}")
@@ -127,7 +126,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         x_values = data.loc[:, self._mapping.x].to_numpy()
         if self._mapping.date_format is not None:
             self._axes.xaxis.set_major_formatter(
-                dates.DateFormatter(self._mapping.date_format)
+                dates.DateFormatter(self._mapping.date_format)  # type: ignore[no-untyped-call]
             )
         elif x_values.dtype.type is np.object_:
             recho(
@@ -136,7 +135,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
                 "yellow",
             )
         # Draw all lines in Mapping
-        plots: list[mpl.lines.Line2D] = []
+        plots: list[Line2D] = []
         for i, ax_name in enumerate(["y1", "y2", "y3"]):
             line_settings = getattr(self._mapping, ax_name)
             if isinstance(line_settings, LinesSettings):
@@ -170,7 +169,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         x_values: np.ndarray,
         y_values: np.ndarray,
         settings: LinesSettings,
-    ) -> list[mpl.lines.Line2D]:
+    ) -> list[Line2D]:
         """Draws the specified line"""
         x_values = x_values[self._mapping.start : self._mapping.end]
         y_values = y_values[self._mapping.start : self._mapping.end]
@@ -210,8 +209,8 @@ class LineGraphDrawer(LineGraphDrawerInterface):
 
     @staticmethod
     def validate_config(config: dict) -> None:
-        """Validates the CSVHandler configuration"""
-        schema_path = Path(__file__).parent / "schemas" / "line_graph_drawer.json"
+        """Validate the CSVHandler configuration"""
+        schema_path = Path(__file__).parent / "schemas/line_graph_drawer.json"
         with open(schema_path, encoding="utf-8") as f:
             schema = safe_load(f)
         try:

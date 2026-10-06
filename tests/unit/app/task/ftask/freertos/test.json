@@ -1,0 +1,78 @@
+[
+  {
+    "source": [
+      "src/app/task/ftask/freertos/ftask_freertos.c",
+      "src/app/task/ftask/ftask.c"
+    ],
+    "test": "test_ftask_freertos.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/rtc",
+      "src/app/engine/sys_mon",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/engine/sys_mon/sys_mon.h",
+      "src/app/main/include/infinite-loop-helper.h",
+      "src/app/task/config/ftask_cfg.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ]
+  },
+  {
+    "source": [
+      "src/app/task/ftask/freertos/ftask_freertos.c",
+      "src/app/task/ftask/ftask.c"
+    ],
+    "test": "test_ftask_freertos_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/rtc",
+      "src/app/engine/sys_mon",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/engine/sys_mon/sys_mon.h",
+      "src/app/main/include/infinite-loop-helper.h",
+      "src/app/task/config/ftask_cfg.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TYPE_NO_FSM=1"
+    ]
+  },
+  {
+    "source": [
+      "src/app/task/ftask/freertos/ftask_freertos.c",
+      "src/app/task/ftask/ftask.c"
+    ],
+    "test": "test_ftask_freertos_emac_uart.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/driver/rtc",
+      "src/app/engine/sys_mon",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "src/app/engine/sys_mon/sys_mon.h",
+      "src/app/main/include/infinite-loop-helper.h",
+      "src/app/task/config/ftask_cfg.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "defines": [
+      "FOXBMS_TCP_SUPPORT=1",
+      "FOXBMS_UART_SUPPORT=1"
+    ]
+  }
+]

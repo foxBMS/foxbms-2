@@ -43,8 +43,8 @@
  * @file    adi_ades183x_pec.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -53,7 +53,7 @@
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 
 #include "adi_ades183x_pec.h"
 

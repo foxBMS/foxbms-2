@@ -43,8 +43,8 @@
  * @file    test_semitec_103jt.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,9 +61,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/ts")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/semitec/103jt")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -76,12 +73,12 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testTS_Sem00GetTemperatureFromLutFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Sem00GetTemperatureFromLut(2450u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Sem00GetTemperatureFromLut(275u));
-    TEST_ASSERT_EQUAL_INT16(350, TS_Sem00GetTemperatureFromLut(1034u));
-    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Sem00GetTemperatureFromLut(UINT16_MAX));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Sem00GetTemperatureFromLut(4000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Sem00GetTemperatureFromLut(275u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(79, TS_Sem00GetTemperatureFromLut(2000u, 3.0f));
+    TEST_ASSERT_EQUAL_INT16(INT16_MIN, TS_Sem00GetTemperatureFromLut(UINT16_MAX, 3.0f));
 }
 
 void testTS_Sem00GetTemperatureFromPolynomialFixedValues(void) {
-    TEST_ASSERT_FAIL_ASSERT(TS_Sem00GetTemperatureFromPolynomial(10000u));
+    TEST_ASSERT_FAIL_ASSERT(TS_Sem00GetTemperatureFromPolynomial(10000u, 3.0f));
 }

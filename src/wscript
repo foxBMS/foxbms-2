@@ -37,9 +37,65 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+import bms_config_generate
+import bms_config_validate
+from waflib.Build import BuildContext
 
-def build(bld):
-    if bld.variant in ("app_embedded",):
+
+def build(bld: BuildContext) -> None:
+    if bld.variant in ("app_ti_arm_cgt", "app_spa_ti_arm_cgt"):
+        bms_config_node = bld.srcnode.find_node(bld.env.BMS_CONFIG)
+        system = bms_config_validate.validate_bms_configuration(bld, bms_config_node)
+        bms_config_generate.set_env_variables(bld, system)
+
+        contents = [
+            "aerosol_sensor",
+            "algorithm",
+            "balancing_strategy",
+            "current_sensor",
+            "imd_sensor",
+            "redundant_v_t_measurement",
+            "debug",
+            "rtos",
+            "bms_slave",
+            "mcu",
+        ]
+        for content in contents:
+            bld(
+                features="foxbms_config",
+                bms_config_node=bms_config_node,
+                system=system,
+                content=content,
+                target=content,
+            )
+
+        bld(
+            use=contents,
+            export_includes=[bld.bldnode],
+            target="foxbms_config",
+        )
+        foxbms_config_rtos = bld.bldnode.find_or_declare("foxbms_config_rtos.h")
+        foxbms_config_debug = bld.bldnode.find_or_declare("foxbms_config_debug.h")
+        bld.env.append_unique(
+            "CFLAGS_HAL",
+            [
+                f"--preinclude={foxbms_config_rtos.abspath()}",
+                f"--preinclude={foxbms_config_debug.abspath()}",
+            ],
+        )
+        bld.env.append_unique(
+            "CFLAGS_OS",
+            [
+                f"--preinclude={foxbms_config_rtos.abspath()}",
+                f"--preinclude={foxbms_config_debug.abspath()}",
+            ],
+        )
+
         bld.recurse(["app", "os", "portable"])
-    if bld.variant in ("bootloader_embedded",):
+
+    if bld.variant in (
+        "bootloader_ti_arm_cgt",
+        "bootloader_unit_test_ti_arm_cgt",
+        "bootloader_spa_ti_arm_cgt",
+    ):
         bld.recurse(["bootloader", "portable"])

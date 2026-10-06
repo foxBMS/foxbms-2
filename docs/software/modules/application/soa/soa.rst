@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _SOA_MODULE:
+.. _SOA_APPLICATION:
 
-SOA Module
-==========
+SOA
+===
 
 Module Files
 ------------
@@ -23,7 +23,6 @@ Configuration
 
 Unit Test
 ^^^^^^^^^
-- ``tests/unit/app/application/soa/test_soa_cfg.c``
 - ``tests/unit/app/application/soa/test_soa.c``
 
 Detailed Description

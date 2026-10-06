@@ -1,0 +1,133 @@
+[
+  {
+    "source": "src/app/driver/dma/dma.c",
+    "test": "test_dma_nxp.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/i2c",
+      "src/app/driver/io",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/afe/api/afe_dma.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/spi/spi.h",
+      "src/os/freertos/freertos/include/task.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_NXP=1"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  },
+  {
+    "source": "src/app/driver/dma/dma.c",
+    "test": "test_dma_uart.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/i2c",
+      "src/app/driver/io",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/uart",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/afe/api/afe_dma.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/spi/spi.h",
+      "src/os/freertos/freertos/include/task.h"
+    ],
+    "defines": [
+      "FOXBMS_UART_SUPPORT=1"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  },
+  {
+    "source": "src/app/driver/dma/dma.c",
+    "test": "test_dma.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/i2c",
+      "src/app/driver/io",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/afe/api/afe_dma.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/spi/spi.h",
+      "src/os/freertos/freertos/include/task.h"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  },
+  {
+    "source": "src/app/driver/dma/dma.c",
+    "test": "test_dma_dma_group_a_notification.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/i2c",
+      "src/app/driver/io",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_spi.h",
+      "HL_sys_dma.h",
+      "src/app/driver/afe/api/afe_dma.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/driver/io/io.h",
+      "src/app/driver/spi/spi.h",
+      "src/os/freertos/freertos/include/task.h"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ]
+  }
+]

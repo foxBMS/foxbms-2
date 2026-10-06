@@ -1,0 +1,30 @@
+[
+  {
+    "source": [
+      "src/app/driver/can/cbs/can_helper.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_can_helper.c",
+    "includes": [
+      "src/app/driver/can",
+      "src/app/driver/can/cbs",
+      "src/app/driver/can/cbs/tx-cyclic",
+      "src/app/driver/config",
+      "src/app/driver/foxmath",
+      "src/app/driver/fram",
+      "src/app/driver/imd",
+      "src/app/engine/diag",
+      "src/app/engine/sys_mon",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/driver/can/can.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/imd/imd.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/task/os/os.h"
+    ],
+    "use": "M"
+  }
+]

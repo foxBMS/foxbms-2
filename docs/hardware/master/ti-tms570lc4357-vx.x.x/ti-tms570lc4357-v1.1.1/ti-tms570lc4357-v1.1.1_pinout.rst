@@ -3,7 +3,7 @@
 
 
 .. |local_bms_master_version| replace:: ``v1.1.1``
-.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|-based |bms-master|
 .. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
 
 .. _TI_TMS570_BASED_BMS_MASTER_V1_1_1_PINOUT:
@@ -37,8 +37,7 @@ The pinout of this |bms-master| is shown in the
 :numref:`ti-tms570lc4357-v1.1.1_pinout-img` and
 :numref:`ti-tms570lc4357-v1.1.1_pinout-table`.
 
-.. drawio-figure:: ./pinout/ti-tms570lc4357-v1.1.1_pinout.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/hardware/master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-v1.1.1/pinout/ti-tms570lc4357-v1.1.1_pinout.svg
    :alt: ti-tms570lc4357-v1.1.1_pinout-img
    :name: ti-tms570lc4357-v1.1.1_pinout-img
    :width: 1040px
@@ -164,7 +163,7 @@ The pinout and pin usage is described in
 
 .. _ti-tms570lc4357-v1.1.1_pinout_extension_connector:
 
-Extension connector
+Extension Connector
 ###################
 
 For the connection to an optional |bms-extension|, a 120-pole Samtec Edge Rate
@@ -177,6 +176,20 @@ The pinout and pin usage is described in
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_extension.csv
+
+.. _ti-tms570lc4357-v1.1.1_pinout_emif_connector:
+
+EMIF Connector
+##############
+
+The EMIF of the |ti-tms570| is available on the 60-pole Samtec Edge Rate
+mezzanine connector (J9001).
+
+.. csv-table:: Signal connector to the optional EMIF (J9001)
+   :name: ti-tms570lc4357-v1.1.1_emif
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_emif.csv
 
 .. _ti-tms570lc4357-v1.1.1_pinout_debug_connector:
 

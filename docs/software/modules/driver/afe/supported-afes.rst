@@ -6,8 +6,9 @@
 Supported Analog Front-Ends
 ===========================
 
-|foxbms| supports various AFE from different manufacturers as the list below
-shows.
+|foxbms| supports various AFE from different manufacturers
+as the list below shows.
+
 This is achieved by drivers that follow the :ref:`ANALOG_FRONT_END_API`.
 
 .. include:: ./../../../../../build/docs/supported_afes.txt

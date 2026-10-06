@@ -43,14 +43,17 @@
  * @file    can_how-to_tx_async.h
  * @author  foxBMS Team
  * @date    2023-10-10 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
  * @brief   Documentation file to show how a new asynchronous transmitted CAN
  *          message is added to the project.
- * @details TODO
+ * @details This example header declares the callback interface for an
+ *          asynchronously transmitted CAN message.
+ *          Together with the matching source file, it documents the minimal
+ *          public interface needed to add a new asynchronous transmit path.
  */
 
 #ifndef FOXBMS__CAN_HOW_TO_TX_ASYNC_H_
@@ -58,6 +61,7 @@
 
 /*========== Includes =======================================================*/
 #include "can_cbs_tx_f_debug-response.h"
+#include "fram_helper.h"
 #include "fstd_types.h"
 
 /*========== Macros and Definitions =========================================*/

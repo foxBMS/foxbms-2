@@ -43,8 +43,8 @@
  * @file    test_interlock.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,24 +63,41 @@
 #include "Mockio.h"
 #include "Mockos.h"
 
+#include "database_cfg.h"
 #include "interlock_cfg.h"
 
+#include "fstd_types.h"
 #include "interlock.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/interlock")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-DATA_BLOCK_ADC_VOLTAGE_s ilck_tableAdcVoltages     = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
 DATA_BLOCK_INTERLOCK_FEEDBACK_s ilck_tableFeedback = {.header.uniqueId = DATA_BLOCK_ID_INTERLOCK_FEEDBACK};
+
+static uint8_t testDataRead1DataBlockCalls;
+static uint8_t testDataWrite1DataBlockCalls;
+
+static STD_RETURN_TYPE_e testDataRead1DataBlock(void *pDataToReceiver0, int cmock_num_calls) {
+    (void)pDataToReceiver0;
+    (void)cmock_num_calls;
+    testDataRead1DataBlockCalls++;
+    return STD_OK;
+}
+
+static STD_RETURN_TYPE_e testDataWrite1DataBlock(void *pDataFromSender0, int cmock_num_calls) {
+    (void)pDataFromSender0;
+    (void)cmock_num_calls;
+    testDataWrite1DataBlockCalls++;
+    return STD_OK;
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
     /* reset the state of interlock before each test */
+    testDataRead1DataBlockCalls    = 0u;
+    testDataWrite1DataBlockCalls   = 0u;
     static ILCK_STATE_s ilck_state = {
         .timer             = 0,
         .statereq          = ILCK_STATE_NO_REQUEST,
@@ -118,6 +135,12 @@ void testILCK_SetStateRequestLegalValuesILCK_STATE_NO_REQUEST(void) {
     OS_ExitTaskCritical_Expect();
     /* even though this value is legal, it will return illegal request */
     TEST_ASSERT_EQUAL(ILCK_ILLEGAL_REQUEST, ILCK_SetStateRequest(INT8_MAX));
+}
+
+void testILCK_SetStateRequestNoRequest(void) {
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ASSERT_EQUAL(ILCK_ILLEGAL_REQUEST, ILCK_SetStateRequest(ILCK_STATE_NO_REQUEST));
 }
 
 void testILCK_SetStateRequestIllegalValue(void) {
@@ -183,6 +206,86 @@ void testRunStateMachineWithoutRequest(void) {
     TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
 }
 
+void testILCK_TriggerReEntrance(void) {
+    ILCK_STATE_s state = {.triggerentry = 1u};
+    TEST_ILCK_SetStateStruct(state);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    ILCK_Trigger();
+
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
+}
+
+void testILCK_TriggerWhileTimerIsActive(void) {
+    ILCK_STATE_s state = {
+        .timer = 2u,
+        .state = ILCK_STATEMACHINE_INITIALIZED,
+    };
+    TEST_ILCK_SetStateStruct(state);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    ILCK_Trigger();
+
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_INITIALIZED, ILCK_GetState());
+}
+
+void testILCK_TriggerWithIllegalRequestPending(void) {
+    ILCK_STATE_s state = {
+        .statereq = (ILCK_STATE_REQUEST_e)INT8_MAX,
+    };
+    TEST_ILCK_SetStateStruct(state);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    ILCK_Trigger();
+
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
+}
+
+void testILCK_TriggerWithInvalidState(void) {
+    ILCK_STATE_s state = {
+        .state = (ILCK_STATEMACH_e)INT8_MAX,
+    };
+    CEXCEPTION_T exception = CEXCEPTION_NONE;
+    TEST_ILCK_SetStateStruct(state);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    Try {
+        ILCK_Trigger();
+        TEST_FAIL_MESSAGE("Expected ILCK_Trigger to assert for an invalid state");
+    }
+    Catch(exception) {
+        TEST_ASSERT_EQUAL(0u, exception);
+    }
+}
+
+void testILCK_TriggerInterlockOff(void) {
+    ILCK_STATE_s state = {.state = ILCK_STATEMACHINE_INITIALIZED};
+    TEST_ILCK_SetStateStruct(state);
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_HIGH);
+    OS_ExitTaskCritical_Expect();
+
+    DATA_Read1DataBlock_StubWithCallback(testDataRead1DataBlock);
+    DATA_Write1DataBlock_StubWithCallback(testDataWrite1DataBlock);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+
+    ILCK_Trigger();
+}
+
 void testInitializeStateMachine(void) {
     /* run initialization */
     /* since we are checking only for the state machine passing through these
@@ -206,9 +309,10 @@ void testInitializeStateMachine(void) {
     IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_LOW);
     OS_ExitTaskCritical_Expect();
 
+    DATA_Read1DataBlock_StubWithCallback(testDataRead1DataBlock);
+    DATA_Write1DataBlock_StubWithCallback(testDataWrite1DataBlock);
+
     for (uint8_t i = 0; i < 8; i++) {
-        DATA_Read1DataBlock_ExpectAndReturn(&ilck_tableAdcVoltages, STD_OK);
-        DATA_Write1DataBlock_ExpectAndReturn(&ilck_tableFeedback, STD_OK);
         DIAG_Handler_ExpectAndReturn(
             DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
         OS_EnterTaskCritical_Expect();
@@ -218,8 +322,6 @@ void testInitializeStateMachine(void) {
         OS_ExitTaskCritical_Expect();
     }
 
-    DATA_Read1DataBlock_ExpectAndReturn(&ilck_tableAdcVoltages, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&ilck_tableFeedback, STD_OK);
     DIAG_Handler_ExpectAndReturn(DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 
@@ -232,6 +334,8 @@ void testInitializeStateMachine(void) {
     }
 
     TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_INITIALIZED, ILCK_GetState());
+    TEST_ASSERT_EQUAL(9, testDataRead1DataBlockCalls);
+    TEST_ASSERT_EQUAL(9, testDataWrite1DataBlockCalls);
 }
 
 void testILCK_SetStateRequestIllegalValueAndThenRunStatemachine(void) {
@@ -262,8 +366,8 @@ void testILCK_GetInterlockFeedbackFeedbackOn(void) {
     OS_ExitTaskCritical_Expect();
 
     /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 1u); */
-    DATA_Read1DataBlock_ExpectAndReturn(&ilck_tableAdcVoltages, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&ilck_tableFeedback, STD_OK);
+    DATA_Read1DataBlock_StubWithCallback(testDataRead1DataBlock);
+    DATA_Write1DataBlock_StubWithCallback(testDataWrite1DataBlock);
 
     TEST_ASSERT_EQUAL(ILCK_SWITCH_ON, TEST_ILCK_GetInterlockFeedback());
 }
@@ -276,8 +380,8 @@ void testILCK_GetInterlockFeedbackFeedbackOff(void) {
     OS_ExitTaskCritical_Expect();
 
     /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 0u); */
-    DATA_Read1DataBlock_ExpectAndReturn(&ilck_tableAdcVoltages, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&ilck_tableFeedback, STD_OK);
+    DATA_Read1DataBlock_StubWithCallback(testDataRead1DataBlock);
+    DATA_Write1DataBlock_StubWithCallback(testDataWrite1DataBlock);
 
     TEST_ASSERT_EQUAL(ILCK_SWITCH_OFF, TEST_ILCK_GetInterlockFeedback());
 }

@@ -43,19 +43,23 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  STD
  *
  * @brief   Definition of foxBMS standard types
- * @details TODO
+ * @details This header defines the basic standard types and constants used
+ *          throughout foxBMS.
+ *          It provides null-pointer helpers, standard return types, and basic
+ *          pin-state enums shared by many modules.
  */
 
 #ifndef FOXBMS__FSTD_TYPES_H_
 #define FOXBMS__FSTD_TYPES_H_
 
 /*========== Includes =======================================================*/
+#include <stdbool.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -92,6 +96,19 @@ typedef enum {
 } STD_PIN_STATE_e;
 
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief   Convert a boolean value to a STD_RETURN_TYPE_e.
+ * @details #STD_OK if true, otherwise returns #STD_NOT_OK.
+ * @param   condition  boolean value to convert
+ */
+#pragma FUNC_ALWAYS_INLINE(STD_BoolToStdReturnType)
+static inline STD_RETURN_TYPE_e STD_BoolToStdReturnType(bool condition) {
+    if (condition == true) {
+        return STD_OK;
+    } else {
+        return STD_NOT_OK;
+    }
+}
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

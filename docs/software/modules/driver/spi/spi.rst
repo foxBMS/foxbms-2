@@ -1,7 +1,7 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _SPI:
+.. _SPI_DRIVER:
 
 SPI
 ===

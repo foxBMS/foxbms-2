@@ -1,6 +1,9 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
+..
+   cspell:ignore layermarker
+
 .. _CHANGELOG_FOR_THE_LTC_LTC6813_1_BASED_18_CELL_BMS_SLAVE:
 
 Changelog for the |ltc-ltc6813-1|\ -based 18 cell |bms-slave|

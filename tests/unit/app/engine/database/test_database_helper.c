@@ -43,8 +43,8 @@
  * @file    test_database_helper.c
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,41 +65,205 @@
 #include "database_helper.h"
 #include "test_assert_helper.h"
 
+#include <stdint.h>
+
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+/** timestamp array used as test input */
+static uint32_t test_timestamp[BS_NR_OF_STRINGS] = {0};
+/** previous timestamp array used as test input */
+static uint32_t test_previousTimestamp[BS_NR_OF_STRINGS] = {0};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        test_timestamp[s]         = 0u;
+        test_previousTimestamp[s] = 0u;
+    }
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-/** This function tests various inputs for helper function
- *  #DATA_DatabaseEntryUpdatedAtLeastOnce */
+
+/**
+ * @brief   Test extern function #DATA_DatabaseBlockUpdatedAtLeastOnce
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/3: NULL_PTR for kpkTimestamp -> assert
+ *            - AT2/3: NULL_PTR for kpkPreviousTimestamp -> assert
+ *            - AT3/3: invalid string number -> assert
+ *          - Routine validation:
+ *            - RT1/4: timestamp != 0, previousTimestamp == 0 -> true
+ *            - RT2/4: timestamp != 0, previousTimestamp != 0 -> true
+ *            - RT3/4: timestamp == 0, previousTimestamp != 0 -> true
+ *            - RT4/4: timestamp == 0, previousTimestamp == 0 -> false
+ */
+void testDATA_DatabaseBlockUpdatedAtLeastOnce(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(DATA_DatabaseBlockUpdatedAtLeastOnce(NULL_PTR, test_previousTimestamp, 0u));
+    /* ======= AT2/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(DATA_DatabaseBlockUpdatedAtLeastOnce(test_timestamp, NULL_PTR, 0u));
+    /* ======= AT3/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(
+        DATA_DatabaseBlockUpdatedAtLeastOnce(test_timestamp, test_previousTimestamp, BS_NR_OF_STRINGS));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/4: Test implementation */
+    /* ======= RT1/4: call function under test */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        test_timestamp[s]         = 10u;
+        test_previousTimestamp[s] = 0u;
+        const bool updated0       = DATA_DatabaseBlockUpdatedAtLeastOnce(test_timestamp, test_previousTimestamp, s);
+        TEST_ASSERT_TRUE(updated0);
+    }
+    /* ======= RT1/4: test output verification */
+    /* verified in loop */
+
+    /* ======= RT2/4: Test implementation */
+    /* ======= RT2/4: call function under test */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        test_timestamp[s]         = 60u;
+        test_previousTimestamp[s] = 10u;
+        const bool updated1       = DATA_DatabaseBlockUpdatedAtLeastOnce(test_timestamp, test_previousTimestamp, s);
+        TEST_ASSERT_TRUE(updated1);
+    }
+    /* ======= RT2/4: test output verification */
+    /* verified in loop */
+
+    /* ======= RT3/4: Test implementation */
+    /* ======= RT3/4: call function under test */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        test_timestamp[s]         = 0u;
+        test_previousTimestamp[s] = 10u;
+        const bool updated2       = DATA_DatabaseBlockUpdatedAtLeastOnce(test_timestamp, test_previousTimestamp, s);
+        TEST_ASSERT_TRUE(updated2);
+    }
+    /* ======= RT3/4: test output verification */
+    /* verified in loop */
+
+    /* ======= RT4/4: Test implementation */
+    /* ======= RT4/4: call function under test */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        test_timestamp[s]         = 0u;
+        test_previousTimestamp[s] = 0u;
+        const bool updated3       = DATA_DatabaseBlockUpdatedAtLeastOnce(test_timestamp, test_previousTimestamp, s);
+        TEST_ASSERT_FALSE(updated3);
+    }
+    /* ======= RT4/4: test output verification */
+    /* verified in loop */
+}
+
+/**
+ * @brief   Test extern function #DATA_DatabaseBlockUpdatedWithinInterval
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/3: NULL_PTR for kpkTimestamp -> assert
+ *            - AT2/3: NULL_PTR for kpkPreviousTimestamp -> assert
+ *            - AT3/3: invalid string number -> assert
+ *          - Routine validation:
+ *            - RT1/5: within interval and updated at least once -> true
+ *            - RT2/5: exactly at interval limit -> true
+ *            - RT3/5: within interval but never updated -> false
+ *            - RT4/5: outside of interval -> false
+ *            - RT5/5: timer overflow, within interval -> true
+ */
+void testDATA_DatabaseBlockUpdatedWithinInterval(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(DATA_DatabaseBlockUpdatedWithinInterval(NULL_PTR, test_previousTimestamp, 0u, 100u));
+    /* ======= AT2/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, NULL_PTR, 0u, 100u));
+    /* ======= AT3/3 ======= */
+    TEST_ASSERT_FAIL_ASSERT(
+        DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, test_previousTimestamp, BS_NR_OF_STRINGS, 100u));
+
+    /* ======= Routine tests =============================================== */
+    const uint32_t timeInterval = 100u;
+    const uint8_t s             = 0u;
+
+    /* ======= RT1/5: Test implementation: 50ms difference, updated -> true */
+    test_timestamp[s]         = 50u;
+    test_previousTimestamp[s] = 10u;
+    OS_GetTickCount_ExpectAndReturn(100u);
+    /* ======= RT1/5: call function under test */
+    TEST_ASSERT_TRUE(DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, test_previousTimestamp, s, timeInterval));
+
+    /* ======= RT2/5: Test implementation: exactly 100ms difference -> true */
+    test_timestamp[s]         = 50u;
+    test_previousTimestamp[s] = 10u;
+    OS_GetTickCount_ExpectAndReturn(150u);
+    /* ======= RT2/5: call function under test */
+    TEST_ASSERT_TRUE(DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, test_previousTimestamp, s, timeInterval));
+
+    /* ======= RT3/5: Test implementation: within interval but never updated -> false */
+    test_timestamp[s]         = 0u;
+    test_previousTimestamp[s] = 0u;
+    OS_GetTickCount_ExpectAndReturn(100u);
+    /* ======= RT3/5: call function under test */
+    TEST_ASSERT_FALSE(DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, test_previousTimestamp, s, timeInterval));
+
+    /* ======= RT4/5: Test implementation: 101ms difference -> false */
+    test_timestamp[s]         = 10u;
+    test_previousTimestamp[s] = 5u;
+    OS_GetTickCount_ExpectAndReturn(111u);
+    /* ======= RT4/5: call function under test */
+    TEST_ASSERT_FALSE(DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, test_previousTimestamp, s, timeInterval));
+
+    /* ======= RT5/5: Test implementation: timer overflow, 50ms difference -> true */
+    test_timestamp[s]         = UINT32_MAX;
+    test_previousTimestamp[s] = UINT32_MAX - 10u;
+    OS_GetTickCount_ExpectAndReturn(49u);
+    /* ======= RT5/5: call function under test */
+    TEST_ASSERT_TRUE(DATA_DatabaseBlockUpdatedWithinInterval(test_timestamp, test_previousTimestamp, s, timeInterval));
+}
+
+/**
+ * @brief   Test extern function #DATA_DatabaseEntryUpdatedAtLeastOnce
+ * @details The following cases need to be tested (covers all branches of the
+ *          condition `if (!(initialTimestampIsZero && previousTimestampIsZero))`):
+ *          - RT1/4: timestamp != 0, previousTimestamp == 0
+ *                   (initialZero=false, previousZero=true)  -> true
+ *          - RT2/4: timestamp != 0, previousTimestamp != 0
+ *                   (initialZero=false, previousZero=false) -> true
+ *          - RT3/4: timestamp == 0, previousTimestamp != 0
+ *                   (initialZero=true,  previousZero=false) -> true
+ *          - RT4/4: timestamp == 0, previousTimestamp == 0
+ *                   (initialZero=true,  previousZero=true)  -> false
+ */
 void testDATA_DatabaseEntryUpdatedAtLeastOnce(void) {
+    /* ======= Routine tests =============================================== */
     DATA_BLOCK_CELL_VOLTAGE_s databaseEntry = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 
+    /* ======= RT1/4: Test implementation */
     /* Database entry has been updated once, after 10ms */
     databaseEntry.header.timestamp         = 10u;
     databaseEntry.header.previousTimestamp = 0u;
+    /* ======= RT1/4: call function under test */
     TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedAtLeastOnce(databaseEntry.header));
 
+    /* ======= RT2/4: Test implementation */
     /* Database entry has been updated twice, first after 10ms, then after 50ms */
     databaseEntry.header.timestamp         = 60u;
     databaseEntry.header.previousTimestamp = 10u;
+    /* ======= RT2/4: call function under test */
     TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedAtLeastOnce(databaseEntry.header));
 
-    /* Database entry has been updated three times, first after 10ms, then after 50ms, then after 10ms */
-    databaseEntry.header.timestamp         = 70u;
-    databaseEntry.header.previousTimestamp = 60u;
+    /* ======= RT3/4: Test implementation */
+    /* timestamp has wrapped/reset to 0 while a previous timestamp exists */
+    databaseEntry.header.timestamp         = 0u;
+    databaseEntry.header.previousTimestamp = 10u;
+    /* ======= RT3/4: call function under test */
     TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedAtLeastOnce(databaseEntry.header));
 
+    /* ======= RT4/4: Test implementation */
     /* Database entry has never been updated */
     databaseEntry.header.timestamp         = 0u;
     databaseEntry.header.previousTimestamp = 0u;
+    /* ======= RT4/4: call function under test */
     TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedAtLeastOnce(databaseEntry.header));
 }
 

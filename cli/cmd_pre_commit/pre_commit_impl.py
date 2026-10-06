@@ -39,13 +39,22 @@
 
 """Implements the functionalities behind the 'pre-commit' command"""
 
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 
 def run_pre_commit(
     args: list[str], stderr: int | None = None, stdout: int | None = None
 ) -> SubprocessResult:
-    """Run the waf binary with the provided arguments."""
+    """Run the pre-commit binary with the provided arguments.
+
+    Args:
+        args: List of arguments to pass to the pre-commit binary.
+        stderr: Optional file descriptor for standard error.
+        stdout: Optional file descriptor for standard output.
+
+    Returns:
+        The result of the pre-commit execution.
+    """
     cmd = ["pre-commit"] + args
     return run_process(cmd, cwd=PROJECT_ROOT, stdout=stdout, stderr=stderr)

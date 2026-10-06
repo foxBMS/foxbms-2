@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -59,8 +59,9 @@
 
 /*========== Includes =======================================================*/
 
-#include "battery_system_cfg.h"
 #include "database_cfg.h"
+
+#include "battery_system_cfg_types.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -86,19 +87,18 @@
  * superior control unit can take action and e.g., reduce the current until
  * the transition to error state takes place.
  *
- * The delay is not taken into account if severity level #DIAG_FATAL_ERROR of
- * type #DIAG_SEVERITY_LEVEL_e is configured in config array #diag_diagnosisIdConfiguration.
+ * The delay is **not** taken into account if severity level #DIAG_FATAL_ERROR
+ * of type #DIAG_SEVERITY_LEVEL_e is configured in config array
+ * #diag_diagnosisIdConfiguration.
  * For any other severity, #DIAG_DELAY_DISCARD can be used as a dummy value.
  */
-#define DIAG_DELAY_DISCARD (UINT32_MAX)
-/** no delay after error is detected, open contactors instantaneous */
-#define DIAG_NO_DELAY (0u)
 
-/** Defines for various delay times */
-#define DIAG_DELAY_100ms  (100u)
-#define DIAG_DELAY_200ms  (200u)
-#define DIAG_DELAY_1000ms (1000u)
-#define DIAG_DELAY_2000ms (1000u)
+#define DIAG_NO_DELAY      (0u)         /** no delay after error is detected, instantaneous reaction */
+#define DIAG_DELAY_100ms   (100u)       /** Delay reaction by 100 milliseconds */
+#define DIAG_DELAY_200ms   (200u)       /** Delay reaction by 200 milliseconds */
+#define DIAG_DELAY_1000ms  (1000u)      /** Delay reaction by 1000 milliseconds */
+#define DIAG_DELAY_2000ms  (2000u)      /** Delay reaction by 2000 milliseconds */
+#define DIAG_DELAY_DISCARD (UINT32_MAX) /** Dummy value for unused delays */
 
 /** Maximum number of the same errors that are logged */
 #define DIAG_MAX_ENTRIES_OF_ERROR (5)
@@ -116,6 +116,10 @@ extern const DIAG_DATABASE_SHIM_s diag_kDatabaseShim;
 
 /** list of diag IDs */
 typedef enum {
+    /* CAUTION
+     * This list needs to be kept in sync with the 'FatalErrorCode' choices in 'tools/dbc/foxbms.sym/dbc'
+     * All entries must be mapped except for DIAG_ID_MAX, which is a dummy entry to determine the size of the enum.
+     */
     DIAG_ID_SYSTEM_MONITORING, /*!< the system monitoring module has detected a deviation from task timing limits */
     DIAG_ID_AFE_SPI,           /*!< issues with the SPI communication of the AFE */
     DIAG_ID_AFE_COMMUNICATION_INTEGRITY, /*!< error on the communication integrity of the AFE, e.g., PEC error for AFE */
@@ -124,60 +128,51 @@ typedef enum {
     DIAG_ID_CAN_TIMING, /*!< the BMS does not receive CAN messages at all or not within the expected time frame */
     DIAG_ID_CAN_RX_QUEUE_FULL, /*!< the reception queue of the driver is full; no new messages can be received */
     DIAG_ID_CAN_TX_QUEUE_FULL, /*!< the transmission queue of the driver is full; all new messages will be lost */
-    DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, /*!< current counter measurements on the CAN bus are missing or not inside
-     expected timing constraints */
-    DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, /*!< energy counter measurements on the CAN bus are missing or not inside expected timing
-                                  constraints */
-    DIAG_ID_CURRENT_SENSOR_RESPONDING, /*!< current sensor measurements on the CAN bus are missing or not inside
-                                            expected   timing constraints */
-    DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE, /*!< redundant measurement of the cell voltages has returned implausible values
-                                          */
-    DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, /*!< the AFE driver has determined a cell voltage measurement to be implausible
-                                          */
-    DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, /*!< the AFE driver has determined a cell temperature measurement to be
-                                                implausible */
-    DIAG_ID_PLAUSIBILITY_CELL_TEMP, /*!< redundant measurement of the cell temperatures has returned implausible values
-                                     */
-    DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD,     /*!< the spread (difference between min and max values) of the cell
-                                                     voltages is implausibly high */
-    DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD, /*!< the spread (difference between min and max values) of the cell
-                                                     temperatures is implausibly high */
-    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL,         /*!< Cell voltage limits violated */
-    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL,         /*!< Cell voltage limits violated */
-    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL,         /*!< Cell voltage limits violated */
-    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL,        /*!< Cell voltage limits violated */
-    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL,        /*!< Cell voltage limits violated */
-    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL,        /*!< Cell voltage limits violated */
-    DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL,      /*!< Temperature limits violated */
-    DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL,      /*!< Temperature limits violated */
-    DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL,      /*!< Temperature limits violated */
-    DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL,   /*!< Temperature limits violated */
-    DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL,   /*!< Temperature limits violated */
-    DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL,   /*!< Temperature limits violated */
-    DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL,     /*!< Temperature limits violated */
-    DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL,     /*!< Temperature limits violated */
-    DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL,     /*!< Temperature limits violated */
-    DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL,  /*!< Temperature limits violated */
-    DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL,  /*!< Temperature limits violated */
-    DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL,  /*!< Temperature limits violated */
-    DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL,          /*!< Overcurrent on cell-level */
-    DIAG_ID_OVERCURRENT_CHARGE_CELL_RSL,          /*!< Overcurrent on cell-level */
-    DIAG_ID_OVERCURRENT_CHARGE_CELL_MOL,          /*!< Overcurrent on cell-level */
-    DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL,       /*!< Overcurrent on cell-level */
-    DIAG_ID_OVERCURRENT_DISCHARGE_CELL_RSL,       /*!< Overcurrent on cell-level */
-    DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MOL,       /*!< Overcurrent on cell-level */
-    DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL,        /*!< Overcurrent on string-level */
-    DIAG_ID_STRING_OVERCURRENT_CHARGE_RSL,        /*!< Overcurrent on string-level */
-    DIAG_ID_STRING_OVERCURRENT_CHARGE_MOL,        /*!< Overcurrent on string-level */
-    DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL,     /*!< Overcurrent on string-level */
-    DIAG_ID_STRING_OVERCURRENT_DISCHARGE_RSL,     /*!< Overcurrent on string-level */
-    DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MOL,     /*!< Overcurrent on string-level */
-    DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL,          /*!< Overcurrent on string-level */
-    DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL,       /*!< Overcurrent on pack-level */
-    DIAG_ID_CURRENT_ON_OPEN_STRING,               /*!< Current flowing on open string */
-    DIAG_ID_DEEP_DISCHARGE_DETECTED,              /*!< the deep discharge flag has been set in persistent memory */
+    DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, /*!< current counter measurements on the CAN bus are missing or not inside expected timing constraints */
+    DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, /*!< energy counter measurements on the CAN bus are missing or not inside expected timing constraints */
+    DIAG_ID_CURRENT_SENSOR_RESPONDING, /*!< current sensor measurements on the CAN bus are missing or not inside expected timing constraints */
+    DIAG_ID_REDUNDANCY_CELL_VOLTAGE, /*!< redundant measurement of the cell voltages has returned implausible values */
+    DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, /*!< the AFE driver has determined a cell voltage measurement to be implausible */
+    DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, /*!< the AFE driver has determined a cell temperature measurement to be implausible */
+    DIAG_ID_REDUNDANCY_CELL_TEMPERATURE, /*!< redundant measurement of the cell temperatures has returned implausible values */
+    DIAG_ID_BMS_VALUES_CELL_VOLTAGE_SPREAD, /*!< the spread between min and max values cell voltages is implausibly high */
+    DIAG_ID_BMS_VALUES_CELL_TEMPERATURE_SPREAD, /*!< the spread between min and max values of the cell temperatures is implausibly high */
+    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL,       /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL,       /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL,       /*!< Cell voltage limits violated */
+    DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL,     /*!< Temperature limits violated */
+    DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL,     /*!< Temperature limits violated */
+    DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL,     /*!< Temperature limits violated */
+    DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL,  /*!< Temperature limits violated */
+    DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL,  /*!< Temperature limits violated */
+    DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL,  /*!< Temperature limits violated */
+    DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL,    /*!< Temperature limits violated */
+    DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL,    /*!< Temperature limits violated */
+    DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL,    /*!< Temperature limits violated */
+    DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL, /*!< Temperature limits violated */
+    DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL, /*!< Temperature limits violated */
+    DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL, /*!< Temperature limits violated */
+    DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL,         /*!< Overcurrent on cell-level */
+    DIAG_ID_OVERCURRENT_CHARGE_CELL_RSL,         /*!< Overcurrent on cell-level */
+    DIAG_ID_OVERCURRENT_CHARGE_CELL_MOL,         /*!< Overcurrent on cell-level */
+    DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL,      /*!< Overcurrent on cell-level */
+    DIAG_ID_OVERCURRENT_DISCHARGE_CELL_RSL,      /*!< Overcurrent on cell-level */
+    DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MOL,      /*!< Overcurrent on cell-level */
+    DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL,       /*!< Overcurrent on string-level */
+    DIAG_ID_STRING_OVERCURRENT_CHARGE_RSL,       /*!< Overcurrent on string-level */
+    DIAG_ID_STRING_OVERCURRENT_CHARGE_MOL,       /*!< Overcurrent on string-level */
+    DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL,    /*!< Overcurrent on string-level */
+    DIAG_ID_STRING_OVERCURRENT_DISCHARGE_RSL,    /*!< Overcurrent on string-level */
+    DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MOL,    /*!< Overcurrent on string-level */
+    DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL,         /*!< Overcurrent on string-level */
+    DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL,      /*!< Overcurrent on pack-level */
+    DIAG_ID_CURRENT_ON_OPEN_STRING,              /*!< Current flowing on open string */
+    DIAG_ID_DEEP_DISCHARGE_DETECTED,             /*!< the deep discharge flag has been set in persistent memory */
     DIAG_ID_AFE_OPEN_WIRE, /*!< an open (broken) sense wire has been detected on the battery cell measurement */
-    DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, /*!< the plausibility module has decided that the pack voltage is implausible */
+    DIAG_ID_BMS_VALUES_PACK_VOLTAGE, /*!< pack voltage is implausible */
     DIAG_ID_INTERLOCK_FEEDBACK, /*!< the interlock feedback indicates it to be open (but it is expected to be closed) */
     DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, /*!< the feedback on a string minus contactor does not match the expected
                                                 value */
@@ -223,7 +218,11 @@ typedef enum {
     DIAG_ID_AEROSOL_ALERT,                 /*!< high aerosol concentration detected */
     DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, /*!< Supply voltage of clamp 30C lost */
     DIAG_ID_AFE_ALARM,                     /*!< Alarm line showed an error occurred */
-    DIAG_ID_MAX,                           /*!< MAX indicator - do not change */
+    /* CAUTION
+     * This list needs to be kept in sync with the 'FatalErrorCode' choices in 'tools/dbc/foxbms.sym/dbc'
+     * All entries must be mapped except for DIAG_ID_MAX, which is a dummy entry to determine the size of the enum.
+     */
+    DIAG_ID_MAX, /*!< MAX indicator - do not change */
 } DIAG_ID_e;
 
 /** diagnosis check result (event) */
@@ -244,17 +243,6 @@ typedef enum {
     DIAG_SYSTEM, /**< diag event impact is system related e.g., can timing */
     DIAG_STRING, /**< diag event impact is string related e.g., overvoltage in string x */
 } DIAG_IMPACT_LEVEL_e;
-
-/**
- * @def     DIAG_CAN_TIMING
- * @brief   Value that is written into the field that describes whether CAN
- *          timing diag entries should be generated
- */
-#if BS_CHECK_CAN_TIMING == true
-#define DIAG_CAN_TIMING (DIAG_EVALUATION_ENABLED)
-#else
-#define DIAG_CAN_TIMING (DIAG_EVALUATION_DISABLED)
-#endif
 
 /** diagnosis severity level */
 typedef enum {

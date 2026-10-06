@@ -7,7 +7,7 @@ Build Environment
 =================
 
 In order to have a consistent build environment on every developer machine,
-|foxbms| provides predefined Python `venv` environments, that ships some tools
+|foxbms| provides predefined Python *venv* environments, that ships some tools
 that are additionally needed to build |foxbms|.
 
 A certain |foxbms| version requires certain software with in exact versions as
@@ -15,15 +15,17 @@ the project specifies them.
 By that, we are sure that every commit in the repository can be built the same
 way on any machine that has all needed dependencies.
 
-Until version 1.6.0 |foxbms| used `conda` environments.
-Starting with version 1.7.0 |foxbms| uses now `venv` to create virtual
+Until version 1.6.0 |foxbms| used *conda* environments.
+Starting with version 1.7.0 |foxbms| uses now *venv* to create virtual
 environments.
 The following environments are/were used by |foxbms|.
 
 +---------------------+--------+--------+-------+
 | Environment Name    | From   | To     | Type  |
 +=====================+========+========+=======+
-| 2025-11-pale-fox    | 1.10.0 | x.y.z  | venv  |
+| 2026-07-pale-fox    | 1.11.0 | latest | venv  |
++---------------------+--------+--------+-------+
+| 2025-11-pale-fox    | 1.10.0 | 1.11.0 | venv  |
 +---------------------+--------+--------+-------+
 | 2025-09-pale-fox \* | \-     | \-     | venv  |
 +---------------------+--------+--------+-------+

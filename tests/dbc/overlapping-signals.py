@@ -51,9 +51,10 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 class OverlappingSignals(unittest.TestCase):
     """Derived test case"""
 
-    def test_overlapping_signals(self):
-        """check that cantools raises an error if signals are overlapping in a
-        message"""
+    def test_overlapping_signals(self) -> None:
+        """Check that cantools raises an error if signals are overlapping in a
+        message
+        """
         self.assertRaises(
             cantools.database.errors.Error,
             load_file,

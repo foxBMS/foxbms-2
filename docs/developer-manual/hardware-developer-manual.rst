@@ -7,8 +7,9 @@ Hardware Developer Manual
 =========================
 
 This developer manual describes the development workflow of the |foxbms|
-hardware components. Changes to this document have to be tracked in version
-control and have to go through change management.
+hardware components.
+Changes to this document have to be tracked in version control and have to go
+through change management.
 
 Project naming scheme
 ---------------------
@@ -25,7 +26,7 @@ exist.
 Design and development process
 ------------------------------
 
-The designer has to adhere to best practice during the design.
+The designer **MUST** adhere to best practices during the design.
 This entails using the pre-defined set of templates, design rules and release
 processes.
 Releasing through the release process of Altium helps to make sure that all
@@ -54,7 +55,7 @@ The release process has the following steps:
 Modification process
 --------------------
 
-If modifications to the hardware are necessary, the following process has to
+If modifications to the hardware are necessary, the following process **MUST**
 be followed:
 
 #. Create an issue in the issue tracker of the hardware component project.
@@ -75,8 +76,8 @@ Basics
 - Is a layer marker on the PCB?
 - Is a white field for marking the assembled board on the PCB?
 - Is the name of the component on the PCB?
-- Is a release version on the board? Is the version corresponding to the
-  parameter in the Altium project?
+- Is a release version on the board?
+  Is the version corresponding to the parameter in the Altium project?
 - Are fiducial markers on the board?
 - Are mounting points specified in the board?
 

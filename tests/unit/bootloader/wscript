@@ -38,20 +38,20 @@
 # - "This product is derived from foxBMS®"
 
 
+import gcov
 from waflib import Utils
 from waflib.Build import BuildContext
 from waflib.Tools import waf_unit_test
 
 
 def build(bld: BuildContext) -> None:
-    bld.recurse(["driver", "engine", "hal", "main"])
+    bld.recurse("hal")
 
-    bld.cmock_cfg = bld.srcnode.find_resource("conf/unit/bootloader_cmock.yml")
-    bld.unity_cfg = bld.srcnode.find_resource("conf/unit/unity.yml")
-    bld.gcovr_cfg = bld.srcnode.find_resource("conf/unit/bootloader_gcovr.cfg")
+    bld.cmock_cfg = bld.srcnode.find_node("conf/unit/bootloader_cmock.yml")
+    bld.unity_cfg = bld.srcnode.find_node("conf/unit/unity.yml")
+    bld.gcovr_cfg = bld.srcnode.find_node("conf/unit/bootloader_gcovr.cfg")
 
-    bld.objects(
-        features="c",
+    bld(
         target="bootloader-c-test-constants",
         export_includes=[
             bld.srcnode.find_node("src/bootloader/main/include"),
@@ -66,10 +66,42 @@ def build(bld: BuildContext) -> None:
             "FAS_ASSERT_LEVEL=2",
             "UNITY_INCLUDE_EXEC_TIME",
         ],
-        use=["foxbms-bootloader-hal"],
+        use=[f"{bld.env.APPNAME.lower()}-hal"],
     )
     if not Utils.is_win32:
         t = bld.get_tgen_by_name("bootloader-c-test-constants")  # cspell:ignore tgen
         t.export_defines.append("_POSIX_C_SOURCE=200809L")
     bld.add_post_fun(waf_unit_test.summary)
+    bld.add_post_fun(gcov.test_stdout_stderr)
     bld.add_post_fun(waf_unit_test.set_exit_code)
+
+    if bld.env.VS_CODE_SHELL:
+        bld(
+            features="vscode",
+            target="embedded-test-bootloader",
+            vscode_dir=bld.path.make_node(".vscode"),
+            use_compiler_defines=True,
+            include_dirs=[
+                f"build/{bld.variant}/mocks/test_*/**",
+                f"build/{bld.variant}/tests/unit/bootloader/hal/include",
+                "src/version",
+                "tests/unit/support/*",
+                "tools/cmock/src",
+                "tools/cmock/vendor/c_exception/lib",
+                "tools/cmock/vendor/unity/src",
+            ],
+            glob_patterns=[
+                "src/bootloader/**",
+                "tests/unit/bootloader/**/include",
+            ],
+            pylint=True,
+            python_extra_paths=True,
+            files_exclude={
+                "**/build/**": True,
+                "**/.lock-waf_*_build": True,
+                ".vscode/**": True,
+            },
+            build_tasks=True,
+            build_launch=True,
+            environment="unit_test_gcc",
+        )

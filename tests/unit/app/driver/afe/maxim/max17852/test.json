@@ -1,0 +1,38 @@
+[
+  {
+    "source": [
+      "src/app/driver/afe/maxim/common/mxm_1785x.c",
+      "src/app/driver/afe/maxim/common/mxm_1785x_tools.c",
+      "src/app/driver/afe/maxim/max17852/mxm_17852.c",
+      "src/app/engine/config/database_cfg.c"
+    ],
+    "test": "test_mxm_17852.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/maxim/common",
+      "src/app/driver/afe/maxim/common/config",
+      "src/app/driver/config",
+      "src/app/driver/spi",
+      "src/app/driver/ts/api",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/driver/afe/api/afe_plausibility.h",
+      "src/app/driver/afe/maxim/common/config/mxm_cfg.h",
+      "src/app/driver/afe/maxim/common/mxm_17841b.h",
+      "src/app/driver/afe/maxim/common/mxm_41b_register_map.h",
+      "src/app/driver/afe/maxim/common/mxm_battery_management.h",
+      "src/app/driver/afe/maxim/common/mxm_crc8.h",
+      "src/app/driver/afe/maxim/common/mxm_registry.h",
+      "src/app/driver/ts/api/tsi.h",
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/main/include/fassert.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_MAXIM=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+    ]
+  }
+]

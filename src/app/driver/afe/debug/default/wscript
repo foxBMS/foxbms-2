@@ -37,35 +37,49 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
 
     bld.recurse("api")
 
-    includes = (
-        [
-            "../../../mcu",
-            "../../../../application/config",
-            "../../../../main/include",
-            "../../../../engine/config",
-            "../../../../engine/database",
-            "../../../../engine/diag",
-            "../../../../task/os",
-        ]
-        + [
-            bld.root.find_node(i).path_from(bld.path)
-            for i in bld.env.FOXBMS_INCLUDES_AFE
-        ]
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
-    )
+    includes = [
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/engine/diag"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "debug_default"
+    use = [
+        f"{lp}hal",
+        f"{ip}afe",
+        f"{ip}rtos-kernel",
+        f"{cp}battery_cell_cfg",
+        f"{cp}battery_system_cfg",
+    ]
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
+    )
+
+    bld(
+        export_includes=[
+            bld.path,
+            bld.path.find_node("api"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+        ],
+        target=f"{ip}afe-debug_default",
     )
 
     use = [

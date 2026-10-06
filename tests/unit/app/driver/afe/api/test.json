@@ -1,0 +1,13 @@
+[
+  {
+    "source": "src/app/driver/afe/api/afe_plausibility.c",
+    "test": "test_afe_plausibility.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/ts/api"
+    ],
+    "mocks": [
+      "src/app/driver/ts/api/tsi.h"
+    ]
+  }
+]

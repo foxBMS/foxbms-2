@@ -3,7 +3,7 @@
 
 
 .. |local_bms_master_version| replace:: ``v1.2.2``
-.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|-based |bms-master|
 .. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
 
 .. _TI_TMS570_BASED_BMS_MASTER_V1_2_2_PINOUT:
@@ -43,8 +43,7 @@ The pinout of this |bms-master| is shown in the
 :numref:`ti-tms570lc4357-v1.2.2_pinout-img` and
 :numref:`ti-tms570lc4357-v1.2.2_pinout-table`.
 
-.. drawio-figure:: ./pinout/ti-tms570lc4357-v1.2.2_pinout.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/hardware/master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-v1.2.2/pinout/ti-tms570lc4357-v1.2.2_pinout.svg
    :alt: ti-tms570lc4357-v1.2.2_pinout-img
    :name: ti-tms570lc4357-v1.2.2_pinout-img
    :width: 1040px

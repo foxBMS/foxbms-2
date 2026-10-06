@@ -43,13 +43,16 @@
  * @file    flash_cfg.c
  * @author  foxBMS Team
  * @date    2023-08-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FLASH
  *
  * @brief   Implementation of Flash configuration
- * @details TODO
+ * @details Provides the constant flash-bank and sector description tables for
+ *          the target device. The flash driver uses this data to validate
+ *          addresses, determine sector geometry, and select the correct memory
+ *          region during erase and program operations.
  */
 
 /*========== Includes =======================================================*/

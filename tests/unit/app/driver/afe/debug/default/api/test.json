@@ -1,0 +1,27 @@
+[
+  {
+    "source": "src/app/driver/afe/debug/default/api/debug_default_afe_dma.c",
+    "test": "test_debug_default_afe_dma.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/debug/default",
+      "src/app/driver/config"
+    ],
+    "mocks": [
+      "src/app/driver/afe/debug/default/debug_default.h",
+      "src/app/main/include/fassert.h"
+    ]
+  },
+  {
+    "source": "src/app/driver/afe/debug/default/api/debug_default_afe.c",
+    "test": "test_debug_default_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/debug/default"
+    ],
+    "mocks": [
+      "src/app/driver/afe/debug/default/debug_default.h",
+      "src/app/engine/database/database.h"
+    ]
+  }
+]

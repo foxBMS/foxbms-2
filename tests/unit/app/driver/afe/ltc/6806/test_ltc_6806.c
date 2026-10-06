@@ -43,8 +43,8 @@
  * @file    test_ltc_6806.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -77,20 +77,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ltc_6806.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/6806/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common/config")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -144,7 +130,7 @@ void testLTC_SaveVoltages(void) {
         }
     }
 
-    DIAG_CheckEvent_ExpectAndReturn(
+    DIAG_ReportResultToHandler_ExpectAndReturn(
         cellVoltageMeasurementValid, DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_STRING, 0u, STD_OK);
     DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.cellVoltage, STD_OK);
     LTC_SaveVoltages(&ltc_stateBase, 0u);
@@ -161,7 +147,7 @@ void testLTC_SaveTemperatures(void) {
         }
     }
 
-    DIAG_CheckEvent_ExpectAndReturn(
+    DIAG_ReportResultToHandler_ExpectAndReturn(
         cellTemperatureMeasurementValid, DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, DIAG_STRING, 0u, STD_OK);
     DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.cellTemperature, STD_OK);
     LTC_SaveTemperatures(&ltc_stateBase, 0u);

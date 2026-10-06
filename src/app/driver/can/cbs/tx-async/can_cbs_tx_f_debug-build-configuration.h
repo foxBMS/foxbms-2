@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_f_debug-build-configuration.h
  * @author  foxBMS Team
  * @date    2022-11-16 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -57,7 +57,11 @@
 
 /*========== Includes =======================================================*/
 
-#include "can_cfg.h"
+#include "fstd_types.h"
+
+#ifdef UNITY_UNIT_TEST
+#include <stdint.h>
+#endif
 
 /*========== Macros and Definitions =========================================*/
 
@@ -111,8 +115,6 @@ extern void TEST_CANTX_SetBatterySystemMuxCurrentSensorMessageData(uint64_t *pMe
 extern void TEST_CANTX_SetBatterySystemMuxFuseMessageData(uint64_t *pMessageData);
 
 extern void TEST_CANTX_SetBatterySystemMuxMaxCurrentMessageData(uint64_t *pMessageData);
-
-extern void TEST_CANTX_SetBatterySystemMuxOpenWireCheckMessageData(uint64_t *pMessageData);
 
 extern void TEST_CANTX_SetBatterySystemMuxTotalNumbersMessageData(uint64_t *pMessageData);
 #endif

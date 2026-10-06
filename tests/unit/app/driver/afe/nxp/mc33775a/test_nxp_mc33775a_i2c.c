@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_i2c.c
  * @author  foxBMS Team
  * @date    2025-03-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -77,19 +77,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("nxp_mc33775a_i2c.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x/vendor")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -154,8 +141,8 @@ void testN77x_TransmitI2c(void) {
     /* ======= Routine tests =============================================== */
     AFE_I2C_QUEUE_s transactionData = {0};
     N77X_STATE_s n77xTestState      = {
-             .firstMeasurementMade = false,
-             .pSpiTxSequence       = spi_nxp77xInterfaceTx,
+        .firstMeasurementMade = false,
+        .pSpiTxSequence       = spi_nxp77xInterfaceTx,
     };
 
     /* ======= RT1/1 ======= */

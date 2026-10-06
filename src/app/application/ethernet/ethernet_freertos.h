@@ -43,8 +43,8 @@
  * @file    ethernet_freertos.h
  * @author  foxBMS Team
  * @date    2026-01-23 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  ETH
  *

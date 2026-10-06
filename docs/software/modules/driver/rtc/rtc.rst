@@ -1,7 +1,7 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _RTC:
+.. _RTC_DRIVER:
 
 RTC
 ===

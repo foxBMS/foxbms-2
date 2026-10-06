@@ -55,12 +55,12 @@ class PARQUETHandler(DataHandlerInterface):
     """Implementation of the PARQUETHandler"""
 
     def __init__(self) -> None:
-        """Creates the PARQUET handler object"""
+        """Create the PARQUET handler object."""
 
     def get_data(self, file_path: Path, no_tmp: bool = True) -> pd.DataFrame:  # noqa: ARG002
-        """Read the given file and returns the contained data."""
+        """Read the given file and return the contained data."""
         try:
-            return pd.read_parquet(file_path, engine="pyarrow")
+            return pd.read_parquet(file_path, engine="pyarrow", to_pandas_kwargs={})
         except ArrowInvalid as e:
             recho(f"Parquet Error in file '{file_path!s}': {e}")
         except OSError as e:

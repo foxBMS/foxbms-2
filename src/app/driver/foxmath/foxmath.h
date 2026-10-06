@@ -43,8 +43,8 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -82,6 +82,7 @@
 #define UNIT_CONVERSION_FACTOR_10_FLOAT        (10.0f)
 #define UNIT_CONVERSION_FACTOR_100_FLOAT       (100.0f)
 #define UNIT_CONVERSION_FACTOR_1000_FLOAT      (1000.0f)
+#define UNIT_CONVERSION_FACTOR_3600_FLOAT      (3600.0f)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -155,6 +156,14 @@ extern uint8_t MATH_MinimumOfTwoUint8_t(const uint8_t value1, const uint8_t valu
  * @return  minimum value
  */
 extern uint16_t MATH_MinimumOfTwoUint16_t(const uint16_t value1, const uint16_t value2);
+
+/**
+ * @brief   Returns the minimum of the passed uint32_t values
+ * @param[in] value1   value 1
+ * @param[in] value2   value 2
+ * @return  minimum value
+ */
+extern uint32_t MATH_MinimumOfTwoUint32_t(const uint32_t value1, const uint32_t value2);
 
 /**
  * @brief   Returns the absolute value of passed int32_t value

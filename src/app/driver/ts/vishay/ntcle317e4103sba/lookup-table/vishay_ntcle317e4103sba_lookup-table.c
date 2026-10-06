@@ -43,8 +43,8 @@
  * @file    vishay_ntcle317e4103sba_lookup-table.c
  * @author  foxBMS Team
  * @date    2021-11-03 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -71,8 +71,8 @@
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV) {
-    return TS_Vis01GetTemperatureFromLut(adcVoltage_mV);
+extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
+    return TS_Vis01GetTemperatureFromLut(adcVoltage_mV, supplyVoltage_V);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

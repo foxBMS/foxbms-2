@@ -6,5 +6,7 @@ Tool                        ; Class                         ; Criticality ; Crit
 |vs-code|                   ; text editor                   ; T1          ; \-
 |waf|                       ; build automation system       ; T3          ; controls build process\; generates version dependent code
 sphinx                      ; documentation tools           ; T1          ; just a rendering tool for the documentation text files
-|ceedling|                  ; unit testing framework        ; T2          ; Orchestrating the unit test build including mocking
+|cmock|                     ; mocking framework             ; T2          ; generates mock functions for isolated C unit testing
+|unity|                     ; unit testing framework        ; T2          ; Executes unit test assertions and reports test results
+|c_exception|               ; exception handling library    ; T2          ; provides exception handling mechanism for C unit tests
 *Custom HIL implementation* ; test runner                   ; T3          ; verifies the application behavior

@@ -43,13 +43,16 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
  * @prefix  FSYS
  *
  * @brief   Function to switch between user mode and privilege mode
- * @details TODO
+ * @details This header declares the low-level interface for switching the CPU
+ *          between user mode and privileged mode.
+ *          The implementation is provided in assembler because it depends on
+ *          processor-specific status-register handling.
  */
 
 #ifndef FOXBMS__FSYSTEM_H_

@@ -43,8 +43,8 @@
  * @file    adi_ades183x_cfg.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ADI
  *
@@ -64,6 +64,88 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+/**
+ * Default multiplexer measurement sequence
+ * Must be adapted to the application
+ */
+ADI_MUX_CH_CFG_s adi_muxSequence[ADI_MUX_SEQUENCE_LENGTH] = {
+    /*  multiplexer 0 measurement */
+    {
+        .muxId      = 0,
+        .muxChannel = 0,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 1,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 2,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 3,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 4,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 5,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 6,
+    },
+    {
+        .muxId      = 0,
+        .muxChannel = 7,
+    },
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > ADI_MUX_GPIOS_PER_MUX
+    /* multiplexer 1 measurement: switch between multiplexers for more temperature sensors */
+    {
+        .muxId      = 0,
+        .muxChannel = ADI_MUX_DISABLE_VALUE, /* disable enabled mux */
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 0,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 1,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 2,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 3,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 4,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 5,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 6,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = 7,
+    },
+    {
+        .muxId      = 1,
+        .muxChannel = ADI_MUX_DISABLE_VALUE, /* disable enabled mux */
+    },
+#endif
+};
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -73,7 +155,7 @@
 
 int16_t ADI_ConvertGpioVoltageToTemperature(int16_t voltage_mV) {
     /* AXIVION Routine Generic-MissingParameterAssert: voltage_mV: parameter accepts whole range */
-    return TSI_GetTemperature((uint16_t)voltage_mV);
+    return TSI_GetTemperature((uint16_t)voltage_mV, SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

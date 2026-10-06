@@ -43,8 +43,8 @@
  * @file    test_debug_can.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,31 +70,59 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("debug_can.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/debug/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/engine/config")
-TEST_INCLUDE_PATH("../../src/app/engine/database")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 OS_QUEUE ftsk_canToAfeCellVoltagesQueue;
 OS_QUEUE ftsk_canToAfeCellTemperaturesQueue;
 
-static DATA_BLOCK_CELL_VOLTAGE_s decan_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-static DATA_BLOCK_CELL_VOLTAGE_s decan_cellVoltageFromRead = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-static DATA_BLOCK_CELL_TEMPERATURE_s decan_cellTemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
-static DATA_BLOCK_CELL_TEMPERATURE_s decan_cellTemperatureFromRead = {
-    .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+/* The production functions use local queue and database objects.
+ * These test-local values keep expected queue order and interaction counts
+ * without depending on the addresses of those local objects. */
+static QueueHandle_t decan_expectedQueues[2];
+static uint8_t decan_expectedQueueCount;
+static uint8_t decan_receivedQueueCount;
+static uint8_t decan_readDataBlockCount;
+static uint8_t decan_writeDataBlockCount;
+
+/* Stubs accept production-local destinations while validating stable call
+ * arguments that are relevant to the test. */
+static OS_STD_RETURN_e testReceiveFromQueue(
+    QueueHandle_t xQueue,
+    void *const pvBuffer,
+    uint32_t ticksToWait,
+    int cmock_num_calls) {
+    (void)cmock_num_calls;
+    /* One receive operation is configured per test, so this also rejects an
+     * unexpected extra queue call before indexing the expected queue array. */
+    TEST_ASSERT_TRUE(decan_receivedQueueCount < decan_expectedQueueCount);
+    TEST_ASSERT_EQUAL(decan_expectedQueues[decan_receivedQueueCount], xQueue);
+    TEST_ASSERT_NOT_NULL(pvBuffer);
+    TEST_ASSERT_EQUAL(DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, ticksToWait);
+    decan_receivedQueueCount++;
+    return OS_SUCCESS;
+}
+
+static STD_RETURN_TYPE_e testReadDataBlock(void *pDataToReceiver0, int cmock_num_calls) {
+    (void)cmock_num_calls;
+    TEST_ASSERT_NOT_NULL(pDataToReceiver0);
+    decan_readDataBlockCount++;
+    return STD_OK;
+}
+
+static STD_RETURN_TYPE_e testWriteDataBlock(void *pDataFromSender0, int cmock_num_calls) {
+    (void)cmock_num_calls;
+    TEST_ASSERT_NOT_NULL(pDataFromSender0);
+    decan_writeDataBlockCount++;
+    return STD_OK;
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    /* Each test installs its own stubs and starts with clean interaction counts. */
+    decan_expectedQueueCount  = 0u;
+    decan_receivedQueueCount  = 0u;
+    decan_readDataBlockCount  = 0u;
+    decan_writeDataBlockCount = 0u;
 }
 
 void tearDown(void) {
@@ -168,6 +196,8 @@ void testDECAN_ConvertIndexForVoltage(void) {
     /* Because the following test requires: number of strings > 1;
     number of modules per string > 1; To ensure the test can be run,
     the defines will be checked first */
+    /* These constants document the topology selected by test.json: four
+     * modules per string, two strings, and 18 cell blocks per module. */
     TEST_ASSERT_EQUAL_INT16(4, BS_NR_OF_MODULES_PER_STRING);
     TEST_ASSERT_EQUAL_INT16(2, BS_NR_OF_STRINGS);
     TEST_ASSERT_EQUAL_INT16(18, BS_NR_OF_CELL_BLOCKS_PER_MODULE);
@@ -181,6 +211,7 @@ void testDECAN_ConvertIndexForVoltage(void) {
     /* ======= RT1/5: oneNumIdxOfVoltage=0; s=0, m=0, cb=0 */
     oneNumIdxOfVoltage = 0;
     TEST_DECAN_ConvertIndexForVoltage(&s, &m, &cb, oneNumIdxOfVoltage);
+    /* Database indexes are zero-based, so the first flat index maps to 0/0/0. */
     TEST_ASSERT_EQUAL_INT16(0, s);
     TEST_ASSERT_EQUAL_INT16(0, m);
     TEST_ASSERT_EQUAL_INT16(0, cb);
@@ -249,6 +280,7 @@ void testDECAN_ConvertIndexForTemperature(void) {
     /* ======= RT1/5: oneNumIdxOfTemperature=0; s=0, m=0, ts=0 */
     oneNumIdxOfTemperature = 0;
     TEST_DECAN_ConvertIndexForTemperature(&s, &m, &ts, oneNumIdxOfTemperature);
+    /* The first flat temperature index likewise maps to the first 0/0/0 entry. */
     TEST_ASSERT_EQUAL_INT16(0, s);
     TEST_ASSERT_EQUAL_INT16(0, m);
     TEST_ASSERT_EQUAL_INT16(0, ts);
@@ -295,16 +327,19 @@ void testDECAN_ConvertIndexForTemperature(void) {
 void testDECAN_ReceiveCanCellVoltages(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1: test if the function can be successfully run or not */
-    uint64_t messageData = 0u;
-    OS_ReceiveFromQueue_ExpectAndReturn(
-        ftsk_canToAfeCellVoltagesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    decan_expectedQueues[0]  = ftsk_canToAfeCellVoltagesQueue;
+    decan_expectedQueueCount = 1u;
+    OS_ReceiveFromQueue_StubWithCallback(testReceiveFromQueue);
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltage, STD_OK);
-    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
+    /* The callbacks accept production-local database blocks and count the
+     * reads and writes performed by the receive operation. */
+    DATA_Write1DataBlock_StubWithCallback(testWriteDataBlock);
+    DATA_Read1DataBlock_StubWithCallback(testReadDataBlock);
     TEST_ASSERT_EQUAL(STD_OK, TEST_DECAN_ReceiveCanCellVoltages());
+    TEST_ASSERT_EQUAL(0u, decan_readDataBlockCount);
+    TEST_ASSERT_EQUAL(1u, decan_writeDataBlockCount);
 }
 
 /**
@@ -316,16 +351,19 @@ void testDECAN_ReceiveCanCellVoltages(void) {
 void testDECAN_ReceiveCanCellTemperatures(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1: test if the function can be successfully run or not */
-    uint64_t messageData = 0u;
-    OS_ReceiveFromQueue_ExpectAndReturn(
-        ftsk_canToAfeCellTemperaturesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    decan_expectedQueues[0]  = ftsk_canToAfeCellTemperaturesQueue;
+    decan_expectedQueueCount = 1u;
+    OS_ReceiveFromQueue_StubWithCallback(testReceiveFromQueue);
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperature, STD_OK);
-    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
+    /* The production-local database blocks are not addressable from this test,
+     * so callbacks keep the interaction counts explicit instead. */
+    DATA_Write1DataBlock_StubWithCallback(testWriteDataBlock);
+    DATA_Read1DataBlock_StubWithCallback(testReadDataBlock);
     TEST_ASSERT_EQUAL(STD_OK, TEST_DECAN_ReceiveCanCellTemperatures());
+    TEST_ASSERT_EQUAL(0u, decan_readDataBlockCount);
+    TEST_ASSERT_EQUAL(1u, decan_writeDataBlockCount);
 }
 
 /**
@@ -355,19 +393,15 @@ void testDECAN_Initialize(void) {
 void testDECAN_TriggerAfe(void) {
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    uint64_t messageData = 0u;
-    OS_ReceiveFromQueue_ExpectAndReturn(
-        ftsk_canToAfeCellVoltagesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltage, STD_OK);
-    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
-
-    messageData = 0u;
-    OS_ReceiveFromQueue_ExpectAndReturn(
-        ftsk_canToAfeCellTemperaturesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperature, STD_OK);
-    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
-    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
+    decan_expectedQueues[0]  = ftsk_canToAfeCellVoltagesQueue;
+    decan_expectedQueues[1]  = ftsk_canToAfeCellTemperaturesQueue;
+    decan_expectedQueueCount = 2u;
+    /* One queue stub validates both queue calls in order; database stubs
+     * accept each production-local block and record the expected interactions.
+     */
+    OS_ReceiveFromQueue_StubWithCallback(testReceiveFromQueue);
+    DATA_Write1DataBlock_StubWithCallback(testWriteDataBlock);
+    DATA_Read1DataBlock_StubWithCallback(testReadDataBlock);
 
     OS_GetTickCount_ExpectAndReturn(0u);
     uint32_t currentTime = 0u;
@@ -376,4 +410,7 @@ void testDECAN_TriggerAfe(void) {
     STD_RETURN_TYPE_e returnValue = STD_NOT_OK;
     returnValue                   = DECAN_TriggerAfe();
     TEST_ASSERT_EQUAL(STD_OK, returnValue);
+    /* TriggerAfe writes each received database block once. */
+    TEST_ASSERT_EQUAL(0u, decan_readDataBlockCount);
+    TEST_ASSERT_EQUAL(2u, decan_writeDataBlockCount);
 }

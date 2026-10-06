@@ -43,8 +43,8 @@
  * @file    test_ftask_freertos_afe.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,15 +65,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ftask_freertos.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** size of storage area for the database queue */
@@ -95,9 +86,6 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 #define FTSK_TASK_I2C_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_I2C_STACK_SIZE_IN_BYTES)
 /** @brief Stack size of continuously running task for AFEs */
 #define FTSK_TASK_AFE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_AFE_STACK_SIZE_IN_BYTES)
-
-OS_TASK_HANDLE ftsk_taskHandleI2c;
-OS_TASK_HANDLE ftsk_taskHandleAfe;
 
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
     OS_PRIORITY_REAL_TIME,

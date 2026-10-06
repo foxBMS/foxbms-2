@@ -1,0 +1,103 @@
+[
+  {
+    "source": "src/app/application/plausibility/validate-battery-voltage.c",
+    "test": "test_validate-battery-voltage.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/sps",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h"
+    ]
+  },
+  {
+    "source": "src/app/application/plausibility/validate-cell-temperature.c",
+    "test": "test_validate-cell-temperature.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/engine/diag/diag.h"
+    ]
+  },
+  {
+    "source": "src/app/application/plausibility/validate-cell-voltage.c",
+    "test": "test_validate-cell-voltage.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/engine/diag/diag.h"
+    ]
+  },
+  {
+    "source": "src/app/application/plausibility/validate-current-measurement.c",
+    "test": "test_validate-current-measurement.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/engine/database",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/engine/database/database_helper.h",
+      "src/app/engine/diag/diag.h"
+    ]
+  },
+  {
+    "source": "src/app/application/plausibility/validate-high-voltage-bus.c",
+    "test": "test_validate-high-voltage-bus.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/driver/config",
+      "src/app/driver/contactor",
+      "src/app/driver/sps",
+      "src/app/engine/database",
+      "src/app/engine/diag",
+      "src/app/task/config"
+    ],
+    "mocks": [
+      "src/app/application/bms/bms.h",
+      "src/app/engine/database/database_helper.h",
+      "src/app/engine/diag/diag.h"
+    ]
+  },
+  {
+    "source": "src/app/application/plausibility/validate-power-measurement.c",
+    "test": "test_validate-power-measurement.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/driver/foxmath",
+      "src/app/engine/database",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/engine/database/database_helper.h",
+      "src/app/engine/diag/diag.h"
+    ]
+  },
+  {
+    "source": "src/app/application/plausibility/validate-string-voltage.c",
+    "test": "test_validate-string-voltage.c",
+    "includes": [
+      "src/app/application/bms",
+      "src/app/application/plausibility",
+      "src/app/engine/database",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "src/app/engine/database/database_helper.h",
+      "src/app/engine/diag/diag.h"
+    ]
+  }
+]

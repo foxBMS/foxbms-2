@@ -43,8 +43,8 @@
  * @file    debug_can.c
  * @author  foxBMS Team
  * @date    2024-04-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  DECAN
  *
@@ -65,15 +65,17 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+#define UPPER_BOUND_ONE_NUMBER_ID_OF_VOLTAGE \
+    (BS_NR_OF_STRINGS * BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE - 1)
+
+#define UPPER_BOUND_ONE_NUMBER_ID_OF_TEMPERATURE \
+    (BS_NR_OF_STRINGS * BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE - 1)
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** local copies of database tables */
 /**@{*/
 static DATA_BLOCK_CELL_VOLTAGE_s decan_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-static DATA_BLOCK_CELL_VOLTAGE_s decan_cellVoltageFromRead = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
 static DATA_BLOCK_CELL_TEMPERATURE_s decan_cellTemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
-static DATA_BLOCK_CELL_TEMPERATURE_s decan_cellTemperatureFromRead = {
-    .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
 /**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -120,6 +122,9 @@ static STD_RETURN_TYPE_e DECAN_ReceiveCanCellVoltages(void);
  * @return  #STD_OK if successful, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e DECAN_ReceiveCanCellTemperatures(void);
+
+static void DECAN_CalculateMissingVoltageInfo(void);
+static void DECAN_CalculateMissingTemperatureInfo(void);
 
 /*========== Static Function Implementations ================================*/
 static uint16_t DECAN_ModifiedModuloFunction(uint16_t a, uint16_t b) {
@@ -231,6 +236,50 @@ static void DECAN_ConvertIndexForTemperature(uint16_t *s, uint16_t *m, uint16_t 
     *s  = num_s - 1;
 }
 
+static void DECAN_CalculateMissingVoltageInfo(void) {
+    /* Write this part of cell voltages and invalid flags to database,
+     * read the total cell voltages and invalid flags, count the number of
+     * invalid cell voltages and then write them back to database */
+    uint16_t nrValidCellVoltagesPerString = 0u;
+    int32_t stringVoltage_mV              = 0;
+    int32_t moduleVoltage_mV              = 0;
+
+    for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        nrValidCellVoltagesPerString = 0u;
+        stringVoltage_mV             = 0;
+        for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            moduleVoltage_mV = 0;
+            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                if (decan_cellVoltage.invalidCellVoltage[s][m][cb] == false) {
+                    nrValidCellVoltagesPerString++;
+                    moduleVoltage_mV += (int32_t)decan_cellVoltage.cellVoltage_mV[s][m][cb];
+                }
+            }
+            stringVoltage_mV += moduleVoltage_mV;
+        }
+        decan_cellVoltage.stringVoltage_mV[s]    = stringVoltage_mV;
+        decan_cellVoltage.nrValidCellVoltages[s] = nrValidCellVoltagesPerString;
+    }
+}
+
+static void DECAN_CalculateMissingTemperatureInfo(void) {
+    /* Write this part of cell temperatures and invalid flags to database,
+     * read the total cell temperatures and invalid flags, count the number of
+     * invalid cell temperatures and then write them back to database */
+    uint16_t nrValidCellTemperaturesPerString = 0u;
+    for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        nrValidCellTemperaturesPerString = 0u;
+        for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint16_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                if (decan_cellTemperature.invalidCellTemperature[s][m][ts] == false) {
+                    nrValidCellTemperaturesPerString++;
+                }
+            }
+        }
+        decan_cellTemperature.nrValidTemperatures[s] = nrValidCellTemperaturesPerString;
+    }
+}
+
 static STD_RETURN_TYPE_e DECAN_ReceiveCanCellVoltages(void) {
     STD_RETURN_TYPE_e isSuccessful                                   = STD_NOT_OK;
     CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s decan_canCellVoltagesFromQueue = {0};
@@ -245,13 +294,11 @@ static STD_RETURN_TYPE_e DECAN_ReceiveCanCellVoltages(void) {
         uint16_t cb                 = 0u;
         uint16_t oneNumIdxOfVoltage = decan_canCellVoltagesFromQueue.muxValue *
                                       CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG;
-        uint16_t upperBoundOneNumIdxOfVoltage =
-            BS_NR_OF_STRINGS * BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE - 1;
 
         /* Loop through all voltages in the received can message */
         for (uint8_t i = 0u; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG; i++) {
             /* Check if the one number index of voltage surpass its upper bound */
-            if (oneNumIdxOfVoltage > upperBoundOneNumIdxOfVoltage) {
+            if (oneNumIdxOfVoltage > UPPER_BOUND_ONE_NUMBER_ID_OF_VOLTAGE) {
                 break;
             }
             /* Convert the one number index of temperature into s, m, ts */
@@ -265,39 +312,11 @@ static STD_RETURN_TYPE_e DECAN_ReceiveCanCellVoltages(void) {
                 decan_cellVoltage.invalidCellVoltage[s][m][cb] = true;
             }
 
-            /* Update one number index of the cell voltage */
-            oneNumIdxOfVoltage++;
+            oneNumIdxOfVoltage++; /* Update one number index of the cell voltage */
         }
 
-        /* Write this part of cell voltages and invalid flags to database,
-        read the total cell voltages and invalid flags, count the number of
-        invalid cell voltages and then write them back to database */
-        uint16_t nrValidCellVoltagesPerString = 0u;
-        int32_t stringVoltage_mV              = 0;
-        int32_t moduleVoltage_mV              = 0;
-        if ((DATA_WRITE_DATA(&decan_cellVoltage) == STD_OK) && (DATA_READ_DATA(&decan_cellVoltageFromRead) == STD_OK)) {
-            for (uint16_t idxString = 0u; idxString < BS_NR_OF_STRINGS; idxString++) {
-                nrValidCellVoltagesPerString = 0u;
-                stringVoltage_mV             = 0;
-                for (uint16_t idxModule = 0u; idxModule < BS_NR_OF_MODULES_PER_STRING; idxModule++) {
-                    moduleVoltage_mV = 0;
-                    for (uint16_t idxCellBlocks = 0u; idxCellBlocks < BS_NR_OF_CELL_BLOCKS_PER_MODULE;
-                         idxCellBlocks++) {
-                        if (decan_cellVoltageFromRead.invalidCellVoltage[idxString][idxModule][idxCellBlocks] ==
-                            false) {
-                            nrValidCellVoltagesPerString++;
-                            moduleVoltage_mV +=
-                                (int32_t)decan_cellVoltageFromRead.cellVoltage_mV[idxString][idxModule][idxCellBlocks];
-                        }
-                    }
-                    decan_cellVoltageFromRead.moduleVoltage_mV[idxString][idxModule] = moduleVoltage_mV;
-                    stringVoltage_mV += moduleVoltage_mV;
-                }
-                decan_cellVoltageFromRead.stringVoltage_mV[idxString]    = stringVoltage_mV;
-                decan_cellVoltageFromRead.nrValidCellVoltages[idxString] = nrValidCellVoltagesPerString;
-            }
-            isSuccessful = DATA_WRITE_DATA(&decan_cellVoltageFromRead);
-        }
+        DECAN_CalculateMissingVoltageInfo();
+        isSuccessful = DATA_WRITE_DATA(&decan_cellVoltage);
     }
 
     return isSuccessful;
@@ -319,13 +338,11 @@ static STD_RETURN_TYPE_e DECAN_ReceiveCanCellTemperatures(void) {
         uint16_t ts                     = 0u;
         uint16_t oneNumIdxOfTemperature = decan_canCellTemperaturesFromQueue.muxValue *
                                           CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG;
-        uint16_t upperBoundOneNumIdxOfTemperature =
-            BS_NR_OF_STRINGS * BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE - 1;
 
         /* Loop through all temperatures in the received can message */
         for (uint16_t i = 0u; i < CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG; i++) {
             /* Check if the one number index of temperature surpass its upper bound */
-            if (oneNumIdxOfTemperature > upperBoundOneNumIdxOfTemperature) {
+            if (oneNumIdxOfTemperature > UPPER_BOUND_ONE_NUMBER_ID_OF_TEMPERATURE) {
                 break;
             }
 
@@ -345,26 +362,8 @@ static STD_RETURN_TYPE_e DECAN_ReceiveCanCellTemperatures(void) {
             oneNumIdxOfTemperature++;
         }
 
-        /* Write this part of cell temperatures and invalid flags to database,
-        read the total cell temperatures and invalid flags, count the number of
-        invalid cell temperatures and then write them back to database */
-        if ((DATA_WRITE_DATA(&decan_cellTemperature) == STD_OK) &&
-            (DATA_READ_DATA(&decan_cellTemperatureFromRead) == STD_OK)) {
-            for (uint16_t idxString = 0u; idxString < BS_NR_OF_STRINGS; idxString++) {
-                uint16_t nrValidCellTemperaturesPerString = 0u;
-                for (uint16_t idxModule = 0u; idxModule < BS_NR_OF_MODULES_PER_STRING; idxModule++) {
-                    for (uint16_t idxTemperatureSensor = 0u; idxTemperatureSensor < BS_NR_OF_TEMP_SENSORS_PER_MODULE;
-                         idxTemperatureSensor++) {
-                        if (decan_cellTemperatureFromRead
-                                .invalidCellTemperature[idxString][idxModule][idxTemperatureSensor] == false) {
-                            nrValidCellTemperaturesPerString++;
-                        }
-                    }
-                }
-                decan_cellTemperatureFromRead.nrValidTemperatures[idxString] = nrValidCellTemperaturesPerString;
-            }
-            isSuccessful = DATA_WRITE_DATA(&decan_cellTemperatureFromRead);
-        }
+        DECAN_CalculateMissingTemperatureInfo();
+        isSuccessful = DATA_WRITE_DATA(&decan_cellTemperature);
     }
 
     return isSuccessful;
@@ -373,25 +372,25 @@ static STD_RETURN_TYPE_e DECAN_ReceiveCanCellTemperatures(void) {
 /*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e DECAN_Initialize(void) {
     /* Initialize entry of cell voltage and cell temperature in database */
-    for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 decan_cellVoltage.cellVoltage_mV[s][m][cb]     = 0;
                 decan_cellVoltage.invalidCellVoltage[s][m][cb] = true;
             }
         }
     }
-    for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
                 decan_cellTemperature.cellTemperature_ddegC[s][m][ts]  = 0;
                 decan_cellTemperature.invalidCellTemperature[s][m][ts] = true;
             }
         }
     }
     /* Give other tasks time to execute */
-    uint32_t current_time = OS_GetTickCount();
-    OS_DelayTaskUntil(&current_time, 10u);
+    uint32_t currentTime = OS_GetTickCount();
+    OS_DelayTaskUntil(&currentTime, 10u);
     return STD_OK;
 }
 

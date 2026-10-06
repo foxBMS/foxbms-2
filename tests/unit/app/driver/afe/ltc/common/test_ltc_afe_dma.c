@@ -43,8 +43,8 @@
  * @file    test_ltc_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,14 +70,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ltc_afe_dma.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common/config")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint8_t ltc_RXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
@@ -98,7 +90,7 @@ uint8_t ltc_TXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 
 LTC_STATE_s ltc_stateBase = {
     .timer                   = 0,
-    .statereq                = LTC_STATE_NO_REQUEST,
+    .statereq                = {.request = LTC_STATE_NO_REQUEST},
     .state                   = LTC_STATEMACH_UNINITIALIZED,
     .substate                = 0,
     .lastState               = LTC_STATEMACH_UNINITIALIZED,
@@ -116,9 +108,9 @@ LTC_STATE_s ltc_stateBase = {
     .commandDataTransferTime = 3,
     .commandTransferTime     = 3,
     .gpioClocksTransferTime  = 3,
-    .muxmeas_seqptr          = NULL_PTR,
-    .muxmeas_seqendptr       = NULL_PTR,
-    .muxmeas_nr_end          = 0,
+    .muxmeas_seqptr          = {NULL_PTR},
+    .muxmeas_seqendptr       = {NULL_PTR},
+    .muxmeas_nr_end          = {0},
     .first_measurement_made  = false,
     .ltc_muxcycle_finished   = STD_NOT_OK,
     .check_spi_flag          = STD_NOT_OK,

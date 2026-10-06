@@ -1,6 +1,11 @@
-/* 19b1c8599be7937c5704987c3a5ee556 */
+/* d1df18862c5c4e351e85f413d956b5d2 */
 
 /* Aligned with names in "MEMORY" in the elf-linker script */
+/* KERNEL_DATA and RAM add up to the privileged only RAM in port.c
+ * for quick verification:
+ * rg -n "ulRegionBaseAddress\\s*=\\s*0x08010000|ulRegionSize\\s*=\\s*portMPU_SIZE_64KB" src/os/freertos/freertos/portable/ccs/arm_cortex-r5/port.c
+ */
+
 ROMS
 {
     /* FLASH */
@@ -19,11 +24,11 @@ ROMS
 
     /* RAM */
     STACKS                  : origin = 0x08000000
-                              length = 0x1800
-    KERNEL_DATA             : origin = 0x08001800
-                              length = 0xB000
-    RAM                     : origin = 0x0800C800
-                              length = 0x71800
+                              length = 0x2000
+    KERNEL_DATA             : origin = 0x08010000
+                              length = 0x10000
+    RAM                     : origin = 0x08020000
+                              length = 0x5E000
     SHARED_RAM              : origin = 0x0807E000
                               length = 0x2000
 

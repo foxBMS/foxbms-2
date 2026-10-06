@@ -59,7 +59,7 @@ from shutil import which
 from typing import NotRequired, TypedDict
 
 from ..helpers.click_helpers import recho
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 from ..helpers.spr import run_process
 
 DEFAULT_MAX = 150
@@ -103,7 +103,6 @@ def _check_path_length(file: str, allowed: int) -> int:
 
     Returns:
         0 if path is within limit, 1 otherwise.
-
     """
     err = 0
     if len(file) > allowed:
@@ -117,7 +116,6 @@ def check_repository_depth() -> int:
 
     Returns:
         Number of files exceeding their respective path length limits.
-
     """
     err = 0
     git = str(which("git"))

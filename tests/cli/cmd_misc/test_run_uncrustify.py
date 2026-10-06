@@ -45,16 +45,17 @@ import unittest
 from contextlib import redirect_stderr
 from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_misc import run_uncrustify
-    from cli.helpers.misc import PROJECT_ROOT
+    from cli.helpers.project_context import PROJECT_ROOT
     from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_misc import run_uncrustify
-    from cli.helpers.misc import PROJECT_ROOT
+    from cli.helpers.project_context import PROJECT_ROOT
     from cli.helpers.spr import SubprocessResult
 
 
@@ -62,7 +63,7 @@ except ModuleNotFoundError:
 class DummyFuture:
     """Mock return value of ProcessPoolExecutor.submit"""
 
-    def __init__(self, x):
+    def __init__(self, x: int) -> None:
         self.returncode = x
         self.out = ""
         self.err = ""
@@ -71,16 +72,19 @@ class DummyFuture:
 class TestRunUncrustify(unittest.TestCase):
     """Class to test the run uncrustify script"""
 
+    tests_dir: ClassVar[Path]
+    FREERTOS_FILES: ClassVar[list[str]]
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:  # noqa: D102
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
         cls.FREERTOS_FILES = run_uncrustify.FREERTOS_FILES
 
-    def tearDown(self):
+    def tearDown(self) -> None:  # noqa: D102
         run_uncrustify.FREERTOS_FILES = self.FREERTOS_FILES
 
     @patch("cli.cmd_misc.run_uncrustify.run_process")
-    def test_run_uncrustify_process(self, mock_run_process):
+    def test_run_uncrustify_process(self, mock_run_process: MagicMock) -> None:
         """Test function run uncrustify process"""
         mock_run_process.return_value = SubprocessResult(0)
         uncrustify = ""
@@ -94,14 +98,14 @@ class TestRunUncrustify(unittest.TestCase):
         self.assertEqual(result, mock_run_process.return_value)
 
     @patch("cli.cmd_misc.run_uncrustify.which", return_value="uncrustify")
-    def test_lint_freertos_without_files(self, _):
+    def test_lint_freertos_without_files(self, _mock_which: MagicMock) -> None:
         """Test run uncrustify without files"""
         run_uncrustify.FREERTOS_FILES = []
         result = run_uncrustify.lint_freertos()
         self.assertEqual(result, 0)
 
     @patch("cli.cmd_misc.run_uncrustify.which", return_value="uncrustify")
-    def test_lint_freertos_argument(self, _):
+    def test_lint_freertos_argument(self, _mock_which: MagicMock) -> None:
         """Test run uncrustify with an argument"""
         run_uncrustify.FREERTOS_FILES = []
         result = run_uncrustify.lint_freertos(False)
@@ -109,7 +113,7 @@ class TestRunUncrustify(unittest.TestCase):
 
     @patch("sys.platform", new="linux")
     @patch("cli.cmd_misc.run_uncrustify.which", return_value=None)
-    def test_lint_freertos_no_uncrustify_linux(self, _):
+    def test_lint_freertos_no_uncrustify_linux(self, _mock_which: MagicMock) -> None:
         """Test could not find uncrustify"""
         err = io.StringIO()
         with redirect_stderr(err):
@@ -119,7 +123,7 @@ class TestRunUncrustify(unittest.TestCase):
 
     @patch("sys.platform", new="win32")
     @patch("cli.cmd_misc.run_uncrustify.which", return_value=None)
-    def test_lint_freertos_no_uncrustify_win32(self, _):
+    def test_lint_freertos_no_uncrustify_win32(self, _mock_which: MagicMock) -> None:
         """Test could not find uncrustify"""
         buf = io.StringIO()
         with redirect_stderr(buf):
@@ -130,7 +134,9 @@ class TestRunUncrustify(unittest.TestCase):
     @patch("cli.cmd_misc.run_uncrustify.FREERTOS_FILES", new=["foo", "bar"])
     @patch("cli.cmd_misc.run_uncrustify.which", return_value="uncrustify")
     @patch("cli.cmd_misc.run_uncrustify.ProcessPoolExecutor")
-    def test_lint_freertos_no_error(self, mock_ppe: MagicMock, _):
+    def test_lint_freertos_no_error(
+        self, mock_ppe: MagicMock, _mock_which: MagicMock
+    ) -> None:
         """No error occurs when linting"""
         mock_executor = MagicMock()
         mock_ppe.return_value.__enter__.return_value = mock_executor
@@ -160,7 +166,9 @@ class TestRunUncrustify(unittest.TestCase):
     @patch("cli.cmd_misc.run_uncrustify.FREERTOS_FILES", new=["foo", "bar"])
     @patch("cli.cmd_misc.run_uncrustify.which", return_value="uncrustify")
     @patch("cli.cmd_misc.run_uncrustify.ProcessPoolExecutor")
-    def test_lint_freertos_error(self, mock_ppe: MagicMock, _):
+    def test_lint_freertos_error(
+        self, mock_ppe: MagicMock, _mock_which: MagicMock
+    ) -> None:
         """An error occurs when linting"""
         mock_executor = MagicMock()
         mock_ppe.return_value.__enter__.return_value = mock_executor

@@ -63,7 +63,7 @@ PATH_EXECUTION = Path(__file__).parent / "test_execution"
 class TestInit(unittest.TestCase):
     """Class to test the init method of the Executor class"""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.config = {
             "input_data": [PATH_DATA],
             "data_config": PATH_EXECUTION / "test_data_source_config.yaml",
@@ -110,7 +110,7 @@ class TestInit(unittest.TestCase):
 class TestCreatePlots(unittest.TestCase):
     """Class to test the create_plots method of the Executor class"""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.config = {
             "input_data": [PATH_DATA],
             "data_config": PATH_EXECUTION / "test_data_source_config.yaml",
@@ -162,7 +162,7 @@ class TestCreatePlots(unittest.TestCase):
 class TestGetDataFiles(unittest.TestCase):
     """Class to test the get_data_files method of the Executor class"""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.config = {
             "input_data": [PATH_DATA],
             "data_config": PATH_EXECUTION / "test_data_source_config.yaml",

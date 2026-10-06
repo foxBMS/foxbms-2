@@ -7,15 +7,14 @@
 IMD Testing
 ###########
 
-The :ref:`INSULATION_MEASUREMENT_DEVICE` measures the insulation
+The :ref:`IMD_DRIVER` measures the insulation
 resistance between the high voltage potentials.
 Low insulation resistance induces a high safety risk, to sense this danger the
 IMD is used.
 To ensure the correct functionality testing the IMD on the actually implemented
 system is very important.
 
-.. drawio-figure:: img/imd-testing.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/system/img/imd-testing.svg
    :alt: Simplified diagram of IMD
    :name: simplified-diagram-of-imd
    :width: 520px
@@ -41,7 +40,7 @@ Needed to test the IMD are:
    +-------------------+-------------------+--------------------+
 
 \* maximum resistance measurable by the supported IMD devices (see
-:ref:`INSULATION_MEASUREMENT_DEVICE`).
+:ref:`IMD_DRIVER`).
 
 ******************
 Testing resistance

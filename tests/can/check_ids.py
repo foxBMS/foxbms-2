@@ -48,6 +48,7 @@ import logging  # noqa: TID251
 import os
 import re
 import sys
+from collections.abc import Sequence
 from enum import Enum, auto
 from pathlib import Path
 
@@ -69,7 +70,7 @@ def get_git_root(path: str) -> str:
     Returns:
         root (string): root path of the git repository
     """
-    root = os.path.join(os.path.dirname(path), "..", "..", "..")
+    root = os.path.join(os.path.dirname(path), "..", "..")
     try:
         repo = Repo(path, search_parent_directories=True)
         root = repo.git.rev_parse("--show-toplevel")
@@ -162,61 +163,64 @@ def construct_msg_define(msg: Message) -> ExpectedCanMessageDefines:
     # fmt: on
 
     # once we are here, we know that this regex will match
-    m = FILE_RE_COMPILED.search(msg.comment)
-    if m.group(3).lower() == "rx":
-        direction = RxTx.Rx
-        pref = "CANRX_"
-        exp_phase_macro = "Rx - ND"
-        exp_period_macro = pref + exp_period_macro
-        exp_full_msg_macro = pref + exp_full_msg_macro
-    elif m.group(3).lower() == "tx":
-        direction = RxTx.Tx
-        pref = "CANTX_"
-
-        if msg.cycle_time:
-            exp_phase_macro = pref + exp_phase_macro
+    try:
+        m = FILE_RE_COMPILED.search(msg.comment)
+        if m.group(3).lower() == "rx":
+            direction = RxTx.Rx
+            pref = "CANRX_"
+            exp_phase_macro = "Rx - ND"
             exp_period_macro = pref + exp_period_macro
             exp_full_msg_macro = pref + exp_full_msg_macro
         else:
-            exp_phase_macro = "Tx - async - ND"
-            exp_period_macro = "Tx - async - ND"
-            exp_full_msg_macro = "Tx - async - ND"
-    else:
+            direction = RxTx.Tx
+            pref = "CANTX_"
+
+            if msg.cycle_time:
+                exp_phase_macro = pref + exp_phase_macro
+                exp_period_macro = pref + exp_period_macro
+                exp_full_msg_macro = pref + exp_full_msg_macro
+            else:
+                exp_phase_macro = "Tx - async - ND"
+                exp_period_macro = "Tx - async - ND"
+                exp_full_msg_macro = "Tx - async - ND"
+
+        exp_id_macro = pref + exp_id_macro
+        exp_id_type_macro = pref + exp_id_type_macro
+        exp_endianness_macro = pref + exp_endianness_macro
+        exp_dlc_macro = pref + exp_dlc_macro
+        # now we have all defines we need to search for
+
+        logging.debug("%s:\n", msg.name)
+        logging.debug("  created define '%s' for '%s'.", exp_id_macro, msg.name)
+        logging.debug("  created define '%s' for '%s'.", exp_id_type_macro, msg.name)
+        if not exp_period_macro.endswith("- ND"):
+            logging.debug("  created define '%s' for '%s'.", exp_period_macro, msg.name)
+        if not exp_phase_macro.endswith("- ND"):
+            logging.debug("  created define '%s' for '%s'.", exp_phase_macro, msg.name)
+        logging.debug("  created define '%s' for '%s'.", exp_endianness_macro, msg.name)
+        logging.debug("  created define '%s' for '%s'.", exp_dlc_macro, msg.name)
+        if not exp_full_msg_macro.endswith("- ND"):
+            logging.debug(
+                "  created define '%s' for '%s'.\n", exp_full_msg_macro, msg.name
+            )
+        cyclic = False
+        if msg.cycle_time:
+            cyclic = True
+        return ExpectedCanMessageDefines(
+            msg.name,
+            hex(msg.frame_id).upper().replace("X", "x"),
+            direction.name.lower(),
+            cyclic,
+            (exp_id_macro, ""),
+            (exp_id_type_macro, ""),
+            (exp_period_macro, ""),
+            (exp_phase_macro, ""),
+            (exp_endianness_macro, ""),
+            (exp_dlc_macro, ""),
+            (exp_full_msg_macro, ""),
+        )
+    except AttributeError:
         sys.exit("Something went wrong.")
-
-    exp_id_macro = pref + exp_id_macro
-    exp_id_type_macro = pref + exp_id_type_macro
-    exp_endianness_macro = pref + exp_endianness_macro
-    exp_dlc_macro = pref + exp_dlc_macro
-    # now we have all defines we need to search for
-
-    logging.debug("%s:\n", msg.name)
-    logging.debug("  created define '%s' for '%s'.", exp_id_macro, msg.name)
-    logging.debug("  created define '%s' for '%s'.", exp_id_type_macro, msg.name)
-    if not exp_period_macro.endswith("- ND"):
-        logging.debug("  created define '%s' for '%s'.", exp_period_macro, msg.name)
-    if not exp_phase_macro.endswith("- ND"):
-        logging.debug("  created define '%s' for '%s'.", exp_phase_macro, msg.name)
-    logging.debug("  created define '%s' for '%s'.", exp_endianness_macro, msg.name)
-    logging.debug("  created define '%s' for '%s'.", exp_dlc_macro, msg.name)
-    if not exp_full_msg_macro.endswith("- ND"):
-        logging.debug("  created define '%s' for '%s'.\n", exp_full_msg_macro, msg.name)
-    cyclic = False
-    if msg.cycle_time:
-        cyclic = True
-    return ExpectedCanMessageDefines(
-        msg.name,
-        hex(msg.frame_id).upper().replace("X", "x"),
-        direction.name.lower(),
-        cyclic,
-        (exp_id_macro, ""),
-        (exp_id_type_macro, ""),
-        (exp_period_macro, ""),
-        (exp_phase_macro, ""),
-        (exp_endianness_macro, ""),
-        (exp_dlc_macro, ""),
-        (exp_full_msg_macro, ""),
-    )
 
 
 def get_defines_from_file(
@@ -271,66 +275,8 @@ def log_not_found(exp: ExpectedCanMessageDefines, i: str, expected_file: str) ->
     )
 
 
-# pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
-def main() -> int:
-    """This script checks that the CAN message IDs that are defined in the dbc
-    file are correctly implemented.
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-v",
-        "--verbosity",
-        dest="verbosity",
-        action="count",
-        default=0,
-        help="set verbosity level",
-    )
-    parser.add_argument(
-        "-i",
-        "--input-file",
-        dest="input_file",
-        action="store",
-        default=BDC_DIR_REL / "foxbms.dbc",
-        help="DBC file to be verified.",
-    )
-    parser.add_argument(
-        "--tx-cyclic-message-definition-file",
-        dest="tx_cyclic_message_definition_file",
-        action="store",
-        default=TX_CYCLIC_MESSAGES,
-        help="Path to file containing the implementation TX CAN message IDs",
-    )
-    parser.add_argument(
-        "--tx-async-message-definition-file",
-        dest="tx_async_message_definition_file",
-        action="store",
-        default=TX_ASYNC_MESSAGES,
-        help="Path to file containing the implementation TX CAN message IDs",
-    )
-    parser.add_argument(
-        "--rx-message-definition-file",
-        dest="rx_message_definition_file",
-        action="store",
-        default=RX_MESSAGES,
-        help="Path to file containing the implementation RX CAN message IDs",
-    )
-    args = parser.parse_args()
-
-    if args.verbosity == 1:
-        logging.basicConfig(level=logging.INFO)
-    elif args.verbosity > 1:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.ERROR)
-    logging.debug(args)
-
-    if not isinstance(args.input_file, Path):
-        args.input_file = Path(args.input_file)
-    input_file = args.input_file.absolute()
-    can_db = cantools.database.load_file(input_file)
-    msgs = sorted(can_db.messages, key=lambda x: x.frame_id)
-    sorted_messages = [i for i in msgs if i.name != "f_BootloaderVersionInfo"]
-
+def check_sorted_message_format(sorted_messages: list[Message]) -> int:
+    """Check if messages have the right format needed for further processing"""
     errors = 0
     for i in sorted_messages:
         if not i.comment:
@@ -357,89 +303,76 @@ def main() -> int:
                 FILE_RE,
             )
             continue
-    if errors:
-        sys.exit(errors)
+    return errors
 
-    if not isinstance(args.rx_message_definition_file, Path):
-        args.rx_message_definition_file = Path(args.rx_message_definition_file)
-    if not isinstance(args.tx_async_message_definition_file, Path):
-        args.tx_async_message_definition_file = Path(
-            args.tx_async_message_definition_file
-        )
-    if not isinstance(args.tx_cyclic_message_definition_file, Path):
-        args.tx_cyclic_message_definition_file = Path(
-            args.tx_cyclic_message_definition_file
-        )
 
-    for i in (
-        args.rx_message_definition_file,
-        args.tx_async_message_definition_file,
-        args.tx_cyclic_message_definition_file,
-    ):
-        if not i.is_file():
-            errors += 1
-            sys.exit(f"'{i}' is not a valid file path.")
-    if errors:
-        sys.exit(errors)
-
-    expected_defines = [construct_msg_define(msg) for msg in sorted_messages]
-    dump = {}
-    for i in expected_defines:
-        dump[i.dbc_name] = dataclasses.asdict(i)
-    with open("expected-defines.json.log", "w", encoding="utf-8") as f:
-        f.write(json.dumps(dump, indent=4))
-
+def find_implemented_defines(
+    tx_cyclic_message_definition_file: Path,
+    tx_async_message_definition_file: Path,
+    rx_message_definition_file: Path,
+) -> tuple[
+    list[FoundCanMessageDefine],
+    list[FoundCanMessageDefine],
+    list[FoundCanMessageDefine],
+]:
+    """Construct all lists of implemented defines"""
     all_tx_defines = get_defines_from_file(
-        args.tx_cyclic_message_definition_file,
-        selector="CANTX",
-        cyclic=True,
+        tx_cyclic_message_definition_file, "CANTX", True
     )
+    all_tx_defines.extend(
+        get_defines_from_file(tx_async_message_definition_file, "CANTX", False)
+    )
+
     implemented_tx_defines = [
         i
         for i in all_tx_defines
         if (i.define_name.startswith("CANTX_") and i.define_name.endswith("_ID"))
     ]
-    all_tx_defines.extend(
-        get_defines_from_file(
-            args.tx_async_message_definition_file,
-            selector="CANTX",
-            cyclic=False,
-        )
-    )
-    implemented_tx_defines.extend(
-        [
-            i
-            for i in all_tx_defines
-            if (i.define_name.startswith("CANTX_") and i.define_name.endswith("_ID"))
-        ]
-    )
     log_found_msgs("TX", implemented_tx_defines)
 
-    all_rx_defines = get_defines_from_file(
-        args.rx_message_definition_file, "CANRX", cyclic=True
-    )
+    all_rx_defines = get_defines_from_file(rx_message_definition_file, "CANRX", True)
     implemented_rx_defines = [
         i
         for i in all_rx_defines
         if (i.define_name.startswith("CANRX_") and i.define_name.endswith("_ID"))
     ]
     log_found_msgs("RX", implemented_rx_defines)
-    # check that the ID is assigned to the correct macro
-    all_implemented_defines = implemented_tx_defines + implemented_rx_defines
-    for message, values in dump.items():
-        for i in all_implemented_defines:
-            if values["exp_id_macro"][0] != i.define_name:
-                continue
-            expected_id = int(values["dbc_id"], 16)
-            implemented_id = int(i.msg_id, 16)
-            if implemented_id != expected_id:
-                sys.exit(
-                    f"The message '{message}' expects the macro "
-                    f"'{values['exp_id_macro'][0]}' to implement the ID "
-                    f"'{hex(expected_id)}', but it implements ID "
-                    f"'{hex(implemented_id)}'."
-                )
+    return (
+        all_tx_defines,
+        all_rx_defines,
+        implemented_tx_defines + implemented_rx_defines,
+    )
 
+
+def check_macro_id(
+    message: str,
+    values: dict[str, str],
+    all_implemented_defines: list[FoundCanMessageDefine],
+) -> None:
+    """Check that the ID is assigned to the correct macro"""
+    for i in all_implemented_defines:
+        if values["exp_id_macro"][0] != i.define_name:
+            continue
+        expected_id = int(values["dbc_id"], 16)
+        implemented_id = int(i.msg_id, 16)
+        if implemented_id != expected_id:
+            sys.exit(
+                f"The message '{message}' expects the macro "
+                f"'{values['exp_id_macro'][0]}' to implement the ID "
+                f"'{hex(expected_id)}', but it implements ID "
+                f"'{hex(implemented_id)}'."
+            )
+
+
+def check_implemented_against_expected_macro(  # noqa: PLR0913
+    all_rx_defines: list[FoundCanMessageDefine],
+    all_tx_defines: list[FoundCanMessageDefine],
+    expected_defines: list[ExpectedCanMessageDefines],
+    rx_message_definition_file: str,
+    tx_cyclic_message_definition_file: str,
+    tx_async_message_definition_file: str,
+) -> int:
+    """Check if implemented macros match the expected ones"""
     # We expect 7 defines in the 'best' case:
     # - *_ID
     # - *_ID_TYPE
@@ -467,13 +400,13 @@ def main() -> int:
             found = False
             if exp.dbc_direction == "rx":
                 implemented_macros = all_rx_defines
-                expected_file = args.rx_message_definition_file
+                expected_file = rx_message_definition_file
             elif exp.dbc_direction == "tx":
                 implemented_macros = all_tx_defines
                 if exp.dbc_cyclic:
-                    expected_file = args.tx_cyclic_message_definition_file
+                    expected_file = tx_cyclic_message_definition_file
                 else:
-                    expected_file = args.tx_async_message_definition_file
+                    expected_file = tx_async_message_definition_file
             else:
                 sys.exit("Something went really wrong when searching for macros...")
 
@@ -497,7 +430,7 @@ def main() -> int:
                         )
                     elif i == exp.exp_dlc_macro[0]:
                         exp.exp_dlc_macro = (exp.exp_dlc_macro[0], posix_where)
-                    elif i == exp.exp_full_msg_macro[0]:
+                    else:
                         exp.exp_full_msg_macro = (
                             exp.exp_full_msg_macro[0],
                             posix_where,
@@ -508,15 +441,11 @@ def main() -> int:
                     break
             if not found:
                 log_not_found(exp, i, expected_file)
-    if errors:
-        sys.exit(errors)
+    return errors
 
-    dump = {}
-    for i in expected_defines:
-        dump[i.dbc_name] = dataclasses.asdict(i)
-    with open("found-defines.json.log", "w", encoding="utf-8") as f:
-        f.write(json.dumps(dump, indent=4))
 
+def check_define_order(expected_defines: list[ExpectedCanMessageDefines]) -> None:
+    """Check if related defines are in the correct relative lines"""
     for i in expected_defines:
         last_match = 0
         nr_ = 1
@@ -540,9 +469,14 @@ def main() -> int:
     # definition file. If so, we can assume that it has been defined once
     # and used a second time.
 
-    expected_tx_txt = args.tx_cyclic_message_definition_file.read_text(encoding="utf-8")
-    expected_rx_txt = args.rx_message_definition_file.read_text(encoding="utf-8")
 
+def check_expected_define_existence(
+    expected_defines: list[ExpectedCanMessageDefines],
+    expected_rx_txt: str,
+    expected_tx_txt: str,
+) -> int:
+    """Check if all expected defines are present in the definition files"""
+    errors = 0
     end_re = r"\s+}\n"
     for i in expected_defines:
         if not i.dbc_cyclic and i.dbc_direction == "tx":
@@ -584,7 +518,130 @@ def main() -> int:
                 "Could not find expected message definition for %s.",
                 i.exp_full_msg_macro[0],
             )
+    return errors
 
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Parse the input args"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-v",
+        "--verbosity",
+        dest="verbosity",
+        action="count",
+        default=0,
+        help="set verbosity level",
+    )
+    parser.add_argument(
+        "-i",
+        "--input-file",
+        dest="input_file",
+        action="store",
+        default=BDC_DIR_REL / "foxbms.dbc",
+        help="DBC file to be verified.",
+    )
+    parser.add_argument(
+        "--tx-cyclic-message-definition-file",
+        dest="tx_cyclic_message_definition_file",
+        action="store",
+        default=TX_CYCLIC_MESSAGES,
+        help="Path to file containing the implementation TX CAN message IDs",
+    )
+    parser.add_argument(
+        "--tx-async-message-definition-file",
+        dest="tx_async_message_definition_file",
+        action="store",
+        default=TX_ASYNC_MESSAGES,
+        help="Path to file containing the implementation TX CAN message IDs",
+    )
+    parser.add_argument(
+        "--rx-message-definition-file",
+        dest="rx_message_definition_file",
+        action="store",
+        default=RX_MESSAGES,
+        help="Path to file containing the implementation RX CAN message IDs",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Check that CAN message IDs defined in the DBC file are correctly implemented."""
+    args = parse_args(argv)
+    if args.verbosity == 1:
+        logging.basicConfig(level=logging.INFO)
+    elif args.verbosity > 1:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.ERROR)
+    logging.debug(args)
+
+    args.input_file = Path(args.input_file)
+    input_file = args.input_file.absolute()
+    can_db = cantools.database.load_file(input_file)
+    msgs = sorted(can_db.messages, key=lambda x: x.frame_id)
+    sorted_messages = [i for i in msgs if i.name != "f_BootloaderVersionInfo"]
+
+    errors = check_sorted_message_format(sorted_messages)
+    if errors:
+        sys.exit(errors)
+
+    args.rx_message_definition_file = Path(args.rx_message_definition_file)
+    args.tx_async_message_definition_file = Path(args.tx_async_message_definition_file)
+    args.tx_cyclic_message_definition_file = Path(
+        args.tx_cyclic_message_definition_file
+    )
+
+    for i in (
+        args.rx_message_definition_file,
+        args.tx_async_message_definition_file,
+        args.tx_cyclic_message_definition_file,
+    ):
+        if not i.is_file():
+            sys.exit(f"'{i}' is not a valid file path.")
+
+    expected_defines = [construct_msg_define(msg) for msg in sorted_messages]
+    dump = {}
+    for i in expected_defines:
+        dump[i.dbc_name] = dataclasses.asdict(i)
+    with open("expected-defines.json.log", "w", encoding="utf-8") as f:
+        f.write(json.dumps(dump, indent=4))
+
+    (all_tx_defines, all_rx_defines, all_implemented_defines) = (
+        find_implemented_defines(
+            args.tx_cyclic_message_definition_file,
+            args.tx_async_message_definition_file,
+            args.rx_message_definition_file,
+        )
+    )
+
+    for message, values in dump.items():
+        check_macro_id(message, values, all_implemented_defines)
+
+    errors = check_implemented_against_expected_macro(
+        all_rx_defines,
+        all_tx_defines,
+        expected_defines,
+        args.rx_message_definition_file,
+        args.tx_cyclic_message_definition_file,
+        args.tx_async_message_definition_file,
+    )
+    if errors:
+        sys.exit(errors)
+
+    dump = {}
+    for i in expected_defines:
+        dump[i.dbc_name] = dataclasses.asdict(i)
+    with open("found-defines.json.log", "w", encoding="utf-8") as f:
+        f.write(json.dumps(dump, indent=4))
+
+    check_define_order(expected_defines)
+
+    expected_tx_txt = Path.read_text(
+        args.tx_cyclic_message_definition_file, encoding="utf-8"
+    )
+    expected_rx_txt = Path.read_text(args.rx_message_definition_file, encoding="utf-8")
+
+    check_expected_define_existence(expected_defines, expected_rx_txt, expected_tx_txt)
     return errors
 
 

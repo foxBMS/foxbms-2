@@ -39,27 +39,30 @@
 
 # Build documentation code to ensure that the documentation is correct
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     defines = ["UNITY_UNIT_TEST"]
+    includes = [
+        bld.path,
+        bld.srcnode.find_node("tools/cmock/vendor/unity/src"),
+    ]
+    bld(features="c", source="abc.c", target="abc", defines=defines)
     bld(
         features="c",
-        source="abc.c",
-        target="abc",
+        source=bld.srcnode.find_node("tools/cmock/vendor/unity/src/unity.c"),
+        target="unity",
         defines=defines,
-        idx=1,
     )
     bld(
-        features="c",
-        source="run_abc.c",
-        target="run_abc",
-        defines=defines,
-        idx=1,
-    )
-    bld(
-        features="c",
-        source="test_abc.c",
+        features="c cprogram test",
+        source=[
+            bld.path.find_node("abc.c"),
+            bld.path.find_node("test_abc.c"),
+        ],
         target="test_abc",
+        includes=includes,
         defines=defines,
-        idx=1,
+        use="unity",
     )

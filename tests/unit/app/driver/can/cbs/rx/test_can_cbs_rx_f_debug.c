@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_f_debug.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -87,6 +87,7 @@
 #include "can_cbs_rx.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
+#include "fram_helper.h"
 #include "sys.h"
 #include "test_assert_helper.h"
 
@@ -94,38 +95,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_rx_f_debug.c")
-
-TEST_INCLUDE_PATH("../../src/app/application/algorithm")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
-TEST_INCLUDE_PATH("../../src/app/application/bal")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/i2c")
-TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/driver/interlock")
-TEST_INCLUDE_PATH("../../src/app/driver/mcu")
-TEST_INCLUDE_PATH("../../src/app/driver/meas")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/sbc")
-TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/engine/sys")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -137,6 +106,10 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 #define MULTIPLEXER_VALUE_UPTIME_INFO             (5u)
 #define MULTIPLEXER_VALUE_BOOT_TIMESTAMP          (6u)
 #define MULTIPLEXER_VALUE_HARDWARE_IDENTIFICATION (7u)
+#define MULTIPLEXER_VALUE_CALIBRATION_REQUEST     (8u)
+#define MULTIPLEXER_VALUE_RAW_VALUE_REQUEST       (9u)
+#define MULTIPLEXER_VALUE_OFFSET_CALIBRATION      (10u)
+#define MULTIPLEXER_VALUE_SLOPE_CALIBRATION       (11u)
 #define INVALID_MULTIPLEXER_VALUE                 (99u)
 
 #define SYS_STATE_VALID_CANRX_RETURN_VALUE   (0u)
@@ -310,7 +283,7 @@ void testCANRX_DebugRtcMultiplexerValue(void) {
     RTC_TIME_DATA_s timeData         = {0};
 
     RTC_SetRtcRequestFlag_Expect(1u);
-    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u, STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u, OS_SUCCESS);
     CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
     testCanData[0] = MULTIPLEXER_VALUE_RTC; /* RTC multiplexer message */
     uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
@@ -362,6 +335,46 @@ void testCANRX_DebugIdentifyHardwareMultiplexerValue(void) {
     TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
+/* provide a valid multiplexer value (offset calibration) */
+void testCANRX_DebugSetOffsetCalibrationDataMultiplexerValue(void) {
+    uint8_t testCanData[CAN_MAX_DLC] = {0};
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_FRAM_CALIBRATION, FRAM_ACCESS_OK);
+
+    testCanData[0] = MULTIPLEXER_VALUE_OFFSET_CALIBRATION; /* BMS hardware identification multiplexer message */
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
+}
+
+/* provide a valid multiplexer value (slope calibration) */
+void testCANRX_DebugSetSlopeCalibrationDataMultiplexerValue(void) {
+    uint8_t testCanData[CAN_MAX_DLC] = {0};
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_FRAM_CALIBRATION, FRAM_ACCESS_OK);
+
+    testCanData[0] = MULTIPLEXER_VALUE_SLOPE_CALIBRATION; /* BMS hardware identification multiplexer message */
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
+}
+
+/* provide a valid multiplexer value (raw value request) */
+void testCANRX_DebugProcessRawValueRequestMultiplexerValue(void) {
+    uint8_t testCanData[CAN_MAX_DLC] = {0};
+    CANTX_TransmitAdcRawValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+
+    testCanData[0] = MULTIPLEXER_VALUE_RAW_VALUE_REQUEST; /* BMS hardware identification multiplexer message */
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
+}
+
+/* provide a valid multiplexer value (calibration value request) */
+void testCANRX_DebugProcessCalibrationValueRequestMultiplexerValue(void) {
+    uint8_t testCanData[CAN_MAX_DLC] = {0};
+    CANTX_TransmitAdcSlopeValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+    CANTX_TransmitAdcOffsetValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+    testCanData[0] = MULTIPLEXER_VALUE_CALIBRATION_REQUEST; /* BMS hardware identification multiplexer message */
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
+}
 /*********************************************************************************************************************/
 /* test RTC helper functions */
 void testCANRX_GetHundredthOfSeconds(void) {
@@ -598,6 +611,74 @@ void testCANRX_CheckIfTimeInfoIsRequested(void) {
     TEST_ASSERT_TRUE(isRequested);
 }
 
+void testCANRX_SetOffsetCalibrationData(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_SetOffsetCalibrationData(testMessageDataZero, invalidEndianness));
+    /* set bits to indicate that the value for chanel 3 should be modified to the value of 200 */
+    uint64_t signalDataChannel = ((uint64_t)0x03) << 48u;
+    uint64_t signalDataValue   = ((uint64_t)200);
+    uint64_t testMessageData   = signalDataChannel | signalDataValue;
+
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_FRAM_CALIBRATION, FRAM_ACCESS_OK);
+    TEST_CANRX_SetOffsetCalibrationData(testMessageData, validEndianness);
+}
+
+void testCANRX_TriggerAdcCalibrationValueMessage(void) {
+    CANTX_TransmitAdcSlopeValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+    CANTX_TransmitAdcOffsetValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+    TEST_CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_CHANNEL_0);
+
+    CANTX_TransmitAdcSlopeValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_CHANNEL_0));
+
+    CANTX_TransmitAdcSlopeValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+    CANTX_TransmitAdcOffsetValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_CHANNEL_0));
+}
+
+void testCANRX_TriggerAdcRawValueMessage(void) {
+    CANTX_TransmitAdcRawValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_OK);
+    TEST_CANRX_TriggerAdcRawValueMessage(FRAM_CALIBRATION_CHANNEL_0);
+
+    CANTX_TransmitAdcRawValue_ExpectAndReturn(FRAM_CALIBRATION_CHANNEL_0, STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerAdcRawValueMessage(FRAM_CALIBRATION_CHANNEL_0));
+}
+
+void testCANRX_SetSlopeCalibrationData(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_SetSlopeCalibrationData(testMessageDataZero, invalidEndianness));
+    /* set bits to indicate that the value for chanel 3 should be modified to the value of 200 */
+    uint64_t signalDataChannel = ((uint64_t)0x03) << 48u;
+    uint64_t signalDataValue   = ((uint64_t)200);
+    uint64_t testMessageData   = signalDataChannel | signalDataValue;
+
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_FRAM_CALIBRATION, FRAM_ACCESS_OK);
+    TEST_CANRX_SetSlopeCalibrationData(testMessageData, validEndianness);
+}
+
+void testCANRX_ProcessRawValueRequest(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_ProcessRawValueRequest(testMessageDataZero, invalidEndianness));
+    /* set bits to indicate that the value for chanel 3 is requested */
+    uint64_t testMessageData = ((uint64_t)0x03) << 48u;
+    CANTX_TransmitAdcRawValue_ExpectAndReturn(3, STD_OK);
+    TEST_CANRX_ProcessRawValueRequest(testMessageData, validEndianness);
+}
+
+void testCANRX_ProcessCalibrationValueRequest(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_ProcessCalibrationValueRequest(testMessageDataZero, invalidEndianness));
+    /* set bits to indicate that the value for chanel 3 is requested */
+    uint64_t testMessageData = ((uint64_t)0x03) << 48u;
+    CANTX_TransmitAdcSlopeValue_ExpectAndReturn(3, STD_OK);
+    CANTX_TransmitAdcOffsetValue_ExpectAndReturn(3, STD_OK);
+
+    TEST_CANRX_ProcessCalibrationValueRequest(testMessageData, validEndianness);
+}
+
+void testGetRequestedCalibrationChannel(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_GetRequestedCalibrationChannel(testMessageDataZero, invalidEndianness));
+    /* set bits to indicate that the value for chanel 3 is requested */
+    uint64_t testMessageData = ((uint64_t)0x03) << 48u;
+    TEST_GetRequestedCalibrationChannel(testMessageData, validEndianness);
+}
+
 void testCANRX_CheckIfUptimeInfoIsRequested(void) {
     /* test endianness assertion */
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_CheckIfUptimeInfoIsRequested(testMessageDataZero, invalidEndianness));
@@ -680,7 +761,7 @@ void testCANRX_ProcessRtcMux(void) {
     /* Test setting a valid rtc time */
     RTC_TIME_DATA_s timeData = {0};
     RTC_SetRtcRequestFlag_Expect(1u);
-    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u, STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u, OS_SUCCESS);
     CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
     TEST_CANRX_ProcessRtcMux(testMessageDataZero, validEndianness);
 

@@ -43,8 +43,8 @@
  * @file    ethernet.c
  * @author  foxBMS Team
  * @date    2025-05-30 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  ETH
  *
@@ -54,7 +54,8 @@
  */
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
 
 #include "ethernet.h"
 
@@ -264,7 +265,7 @@ static void ETH_ListenForConnection(void *pParameters) {
 
 #if (ipconfigUSE_TCP_WIN == 1)
     {
-        /* Sliding windows can increase throughput while minimising network
+        /* Sliding windows can increase throughput while minimizing network
         traffic at the expense of consuming more RAM.*/
         /* Set the window and buffer sizes. */
         ETH_ConfigureSlidingWindow(listeningSocket);

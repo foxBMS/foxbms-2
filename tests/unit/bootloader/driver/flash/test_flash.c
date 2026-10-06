@@ -43,8 +43,8 @@
  * @file    test_flash.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,12 +65,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("flash.c")
-
-TEST_INCLUDE_PATH("../../src/bootloader/driver/config")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/flash")
-TEST_INCLUDE_PATH("../../src/bootloader/main/include")
-TEST_INCLUDE_PATH("C:/ti/Hercules/F021 Flash API/02.01.01/include")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define TEST_MOCK_FLASH_SECTOR_SIZE  (128u)
@@ -638,8 +632,11 @@ void testFLASH_WriteFlashSector(void) {
     uint8_t retVal;
 
     /* Prepare the test variables */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     uint32_t sectorSize = (uint32_t)(flash_kFlashSectors[FLASH_FIRST_SECTOR_FOR_APP_INDEX].pU8SectorAddressEnd + 1u) -
                           (uint32_t)flash_kFlashSectors[FLASH_FIRST_SECTOR_FOR_APP_INDEX].pU32SectorAddressStart;
+#pragma GCC diagnostic pop
     uint8_t dataBuffer[sectorSize];
     for (uint32_t iByte = 0u; iByte < sectorSize; iByte++) {
         dataBuffer[iByte] = 0xAA;
@@ -769,8 +766,11 @@ void testFLASH_WriteFlashSector(void) {
 
     /* ======= RT8/8: FLASH_EXCEPTION_CODE_NO_EXCEPTION */
     /* Prepare the test variables */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
     sectorSize = (uint32_t)(flash_kFlashSectors[7u].pU8SectorAddressEnd + 1u) -
                  (uint32_t)flash_kFlashSectors[7u].pU32SectorAddressStart;
+#pragma GCC diagnostic pop
     TEST_ASSERT_EQUAL(128u, sectorSize);
 
     /* Prepare a data buffer and a mocked flash sector which have same data */

@@ -7,7 +7,7 @@ NXP MC33775A
 ============
 
 ..
-   cspell:ignore BALEN
+   cspell:ignore BALEN,REGADD,NUMREG,MSGCNT,MADD,DEVADD
 
 Description
 -----------
@@ -20,12 +20,12 @@ line.
 
 The communication with the |nxp-mc33775a| can be made directly via SPI or
 through a differential line.
-This type of communication is called TPL.
-To translate SPI communication to TPL communication, a bridge IC is used,
+This type of communication is called |tpl|.
+To translate SPI communication to |tpl| communication, a bridge IC is used,
 called |nxp-mc33664|.
 
 In SPI mode, only 1 |nxp-mc33775a| can communicate with the MCU.
-In TPL mode, the MCU can communicate with up to 62 |nxp-mc33775a| in
+In |tpl| mode, the MCU can communicate with up to 62 |nxp-mc33775a| in
 daisy-chain.
 
 Daisy-chain
@@ -34,7 +34,7 @@ Daisy-chain
 Wake-up
 +++++++
 
-A device wakes up when there is any communication on the TPL bus.
+A device wakes up when there is any communication on the |tpl| bus.
 In addition, there is a WAKE-UP command that can be sent.
 When an enumerated device receives a WAKE-UP command, it automatically
 transmits an additional WAKE-UP message to the next device.
@@ -121,13 +121,13 @@ This means that when communicating with the daisy-chain, the MCU does not see a
 shift register.
 It sees single devices to which it sends messages and which answer.
 
-TPL
-+++
+|tpl|
++++++
 
-TPL is the name of the differential communication protocol used by the
+|tpl| is the name of the differential communication protocol used by the
 |nxp-mc33775a| ICs to communicate in daisy-chain.
 A bridge IC called |nxp-mc33664| is used to make the translation between SPI
-and TPL, so that the MCU only sees SPI communications.
+and |tpl|, so that the MCU only sees SPI communications.
 The |nxp-mc33664| has one important specificity: it uses two SPI interfaces to
 communicate with the MCU, one Tx SPI and one Rx SPI.
 The SPI interfaces are configured as follows:
@@ -148,7 +148,7 @@ There are 4 types of message:
 - RESPONSE of |nxp-mc33775a| to READ message
 
 A RESPONSE message is received after a READ command was issued.
-In TPL mode, there is no response to WRITE message.
+In |tpl| mode, there is no response to WRITE message.
 
 The following fields compose messages and are common to all types of messages:
 
@@ -224,7 +224,7 @@ Finally the CRC:
 
 - CRC value computed over the whole message.
 
-In TPL mode, the daisy-chain does not respond to WRITE commands.
+In |tpl| mode, the daisy-chain does not respond to WRITE commands.
 
 Reading values from registers
 -----------------------------
@@ -522,9 +522,8 @@ Balancing
 
 The following figure sums up the different switches for balancing.
 
-.. drawio-figure:: img/nxp-mc33775a_balancing.drawio
+.. figure:: ../../../../../../build/docs/docs/software/modules/driver/afe/nxp/img/nxp-mc33775a_balancing.svg
    :alt: Balancing switches
-   :format: svg
    :width: 80%
    :align: center
 

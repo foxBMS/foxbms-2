@@ -90,7 +90,7 @@ TEST_CASES = {
 }
 
 
-def main():
+def main() -> int:
     """Verify the Output of the 'fox plot' command"""
     try:
         test = sys.argv[1]
@@ -103,7 +103,8 @@ def main():
     reference = np.array(Image.open(test_config["reference"]))
     comparison = np.array(Image.open(test_config["comparison"]))
     _check(reference, comparison, test)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

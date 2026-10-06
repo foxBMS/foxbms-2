@@ -43,13 +43,17 @@
  * @file    can_cbs.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
  * @brief   CAN driver callback implementation
- * @details TODO
+ * @details Implements the bootloader CAN receive callbacks for the update
+ *          protocol. The callbacks decode request, transfer-info, loop-info,
+ *          data, and CRC messages, update the CAN transfer state machine,
+ *          buffer incoming data, validate received content, and send
+ *          acknowledge or status messages back to the host.
  */
 
 /*========== Includes =======================================================*/
@@ -267,11 +271,25 @@ extern uint32_t CAN_RxCrc8Bytes(CAN_MESSAGE_PROPERTIES_s message, const uint8_t 
             /* Get boolean conditions for different cases */
             /* Disable IRQ interrupt before every function that will be run from RAM */
             _disable_IRQ_interrupt_();
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
             FLASH_FLASH_SECTOR_s currentSector =
                 FLASH_GetFlashSector((uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             _enable_IRQ_interrupt_();
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
             uint32_t lenOfCurrentSector = (uint32_t)currentSector.pU8SectorAddressEnd -
                                           (uint32_t)currentSector.pU32SectorAddressStart + 1u;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             bool isFinishedTransferCurrentSector = (can_infoOfDataTransfer.sectorBufferCurrentAddressU8 -
                                                     BOOT_SECTOR_BUFFER_START_ADDRESS) >= lenOfCurrentSector;
             bool isThisTheLastDataLoop =
@@ -354,10 +372,17 @@ extern uint32_t CAN_RxData8Bytes(CAN_MESSAGE_PROPERTIES_s message, const uint8_t
             }
 
             if (gotoNext) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#endif /* __GNUC__ */
                 memcpy(
                     (uint8_t *)can_infoOfDataTransfer.sectorBufferCurrentAddressU8,
                     &data8Bytes,
                     BOOT_NUM_OF_BYTES_IN_64_BITS);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 
                 /* Update can status */
                 can_stateOfCanCommunication = CAN_FSM_STATE_RECEIVED_8_BYTES_DATA;
@@ -530,9 +555,9 @@ extern uint32_t CAN_RxLoopInfo(CAN_MESSAGE_PROPERTIES_s message, const uint8_t *
         }
 
         /* Boolean conditions for different cases */
-        bool isToRepeatThisLoop            = (can_stateOfCanCommunication == CAN_FSM_STATE_RECEIVED_LOOP_NUMBER);
-        bool isThisLoopTheFirstInDataLoops = (can_infoOfDataTransfer.numOfCurrentLoop == 1u) &&
-                                             (can_stateOfCanCommunication == CAN_FSM_STATE_WAIT_FOR_DATA_LOOPS);
+        bool isToRepeatThisLoop              = (can_stateOfCanCommunication == CAN_FSM_STATE_RECEIVED_LOOP_NUMBER);
+        bool isThisLoopTheFirstInDataLoops   = (can_infoOfDataTransfer.numOfCurrentLoop == 1u) &&
+                                               (can_stateOfCanCommunication == CAN_FSM_STATE_WAIT_FOR_DATA_LOOPS);
         bool isJustFinishedValidationStep    = (can_stateOfCanCommunication == CAN_FSM_STATE_RECEIVED_8_BYTES_CRC);
         bool isThisLoopTheFirstInSectorLoops = (isThisLoopTheFirstInDataLoops || isJustFinishedValidationStep);
         bool isEveryThingNormal              = (can_stateOfCanCommunication == CAN_FSM_STATE_RECEIVED_8_BYTES_DATA);

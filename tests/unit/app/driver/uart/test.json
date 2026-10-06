@@ -1,0 +1,54 @@
+[
+  {
+    "source": "src/app/driver/uart/uart.c",
+    "test": "test_uart_sci_notification.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/uart",
+      "src/app/task/config",
+      "src/app/task/ftask",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include"
+    ],
+    "mocks": [
+      "HL_reg_sci.h",
+      "HL_sys_dma.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h",
+      "src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h"
+    ],
+    "defines": [
+      "COMPILE_FOR_UNIT_TEST=1",
+      "FOXBMS_UART_SUPPORT=1"
+    ]
+  },
+  {
+    "source": [
+      "src/app/driver/config/dma_cfg.c",
+      "src/app/driver/uart/uart.c"
+    ],
+    "test": "test_uart.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/rtc",
+      "src/app/driver/spi",
+      "src/app/driver/uart",
+      "src/app/task/config",
+      "src/app/task/ftask"
+    ],
+    "mocks": [
+      "HL_sci.h",
+      "HL_sys_dma.h",
+      "src/app/task/ftask/ftask.h",
+      "src/app/task/os/os.h",
+      "src/os/freertos/freertos/include/mpu_prototypes.h"
+    ],
+    "defines": [
+      "FOXBMS_UART_SUPPORT=1"
+    ]
+  }
+]

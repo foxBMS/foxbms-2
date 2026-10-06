@@ -43,8 +43,8 @@
  * @file    test_can_2.c
  * @author  foxBMS Team
  * @date    2023-03-13 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -80,20 +80,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
-TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -163,6 +149,10 @@ static uint32_t TEST_CANTX_DummyCallback(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
+    (void)message;
+    (void)pCanData;
+    (void)pMuxId;
+    (void)kpkCanShim;
     return 0;
 }
 
@@ -170,6 +160,9 @@ static uint32_t TEST_CANRX_DummyCallback(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
+    (void)message;
+    (void)kpkCanData;
+    (void)kpkCanShim;
     return 0;
 }
 

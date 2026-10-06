@@ -37,10 +37,14 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
 
     bld.recurse("config")
 
@@ -48,47 +52,62 @@ def build(bld):
     if have_diagnostic_sources:
         bld.recurse("diag")
 
-    includes = (
-        [
-            "../../../config",
-            "../../../mcu",
-            "../../../pex",
-            "../../../rtc",
-            "../../../spi",
-            "../../../ts",
-            "../../../ts/api",
-            "../../../../application/config",
-            "../../../../engine/config",
-            "../../../../engine/database",
-            "../../../../engine/diag",
-            "../../../../main/include",
-            "../../../../task/config",
-            "../../../../task/ftask",
-            "../../../../task/os",
-        ]
-        + [
-            bld.root.find_node(i).path_from(bld.path)
-            for i in bld.env.FOXBMS_INCLUDES_AFE
-        ]
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
-    )
+    use = [
+        f"{lp}hal",
+        f"{ip}afe",
+        f"{ip}rtos-kernel",
+        f"{cp}battery_system_cfg",
+    ]
+
+    includes = [
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/pex"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/driver/ts"),
+        bld.srcnode.find_node("src/app/driver/ts/api"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/engine/diag"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
 
     source = "adi_ades1830_balancing"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     source = "adi_ades1830_gpio_voltages"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
+    )
+
+    bld(
+        export_includes=[
+            bld.path,
+            bld.path.find_node("config"),
+            bld.path.find_node("diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/api"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/config"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/diag"),
+            bld.srcnode.find_node("src/app/driver/afe/adi/common/ades183x/pec"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+        ],
+        target=f"{ip}afe-adi_ades1830",
     )
 
     use = [
@@ -105,6 +124,7 @@ def build(bld):
         f"{op}adi_ades183x_commands",
         f"{op}adi_ades183x_helpers",
         f"{op}adi_ades183x_initialization",
+        f"{op}adi_ades183x_mux",
         f"{op}adi_ades183x_temperatures",
         f"{op}adi_ades183x_voltages",
     ]

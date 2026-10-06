@@ -38,9 +38,7 @@
 # - "This product is derived from foxBMS®"
 
 
-import argparse
-
-from waflib import Build, Context, Utils
+from waflib import Build, Context
 
 Context.Context.line_just = 50
 
@@ -57,7 +55,7 @@ APPNAME = "MY_LIB"
 VERSION = "0.0.12"
 
 
-tooldir = "tools/waf-tools"
+tooldir = "tools/waf_tools"
 
 # Files and directories that are excluded when running dist commands
 dist_exclude = (
@@ -70,7 +68,7 @@ dist_exclude = (
 
 def options(opt):
     """Define options that can be passed to waf"""
-    opt.load("f_ti_arm_cgt", tooldir=tooldir)
+    opt.load("ti_arm_cgt", tooldir=tooldir)
 
     # remove unsupported options
     for k in (
@@ -91,50 +89,25 @@ def options(opt):
         if option:
             opt.parser.remove_option(k)
 
-    # just hiding the option because removing is not possible
-    opt.parser.get_option("--targets").help = argparse.SUPPRESS
-
     Context.classes.remove(Build.InstallContext)
     Context.classes.remove(Build.UninstallContext)
-
-    opt.add_option(
-        "--confcache",
-        dest="confcache",
-        default=0,
-        action="count",
-        help="Use a configuration cache",
-    )
 
 
 def configure(conf):
     """Configure the library project"""
-    if " " in conf.path.abspath():
-        conf.fatal(f"Project path must not contain spaces ({conf.path}).")
-    known_max_depth = 133
-    if Utils.is_win32 and len(conf.path.abspath()) + known_max_depth > 260:
-        conf.fatal(
-            "Build path length will exceed 260 characters.\nClone or move the "
-            "repository into a shorter path."
-        )
-    conf.msg("Checking project path", conf.path.abspath())
+    conf.load("check_project_path", tooldir=tooldir)
+    conf.load("ti_arm_cgt", tooldir=tooldir)
 
-    conf.load("f_ti_arm_cgt", tooldir=tooldir)
+    fragment = "int main() {\n    return 0;\n}\n"
+    conf.check(features="c", fragment=fragment)
 
-    fragment = "#include <stdint.h>\n\nint main() {\n    return 0;\n}\n"
-    conf.check(
-        features="c", fragment=fragment, msg="Checking for code snippet (object)"
-    )
-
-    fragment = "#include <stdint.h>\n\nint sum(int a, int b){\n    return (a + b);}\n"
-    conf.check(
-        features="c cstlib",
-        fragment=fragment,
-        msg="Checking for code snippet (library)",
-    )
+    fragment = "int sum(int a, int b){\n    return (a + b);}\n"
+    conf.check(features="c cstlib", fragment=fragment)
 
 
 def build(bld):
-    bld.stlib(
+    bld(
+        features="c cstlib",
         source="src/libproject-example.c",
         target=f"{APPNAME.lower()}-{VERSION}",
     )

@@ -43,13 +43,16 @@
  * @file    general.h
  * @author  foxBMS Team
  * @date    2019-09-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  GEN
  *
  * @brief   General macros and definitions for the whole platform.
- * @details TODO
+ * @details Provides foundational compile-time checks for assumptions shared
+ *          across the bootloader, including boolean semantics, standard return
+ *          codes, and target word size. These assertions make platform and
+ *          toolchain expectations explicit early in the build.
  */
 
 #ifndef FOXBMS__GENERAL_H_

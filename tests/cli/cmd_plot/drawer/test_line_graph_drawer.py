@@ -60,7 +60,7 @@ try:
         LinesSettings,
         Mapping,
     )
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
     from cli.cmd_plot.drawer.line_graph_drawer import LineGraphDrawer
@@ -70,7 +70,7 @@ except ModuleNotFoundError:
         LinesSettings,
         Mapping,
     )
-    from cli.helpers.misc import PROJECT_BUILD_ROOT
+    from cli.helpers.project_context import PROJECT_BUILD_ROOT
 
 PATH_EXECUTION = Path(__file__).parent.parent / "test_execution"
 PATH_DATA = Path(__file__).parent.parent / "test_data"
@@ -79,7 +79,7 @@ PATH_DATA = Path(__file__).parent.parent / "test_data"
 class TestDraw(unittest.TestCase):
     """Class to test the draw method of the LineGraphDrawer class"""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.data = pd.read_csv((PATH_DATA / "input_data.csv"), skiprows=4)
         self.line = LinesSettings(input=["Voltage(V)"], labels=["Cell Voltage"])
         _, self.axes = plt.subplots()
@@ -278,7 +278,7 @@ class TestDraw(unittest.TestCase):
 class TestDrawLine(unittest.TestCase):
     """Class to test the draw_line method of the LineGraphDrawer class"""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
         _, axes = plt.subplots()
         self.axis = axes
@@ -499,7 +499,7 @@ class TestShow(unittest.TestCase):
 class TestSave(unittest.TestCase):
     """Class to test the save method of the LineGraphDrawer class"""
 
-    def setUp(self) -> None:
+    def setUp(self) -> None:  # noqa: D102
         self.start_time = datetime.now(tz=UTC)
         line_y1 = LinesSettings(input=["Values 1"], labels=["Values 1"])
         _, axes = plt.subplots(figsize=(7, 7), dpi=100)
@@ -547,7 +547,7 @@ class TestSave(unittest.TestCase):
 class TestValidateConfig(unittest.TestCase):
     """Class to test the validate_config method of the LineGraphDrawer class"""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.config = {
             "name": "hypo_test",
             "mapping": {
@@ -565,11 +565,11 @@ class TestValidateConfig(unittest.TestCase):
             "graph": {"show": True, "save": True, "format": "png"},
         }
 
-    def test_validate_success(self):
+    def test_validate_success(self) -> None:
         """Tests the validate_config method with valid config"""
         LineGraphDrawer.validate_config(self.config)
 
-    def test_validate_fail(self):
+    def test_validate_fail(self) -> None:
         """Tests the validate_config method with invalid config"""
         self.config["name"] = 2
         buf = io.StringIO()

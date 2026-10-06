@@ -43,8 +43,8 @@
  * @file    can_helper.h
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -165,11 +165,10 @@ extern void CAN_RxGetSignalDataFromMessageData(
 
 /**
  * @brief   Copy CAN data from 8 bytes to a 64-bit variable.
- * @details This function is used to copy data from a 64-bit variable to 8
- *          bytes.
- * @param[in]    pMessage   64-bit where the data is copied
- * @param[out]   kpkCanData 8 bytes containing the data
- * @param[in]    endianness big or little endianness of data
+ * @details This function is used to copy data from 8-Bytes CAN data to a 64-bit variable.
+ * @param[out]  pMessage   64-bit where the data is copied
+ * @param[in]   kpkCanData 8 bytes containing the data
+ * @param[in]   endianness big or little endianness of data
  */
 extern void CAN_RxGetMessageDataFromCanData(
     uint64_t *pMessage,

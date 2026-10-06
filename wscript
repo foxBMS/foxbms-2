@@ -38,18 +38,67 @@
 # - "This product is derived from foxBMS®"
 
 # This script defines how to configure and build the project.
-# This includes configuration the toolchain for building foxBMS binaries, the
+# This includes configuration of the toolchain for building foxBMS binaries, the
 # documentation and running various checks on the source files.
 
+"""Top-level Waf build script for the foxBMS project.
 
-import argparse
+This wscript is the entry point for the Waf build system. It defines how to
+configure and build all foxBMS variants including embedded firmware binaries
+(app and bootloader for TI ARM CGT), host-based unit tests (GCC), static
+program analysis (SPA) builds, Doxygen API documentation, and Sphinx-based
+general documentation.
+
+The script performs three main tasks:
+
+1. **Variant registration**:
+    Dynamically creates Waf build/clean/list/step
+    commands for each variant defined in ``VARIANT_CONFIGS``.
+
+2. **Configuration**:
+    Sets up multiple named build environments (one per
+    toolchain/variant combination), each with its own compiler, flags, and
+    tool settings. Environments are derived from a common default to share
+    project-wide settings (``APPNAME``, ``VERSION``, ``BMS_CONFIG``).
+
+3. **Build dispatch**:
+    Selects the correct environment and source directory
+    for the active variant and recurses into the appropriate sub-wscript.
+
+Usage
+-----
+- Configure all environments once::
+
+    waf configure
+
+- Build a specific variant::
+
+    waf build_app_ti_arm_cgt        # embedded firmware
+    waf build_app_unit_test_gcc     # host unit tests
+    waf build_docs                  # Sphinx documentation
+
+  The complete list of variants can be found under :ref:`FOX_WAF`
+  or via the CLI command ``waf -h``/``waf --help``.
+
+- Clean a variant::
+
+    waf clean_app_ti_arm_cgt
+
+Dependencies
+------------
+- Waf (bundled)
+- TI ARM CGT (for embedded builds)
+- GCC (for host/unit-test builds)
+- Ruby + CMock/Unity (for unit-test mock generation)
+- Sphinx, Doxygen (for documentation builds)
+"""
+
+# cspell:ignore multicheck
+
 import os
-import shutil
 import sys
-import tarfile
-from binascii import hexlify
 
-from waflib import Build, Context, Errors, Logs, Scripting, Utils
+from waflib import Build, Context, Logs, Options, Scripting, Utils
 from waflib.Build import (
     BuildContext,
     CleanContext,
@@ -58,8 +107,7 @@ from waflib.Build import (
 )
 from waflib.ConfigSet import ConfigSet
 from waflib.Configure import ConfigurationContext
-
-Context.Context.line_just = 50
+from waflib.Options import OptionsContext
 
 out = "build"
 top = "."
@@ -68,45 +116,112 @@ APPNAME = "foxBMS"
 
 # foxBMS version; this is included in the embedded binaries, as well as the
 # documentation and fox.py
-VERSION = "1.11.0"
+VERSION = "1.12.0"
 
 # Single source of truth for variant metadata.
-# - 'cat' controls command-context generation.
+# The variant name (i.e., the build command) is the key.
+# - The variant is either 'app' or 'bootloader' to distinguish between the two
+#   main build targets.
+#   Exception: the 'docs' variant for the general documentation build
+# - The 'app' and 'bootloader' variants have each an embedded build using the
+#   target compiler and a SPA build using the SPA compiler in target compiler
+#   configuration.
+# - The 'app' and 'bootloader' variants have each an accompanying unit test for
+#   the host.
+# - There are optional unit tests for the embedded target.
+# - The 'app' and 'bootloader' variants and their accompanying unit test for
+#   the host have each a doxygen documentation variant.
+# - The unit test can be built using GCC (i.e., executable on the host) or as
+#   SPA variant using the SPA compiler in GCC configuration.
+# The naming convention for the variants is in the form of:
+# - 'app' or 'bootloader' to distinguish between the two main build targets
+# - 'unit_test' if the variant is for unit tests
+# - the compiler name if the variant is for an embedded build (e.g., ti_arm_cgt)
+# - 'spa' if the variant is for a SPA build followed by the name of the
+#   compiler configured for the SPA build (e.g., spa_ti_arm_cgt)
+# These names are joined by underscores, e.g., 'app_ti_arm_cgt' in the order of
+# this list.
+# The value of each key is a dict with the following keys:
+# - 'cat' controls command-context generation (optional, defaults to None).
 # - 'dir' is recursed in build().
 # - 'doc' displayed when using '--help'.
-# - 'env' is selected als build environment in build().
+# - 'env' is selected as build environment in build() (optional, defaults to
+#   the build variant).
+#
+# The implementation of these rules is defined in
+# tools/waf_tools/validate_variants.py.
 VARIANT_CONFIGS = {
     "app_doxygen": {
         "dir": "docs",
         "doc": "doxygen documentation for the app",
         "env": "doxygen",
     },
-    "app_doxygen_unit_test": {
+    "app_unit_test_doxygen": {
         "dir": "docs",
         "doc": "doxygen documentation for the app's unit tests",
         "env": "doxygen",
     },
-    "app_embedded": {
+    "app_ti_arm_cgt": {
         "cat": "binary",
         "dir": "src",
-        "doc": "embedded binary of the app",
-        "env": "",
+        "doc": "binary of the app for the target",
+        "env": "ti_arm_cgt",
+    },
+    "app_spa_ti_arm_cgt": {
+        "cat": "binary",
+        "dir": "src",
+        "doc": "SPA artifact of the app in TI ARM CGT configuration",
+    },
+    "app_unit_test_gcc": {
+        "cat": "unit_test",
+        "dir": "tests",
+        "doc": "unit tests for the app on the host",
+        "env": "unit_test_gcc",
+    },
+    "app_unit_test_spa_gcc": {
+        "cat": "unit_test",
+        "dir": "tests",
+        "doc": "SPA artifact of the unit tests of the app",
+        "env": "unit_test_spa_gcc",
     },
     "bootloader_doxygen": {
         "dir": "docs",
         "doc": "doxygen documentation for the bootloader",
         "env": "doxygen",
     },
-    "bootloader_doxygen_unit_test": {
+    "bootloader_unit_test_doxygen": {
         "dir": "docs",
         "doc": "doxygen documentation for the bootloader's unit tests",
         "env": "doxygen",
     },
-    "bootloader_embedded": {
+    "bootloader_ti_arm_cgt": {
         "cat": "binary",
         "dir": "src",
-        "doc": "embedded binary of the bootloader",
-        "env": "",
+        "doc": "binary of the bootloader for the target",
+        "env": "ti_arm_cgt",
+    },
+    "bootloader_unit_test_ti_arm_cgt": {
+        "cat": "binary",
+        "dir": "src",
+        "doc": "unit tests of the bootloader for the target",
+        "env": "ti_arm_cgt",
+    },
+    "bootloader_spa_ti_arm_cgt": {
+        "cat": "binary",
+        "dir": "src",
+        "doc": "SPA artifact of the bootloader in TI ARM CGT configuration",
+    },
+    "bootloader_unit_test_gcc": {
+        "cat": "unit_test",
+        "dir": "tests",
+        "doc": "unit tests for the bootloader on the host",
+        "env": "unit_test_gcc",
+    },
+    "bootloader_unit_test_spa_gcc": {
+        "cat": "unit_test",
+        "dir": "tests",
+        "doc": "SPA artifact of the unit tests of the bootloader",
+        "env": "unit_test_spa_gcc",
     },
     "docs": {
         "dir": "docs",
@@ -115,7 +230,8 @@ VARIANT_CONFIGS = {
     },
 }
 
-TOOLDIR = "tools/waf-tools"
+
+TOOLDIR = "tools/waf_tools"
 
 BMS_CONFIG = {
     "bms": "conf/bms/bms.json",
@@ -124,11 +240,15 @@ BMS_CONFIG = {
 
 for var, var_cfg in VARIANT_CONFIGS.items():
     contexts: tuple = (BuildContext, CleanContext)
-    if var_cfg.get("cat") in ("binary",):
+    if var_cfg.get("cat") in ("binary", "unit_test"):
         contexts += (ListContext, StepContext)
     old_contexts = contexts
     for cont in contexts:
         name = cont.__name__.replace("Context", "").lower()
+        # Skip creating 'clean_docs' here as it is already provided by the
+        # 'sphinx_build' waf tool (see tools/waf_tools/sphinx_build.py).
+        if name == "clean" and var == "docs":
+            continue
 
         class tmp_1(cont):
             """Helper class to create the build variant commands"""
@@ -147,13 +267,22 @@ for var, var_cfg in VARIANT_CONFIGS.items():
             variant = var
 
 
-def options(opt):
-    opt.load("sphinx", tooldir=TOOLDIR)
+def options(opt: OptionsContext):
+    """Register all command-line options for the foxBMS build system.
+
+    Loads option definitions from waf tools, removes unused stock waf options,
+    unregisters the install/uninstall commands, and adds the
+    ``--confcache`` switch.
+    """
+    opt.VARIANTS = VARIANT_CONFIGS
+    opt.load("validate_variants", tooldir=TOOLDIR)
+    opt.load("sphinx_build", tooldir=TOOLDIR)
     opt.load("doxygen", tooldir=TOOLDIR)
-    opt.load("f_ti_arm_cgt", tooldir=TOOLDIR)
-    # load bootstrap-library-project-tool
-    opt.load("f_bootstrap_library_project", tooldir=TOOLDIR)
+    opt.load("ti_arm_cgt", tooldir=TOOLDIR)
+    opt.load("bootstrap_library_project", tooldir=TOOLDIR)
     opt.load("all_commands", tooldir=TOOLDIR)
+    opt.load("gcov", tooldir=TOOLDIR)
+    opt.load("vscode", tooldir=TOOLDIR)
 
     # remove options hard
     for k in (
@@ -184,175 +313,358 @@ def options(opt):
         help="Use a configuration cache",
     )
 
-    opt.load("f_lauterbach", tooldir=TOOLDIR)
-
-    # test function that shall not be communicate through the CLI
-    opt.add_option(
-        "--target-test",
-        dest="target_test",
-        default=False,
-        action="store_true",
-    )
-    opt.parser.get_option("--target-test").help = argparse.SUPPRESS
+    opt.load("lauterbach", tooldir=TOOLDIR)
+    opt.load("waf_unit_test")
 
 
-# pylint: disable-next=too-many-statements
-def configure(conf: ConfigurationContext):
+def configure(ctx: ConfigurationContext):  # pylint: disable=too-many-statements
+    """Configure all build environments for the foxBMS project.
+
+    Creates a default environment with project-wide settings (``APPNAME``,
+    ``VERSION``, ``BMS_CONFIG``) and derives specialized environments for
+    each toolchain:
+
+    - **gcc**:
+        Host GCC compiler; validates object, static library, and
+        program compilation.
+    - **docs**:
+        Sphinx documentation generation.
+    - **doxygen**:
+        Doxygen API documentation generation.
+    - **ti_arm_cgt**:
+        TI ARM CGT cross-compiler for TMS570 target binaries;
+        configures silicon version, ABI, optimisation, linker flags,
+        hex/size/nm tools, and Lauterbach trace support.
+    - **unit_test_gcc**:
+        Host GCC with CMock/Unity/gcov for unit testing.
+    - **unit_test_spa_gcc**:
+        SPA in GCC configuration.
+
+    Finally queues the ``vscode`` command to regenerate IDE workspace files.
+    """
     # This basic configuration shall be loaded as initial step to every
     # environment that is created
-    conf.env.APPNAME = APPNAME
-    conf.env.VERSION = VERSION
-    bms_config_node = conf.path.find_node(BMS_CONFIG["bms"])
-    conf.env.append_unique(
-        "CONFIG_BMS_JSON_HASH", hexlify(bms_config_node.h_file()).decode("utf-8")
-    )
-    conf.load("check_project_path", tooldir=TOOLDIR)
+    ctx.env.APPNAME = APPNAME
+    ctx.env.VERSION = VERSION
+    ctx.env.BMS_CONFIG = ctx.path.find_node(BMS_CONFIG["bms"]).relpath()
+
+    checks = [
+        {"msg": "check object", "features": "c"},
+        {"msg": "check staticlib", "features": "c cstlib"},
+        {"msg": "check program", "features": "c cprogram"},
+    ]
+    checks_executable = [
+        {
+            "msg": "check unit test",
+            "features": "c cprogram",
+            "execute": True,
+        },
+    ]
+
+    ctx.load("check_project_path", tooldir=TOOLDIR)
+    ctx.load("config_codegen_task", tooldir=TOOLDIR)
     # Save the default environment; all things that shall be common to all
     # environments shall be added above this line!
-    default_env_node = conf.path.find_or_declare("default.env")
-    env_copy = conf.env.derive()
+    default_env_node = ctx.path.find_or_declare("default.env")
+    env_copy = ctx.env.derive()
     env_copy.store(default_env_node.abspath())
     # Basic environment creation done
 
-    conf.load("version_validator", tooldir=TOOLDIR)
-    conf.version_consistency_checker()
+    ctx.load("vscode", tooldir=TOOLDIR)
+    ctx.load("version_validator", tooldir=TOOLDIR)
+    ctx.version_consistency_checker()
+
+    # ENV: environment for arbitrary host builds
+    env_name = "gcc"
+    try:
+        ctx.setenv(env_name)
+        ctx.env = ConfigSet()
+        ctx.env.load(default_env_node.abspath())
+        ctx.load("gcc")
+        ctx.env.append_unique("CFLAGS", ["-Wall", "-Wextra", "-Werror"])
+        ctx.load("waf_unit_test")
+
+        ctx.multicheck(*checks, *checks_executable)
+
+        ctx.env.detach()
+    except ctx.errors.ConfigurationError:
+        ctx.msg(f"'{env_name}' environment", result=False)
+        ctx.setenv("")
+        ctx.all_envs.pop(env_name, None)
 
     # ENV: environment for sphinx documentation builds
-    conf.setenv("docs")
-    conf.env = ConfigSet()
-    conf.env.load(default_env_node.abspath())
-    conf.load("sphinx_build", tooldir=TOOLDIR)
-    conf.env.detach()
+    env_name = "docs"
+    try:
+        ctx.setenv(env_name)
+        ctx.env = ConfigSet()
+        ctx.env.load(default_env_node.abspath())
+        ctx.load("sphinx_build", tooldir=TOOLDIR)
+        ctx.load("gcc")
+        ctx.env.append_unique("CFLAGS", ["-Wall", "-Wextra", "-Werror"])
+        ctx.multicheck(*checks, *checks_executable)
+        ctx.env.DEFINES_DOCUMENTATION = ["DOCUMENTATION"]
+        ctx.find_program("ruby", var="RUBY")
+        ctx.load("mock", tooldir=TOOLDIR)
+        ctx.env.detach()
+    except ctx.errors.ConfigurationError:
+        ctx.msg(f"'{env_name}' environment", result=False)
+        ctx.setenv("")
+        ctx.all_envs.pop(env_name, None)
 
     # ENV: environment for doxygen documentation builds
-    conf.setenv("doxygen")
-    conf.env = ConfigSet()
-    conf.env.load(default_env_node.abspath())
-    conf.load("doxygen", tooldir=TOOLDIR)
-    conf.env.detach()
-
-    # ENV: environment for target and SPA builds
-    conf.setenv("")
-    conf.env = ConfigSet()
-    conf.env.load(default_env_node.abspath())
-    # We have a basic setup, now we can check what features are available
-    conf.find_program("python", var="PYTHON")
-    conf.load("vcs_git", tooldir=TOOLDIR)
-    conf.load("f_ti_arm_cgt", tooldir=TOOLDIR)
-    # test code fragments, that shall work with all compilers
-    snippet_main = conf.path.find_node("conf/cc/snippet_main.c").read()
-    snippet_sum = conf.path.find_node("conf/cc/snippet_sum.c").read()
-    msg = "Checking for code snippet (object)"
-    conf.check(features="c", fragment=snippet_main, msg=msg)
-    msg = "Checking for code snippet (library)"
-    conf.check(features="c cstlib", fragment=snippet_sum, msg=msg)
-
-    def full_build(bld):
-        bld.env.APPNAME = "TEST_BUILD"
-        c_fragment = "#include <stdint.h>\n\nint main() {\n    return 0;\n}\n"
-        h_fragment = (
-            "#ifndef GENERAL_H_\n#define GENERAL_H_\n#include <stdbool.h>\n"
-            "#include <stdint.h>\n#endif /* GENERAL_H_ */\n"
-        )
-        source = bld.srcnode.make_node("test.c")
-        source.parent.mkdir()
-        source.write(c_fragment, encoding="utf-8")
-        include = bld.srcnode.make_node("general.h")
-        include.write(h_fragment, encoding="utf-8")
-        linker_script = bld.path.find_node("../../src/app/main/app.cmd")
-        version_header = bld.path.find_node("../../src/version/version.h")
-        cflags = []
-        if bld.env.RTSV_missing:
-            cflags = ["--diag_remark=10366"]
-        bld.tiprogram(
-            includes=[include.parent, version_header.parent],
-            source=[source],
-            cflags=cflags,
-            linker_script=linker_script,
-        )
-
-    default_env = conf.env
-    test_env = conf.env.derive()
-    test_env.detach()
-
-    conf.setenv("test_env", test_env)
-    rtsv_lib = "rtsv7R4_A_be_v3D16_eabi.lib"
-    base_dir = f"{conf.root.find_node(conf.env.get_flat('CC')).parent.parent.abspath()}"
-    rtsv_lib_path = conf.root.find_node(f"{base_dir}/lib/{rtsv_lib}")
-    if not rtsv_lib_path.exists():
-        Logs.warn(
-            f"Runtime support library '{rtsv_lib}' missing. Need to build "
-            "it first. The next step may take a while..."
-        )
-        conf.env.RTSV_missing = True
-    else:
-        conf.env.RTSV_missing = False
-    conf.env.STLIB = ["c"]
-    conf.env.TARGETLIB = []
-    if "--undef_sym=resetEntry" in conf.env.LINKFLAGS:
-        conf.env.LINKFLAGS.remove("--undef_sym=resetEntry")
+    env_name = "doxygen"
     try:
-        conf.check(msg="Checking for code snippet (program)", build_fun=full_build)
-    except conf.errors.ConfigurationError:
-        Logs.error("\n\n===============>>>>>")
-        Logs.error(f"===============>>>>> Missing permissions for '{rtsv_lib_path}'. ")
-        Logs.error(
-            "===============>>>>> The RTS library exists, but the current "
-            "users permissions are not sufficient."
+        ctx.setenv(env_name)
+        ctx.env = ConfigSet()
+        ctx.env.load(default_env_node.abspath())
+        ctx.load("doxygen", tooldir=TOOLDIR)
+        ctx.env.detach()
+    except ctx.errors.ConfigurationError:
+        ctx.msg(f"'{env_name}' environment", result=False)
+        ctx.setenv("")
+        ctx.all_envs.pop(env_name, None)
+
+    # ENV: environment for TMS570 target builds (TI ARM CGT)
+    env_name = "ti_arm_cgt"
+    try:
+        ctx.setenv(env_name)
+        ctx.env = ConfigSet()
+        ctx.env.load(default_env_node.abspath())
+        ctx.load("ti_arm_cgt", tooldir=TOOLDIR)
+        ctx.load("app_crc", tooldir=TOOLDIR)
+        ctx.load("hcg", tooldir=TOOLDIR)
+        ctx.load("version_generate", tooldir=TOOLDIR)
+        ctx.load("vcs_git", tooldir=TOOLDIR)
+        ctx.load("bms_config_generate", tooldir=TOOLDIR)
+        ctx.load("bms_config_validate", tooldir=TOOLDIR)
+        ctx.load("battery_cell_config_validate", tooldir=TOOLDIR)
+        ctx.load("battery_system_config_validate", tooldir=TOOLDIR)
+        ctx.load("diag_array_config_validate", tooldir=TOOLDIR)
+        ctx.load("app_build_config_generate", tooldir=TOOLDIR)
+        ctx.env.CFLAGS = [
+            "--compile_only",
+            "--silicon_version=7R5",
+            "--code_state=32",
+            "--float_support=VFPv3D16",
+            "-g",
+            "--diag_wrap=off",
+            "--display_error_number",
+            "--enum_type=packed",
+            "--abi=eabi",
+            "--c11",
+            "--emit_warnings_as_errors",
+        ]
+        ctx.env.ASFLAGS = ctx.env.CFLAGS
+        ctx.env.CFLAGS_FOXBMS = [
+            "-O0",
+            "-DASSERT_LEVEL=0",
+            "--issue_remarks",
+            "--strict_ansi",
+        ]
+        ctx.env.CFLAGS_HAL = ["-O3"]
+        ctx.env.CFLAGS_OS = ["-O3", "--strict_ansi"]
+        ctx.env.append_unique(
+            "LINKFLAGS",
+            [
+                "--emit_warnings_as_errors",
+                "--be32",
+                "--rom_model",
+                "--undef_sym=__TI_static_base__",
+                # append '--undef_sym=resetEntry' after configuration checks to
+                # avoid interference with checks
+                "-o4",
+                "--unused_section_elimination",
+                "--zero_init=on",
+                "--scan_libraries",
+                "--issue_remarks",
+            ],
         )
-        Logs.error(
-            "===============>>>>> Increase the current users permissions "
-            "on this file and then try again."
+        ctx.env.HEXFLAGS = [  # cspell:ignore HEXFLAGS
+            "-q",
+            "--emit_warnings_as_errors",
+            "--memwidth=32",
+            "--tektronix",
+            "-image",
+            "--load_image",
+            "--load_image:combine_sections=true",
+            "--load_image:endian=big",
+            "--load_image:file_type=executable",
+            "--load_image:format=elf",
+            "--load_image:machine=ARM",
+            "--load_image:output_symbols=true",
+            "--load_image:section_addresses=false",
+        ]
+        ctx.env.SIZEFLAGS = [  # cspell:ignore SIZEFLAGS
+            "--common",
+            "--arch=arm",
+            "--format=berkeley",
+            "--totals",
+        ]
+        ctx.env.NMFLAGS = ["--all", "-f", "-l"]
+        ctx.load("lauterbach", tooldir=TOOLDIR)
+        # check if the runtime support library is already available
+        rts_lib_stem = "rtsv7R4_A_be_v3D16_eabi"
+        armcl = ctx.root.find_node(ctx.env.CC[0])
+        lib = armcl.parent.parent.find_node(f"lib/{rts_lib_stem}.lib")
+        if not lib:
+            # Building the specific RTS only needs to be done once per machine, so
+            # we can afford to do one extra 'check', that builds the RTS implicitly
+            # (that's how TI ARM CGT works).
+            ctx.start_msg(f"Building {rts_lib_stem.upper()}")
+            Logs.warn("\nThis may take a while...")
+            ctx.check(
+                features="c cprogram",
+                msg="",
+                cflags=["--diag_suppress=10205", "--diag_suppress=10366"],
+            )
+            ctx.end_msg("ok")
+        ctx.multicheck(*checks)
+        ctx.check(
+            features="c cprogram",
+            stlib=rts_lib_stem,
+            uselib_store=rts_lib_stem,
+            msg="Check runtime support library",
         )
-        Logs.error("===============>>>>>\n\n")
-        conf.fatal("Exit.")
+        if Utils.is_win32:
+            # bootloader can only be built on Windows due to dependencies being
+            # only available for Windows
 
-    conf.setenv("", default_env)
+            # we just check that the library exists;
+            # we must link against the library directly in the linker script, i.e.,
+            # we can omit uselib_store for the check
+            ctx.check(features="c cprogram", stlib="F021_API_CortexR4_BE_L2FMC_V3D16")
+            # The macro _L2FMC must be defined before the inclusion of the header
+            # file 'F021.h' on devices with the L2FMC Flash controller.
+            # doc:: F021 Flash API / Version 2.01.01 / Reference Guide
+            #       Literature Number: SPNU501G
+            #       December 2012-Revised October 2014
+            ctx.check(
+                features="c cprogram",
+                defines=["_L2FMC=1"],
+                uselib_store="_L2FMC",
+                msg="Check L2FMC Flash controller",
+            )
+            ctx.check(features="c cprogram", header_name="F021.h", uselib="_L2FMC")
 
-    conf.load("f_bootstrap_library_project", tooldir=TOOLDIR)
+        ctx.check(**checks[0], confcache=True, cflags="--preproc_macros")
 
-    # configure the documentation toolchain
-    conf.load("f_lauterbach", tooldir=TOOLDIR)
+        # it works, so add the final link flag for the actual build
+        ctx.env.append_value("LINKFLAGS", "--undef_sym=resetEntry")
+        ctx.load("vscode", tooldir=TOOLDIR)
+        ctx.load("codegen_matlab", tooldir=TOOLDIR)
+        ctx.load("hash_check", tooldir=TOOLDIR)
+        ctx.env.detach()
+    except ctx.errors.ConfigurationError:
+        ctx.msg(f"'{env_name}' environment", result=False)
+        ctx.setenv("")
+        ctx.all_envs.pop(env_name, None)
 
-    # Configure the build for the correct RTOS
-    conf.load("bms_config_validator", tooldir=TOOLDIR)
-    conf.validate_bms_configuration(bms_config_node)
-    conf.load("codegen_matlab", tooldir=TOOLDIR)
+    # ENV: environment for host builds (GCC)
+    env_name = "unit_test_gcc"
+    try:
+        ctx.setenv(env_name)
+        ctx.env = ConfigSet()
+        ctx.env.load(default_env_node.abspath())
+        ctx.load("gcc")
+        ctx.load("waf_unit_test")
+        ctx.find_program("ruby", var="RUBY")
+        ctx.load("mock", tooldir=TOOLDIR)
+        ctx.load("gcov", tooldir=TOOLDIR)
+        ctx.load("hcg", tooldir=TOOLDIR)
+        ctx.load("validate_test_json", tooldir=TOOLDIR)
 
-    # load VS Code setup as last foxBMS specific tool to ensure that all
-    # variables have a meaningful value
-    conf.load("f_vscode", tooldir=TOOLDIR)
-    conf.load("hash_check", tooldir=TOOLDIR)
+        ctx.env.append_unique(
+            "CFLAGS",
+            [
+                "-Wall",
+                "-Wextra",
+                "-Wno-unknown-pragmas",
+                "-Werror",
+                "-std=c11",
+                "-pedantic",
+                "-g",
+            ],
+        )
+        if not Utils.is_win32:  # gcc on Windows does not require linking against m
+            ctx.check_cc(lib="m", uselib_store="M")
+        ctx.load("vscode", tooldir=TOOLDIR)
+        ctx.env.detach()
+    except ctx.errors.ConfigurationError:
+        ctx.msg(f"'{env_name}' environment", result=False)
+        ctx.setenv("")
+        ctx.all_envs.pop(env_name, None)
 
-    # configuration is done, write the config header
-    config_header_name = "foxbms_config.h"
-    conf.write_config_header(config_header_name)
-    config_header = conf.path.find_resource(config_header_name)
-    conf.env.append_unique("INCLUDES", [config_header.parent.abspath()])
-    conf.env.append_unique("CFLAGS_HAL", ["--preinclude", config_header.abspath()])
-    conf.env.append_unique("CFLAGS_OS", ["--preinclude", config_header.abspath()])
-    conf.msg(msg="Configuration header", result=config_header.abspath())
-    # NOTHING BEYOND THIS POINT MUST BE DONE IN THE CONFIGURATION STEP
+    if ctx.env.VS_CODE_SHELL:
+        Options.commands.insert(0, "vscode")
 
 
 def build(bld: BuildContext):
-    variant_config = VARIANT_CONFIGS.get(bld.variant)
-    if not variant_config:
-        bld.fatal(
-            f"Build variants are:\n - {'\n - '.join(VARIANT_CONFIGS.keys())}.\n"
-            f"For more details use '--help'."
+    """Dispatch the build to the correct variant sub-wscript.
+
+    Generates VS Code workspace configurations, selects the named environment
+    for the active variant from ``VARIANT_CONFIGS``, runs a
+    version consistency check, appends the common remarks command file, and
+    recurses into the variant's directory (``src/``, ``tests/``, or ``docs/``).
+    """
+    if bld.env.VS_CODE_SHELL:
+        # Generate VS Code workspaces that do not have their own build variant.
+        # These are regenerated on every build to stay in sync with the current
+        # compiler configuration
+        bld(
+            features="vscode",
+            target="generic",
+            vscode_dir=bld.path.make_node(".vscode"),
+            use_compiler_defines=True,
+            include_dirs=[
+                "build/app_ti_arm_cgt",
+                "build/app_ti_arm_cgt/src/app/application/config",
+                "build/app_ti_arm_cgt/src/app/hal/include",
+                "src/version",
+            ],
+            glob_patterns=[
+                "src/app/**",
+                "src/os/**",
+            ],
+            use_compiler_includes=True,
+            pylint=True,
+            files_exclude={".vscode/**": True, "opt/**": True},
+            build_tasks=True,
+            environment="ti_arm_cgt",
         )
 
-    env_name = variant_config.get("env", "")
-    bld.env = bld.all_envs[env_name]
+        bld(
+            features="vscode",
+            target="cli",
+            vscode_dir=bld.path.make_node("cli/.vscode"),
+            pylint=True,
+        )
+    if bld.variant == "vscode":
+        return
+
+    variant_config = VARIANT_CONFIGS.get(bld.variant)
+    if bld.cmd.startswith("clean"):
+        return  # clean works without further processing
+    if not variant_config:
+        bld.fatal("Variant required.\nFor details use '--help'.")
+
+    env_name = variant_config.get("env", bld.variant)
+    if not env_name:
+        bld.fatal(f"Build variant {bld.variant} has no configured build environment.")
+    try:
+        bld.env = bld.all_envs[env_name]
+    except KeyError:
+        msg = (
+            f"Build variant '{bld.variant}' requires environment '{env_name}'"
+            ", which is not available.\n"
+            "Creating this environment failed during configuration. "
+            "Check the configuration output for details.\n"
+            "Most likely, the required part of the toolchain is not "
+            "(correctly) installed."
+        )
+        bld.fatal(msg)
+
     bld.version_consistency_checker()
-    bld.env.append_unique(
-        "CMD_FILES", [bld.path.find_node("conf/cc/remarks.txt").abspath()]
-    )
-    if not bld.env.CONFIG_BMS_JSON_HASH[0] == hexlify(
-        bld.path.find_node(BMS_CONFIG["bms"]).h_file()
-    ).decode("utf-8"):
-        bld.fatal(f"{BMS_CONFIG} has changed. Please run the configure command again.")
+    bld.env.append_unique("CMD_FILES", [bld.path.find_node("conf/cc/remarks.txt")])
 
     bld.recurse(variant_config["dir"])
 
@@ -378,54 +690,12 @@ Scripting.Dist.excl = DIST_EXCLUDE = (
 
 
 class DistCheckFoxBMS(Scripting.DistCheck):
-    def make_distcheck_cmd(self: Scripting.DistCheck, tmpdir: str = ""):  # noqa:ARG002
+    def make_distcheck_cmd(self: Scripting.DistCheck, tmpdir: str = ""):  # noqa: ARG002
         dist_waf = os.path.relpath(sys.argv[0], self.path.abspath())
         cmd = [
             sys.executable,
             os.path.join(self.path.abspath(), self.get_base_name(), dist_waf),
             "configure",
-            "build_all",
+            VARIANT_CONFIGS.keys(),
         ]
         return cmd
-
-    def make_distcheck_cmd_additional(self: Scripting.DistCheck):
-        """Additional commands that need to be checked in the distribution,
-        which are not waf-based commands
-        """
-        cmd = (
-            [
-                sys.executable,
-                os.path.join(self.path.abspath(), self.get_base_name(), "fox.py"),
-                "ceedling",
-                "--project",
-                "app",
-                "gcov:all",
-            ],
-            [
-                sys.executable,
-                os.path.join(self.path.abspath(), self.get_base_name(), "fox.py"),
-                "ceedling",
-                "--project",
-                "bootloader",
-                "gcov:all",
-            ],
-        )
-        return cmd
-
-    def check(self):
-        with tarfile.open(self.get_arch_name()) as t:
-            for x in t:
-                if hasattr(tarfile, "data_filter"):
-                    t.extract(x, filter="data")
-                else:
-                    t.extract(x)
-
-        for cmd in (
-            self.make_distcheck_cmd(""),
-        ) + self.make_distcheck_cmd_additional():
-            ret = Utils.subprocess.Popen(cmd, cwd=self.get_base_name()).wait()
-            if ret:
-                err = f"distcheck failed with code {ret}"
-                raise Errors.WafError(err)
-
-        shutil.rmtree(self.get_base_name())

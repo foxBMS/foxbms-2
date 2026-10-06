@@ -37,28 +37,38 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
 
     bld.recurse(["config", "moving_average", "state_estimation"])
 
     includes = [
-        ".",
-        "config",
-        "../../main/include",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.path.find_node("config"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
+    use = [
+        f"{lp}hal",
+        f"{ip}rtos-kernel",
+        "foxbms_config",
+    ]
     source = "algorithm"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
     )
 
     use = [
+        f"{lp}hal",
         f"{op}algorithm",
         f"{op}algorithm_cfg",
         f"{op}moving_average",

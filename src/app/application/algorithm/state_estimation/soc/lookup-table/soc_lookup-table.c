@@ -43,8 +43,8 @@
  * @file    soc_lookup-table.c
  * @author  foxBMS Team
  * @date    2025-06-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -233,6 +233,9 @@ extern float_t SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern DATA_BLOCK_MIN_MAX_s *TEST_SOC_GetTableMinMax(void) {
+    return &soc_tableMinMax;
+}
 extern bool TEST_SE_GetSocStateInitialized(void) {
     return soc_state.socInitialized;
 }

@@ -43,8 +43,8 @@
  * @file    test_abc.c
  * @author  foxBMS Team
  * @date    2022-12-13 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -79,9 +79,3 @@ void testABC_DoSomethingElse() {
     TEST_ABC_DoSomethingElse(2);
 }
 /* stop-include-in-doc */
-
-int main() {
-    testABC_DoThis();
-    testABC_DoSomethingElse();
-    return 0;
-}

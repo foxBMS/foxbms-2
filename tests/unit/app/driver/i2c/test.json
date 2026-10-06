@@ -1,0 +1,18 @@
+[
+  {
+    "source": "src/app/driver/i2c/i2c.c",
+    "test": "test_i2c.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/i2c",
+      "src/app/engine/diag"
+    ],
+    "mocks": [
+      "HL_i2c.h",
+      "HL_sys_dma.h",
+      "src/app/driver/mcu/mcu.h",
+      "src/app/task/os/os.h"
+    ]
+  }
+]

@@ -1,0 +1,132 @@
+[
+  {
+    "test": "test_fstd_types.c"
+  },
+  {
+    "source": "src/app/main/fassert.c",
+    "test": "test_fassert.c"
+  },
+  {
+    "source": "src/app/main/fstartup.c",
+    "test": "test_fstartup.c",
+    "includes": [
+      "tests/unit/app/main/helper"
+    ],
+    "mocks": [
+      "HL_errata_SSWF021_45.h",
+      "HL_esm.h",
+      "HL_hal_stdtypes.h",
+      "HL_reg_esm.h",
+      "HL_sys_common.h",
+      "HL_sys_core.h",
+      "HL_sys_mpu.h",
+      "HL_sys_vim.h",
+      "HL_system.h"
+    ],
+    "defines": [
+      "__REG_ESM_H__"
+    ],
+    "cflags": [
+      "-include",
+      "HL_hal_stdtypes.h",
+      "-include",
+      "HL_sys_common.h",
+      "-include",
+      "m_esm.h"
+    ]
+  },
+  {
+    "source": "src/app/main/main.c",
+    "test": "test_main_ethernet_uart.c",
+    "includes": [
+      "src/app/application/ethernet",
+      "src/app/driver/adc",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/foxmath",
+      "src/app/driver/i2c",
+      "src/app/driver/io",
+      "src/app/driver/led",
+      "src/app/driver/pwm",
+      "src/app/driver/spi",
+      "src/app/driver/uart",
+      "src/app/engine/diag",
+      "src/app/engine/hw_info",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/include",
+      "src/os/freertos/freertos-plus/freertos-plus-tcp/source/portable/Compiler/CCS"
+    ],
+    "mocks": [
+      "HL_adc.h",
+      "HL_crc.h",
+      "HL_etpwm.h",
+      "HL_gio.h",
+      "HL_het.h",
+      "HL_pinmux.h",
+      "HL_sys_core.h",
+      "HL_system.h",
+      "src/app/application/ethernet/ethernet.h",
+      "src/app/driver/adc/adc.h",
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/driver/led/led.h",
+      "src/app/driver/pwm/pwm.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/driver/uart/uart.h",
+      "src/app/engine/config/diag_cfg.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/engine/hw_info/master_info.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_TCP_SUPPORT=1",
+      "FOXBMS_UART_SUPPORT=1"
+    ],
+    "cflags": [
+      "-I",
+      "../../src/os/freertos/freertos/include",
+      "-include",
+      "FreeRTOSConfig.h"
+    ],
+    "use": "M"
+  },
+  {
+    "source": "src/app/main/main.c",
+    "test": "test_main.c",
+    "includes": [
+      "src/app/driver/adc",
+      "src/app/driver/config",
+      "src/app/driver/dma",
+      "src/app/driver/foxmath",
+      "src/app/driver/i2c",
+      "src/app/driver/io",
+      "src/app/driver/led",
+      "src/app/driver/pwm",
+      "src/app/driver/spi",
+      "src/app/engine/diag",
+      "src/app/engine/hw_info"
+    ],
+    "mocks": [
+      "HL_adc.h",
+      "HL_crc.h",
+      "HL_etpwm.h",
+      "HL_gio.h",
+      "HL_het.h",
+      "HL_pinmux.h",
+      "HL_sys_core.h",
+      "HL_system.h",
+      "src/app/driver/adc/adc.h",
+      "src/app/driver/dma/dma.h",
+      "src/app/driver/foxmath/foxmath.h",
+      "src/app/driver/i2c/i2c.h",
+      "src/app/driver/led/led.h",
+      "src/app/driver/pwm/pwm.h",
+      "src/app/driver/spi/spi.h",
+      "src/app/engine/config/diag_cfg.h",
+      "src/app/engine/diag/diag.h",
+      "src/app/engine/hw_info/master_info.h",
+      "src/app/task/os/os.h"
+    ],
+    "use": "M"
+  }
+]

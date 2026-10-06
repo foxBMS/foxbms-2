@@ -43,8 +43,8 @@
  * @file    test_adi_ades183x_afe_dma.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,13 +54,42 @@
  */
 
 /*========== Includes =======================================================*/
+#include "unity.h"
+#include "Mockadi_ades183x.h"
+#include "Mockfassert.h"
+#include "Mockftask.h"
+#include "Mockos.h"
+#include "Mockspi.h"
+
+#include "dma_cfg.h"
+
+#include "adi_ades183x_defs.h"
+#include "afe_dma.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+OS_TASK_HANDLE ftsk_taskHandleAfe;
 
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+
+void testAFE_DmaCallback(void) {
+    /* invalid SPI index */
+    const uint8_t testInvalidSpiIndex = ADI_SPI_INDEX + 1;
+    SPI_GetSpiIndex_ExpectAndReturn(spiREG1, 0u);
+    SPI_GetSpiIndex_ExpectAndReturn(spiREG4, 3u);
+    TEST_ASSERT_FAIL_ASSERT(AFE_DmaCallback(testInvalidSpiIndex));
+
+    /* correct SPI index */
+    SPI_GetSpiIndex_ExpectAndReturn(spiREG1, 0u);
+    OS_NotifyFromIsr_ExpectAndReturn(ftsk_taskHandleAfe, 0x50, OS_SUCCESS);
+    AFE_DmaCallback(ADI_SPI_INDEX);
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "source": "src/app/engine/config/database_cfg.c",
+    "test": "test_database_cfg.c"
+  },
+  {
+    "source": [
+      "src/app/engine/config/diag_cfg.c",
+      "tests/unit/app/engine/config/diag_array_cfg.c"
+    ],
+    "test": "test_diag_cfg.c",
+    "includes": [
+      "src/app/engine/diag/cbs"
+    ],
+    "mocks": [
+      "src/app/engine/database/database.h",
+      "src/app/engine/diag/cbs/diag_cbs.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/config/sys_cfg.c",
+    "test": "test_sys_cfg.c",
+    "includes": [
+      "src/app/driver/can/cbs/tx-async",
+      "src/app/driver/config",
+      "src/app/driver/fram"
+    ],
+    "mocks": [
+      "src/app/driver/can/cbs/tx-async/can_cbs_tx_f_debug-response.h",
+      "src/app/driver/config/can_cfg.h"
+    ]
+  },
+  {
+    "source": "src/app/engine/config/sys_mon_cfg.c",
+    "test": "test_sys_mon_cfg.c",
+    "includes": [
+      "src/app/driver/config",
+      "src/app/driver/fram",
+      "src/app/task/config"
+    ]
+  }
+]

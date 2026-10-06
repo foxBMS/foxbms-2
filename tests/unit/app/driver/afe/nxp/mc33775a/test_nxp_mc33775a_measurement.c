@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_measurement.c
  * @author  foxBMS Team
  * @date    2025-04-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,17 +71,6 @@
 /* clang-format on */
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("nxp_mc33775a_measurement.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x/vendor")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -148,7 +137,7 @@ void testN77x_CaptureMeasurement(void) {
         .n77xData.cellTemperature = &n77x_cellTemperature,
         .n77xData.cellVoltage     = &n77x_cellVoltage,
         .n77xData.allGpioVoltage  = &n77x_allGpioVoltage,
-        .pMuxSequence             = n77x_muxSequence,
+        .pMuxSequence             = {n77x_muxSequence},
     };
     uint16_t deviceAddress         = 0u;
     uint16_t primaryRawValues[20]  = {0u};
@@ -318,7 +307,7 @@ void testN77x_RetrieveTemperatures(void) {
         .n77xData.cellTemperature = &n77x_cellTemperature,
         .n77xData.cellVoltage     = &n77x_cellVoltage,
         .n77xData.allGpioVoltage  = &n77x_allGpioVoltage,
-        .pMuxSequence             = n77x_muxSequence,
+        .pMuxSequence             = {n77x_muxSequence},
     };
 
     bool gpio03Error = false;
@@ -382,7 +371,7 @@ void testN77x_RetrieveMeasurement(void) {
         .n77xData.cellTemperature = &n77x_cellTemperature,
         .n77xData.cellVoltage     = &n77x_cellVoltage,
         .n77xData.allGpioVoltage  = &n77x_allGpioVoltage,
-        .pMuxSequence             = n77x_muxSequence,
+        .pMuxSequence             = {n77x_muxSequence},
     };
     uint16_t deviceAddress                  = 0u;
     uint16_t primaryRawValues[20]           = {0u};

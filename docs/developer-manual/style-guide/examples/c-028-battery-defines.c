@@ -43,8 +43,8 @@
  * @file    c-028-battery-defines.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -76,6 +76,9 @@ static void C28_BatteriesLoop(void) {
             /* module related code */
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 /* cell related code */
+            }
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                /* temperature sensor related code */
             }
         }
     }

@@ -43,8 +43,8 @@
  * @file    test_ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2020-03-30 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,21 +76,6 @@
 #include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("ltc_6813-1.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/6813-1/config")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common/config")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* SPI data configuration struct for LTC communication */
@@ -137,7 +122,7 @@ void testLTC_SaveVoltages(void) {
         }
     }
 
-    DIAG_CheckEvent_ExpectAndReturn(
+    DIAG_ReportResultToHandler_ExpectAndReturn(
         cellVoltageMeasurementValid, DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_STRING, 0u, STD_OK);
     DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.cellVoltage, STD_OK);
     LTC_SaveVoltages(&ltc_stateBase, 0u);
@@ -154,7 +139,7 @@ void testLTC_SaveTemperatures(void) {
         }
     }
 
-    DIAG_CheckEvent_ExpectAndReturn(
+    DIAG_ReportResultToHandler_ExpectAndReturn(
         cellTemperatureMeasurementValid, DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, DIAG_STRING, 0u, STD_OK);
     DATA_Write1DataBlock_ExpectAndReturn(ltc_stateBase.ltcData.cellTemperature, STD_OK);
     LTC_SaveTemperatures(&ltc_stateBase, 0u);
@@ -207,11 +192,11 @@ void testLTC_SetFirstMeasurementCycleFinished(void) {
 }
 
 void testLTC_ConvertMuxVoltagesToTemperatures(void) {
-    TSI_GetTemperature_ExpectAndReturn(0, 0u);
+    TSI_GetTemperature_ExpectAndReturn(0, SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V, 0u);
     int16_t x = 0;
     x         = LTC_ConvertMuxVoltagesToTemperatures(0);
     TEST_ASSERT_EQUAL_INT16(0, x);
-    TSI_GetTemperature_ExpectAndReturn(11, 11u);
+    TSI_GetTemperature_ExpectAndReturn(11, SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V, 11u);
     x = LTC_ConvertMuxVoltagesToTemperatures(11);
     TEST_ASSERT_EQUAL_INT16(11, x);
 }
@@ -238,4 +223,10 @@ void testLTC_InitializeMonitoringPin(void) {
 
 void testLTC_IdentifyAfes(void) {
     LTC_IdentifyAfes();
+}
+
+void testLTC_SetSerialId(void) {
+    LTC_STATE_s ltc_state = {0};
+    TEST_LTC_SetSerialId(&ltc_state, 0u, 0u);
+    TEST_ASSERT_EQUAL_UINT64(257u, ltc_state.serialId[0][0]);
 }

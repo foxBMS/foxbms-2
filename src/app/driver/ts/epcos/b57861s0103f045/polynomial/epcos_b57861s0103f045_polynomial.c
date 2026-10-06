@@ -43,8 +43,8 @@
  * @file    epcos_b57861s0103f045_polynomial.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
@@ -53,8 +53,9 @@
  */
 
 /*========== Includes =======================================================*/
+#include "bms-slave_cfg.h"
+
 #include "epcos_b57861s0103f045.h"
-#include "tsi.h"
 
 #include <stdint.h>
 
@@ -70,8 +71,8 @@
 
 /*========== Extern Function Implementations ================================*/
 
-extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV) {
-    return TS_Epc01GetTemperatureFromPolynomial(adcVoltage_mV);
+extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV, float_t supplyVoltage_V) {
+    return TS_Epc01GetTemperatureFromPolynomial(adcVoltage_mV, supplyVoltage_V);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

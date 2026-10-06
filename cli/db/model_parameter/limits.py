@@ -44,7 +44,7 @@ Defines:
 - ``CurrentLimitModel``: a model wrapping charge/discharge limits.
 """
 
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
 
 from . import BaseModel
 
@@ -68,22 +68,9 @@ class CurrentLimits:
         and have the same length.
 
         Raises:
-            TypeError
-                If containers are not lists or elements are not floats,
+            TypeError: If containers are not lists or elements are not floats,
                 or if lengths differ.
         """
-        if not isinstance(self.currents, list):
-            err_txt = "The limits of the current are not provided as a list."
-            raise TypeError(err_txt)
-        if not all(isinstance(x, float) for x in self.currents):
-            err_txt = "The limits of the current are not floats."
-            raise TypeError(err_txt)
-        if not isinstance(self.temperatures, list):
-            err_txt = "The limits of the temperatures are not provided as a list."
-            raise TypeError(err_txt)
-        if not all(isinstance(x, float) for x in self.temperatures):
-            err_txt = "The limits of the temperatures are not floats."
-            raise TypeError(err_txt)
         if len(self.currents) != len(self.temperatures):
             err_txt = (
                 "The same number of currents and temperatures must "
@@ -101,21 +88,5 @@ class CurrentLimitModel(BaseModel):
         discharge: Current limits for discharging
     """
 
-    charge: CurrentLimits | dict
-    discharge: CurrentLimits | dict
-
-    def __post_init__(self) -> None:
-        """Post-initialize by validating base fields and normalizing inputs.
-
-        Converts ``charge`` and ``discharge`` from dicts to ``CurrentLimits`` if needed
-        and calls ``BaseModel.__post_init__()`` for common validation.
-
-        Raises:
-            TypeError
-                If nested ``CurrentLimits`` validation fails.
-        """
-        super().__post_init__()
-        if isinstance(self.charge, dict):
-            self.charge: CurrentLimits = CurrentLimits(**self.charge)
-        if isinstance(self.discharge, dict):
-            self.discharge: CurrentLimits = CurrentLimits(**self.discharge)
+    charge: CurrentLimits
+    discharge: CurrentLimits

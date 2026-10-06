@@ -21,7 +21,7 @@ Changed
   new messages.
   Furthermore it is now possible to force a certain style on how CAN messages
   are defined in the symbol/dbc files as well as in the source code.
-  For further information see :ref:`HOW_TO_USE_THE_CAN_MODULE`.
+  For further information see :ref:`HOW_TO_USE_THE_CAN_DRIVER`.
 - Updated version of ``.sym`` file for the definition of the CAN messages and
   signals to v6.0 (from 5.0).
 - Update the static code analysis to Axivion 7.4.6 (from 7.4.0).

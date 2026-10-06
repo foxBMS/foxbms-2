@@ -52,7 +52,9 @@ from ..helpers import PREFIX_LINUX, PREFIX_WIN32, TOOL_NAME, python_setup
 from ..helpers.click_helpers import echo, recho, secho
 from ..helpers.host_platform import get_platform
 from ..helpers.logger import logger
-from ..helpers.misc import PATH_FILE, PROJECT_ROOT
+from ..helpers.path_initialization import PATH_FILE
+from ..helpers.project_context import PROJECT_ROOT
+from ..helpers.required_software import REQUIRED_SOFTWARE, get_tool_executable_name
 
 WIN32COM_AVAILABLE = False
 if find_spec("win32com"):
@@ -66,29 +68,14 @@ INSTALL_MESSAGE = (
     "the foxBMS toolchain."
 )
 
-REQUIRED_SOFTWARE = {
-    "ceedling": {"executable": "ceedling", "path": False},
-    "doxygen": {"executable": "doxygen", "path": False},
-    "drawio": {"executable": {"win32": "draw.io", "linux": "drawio"}, "path": False},
-    "gcc": {"executable": "gcc", "path": False},
-    "git": {"executable": "git", "path": False},
-    "graphviz": {"executable": "dot", "path": False},
-    "python": {"executable": "python", "path": False},
-    "ruby": {"executable": "ruby", "path": False},
-    "ti-compiler": {"executable": "armcl", "path": False},
-    "ti-halcogen": {"executable": "halcogen", "path": False, "availability": ["win32"]},
-}
-
 
 def check_for_all_softwares() -> dict:
-    """Checks whether all software is available or not."""
+    """Check whether all software is available or not."""
     tmp = deepcopy(REQUIRED_SOFTWARE)
     paths = PATH_FILE.read_text(encoding="utf-8")
     path = os.pathsep.join(paths.splitlines()) + os.pathsep + os.environ.get("PATH", "")
     for v in tmp.values():
-        name = v["executable"]
-        if isinstance(name, dict):
-            name = name[get_platform()]
+        name = get_tool_executable_name(v)
         if not isinstance(name, str):
             err = f"Invalid path file ({PATH_FILE})."
             raise SystemExit(err)
@@ -106,7 +93,7 @@ def all_software_available() -> int:
         if not v["path"]:
             availability = v.get("availability", ["linux", "win32"])
             if get_platform() not in availability:
-                name = v["executable"]
+                name = get_tool_executable_name(v)
                 recho(
                     f"{k} ({name}) is not available on {get_platform()}.", fg="yellow"
                 )
@@ -125,11 +112,11 @@ def all_software_available() -> int:
 def _create_shortcut_win32(
     parent: Path,
     name_suffix: str,
-    arguments: list,
+    arguments: list[str],
     shortcut_command: str,
     target_path: str = "C:/Program Files/PowerShell/7/pwsh.exe",
 ) -> int:
-    """Creates a Windows shortcut (.lnk) in the specified parent directory.
+    """Create a Windows shortcut (.lnk) in the specified parent directory.
 
     Args:
         parent (Path): Directory where the shortcut will be created.

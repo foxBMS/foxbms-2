@@ -43,7 +43,7 @@ import sys  # pragma: no cover
 from pathlib import Path  # pragma: no cover
 
 from .cli import main  # pragma: no cover
-from .helpers.misc import ROOT_IS_PROJECT  # pragma: no cover
+from .helpers.project_context import ROOT_IS_PROJECT  # pragma: no cover
 
 if __name__ == "__main__":
     cwd = Path.cwd()

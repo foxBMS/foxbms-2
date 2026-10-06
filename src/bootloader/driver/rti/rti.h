@@ -43,13 +43,16 @@
  * @file    rti.h
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  RTI
  *
  * @brief   Headers for the driver for the RTI module.
- * @details TODO
+ * @details Declares a small timing interface built around the RTI
+ *          free-running counter. The API supports resetting and reading the
+ *          counter as well as converting elapsed ticks into microseconds for
+ *          timeout checks.
  *
  */
 

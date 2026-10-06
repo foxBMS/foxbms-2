@@ -43,8 +43,8 @@
  * @file    mxm_17852.c
  * @author  foxBMS Team
  * @date    2021-11-24 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -52,6 +52,8 @@
  * @details This file contains that part of the state machine that is executed
  *          during the operation state. It is adapted for MAX17852.
  */
+
+/* cspell:ignore AUTOBALSWDIS */
 
 /*========== Includes =======================================================*/
 /* clang-format off */

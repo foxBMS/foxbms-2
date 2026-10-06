@@ -43,8 +43,8 @@
  * @file    test_ftask_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,7 @@
 #include "Mockafe.h"
 #include "Mockalgorithm.h"
 #include "Mockbal.h"
+#include "Mockbms-values.h"
 #include "Mockbms.h"
 #include "Mockcan.h"
 #include "Mockcontactor.h"
@@ -79,7 +80,6 @@
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 #include "Mockpex.h"
-#include "Mockredundancy.h"
 #include "Mockrtc.h"
 #include "Mocksbc.h"
 #include "Mocksof_trapezoid.h"
@@ -98,39 +98,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_INCLUDE_PATH("../../src/app/application/algorithm")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
-TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
-TEST_INCLUDE_PATH("../../src/app/application/bal")
-TEST_INCLUDE_PATH("../../src/app/application/bms")
-TEST_INCLUDE_PATH("../../src/app/application/redundancy")
-TEST_INCLUDE_PATH("../../src/app/driver/adc")
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/contactor")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/driver/htsensor")
-TEST_INCLUDE_PATH("../../src/app/driver/i2c")
-TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/driver/interlock")
-TEST_INCLUDE_PATH("../../src/app/driver/led")
-TEST_INCLUDE_PATH("../../src/app/driver/meas")
-TEST_INCLUDE_PATH("../../src/app/driver/pex")
-TEST_INCLUDE_PATH("../../src/app/driver/phy")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/driver/sbc")
-TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
-TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/sps")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
-TEST_INCLUDE_PATH("../../src/app/engine/sys")
-TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 OS_TASK_HANDLE ftsk_taskHandleAfe;
@@ -194,7 +161,7 @@ void testFTSK_RunUserCodeEngine(void) {
 void testFTSK_InitializeUserCodePreCyclicTasks(void) {
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, STD_NOT_OK);
+    SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, SYS_BUSY_OK);
     PEX_Initialize_Expect();
     PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
     PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
@@ -202,20 +169,20 @@ void testFTSK_InitializeUserCodePreCyclicTasks(void) {
     CONT_Initialize_Expect();
     SPS_Initialize_Expect();
     MEAS_Initialize_ExpectAndReturn(STD_OK);
-    MRC_Initialize_ExpectAndReturn(STD_OK);
+    BMSVL_Initialize_Expect();
 
     /* ======= RT1/2: Call function under test */
     TEST_ASSERT_FAIL_ASSERT(FTSK_InitializeUserCodePreCyclicTasks());
 
     /* ======= RT2/2: Test implementation */
-    SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, STD_OK);
+    SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, SYS_OK);
     PEX_Initialize_Expect();
     PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
     PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
     CONT_Initialize_Expect();
     SPS_Initialize_Expect();
     MEAS_Initialize_ExpectAndReturn(STD_OK);
-    MRC_Initialize_ExpectAndReturn(STD_OK);
+    BMSVL_Initialize_Expect();
 
     LED_SetToggleTime_Expect(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
     /* ======= RT2/2: Call function under test */
@@ -241,7 +208,7 @@ void testFTSK_RunUserCodeCyclic10ms(void) {
     ALGO_MonitorExecutionTime_Expect();
     SBC_Trigger_Expect(&sbc_stateMcuSupervisor);
 
-    BMS_Trigger_Expect();
+    BMS_Trigger_ExpectAndReturn(STD_OK);
     FTSK_RunUserCodeCyclic10ms();
 
     for (uint8_t i = 0u; i < 4u; i++) {
@@ -256,7 +223,7 @@ void testFTSK_RunUserCodeCyclic10ms(void) {
         ALGO_MonitorExecutionTime_Expect();
         SBC_Trigger_Expect(&sbc_stateMcuSupervisor);
 
-        BMS_Trigger_Expect();
+        BMS_Trigger_ExpectAndReturn(STD_OK);
 
         FTSK_RunUserCodeCyclic10ms();
     }
@@ -272,9 +239,8 @@ void testFTSK_RunUserCodeCyclic10ms(void) {
     ALGO_MonitorExecutionTime_Expect();
     SBC_Trigger_Expect(&sbc_stateMcuSupervisor);
 
-    MRC_ValidateAfeMeasurement_ExpectAndReturn(STD_OK);
-    MRC_ValidatePackMeasurement_ExpectAndReturn(STD_OK);
-    BMS_Trigger_Expect();
+    BMSVL_UpdateSystemValues_Expect();
+    BMS_Trigger_ExpectAndReturn(STD_OK);
 
     FTSK_RunUserCodeCyclic10ms();
 }

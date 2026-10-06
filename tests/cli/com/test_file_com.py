@@ -42,6 +42,7 @@
 import signal
 import sys
 import unittest
+import warnings
 from dataclasses import fields
 from pathlib import Path
 from queue import Empty
@@ -71,7 +72,7 @@ class TestFileInterface(unittest.TestCase):
         """
         param = FileParameter(input_file="in.txt", output_file="out.txt")
         file_obj = File("test", param)
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.assertIn("FileReader", file_obj._processes)
         self.assertIn("FileWriter", file_obj._processes)
 
@@ -96,12 +97,12 @@ class TestFileInterface(unittest.TestCase):
         param = FileParameter(input_file="in.txt")
         file_obj = File("test", param)
         file_obj.is_alive = MagicMock(return_value=True)
-        file_obj.control.output.put("testline")
+        file_obj.control.output.put("test-line")
         # The while loop ensures that empty() will return the correct state
         # at the moment the test starts
         while file_obj.control.output.empty():
             sleep(0.1)
-        self.assertEqual(file_obj.read(), "testline")
+        self.assertEqual(file_obj.read(), "test-line")
 
     def test_file_write_raises_if_writer_dead(self) -> None:
         """Test that write() raises RuntimeError if the FileWriter process is dead."""
@@ -153,8 +154,19 @@ class TestFileReaderStart(unittest.TestCase):
         """
         param = FileParameter(input_file="test.txt")
         control = ComControl()
+        self.addCleanup(control.close)
         reader = FileReader("test", control, param)
-        reader.start()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=(
+                    r"This process .* is multi-threaded, use of fork\(\) "
+                    r"may lead to deadlocks in the child\."
+                ),
+                category=DeprecationWarning,
+                module=r"multiprocessing\.popen_fork",
+            )
+            reader.start()
         reader.terminate()
         # Wait until process is dead then call close()
         while reader.is_alive():
@@ -165,7 +177,7 @@ class TestFileReaderStart(unittest.TestCase):
 class TestFileReaderInit(unittest.TestCase):
     """TestCase for the __init__ method of FileReader."""
 
-    def test_init_assigns_attributes(self):
+    def test_init_assigns_attributes(self) -> None:
         """Test that __init__ correctly assigns attributes."""
         mock_control = MagicMock()
         mock_parameter = MagicMock()
@@ -178,7 +190,7 @@ class TestFileReaderInit(unittest.TestCase):
 class TestFileReaderRun(unittest.TestCase):
     """TestCase for the run method of FileReader."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up FileReader with mocks."""
         self.mock_control = MagicMock()
         self.mock_control.logger = MagicMock()
@@ -204,7 +216,7 @@ class TestFileReaderRun(unittest.TestCase):
 class TestFileReaderReadFromFile(unittest.TestCase):
     """TestCase for the _read_from_file method of FileReader."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up FileReader with mocks."""
         self.mock_control = MagicMock()
         self.mock_control.logger = MagicMock()
@@ -214,7 +226,7 @@ class TestFileReaderReadFromFile(unittest.TestCase):
         self.mock_parameter = MagicMock()
         self.reader = FileReader("reader", self.mock_control, self.mock_parameter)
 
-    def test_read_from_file_success(self):
+    def test_read_from_file_success(self) -> None:
         """Test that _read_from_file reads lines and puts them into the output queue."""
         self.mock_parameter.input_file = "dummy.txt"
         self.mock_parameter.encoding = "utf-8"
@@ -224,14 +236,14 @@ class TestFileReaderReadFromFile(unittest.TestCase):
             patch("builtins.open", mock_open(read_data=mock_file_content)),
             patch("cli.com.file_com.logger.debug") as mock_debug,
         ):
-            # pylint: disable=W0212
+            # pylint: disable=protected-access
             self.reader._read_from_file()
             self.mock_control.ready.set.assert_called_once()
             self.mock_control.output.put.assert_any_call("line1\n")
             self.mock_control.output.put.assert_any_call("line2\n")
             mock_debug.assert_called_with("Finished reading input file.")
 
-    def test_read_from_file_to_end(self):
+    def test_read_from_file_to_end(self) -> None:
         """Test that _read_from_file reads all lines in a file."""
         self.mock_parameter.input_file = "dummy.txt"
         self.mock_parameter.encoding = "utf-8"
@@ -241,19 +253,19 @@ class TestFileReaderReadFromFile(unittest.TestCase):
             patch("builtins.open", mock_open(read_data=mock_file_content)),
             patch("cli.com.file_com.logger.debug") as mock_debug,
         ):
-            # pylint: disable=W0212
+            # pylint: disable=protected-access
             self.reader._read_from_file()
             self.mock_control.ready.set.assert_called_once()
             mock_debug.assert_called_with("Finished reading input file.")
 
-    def test_read_from_file_file_not_found(self):
+    def test_read_from_file_file_not_found(self) -> None:
         """Test that _read_from_file handles FileNotFoundError and calls shutdown."""
         self.mock_parameter.input_file = None
         with (
             patch("cli.com.file_com.logger.error") as mock_error,
             patch.object(self.reader, "shutdown") as mock_shutdown,
         ):
-            # pylint: disable=W0212
+            # pylint: disable=protected-access
             self.reader._read_from_file()
             mock_error.assert_called_once()
             mock_shutdown.assert_called_once()
@@ -268,8 +280,19 @@ class TestFileWriterStart(unittest.TestCase):
         """
         param = FileParameter(output_file="test.txt")
         control = ComControl()
+        self.addCleanup(control.close)
         writer = FileWriter("test", control, param)
-        writer.start()
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=(
+                    r"This process .* is multi-threaded, use of fork\(\) "
+                    r"may lead to deadlocks in the child\."
+                ),
+                category=DeprecationWarning,
+                module=r"multiprocessing\.popen_fork",
+            )
+            writer.start()
         writer.terminate()
         # Wait until process is dead then call close()
         while writer.is_alive():
@@ -286,7 +309,7 @@ class TestFileWriterInit(unittest.TestCase):
         # spec parameter needs to be defined via fields in case a dataclass
         # should be mocked
         self.mock_control = MagicMock(spec=[field.name for field in fields(ComControl)])
-        self.mock_output_file = Path("/tmp/test.log")  # noqa
+        self.mock_output_file = Path("/tmp/test.log")  # noqa: S108
         self.mock_can_logger = MagicMock()
         # spec parameter needs to be defined via fields in case a dataclass
         # should be mocked
@@ -310,7 +333,7 @@ class TestFileWriterInit(unittest.TestCase):
         """Test initialization with valid path and logger creation."""
         mock_sized_logger.return_value = self.mock_can_logger
         fw = FileWriter("TestProcess", self.mock_control, self.mock_parameter)
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.assertIs(fw._can_logger, self.mock_can_logger)
         mock_logger.error.assert_not_called()
 
@@ -326,9 +349,8 @@ class TestFileWriterInit(unittest.TestCase):
         self, _: Mock, mock_logger: Mock
     ) -> None:
         """Test initialization exits if logger creation fails."""
-        with self.assertRaises(SystemExit):
-            with patch("cli.com.file_com.Path.mkdir"):
-                FileWriter("TestProcess", self.mock_control, self.mock_parameter)
+        with self.assertRaises(SystemExit), patch("cli.com.file_com.Path.mkdir"):
+            FileWriter("TestProcess", self.mock_control, self.mock_parameter)
         mock_logger.error.assert_called_once_with("Could not create logger object.")
 
     @patch("cli.com.file_com.SizedRotatingLogger")
@@ -338,7 +360,7 @@ class TestFileWriterInit(unittest.TestCase):
         """Test initialization does not create logger if log_can_files is False."""
         self.mock_parameter.can_logger.log_can_files = False
         fw = FileWriter("TestProcess", self.mock_control, self.mock_parameter)
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.assertIsNone(fw._can_logger)
         mock_sized_logger.assert_not_called()
 
@@ -357,7 +379,7 @@ class TestFileWriterRun(unittest.TestCase):
         self.mock_parameter = MagicMock(
             spec=[field.name for field in fields(FileParameter)]
         )
-        self.mock_parameter.output_file = Path("/tmp/test.log")  # noqa
+        self.mock_parameter.output_file = Path("/tmp/test.log")  # noqa: S108
         self.mock_parameter.encoding = "utf-8"
         self.mock_parameter.can_logger.log_can_files = True
 
@@ -366,7 +388,7 @@ class TestFileWriterRun(unittest.TestCase):
     def test_run_calls_log_can_message_if_logger_exists(self, *_: list[Mock]) -> None:
         """Test run calls _log_can_message if logger is present."""
         fw = FileWriter("TestProcess", self.mock_control, self.mock_parameter)
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         fw._can_logger = MagicMock()
         fw._log_can_message = MagicMock()
         fw._write_to_file = MagicMock()
@@ -378,7 +400,7 @@ class TestFileWriterRun(unittest.TestCase):
         """Test run calls _write_to_file if logger is None."""
         self.mock_parameter.can_logger.log_can_files = False
         fw = FileWriter("TestProcess", self.mock_control, self.mock_parameter)
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         fw._can_logger = None
         fw._log_can_message = MagicMock()
         fw._write_to_file = MagicMock()
@@ -403,7 +425,7 @@ class TestFileWriterWriteToFile(unittest.TestCase):
         self.mock_parameter = MagicMock(
             spec=[field.name for field in fields(FileParameter)]
         )
-        self.mock_parameter.output_file = Path("/tmp/test_write.log")  # noqa
+        self.mock_parameter.output_file = Path("/tmp/test_write.log")  # noqa: S108
         self.mock_parameter.encoding = "utf-8"
         self.mock_parameter.can_logger.log_can_files = False
 
@@ -413,7 +435,7 @@ class TestFileWriterWriteToFile(unittest.TestCase):
     @patch("cli.com.file_com.open", new_callable=mock_open)
     def test_write_to_file_success(self, _: Mock, mock_logger: Mock) -> None:
         """Test writing messages to file works and calls shutdown."""
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.fw._write_to_file()
         self.fw.shutdown.assert_called_once()
         mock_logger.error.assert_not_called()
@@ -421,7 +443,7 @@ class TestFileWriterWriteToFile(unittest.TestCase):
     @patch("cli.com.file_com.open", side_effect=mock_open)
     def test_write_to_file_type_error(self, mock_file: Mock, mock_logger: Mock) -> None:
         """Test TypeError while writing to file is logged."""
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         mock_file.write = Mock(side_effect=TypeError)
         self.fw._write_to_file()
         mock_logger.error.assert_called_once()
@@ -432,7 +454,7 @@ class TestFileWriterWriteToFile(unittest.TestCase):
         self, _: Mock, mock_logger: Mock
     ) -> None:
         """Test FileNotFoundError is logged."""
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.fw._write_to_file()
         mock_logger.error.assert_called_once_with(
             "File %s not found.", self.mock_parameter.output_file
@@ -454,22 +476,22 @@ class TestFileWriterLogCanMessage(unittest.TestCase):
         self.mock_parameter = MagicMock(
             spec=[field.name for field in fields(FileParameter)]
         )
-        self.mock_parameter.output_file = Path("/tmp/test_can.log")  # noqa
+        self.mock_parameter.output_file = Path("/tmp/test_can.log")  # noqa: S108
         self.mock_parameter.encoding = "utf-8"
         self.mock_parameter.can_logger.log_can_files = True
 
-        with patch("cli.com.file_com.Path.mkdir"):
-            with patch("cli.com.file_com.SizedRotatingLogger"):
-                self.fw = FileWriter(
-                    "TestProcess", self.mock_control, self.mock_parameter
-                )
-        # pylint: disable=W0212
+        with (
+            patch("cli.com.file_com.Path.mkdir"),
+            patch("cli.com.file_com.SizedRotatingLogger"),
+        ):
+            self.fw = FileWriter("TestProcess", self.mock_control, self.mock_parameter)
+        # pylint: disable=protected-access
         self.fw._can_logger = MagicMock()
         self.fw.shutdown = MagicMock()
 
     def test_log_can_message_type_error(self) -> None:
         """Test TypeError is raised if _can_logger is None."""
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.fw._can_logger = None
         with self.assertRaises(TypeError):
             self.fw._log_can_message()
@@ -485,7 +507,7 @@ class TestFileWriterLogCanMessage(unittest.TestCase):
             side_effect=[msg1, msg2, Empty(), Empty()]
         )
         self.mock_control.shutdown.is_set = MagicMock(side_effect=[False, True])
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         self.fw._log_can_message()
         # msg1 timestamp should be set to 0
         self.assertEqual(msg1.timestamp, 0)
@@ -500,7 +522,8 @@ class TestFileWriterLogCanMessage(unittest.TestCase):
         self.mock_control.input.get = MagicMock(side_effect=[Empty(), Empty()])
         self.mock_control.shutdown.is_set = MagicMock(side_effect=[False, True])
         self.fw._log_can_message()  # pylint: disable=protected-access
-        self.assertEqual(self.fw._can_logger.call_count, 0)  # pylint: disable=protected-access
+        # pylint: disable-next=protected-access
+        self.assertEqual(self.fw._can_logger.call_count, 0)
 
 
 if __name__ == "__main__":

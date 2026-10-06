@@ -43,24 +43,454 @@
  * @file    test_adi_ades183x.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Test of adi_ades183x.c
  * @details Dummy description
  *
  */
 
-/*========== Includes =======================================================*/
+#include "unity.h"
+#include "Mockadi_ades1830_defs.h"
+#include "Mockadi_ades183x_balancing.h"
+#include "Mockadi_ades183x_defs.h"
+#include "Mockadi_ades183x_diagnostic.h"
+#include "Mockadi_ades183x_gpio_voltages.h"
+#include "Mockadi_ades183x_helpers.h"
+#include "Mockadi_ades183x_initialization.h"
+#include "Mockadi_ades183x_mux.h"
+#include "Mockadi_ades183x_pec.h"
+#include "Mockadi_ades183x_temperatures.h"
+#include "Mockadi_ades183x_voltages.h"
+#include "Mockafe_plausibility.h"
+#include "Mockdatabase.h"
+#include "Mockdiag.h"
+#include "Mockdma.h"
+#include "Mockfassert.h"
+#include "Mockftask.h"
+#include "Mockinfinite-loop-helper.h"
+#include "Mockio.h"
+#include "Mockos.h"
+#include "Mockpex.h"
+#include "Mockqueue.h"
+#include "Mockspi.h"
+#include "Mockspi_cfg.h"
+#include "Mocktsi.h"
+
+#include "adi_ades183x_cfg.h"
+
+#include "adi_ades183x.h"
+#include "adi_ades183x_buffers.h"  /* use the real command config */
+#include "adi_ades183x_commands.h" /* use the real buffer configuration */
+#include "spi_cfg-helper.h"
+#include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 
+static void ADI_InitializeDatabase_Expects(void) {
+    /* ADI_InitializeDatabase() writes the initial values into the database */
+    DATA_Write3DataBlocks_ExpectAndReturn(
+        adi_stateBase.data.cellVoltage,
+        adi_stateBase.data.cellTemperature,
+        adi_stateBase.data.balancingControl,
+        STD_OK);
+}
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+/** SPI data configuration struct for ADI communication */
+static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
+};
+
+/**
+ * SPI interface configuration for ADI communication
+ * This is a list of structs because of multistring
+ */
+SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
+    {
+        .pConfig  = &spi_kAdiDataConfig[0u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+};
+
+OS_QUEUE ftsk_afeRequestQueue;
+
+static void ADI_AccesstoDatabase_Expects(void) {
+    /* Write measured data */
+    DATA_Write3DataBlocks_ExpectAndReturn(
+        adi_stateBase.data.cellVoltage, adi_stateBase.data.allGpioVoltages, adi_stateBase.data.cellTemperature, STD_OK);
+    /* Leave some time for other tasks */
+    ADI_Wait_Expect(2u);
+    /* Read balancing orders */
+    DATA_Read1DataBlock_ExpectAndReturn(adi_stateBase.data.balancingControl, STD_OK);
+}
+
+static void ADI_BalanceControl_Expects(void) {
+    typedef enum {
+        TEST_ADI_BALANCING_VALUE0,
+        TEST_ADI_BALANCING_VALUE1,
+        TEST_ADI_BALANCING_VALUE_E_MAX,
+    } TEST_ADI_BALANCING_e;
+    /* Test for 0xAA and 0x55 balancing patterns */
+    for (TEST_ADI_BALANCING_e i = TEST_ADI_BALANCING_VALUE0; i < TEST_ADI_BALANCING_VALUE_E_MAX; i++) {
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            adi_stateBase.currentString = s;
+            /* Mocks for unmute commands */
+            ADI_CopyCommandBytes_Expect(adi_cmdUnmute, adi_command);
+            ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+            /* actual register configuration for the specific AFE */
+            ADI_DetermineBalancingRegisterConfiguration_Expect(&adi_stateBase);
+
+            ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
+        }
+    }
+}
+
 /*========== Setup and Teardown =============================================*/
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
 
 /*========== Test Cases =====================================================*/
-/* this is a dummy test file */
-/* tests/unit/app/driver/afe/adi/common/ades183x/README.md */
+
+void testADI_IsFirstMeasurementCycleFinished(void) {
+    /* Invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(ADI_IsFirstMeasurementCycleFinished(NULL_PTR));
+
+    adi_stateBase.firstMeasurementMade = true;
+    ADI_IsFirstMeasurementCycleFinished(&adi_stateBase);
+    TEST_ASSERT_TRUE(ADI_IsFirstMeasurementCycleFinished(&adi_stateBase));
+
+    adi_stateBase.firstMeasurementMade = false;
+    ADI_IsFirstMeasurementCycleFinished(&adi_stateBase);
+    TEST_ASSERT_FALSE(ADI_IsFirstMeasurementCycleFinished(&adi_stateBase));
+}
+
+void testADI_MakeRequest(void) {
+    AFE_REQUEST_e testRequest = AFE_START_REQUEST;
+    STD_RETURN_TYPE_e queued  = STD_NOT_OK;
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_afeRequestQueue, (void *)&testRequest, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    queued = ADI_MakeRequest(testRequest);
+    TEST_ASSERT_EQUAL(STD_OK, queued);
+
+    queued = STD_OK;
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_afeRequestQueue, (void *)&testRequest, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
+    queued = ADI_MakeRequest(testRequest);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, queued);
+}
+
+void testADI_ActivateInterfaceBoard(void) {
+    /* 8 pins are needed, and they are aligned after PEX_PORT_1_PIN_0 so we make the test code short with some loop */
+    const uint8_t nrOfPins = 8u;
+    for (uint8_t i = 0; i < nrOfPins; i++) {
+        PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0 + i);
+    }
+    for (uint8_t i = 0; i < nrOfPins; i++) {
+        PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0 + i);
+    }
+    ADI_ActivateInterfaceBoard();
+}
+
+void testADI_MeasurementCycleAssertValidation(void) {
+    /* Invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(ADI_MeasurementCycle(NULL_PTR));
+}
+void testADI_MeasurementCycleNoForever(void) {
+    ADI_InitializeDatabase_Expects();
+    FOREVER_ExpectAndReturn(0);
+    ADI_MeasurementCycle(&adi_stateBase);
+}
+
+void testADI_MeasurementCycleMeasurementNotStartedCase0(void) {
+    /* 1.   measurement not started */
+    AFE_REQUEST_e request = AFE_NO_REQUEST;
+    /* 1.1. request could not be retrieved - just wait */
+    adi_stateBase.measurementStarted = false;
+    ADI_InitializeDatabase_Expects();
+    FOREVER_ExpectAndReturn(1);
+#if (SLV_USE_MUX_FOR_TEMP == true)
+    ADI_ResetAllMuxIndices_Expect(&adi_stateBase);
+    ADI_SetMuxChannel_ExpectAndReturn(&adi_stateBase, STD_OK);
+#endif
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
+    ADI_Wait_Expect(1u);
+    ADI_MeasurementCycle(&adi_stateBase);
+    TEST_ASSERT_FALSE(adi_stateBase.measurementStarted); /* start request has not been issued */
+}
+
+void testADI_MeasurementCycleMeasurementNotStartedCase1(void) {
+    /* 1.   measurement not started */
+    AFE_REQUEST_e request = AFE_NO_REQUEST;
+    /* 1.2. request retrieved, but not the start request - therefore wait */
+    adi_stateBase.measurementStarted = false;
+    ADI_InitializeDatabase_Expects();
+    FOREVER_ExpectAndReturn(1);
+#if (SLV_USE_MUX_FOR_TEMP == true)
+    ADI_ResetAllMuxIndices_Expect(&adi_stateBase);
+    ADI_SetMuxChannel_ExpectAndReturn(&adi_stateBase, STD_OK);
+#endif
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    ADI_Wait_Expect(1u);
+    ADI_MeasurementCycle(&adi_stateBase);
+    TEST_ASSERT_FALSE(adi_stateBase.measurementStarted); /* start request has not been issued */
+}
+
+void testADI_MeasurementCycleMeasurementStarted(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+
+    /* ======= Routine tests =============================================== */
+    AFE_REQUEST_e request              = AFE_NO_REQUEST;
+    adi_stateBase.spiNumberInterfaces  = 0;
+    adi_stateBase.firstMeasurementMade = false;
+    adi_stateBase.measurementStarted   = true;
+    /* ======= RT1/1: Test implementation */
+    ADI_InitializeDatabase_Expects();
+    FOREVER_ExpectAndReturn(1);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    /* ======= RT1/1: Call function under test */
+    ADI_MeasurementCycle(&adi_stateBase);
+}
+
+void testADI_AccessToDatabase(void) {
+    /* Invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_AccessToDatabase(NULL_PTR));
+
+    /* Write measured data */
+    DATA_Write3DataBlocks_ExpectAndReturn(
+        adi_stateBase.data.cellVoltage, adi_stateBase.data.allGpioVoltages, adi_stateBase.data.cellTemperature, STD_OK);
+    /* Leave some time for other tasks */
+    ADI_Wait_Expect(2u);
+    /* Read balancing orders */
+    DATA_Read1DataBlock_ExpectAndReturn(adi_stateBase.data.balancingControl, STD_OK);
+    TEST_ADI_AccessToDatabase(&adi_stateBase);
+}
+
+void testADI_ProcessMeasurementNotStartedState(void) {
+    AFE_REQUEST_e request      = AFE_NO_REQUEST;
+    AFE_REQUEST_e requestValue = AFE_START_REQUEST;
+
+    /* Invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_ProcessMeasurementNotStartedState(NULL_PTR, &request));
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, NULL_PTR));
+
+    /* No request received */
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
+    ADI_Wait_Expect(1u);
+    TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, &request);
+
+    /* Request received, but not start */
+    requestValue = AFE_STOP_REQUEST;
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    OS_ReceiveFromQueue_ReturnThruPtr_pvBuffer(&requestValue);
+    ADI_Wait_Expect(1u);
+    TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, &request);
+    TEST_ASSERT_EQUAL(AFE_STOP_REQUEST, request);
+
+    /* Request received and is start request */
+    requestValue = AFE_START_REQUEST;
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    OS_ReceiveFromQueue_ReturnThruPtr_pvBuffer(&requestValue);
+    ADI_InitializeMeasurement_Expect(&adi_stateBase);
+    TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, &request);
+    TEST_ASSERT_EQUAL(AFE_START_REQUEST, request);
+}
+
+void testADI_RunCurrentStringMeasurement(void) {
+    /* invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_RunCurrentStringMeasurement(NULL_PTR));
+
+    /* ======= RT1/2: Test implementation */
+    ADI_CopyCommandBytes_Expect(adi_cmdAdax, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0u);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_CopyCommandBytes_Expect(adi_cmdAdax2, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(
+        adi_command,
+        ADI_ADAX2_CH03_POS,
+        ADI_ADAX2_CH03_LEN,
+        adi_stateBase.redundantAuxiliaryChannel[adi_stateBase.currentString]);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_Wait_Expect(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
+
+    ADI_CopyCommandBytes_Expect(adi_cmdSnap, adi_command);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+    ADI_GetVoltages_Expect(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
+    ADI_GetVoltages_Expect(&adi_stateBase, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
+    ADI_CopyCommandBytes_Expect(adi_cmdUnsnap, adi_command);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_Wait_Expect(ADI_WAIT_TIME_2_FOR_ADAX_FULL_CYCLE);
+
+    ADI_GetStringAndModuleVoltage_Expect(&adi_stateBase);
+    ADI_GetGpioVoltages_Expect(&adi_stateBase, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_VOLTAGE);
+    ADI_GetTemperatures_Expect(&adi_stateBase);
+
+    ADI_AccesstoDatabase_Expects();
+
+    /* Expected not to trigger the balanceControl */
+    adi_stateBase.data.balancingControl->nrBalancedCells[adi_stateBase.currentString] = 0u;
+
+    if (adi_stateBase.data.balancingControl->nrBalancedCells[adi_stateBase.currentString] > 0u) {
+        ADI_StopContinuousCellVoltageMeasurements_Expect(&adi_stateBase);
+        ADI_BalanceControl_Expects();
+        ADI_RestartContinuousCellVoltageMeasurements_Expect(&adi_stateBase);
+    }
+
+    ADI_Diagnostic_Expect(&adi_stateBase);
+    ADI_CopyCommandBytes_Expect(adi_cmdClrcell, adi_command);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    TEST_ADI_RunCurrentStringMeasurement(&adi_stateBase);
+}
+
+void testADI_RunCurrentStringMeasurement_oneCellBalanced(void) {
+    /* invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_RunCurrentStringMeasurement(NULL_PTR));
+
+    /* ======= RT1/2: Test implementation */
+    ADI_CopyCommandBytes_Expect(adi_cmdAdax, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0u);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_CopyCommandBytes_Expect(adi_cmdAdax2, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(
+        adi_command,
+        ADI_ADAX2_CH03_POS,
+        ADI_ADAX2_CH03_LEN,
+        adi_stateBase.redundantAuxiliaryChannel[adi_stateBase.currentString]);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_Wait_Expect(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
+
+    ADI_CopyCommandBytes_Expect(adi_cmdSnap, adi_command);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+    ADI_GetVoltages_Expect(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
+    ADI_GetVoltages_Expect(&adi_stateBase, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
+    ADI_CopyCommandBytes_Expect(adi_cmdUnsnap, adi_command);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_Wait_Expect(ADI_WAIT_TIME_2_FOR_ADAX_FULL_CYCLE);
+
+    ADI_GetStringAndModuleVoltage_Expect(&adi_stateBase);
+    ADI_GetGpioVoltages_Expect(&adi_stateBase, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_VOLTAGE);
+    ADI_GetTemperatures_Expect(&adi_stateBase);
+
+    ADI_AccesstoDatabase_Expects();
+
+    /* Expected to trigger the balanceControl */
+    adi_stateBase.data.balancingControl->nrBalancedCells[adi_stateBase.currentString] = 1u;
+
+    if (adi_stateBase.data.balancingControl->nrBalancedCells[adi_stateBase.currentString] > 0u) {
+        ADI_StopContinuousCellVoltageMeasurements_Expect(&adi_stateBase);
+        ADI_CopyCommandBytes_Expect(adi_cmdUnmute, adi_command);
+        ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+        ADI_DetermineBalancingRegisterConfiguration_Expect(&adi_stateBase);
+        ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
+        ADI_CopyCommandBytes_Expect(adi_cmdMute, adi_command);
+        ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+        ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
+        ADI_RestartContinuousCellVoltageMeasurements_Expect(&adi_stateBase);
+    }
+
+    ADI_Diagnostic_Expect(&adi_stateBase);
+    ADI_CopyCommandBytes_Expect(adi_cmdClrcell, adi_command);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    TEST_ADI_RunCurrentStringMeasurement(&adi_stateBase);
+}
+
+void testADI_SetFirstMeasurementCycleFinished(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SetFirstMeasurementCycleFinished(NULL_PTR));
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ADI_SetFirstMeasurementCycleFinished(&adi_stateBase);
+}
+
+void testADI_BalanceControl(void) {
+    /* Invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_BalanceControl(NULL_PTR));
+
+    /* Test for different balancing patterns */
+    /* Enum to run through all balancing tests */
+    typedef enum {
+        TEST_ADI_BALANCING_VALUE0,
+        TEST_ADI_BALANCING_VALUE1,
+        TEST_ADI_BALANCING_VALUE_E_MAX,
+    } TEST_ADI_BALANCING_e;
+    /* Test for 0xAA and 0x55 balancing patterns */
+    for (TEST_ADI_BALANCING_e i = TEST_ADI_BALANCING_VALUE0; i < TEST_ADI_BALANCING_VALUE_E_MAX; i++) {
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            adi_stateBase.currentString = s;
+            /* Mocks for unmute commands */
+            ADI_CopyCommandBytes_Expect(adi_cmdUnmute, adi_command);
+            ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+            /* actual register configuration for the specific AFE */
+            ADI_DetermineBalancingRegisterConfiguration_Expect(&adi_stateBase);
+
+            ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
+
+            /* Mocks for mute commands */
+            ADI_CopyCommandBytes_Expect(adi_cmdMute, adi_command);
+            ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+            TEST_ADI_BalanceControl(&adi_stateBase);
+        }
+    }
+}
+
+void testADI_GetRequest(void) {
+    AFE_REQUEST_e request      = AFE_NO_REQUEST;
+    AFE_REQUEST_e requestValue = AFE_START_REQUEST;
+    /* Invalid pointer test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_GetRequest(NULL_PTR));
+
+    /* Request received from queue: function must return STD_OK */
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    TEST_ASSERT_EQUAL(STD_OK, TEST_ADI_GetRequest(&request));
+    /* No request received from queue: function must return STD_NOT_OK */
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_ADI_GetRequest(&request));
+
+    /* Test setting value of request when a request is present in queue */
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    OS_ReceiveFromQueue_ReturnThruPtr_pvBuffer(&requestValue);
+    TEST_ASSERT_EQUAL(AFE_NO_REQUEST, request);
+    TEST_ASSERT_EQUAL(STD_OK, TEST_ADI_GetRequest(&request));
+    TEST_ASSERT_EQUAL(AFE_START_REQUEST, request);
+}
+
+void testADI_SanityConfigurationCheck(void) {
+}
+
+void testADI_IdentifyAfes(void) {
+    ADI_IdentifyAfes();
+}

@@ -60,7 +60,7 @@ except ModuleNotFoundError:
 class TestConverterSetup(unittest.TestCase):
     """Tests for converter_setup."""
 
-    def test_calls_validate_and_constructs_converter(self):
+    def test_calls_validate_and_constructs_converter(self) -> None:
         """Ensure configuration is validated and a Converter is constructed with given config."""
         config = {
             "conversion": {
@@ -98,7 +98,7 @@ class TestConverterSetup(unittest.TestCase):
 class TestValidateConverterConfig(unittest.TestCase):
     """Tests for validate_converter_config."""
 
-    def test_valid_enum_values_pass_validation(self):
+    def test_valid_enum_values_pass_validation(self) -> None:
         """Validation should pass when input/output formats are Enum members."""
         config = {
             "input_format": InputFormats.GAMRY,
@@ -117,7 +117,7 @@ class TestValidateConverterConfig(unittest.TestCase):
             convert_helper.validate_converter_config(config)
             mock_recho.assert_not_called()
 
-    def test_invalid_input_format_string_exits(self):
+    def test_invalid_input_format_string_exits(self) -> None:
         """Exit when input_format is not a supported Enum member."""
         config = {
             "input_format": "UNKNOWN",
@@ -135,7 +135,7 @@ class TestValidateConverterConfig(unittest.TestCase):
             self.assertTrue(mock_recho.called)
             mock_exit.assert_called_once_with(1)
 
-    def test_invalid_output_format_string_exits(self):
+    def test_invalid_output_format_string_exits(self) -> None:
         """Exit when output_format is not a supported Enum member."""
         config = {
             "input_format": convert_helper.InputFormats.GAMRY,
@@ -153,7 +153,7 @@ class TestValidateConverterConfig(unittest.TestCase):
             self.assertTrue(mock_recho.called)
             mock_exit.assert_called_once_with(1)
 
-    def test_missing_parameter_exits_with_key_in_message(self):
+    def test_missing_parameter_exits_with_key_in_message(self) -> None:
         """Exit and log an error when a required configuration key is missing."""
         config = {
             # "input_format" is missing
@@ -173,7 +173,7 @@ class TestValidateConverterConfig(unittest.TestCase):
             self.assertIn("input_format", mock_recho.call_args[0][0])
             mock_exit.assert_called_once_with(1)
 
-    def test_non_int_skip_footer_does_not_trigger_when_enum_input(self):
+    def test_non_int_skip_footer_does_not_trigger_when_enum_input(self) -> None:
         """Skip-footer type check is not applied when input_format is an Enum member."""
         config = {
             "input_format": convert_helper.InputFormats.GAMRY,
@@ -191,7 +191,7 @@ class TestValidateConverterConfig(unittest.TestCase):
 class TestRunConverter(unittest.TestCase):
     """Tests for run_converter."""
 
-    def test_calls_convert_on_provided_object(self):
+    def test_calls_convert_on_provided_object(self) -> None:
         """Ensure run_converter delegates to the convert() method of the given object."""
         converter_mock = MagicMock()
         convert_helper.run_converter(converter_mock)

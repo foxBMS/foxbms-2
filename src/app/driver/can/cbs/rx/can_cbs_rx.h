@@ -43,8 +43,8 @@
  * @file    can_cbs_rx.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -56,9 +56,18 @@
 #define FOXBMS__CAN_CBS_RX_H_
 
 /*========== Includes =======================================================*/
-#include "foxbms_config.h"
+#include "foxbms_config_aerosol_sensor.h"
+#include "foxbms_config_bms_slave.h"
+#include "foxbms_config_current_sensor.h"
+#include "foxbms_config_imd_sensor.h"
 
 #include "can_cfg.h"
+
+#include "fram_helper.h"
+
+#ifdef UNITY_UNIT_TEST
+#include "database_cfg.h"
+#endif /* UNITY_UNIT_TEST */
 
 #include <stdint.h>
 
@@ -300,10 +309,22 @@ extern void TEST_CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e
 extern void TEST_CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessIdentifyHardwareMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
+#if (defined(FOXBMS_AS_HONEYWELL_BAS6C_X00) && (FOXBMS_AS_HONEYWELL_BAS6C_X00 == 1))
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_as_honeywell-bas6c-x00.c */
 extern void TEST_CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_SetParticulateMatterConcentration(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_SetAerosolSensorCrcCheckCode(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
+#endif /* FOXBMS_AS_HONEYWELL_BAS6C_X00 */
+
+extern void TEST_CANRX_ProcessCalibrationValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_CANRX_ProcessRawValueRequest(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_validateCalibrationValue(FRAM_CALIBRATION_VALUE_CHANNELS_e signalDataChannel, int32_t signalDataValue);
+extern void TEST_GetRequestedCalibrationChannel(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_CANRX_SetOffsetCalibrationData(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_CANRX_SetSlopeCalibrationData(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_CANRX_TriggerAdcCalibrationValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
+extern void TEST_CANRX_TriggerAdcRawValueMessage(FRAM_CALIBRATION_VALUE_CHANNELS_e calibrationChannel);
 
 /* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_f_bms-state-request.c */
 extern void TEST_CANRX_ClearAllPersistentFlags(uint64_t messageData);
@@ -322,23 +343,24 @@ extern void TEST_CANRX_GetCanAfeCellVoltagesFromMessage(
     uint64_t messageData);
 #endif
 
+#if (defined(FOXBMS_IMD_BENDER_ISO165C) && (FOXBMS_IMD_BENDER_ISO165C == 1))
 /* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-info.c*/
 extern void TEST_CANRX_TransferImdInfoMessageToCanBuffer(
     uint8_t messageDlc,
     const uint8_t *const kpkCanData,
     CAN_BUFFER_ELEMENT_s *canBuffer);
-
-/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso175c-info.c*/
 extern void TEST_CANRX_GetMeasuredResistance(uint64_t messageData, DATA_BLOCK_INSULATION_s *pTableInsulation);
 extern void TEST_CANRX_GetImcStatus(uint64_t messageData, DATA_BLOCK_INSULATION_s *pTableInsulation);
 extern void TEST_CANRX_GetVifcStatus(uint64_t messageData, DATA_BLOCK_INSULATION_s *pTableInsulation);
-
 /* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd_bender-iso165c-response.c*/
 extern void TEST_CANRX_TransferImdResponseMessageToCanBuffer(
     uint8_t messageDlc,
     const uint8_t *const kpkCanData,
     CAN_BUFFER_ELEMENT_s *canBuffer);
+#endif /* FOXBMS_IMD_BENDER_ISO165C */
 
+#if (defined(FOXBMS_CS_LEM_CAB500) && (FOXBMS_CS_LEM_CAB500 == 1))
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_cs_lem-cab500.c */
 extern void TEST_CANRX_LemHandleSensorData(
     const CAN_SHIM_s *const kpkCanShim,
     uint32_t messageId,
@@ -351,6 +373,6 @@ extern void TEST_CANRX_LemHandleChannelError(
     const CAN_SHIM_s *const kpkCanShim,
     uint32_t messageId,
     uint8_t stringNumber);
-#endif
-
+#endif /* FOXBMS_CS_LEM_CAB500 */
+#endif /* UNITY_UNIT_TEST */
 #endif /* FOXBMS__CAN_CBS_RX_H_ */

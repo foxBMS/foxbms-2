@@ -3,7 +3,7 @@
 
 
 .. |local_bms_interface_version| replace:: ``v1.0.3``
-.. |local_bms_interface_identifier_short| replace:: |ltc-ltc6820|\-based |bms-interface|
+.. |local_bms_interface_identifier_short| replace:: |ltc-ltc6820|-based |bms-interface|
 .. |local_bms_interface_identifier_full| replace:: |local_bms_interface_identifier_short| |local_bms_interface_version|
 
 .. _LTC_LTC6820_BASED_BMS_INTERFACE_V1_0_3:
@@ -55,12 +55,12 @@ Mechanical Dimensions
 The size of the PCB is 70 |_| |mm| |_| x |_| 120 |_| |mm|.
 A 3D-model and a drawing of the PCB can be found in :numref:`DESIGN_RESOURCES`.
 
-^^^^^^^^^^^^^^^^^
-isoSPI Insulation
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
+|isospi| Insulation
+^^^^^^^^^^^^^^^^^^^
 
 The interface board is designed for a maximum continuous insulation voltage of
-1250 |_| V |_| DC between all four isoSPI channels and between each isoSPI
+1250 |_| V |_| DC between all four |isospi| channels and between each |isospi|
 channel and the |bms-master|.
 
 The insulation is designed according to DIN |_| EN |_| 60664-1:2008-01 under
@@ -87,14 +87,13 @@ A block diagram of the |bms-interface| is shown in
 :numref:`interface-ltc6820_v1.0.3_block_diagram`.
 
 .. _interface-ltc6820_v1.0.3_block_diagram:
-.. drawio-figure:: ./ltc-ltc6820-v1.0.3/ltc-ltc6820-v1.0.3_block_diagram.drawio
-   :format: svg
+.. figure:: ../../../../build/docs/docs/hardware/interfaces/ltc-ltc6820-vx.x.x/ltc-ltc6820-v1.0.3/ltc-ltc6820-v1.0.3_block_diagram.svg
    :width: 80 %
    :align: center
 
    Block diagram of the |bms-interface|
 
-Each of the four isoSPI channels uses one |ltc-ltc6820| communication chip from
+Each of the four |isospi| channels uses one |ltc-ltc6820| communication chip from
 |adi| and an insulation transformer.
 The |ltc-ltc6820| chips are directly connected to the MCU via |spi|.
 
@@ -111,20 +110,20 @@ signals.
 Functions
 ---------
 
-^^^^^^^^^^^^^^^^^^^^
-isoSPI communication
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+|isospi| communication
+^^^^^^^^^^^^^^^^^^^^^^
 
-The |bms-interface| offers up to four isolated isoSPI communication channels
+The |bms-interface| offers up to four isolated |isospi| communication channels
 using the |ltc-ltc6820| transceiver chip from |adi|.
 The |ltc-ltc6820| transceivers are controlled by the SPI signals from the
 |bms-master|.
-The isoSPI signals are available on the connectors J101, J102, J103 and J104.
+The |isospi| signals are available on the connectors J101, J102, J103 and J104.
 The pinout of these connectors is described in
-:numref:`Table %s <interface-ltc6820_v1.0.3_isoSPI_connectors>`.
+:numref:`Table %s <interface-ltc6820_v1.0.3_isospi_connectors>`.
 
-.. csv-table:: isoSPI Daisy Chain Output Connectors
-   :name: interface-ltc6820_v1.0.3_isoSPI_connectors
+.. csv-table:: |isospi| Daisy Chain Output Connectors
+   :name: interface-ltc6820_v1.0.3_isospi_connectors
    :header-rows: 1
    :delim: ;
    :file: ./ltc-ltc6820-v1.0.3/ltc-ltc6820-v1.0.3_isospi_connectors.csv

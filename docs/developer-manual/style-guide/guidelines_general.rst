@@ -14,7 +14,7 @@ The following rules generally apply and follow the naming schema
 Filenames (``GENERAL:001``)
 ---------------------------
 
-Generally file naming rules are not necessary, but for reasons
+Generally, file naming rules are not necessary, but for reasons
 of consistency there are some rules for that within the project.
 
 .. admonition:: Filenames
@@ -23,8 +23,8 @@ of consistency there are some rules for that within the project.
     alphanumeric characters and may include underscores (``_``), dashes
     (``-``) and dots (``.``).
     A correct file or directory name matches the regular expression
-    ``^[a-z0-9_\-.]*$``. Valid exceptions are e.g., ``README.md`` and
-    ``CHANGELOG.md``.
+    ``^[a-z0-9_\-.]*$``.
+    Valid exceptions are e.g., ``README.md`` and ``CHANGELOG.md``.
 
 .. _rule_general_filename_uniqueness:
 
@@ -32,14 +32,14 @@ Filename uniqueness (``GENERAL:002``)
 -------------------------------------
 
 Unique filenames help to avoid confusion.
-Furthermore in case of file includes or imports non-unique filenames might lead
-to undesired behavior as wrong files might be used.
+Furthermore, in case of file includes or imports non-unique filenames might
+lead to undesired behavior as wrong files might be used.
 
 .. admonition:: Filename Uniqueness
 
-    - Filenames **SHOULD BE** be unique. Valid exceptions are e.g.,
-      ``README.md`` to explain the content of a directory, or directory-local
-      ``.gitignore`` files.
+    - Filenames **SHOULD BE** unique.
+      Valid exceptions are e.g., ``README.md`` to explain the content of a
+      directory, or directory-local ``.gitignore`` files.
     - Source files **MUST** use unique filenames.
 
 .. _rule_general_text_file_encoding:
@@ -51,7 +51,8 @@ Encoding (``GENERAL:003``)
 
     - All plain text files **SHOULD** use ``UTF-8`` encoding.
     - Files **MAY** use other encodings if these are required by standards or
-      other tools. Valid exceptions are
+      other tools.
+      Valid exceptions are
 
       - ``*.c*`` and ``*.h`` files **MUST** use ``ASCII`` encoding
       - ``*.sym`` and ``*.dbc`` files **MUST** use ``ASCII`` encoding.
@@ -71,8 +72,7 @@ End-of-File (``GENERAL:004``)
 No trailing whitespace (``GENERAL:005``)
 ----------------------------------------
 
-Undesired changes in whitespace make diffs more hard to read and are
-unnecessary.
+Undesired changes in whitespace make diffs harder to read and are unnecessary.
 To reduce this problem, trailing whitespace is not allowed.
 
 .. admonition:: No trailing whitespace
@@ -84,17 +84,36 @@ To reduce this problem, trailing whitespace is not allowed.
 Indentation (``GENERAL:006``)
 -----------------------------
 
-Undesired changes in whitespace make diffs more hard to read and are
-unnecessary. To reduce this problem, all indentations **MUST** be of one type.
+Undesired changes in whitespace make diffs harder to read and are unnecessary.
+To reduce this problem, all indentation **MUST** be of one type.
 
 .. admonition:: Indentation
 
-    - All plain text files **MUST** use spaces for indentation. Use
-      4 spaces at a time.
+    - All plain text files **MUST** use spaces for indentation.
+      Use 4 spaces at a time.
     - Tabs **MUST NOT** be used.
 
 You should set your editor to automatically replace tabs with spaces to ease
 development.
+
+.. _rule_general_physical_units:
+
+Physical Units (``GENERAL:007``)
+--------------------------------
+
+Physical Units shall be used as follows documentation:
+
+- Use SI units as the default.
+- Use the full unit name in comments and documentation (e.g., "meters per second").
+- Use the standard abbreviations in code (e.g., "m/s").
+- Avoid mixing unit systems within the same context.
+- Clearly indicate any deviations from the standard units.
+
+In source code use the following conventions:
+
+.. csv-table::
+   :delim: ;
+   :file: ./physical-units.csv
 
 .. _further_general_rules:
 
@@ -123,10 +142,11 @@ Further General Rules
   This includes abbreviations and acronyms; e.g., for "camel case" or "Pascal
   case," in which the first letter of each word is capitalized, use a name like
   ``StartAbc()``, not ``StartABC()``.
-- Non-ASCII characters should be rare, and **MUST** use ``UTF-8`` encoding. You
-  **SHOULD NOT** hard-code user-facing text in source code, even English, so
-  use of non-ASCII characters should be rare. However, in certain cases it is
-  appropriate to include such words in your code.
+- Non-ASCII characters should be rare, and **MUST** use ``UTF-8`` encoding.
+  You **SHOULD NOT** hard-code user-facing text in source code, even English,
+  so use of non-ASCII characters should be rare.
+  However, in certain cases it is appropriate to include such words in your
+  code.
   For example, if your code parses data files from foreign sources, it may be
   appropriate to hard-code the non-ASCII string(s) used in those data files as
   delimiters.

@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -223,6 +223,19 @@ static void CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber);
 static void CAN_CheckCanTimingOfCurrentSensor(void);
 
 /**
+ * @brief    Re-Initialize RX mailboxes due to HALCoGen bugs
+ * @details  TI HALCoGen has a bug for the initialization code of CAN1
+ *           mailboxes 41 and 42.
+ *
+ *           CAN1 mailbox 41:
+ *           The interrupt flag is not set when configured in HALCoGen.
+ *
+ *           CAN1 mailbox 42:
+ *           No initialization code is generated at all.
+ */
+static void CAN_ReconfigureCan1RxMailboxesDueToHalcogenBug(void);
+
+/**
  * @brief    Initialize RX mailboxes for usage with extended identifiers
  * @details  The first 32 mailboxes are configured via HALCoGen as RX mailboxes
  *           to be used with standard 11-bit identifiers. As the configuration
@@ -268,8 +281,7 @@ static void CAN_CheckDatabaseNullPointer(CAN_SHIM_s canShim);
 static CAN_NODE_s *CAN_GetNodeConfigurationStructFromRegisterAddress(canBASE_t *pNodeRegister);
 
 /*========== Static Function Implementations ================================*/
-
-static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
+static void CAN_ReconfigureCan1RxMailboxesDueToHalcogenBug(void) {
     /* Content copied from HALCoGen generated configuration file HL_can.c
      * Date: 11-Dec-2018
      * Version: 04.07.01
@@ -280,7 +292,7 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     /* AXIVION Disable Style IISB-LiteralSuffixesCheck: Content copied from HALCoGen generated configuration file */
     /* AXIVION Disable Style Generic-NoEmptyLoops: Content copied from HALCoGen generated configuration file */
 
-    /* Reconfigure CAN1 mailboxes 42, 61, 62, 63 and 64 */
+    /* Reconfigure CAN1 mailboxes 41 and 42 */
 
     /** - Setup control register
      *     - Disable automatic wakeup on bus activity
@@ -308,6 +320,26 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     /** - Setup auto bus on timer period */
     canREG1->ABOTR = (uint32)0U;
 
+    /** - Initialize message 41
+    *     - Wait until IF1 is ready for use
+    *     - Set message mask
+    *     - Set message control word
+    *     - Set message arbitration
+    *     - Set IF1 control byte
+    *     - Set IF1 message number
+    */
+    /*SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
+     * Hardware Status check for execution sequence" */
+    while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
+    } /* Wait */
+
+    canREG1->IF1MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x000007FFU) << (uint32)18U);
+    canREG1->IF1ARB  = (uint32)0x80000000U | (uint32)0x00000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x000007FFU) << (uint32)18U);
+    canREG1->IF1MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
+    canREG1->IF1CMD  = (uint8)0xF8U;
+    canREG1->IF1NO   = 41U;
+
     /** - Initialize message 42
      *     - Wait until IF1 is ready for use
      *     - Set message mask
@@ -321,12 +353,75 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG1->IF1MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x000007FFU) << (uint32)18U);
-    canREG1->IF1ARB = (uint32)0x80000000U | (uint32)0x00000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x000007FFU) << (uint32)18U);
+    canREG1->IF1MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x000007FFU) << (uint32)18U);
+    canREG1->IF1ARB  = (uint32)0x80000000U | (uint32)0x00000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x000007FFU) << (uint32)18U);
     canREG1->IF1MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG1->IF1CMD  = (uint8)0xF8U;
     canREG1->IF1NO   = 42U;
+
+    /** - Setup IF1 for data transmission
+     *     - Wait until IF1 is ready for use
+     *     - Set IF1 control byte
+     */
+    /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
+     * Hardware Status check for execution sequence" */
+    while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
+    } /* Wait */
+    canREG1->IF1CMD = 0x87U;
+
+    /** - Setup IF2 for reading data
+     *     - Wait until IF1 is ready for use
+     *     - Set IF1 control byte
+     */
+    /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
+     * Hardware Status check for execution sequence" */
+    while ((canREG1->IF2STAT & 0x80U) == 0x80U) {
+    } /* Wait */
+    canREG1->IF2CMD = 0x17U;
+
+    /** - Leave configuration and initialization mode  */
+    canREG1->CTL &= ~(uint32)(0x00000041U);
+}
+
+static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
+    /* Content copied from HALCoGen generated configuration file HL_can.c
+     * Date: 11-Dec-2018
+     * Version: 04.07.01
+     */
+
+    /* AXIVION Disable Style Generic-NoMagicNumbers: Content copied from HALCoGen generated configuration file */
+    /* AXIVION Disable Style MisraC2012-2.2: Content copied from HALCoGen generated configuration file */
+    /* AXIVION Disable Style IISB-LiteralSuffixesCheck: Content copied from HALCoGen generated configuration file */
+    /* AXIVION Disable Style Generic-NoEmptyLoops: Content copied from HALCoGen generated configuration file */
+
+    /* Reconfigure CAN1 mailboxes 61, 62, 63 and 64 */
+
+    /** - Setup control register
+     *     - Disable automatic wakeup on bus activity
+     *     - Local power down mode disabled
+     *     - Disable DMA request lines
+     *     - Enable global Interrupt Line 0 and 1
+     *     - Disable debug mode
+     *     - Release from software reset
+     *     - Enable/Disable parity or ECC
+     *     - Enable/Disable auto bus on timer
+     *     - Setup message completion before entering debug state
+     *     - Setup normal operation mode
+     *     - Request write access to the configuration registers
+     *     - Setup automatic retransmission of messages
+     *     - Disable error interrupts
+     *     - Disable status interrupts
+     *     - Enter initialization mode
+     */
+    canREG1->CTL = (uint32)0x00000000U | (uint32)0x00000000U | (uint32)((uint32)0x0000000AU << 10U) |
+                   (uint32)0x00020043U;
+
+    /** - Clear all pending error flags and reset current status */
+    canREG1->ES |= 0xFFFFFFFFU;
+
+    /** - Setup auto bus on timer period */
+    canREG1->ABOTR = (uint32)0U;
 
     /** - Initialize message 61
      *     - Wait until IF1 is ready for use
@@ -341,9 +436,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG1->IF1MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG1->IF1ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF1MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF1ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG1->IF1MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG1->IF1CMD  = (uint8)0xF8U;
     canREG1->IF1NO   = 61U;
@@ -361,9 +456,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG1->IF2STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG1->IF2MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG1->IF2ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF2MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF2ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG1->IF2MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG1->IF2CMD  = (uint8)0xF8U;
     canREG1->IF2NO   = 62U;
@@ -381,9 +476,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG1->IF1MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG1->IF1ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF1MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF1ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG1->IF1MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG1->IF1CMD  = (uint8)0xF8U;
     canREG1->IF1NO   = 63U;
@@ -401,9 +496,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG1->IF2STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG1->IF2MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG1->IF2ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF2MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG1->IF2ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG1->IF2MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG1->IF2CMD  = (uint8)0xF8U;
     canREG1->IF2NO   = 64U;
@@ -468,9 +563,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG2->IF1STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG2->IF1MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG2->IF1ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF1MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF1ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG2->IF1MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG2->IF1CMD  = (uint8)0xF8U;
     canREG2->IF1NO   = 61U;
@@ -488,9 +583,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG2->IF2STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG2->IF2MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG2->IF2ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF2MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF2ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG2->IF2MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG2->IF2CMD  = (uint8)0xF8U;
     canREG2->IF2NO   = 62U;
@@ -508,9 +603,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG2->IF1STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG2->IF1MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG2->IF1ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF1MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF1ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG2->IF1MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG2->IF1CMD  = (uint8)0xF8U;
     canREG2->IF1NO   = 63U;
@@ -528,9 +623,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     while ((canREG2->IF2STAT & 0x80U) == 0x80U) {
     } /* Wait */
 
-    canREG2->IF2MSK = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
-    canREG2->IF2ARB = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
-                      (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF2MSK  = 0xC0000000U | (uint32)((uint32)((uint32)0x00000000U & (uint32)0x1FFFFFFFU) << (uint32)0U);
+    canREG2->IF2ARB  = (uint32)0x80000000U | (uint32)0x40000000U | (uint32)0x00000000U |
+                       (uint32)((uint32)((uint32)0U & (uint32)0x1FFFFFFFU) << (uint32)0U);
     canREG2->IF2MCTL = 0x00001000U | (uint32)0x00000400U | (uint32)0x00000000U | (uint32)0x00000000U | (uint32)8U;
     canREG2->IF2CMD  = (uint8)0xF8U;
     canREG2->IF2NO   = 64U;
@@ -917,6 +1012,8 @@ static void CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 
 extern void CAN_Initialize(void) {
     canInit();
+    /* This function overwrites HALCoGen configuration mailbox configuration 41 and 42 for CAN1. */
+    CAN_ReconfigureCan1RxMailboxesDueToHalcogenBug();
     /* This function overwrites HALCoGen configuration mailbox configuration 61 - 64 for CAN1 and CAN2. */
     CAN_ConfigureRxMailboxesForExtendedIdentifiers();
     /* PEX pins are used for transceiver configuration -> I2C and port expander
@@ -988,7 +1085,7 @@ extern void canMessageNotification(canBASE_t *node, uint32 messageBox) {
         CAN_RxInterrupt(node, messageBox);
     }
 }
-#endif
+#endif /* UNITY_UNIT_TEST */
 
 extern void CAN_SendMessagesFromQueue(void) {
     CAN_BUFFER_ELEMENT_s message = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
@@ -1015,11 +1112,11 @@ extern void CAN_MainFunction(void) {
 extern void CAN_ReadRxBuffer(void) {
     if (ftsk_allQueuesCreated == true) {
         CAN_BUFFER_ELEMENT_s can_rxBuffer = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
-        while (OS_ReceiveFromQueue(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u) == OS_SUCCESS) {
+        while ((OS_ReceiveFromQueue(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u) == OS_SUCCESS)) {
             /* data queue was not empty */
             for (uint16_t i = 0u; i < can_rxMessagesLength; i++) {
-                if ((can_rxBuffer.canNode == can_rxMessages[i].canNode) &&
-                    (can_rxBuffer.id == can_rxMessages[i].message.id) &&
+                if ((can_rxBuffer.id == can_rxMessages[i].message.id) &&
+                    (can_rxBuffer.canNode == can_rxMessages[i].canNode) &&
                     (can_rxBuffer.idType == can_rxMessages[i].message.idType)) {
                     if (can_rxMessages[i].callbackFunction != NULL_PTR) {
                         can_rxMessages[i].callbackFunction(can_rxMessages[i].message, can_rxBuffer.data, &can_kShim);

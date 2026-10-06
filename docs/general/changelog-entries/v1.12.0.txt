@@ -1,0 +1,350 @@
+..
+  cspell:ignore pygrep,pymarkdown
+
+This release includes a significant build toolchain refactor.
+This refactor includes renaming the build target commands.
+See the *Changed* section below for details.
+
+This release includes quarterly updates to the following dependencies:
+
+- Internal:
+
+  - Waf: ``2.1.9``
+
+- External:
+
+  - pre-commit Hooks: see below for version details
+  - Python: 3.14
+  - Python environment: ``2026-07-pale-fox``
+
+See :ref:`SOFTWARE_INSTALLATION` on how to update the individual external
+tools.
+
+Added
+=====
+
+- Add ``STD_BoolToStdReturnType()`` to convert boolean conditions to the
+  standard ``STD_OK`` and ``STD_NOT_OK`` return values, with dedicated unit
+  test coverage.
+- Add database-block timestamp helpers for multi-string data:
+  ``DATA_DatabaseBlockUpdatedAtLeastOnce()`` and
+  ``DATA_DatabaseBlockUpdatedWithinInterval()``.
+  The helpers validate timestamp pointers and string numbers and handle
+  32-bit timer overflow when checking update intervals.
+- Add multiplexer support for temperature sensors in the ADI AFE driver.
+- Add all potentially fatal diagnosis events to the corresponding enums in the
+  ``tools/dbc/foxbms.(sym|dbc)`` files.
+  This ensures that all fatal diagnosis events are properly displayed in CAN
+  logs independently of the configuration in
+  ``src/app/engine/config/diag_cfg.h``.
+- Add dataflow graph to the documentation.
+- Generate API documentation automatically for Waf tools.
+  The tools must be importable, so the directory was renamed from
+  ``tools/waf-tools`` to ``tools/waf_tools``.
+- Add ``MinimumOfTwoUint32_t`` in the ``foxmath`` module.
+- Add Waf tools to enable unit test builds directly using CMock, Unity, and
+  CException with GCC.
+  Unit tests are built using the Waf commands ``build_app_unit_test_gcc``
+  and ``build_bootloader_unit_test_gcc`` for the app and bootloader,
+  respectively.
+  The tools are located in ``tools/waf_tools`` and include the following files:
+  ``gcov.py``, ``mock.py``, and ``preprocess.py``.
+  This removes the need to use ``TEST_SOURCE_FILE`` and
+  ``TEST_INCLUDE_PATH``.
+- Generate the battery-cell, battery-system, and diagnosis configuration C
+  files from their JSON configuration during the build.
+- Use Pydantic dataclasses to validate BMS configuration and ``fox db`` data,
+  rejecting values with incorrect types.
+- Add a FRAM-backed tuning-value API with CAN read and write support.
+- Add a central parameter in ``bms-slave_cfg.h`` for the resistor-divider
+  supply voltage used by all cell-temperature measurements.
+- Add hardware-test patch to use any branch to test the hardware.
+- Add ``*_types.h`` for ``battery_cell_cfg`` and ``battery_system_cfg`` to
+  provide dedicated type definition headers for the battery configuration
+  modules.
+- Document ``gui.lnk`` behavior.
+- Add initialization function for the state struct of the ADI AFE driver.
+- Add command line options to the Doxygen Waf tool:
+
+  - ``--doxygen-timeout`` to configure Doxygen timeout handling
+  - ``--extcmd`` to enable Doxygen external command tracing (``-d extcmd``)
+
+- Add offset and gain error calibration API via CAN.
+  The calibration parameters are persistently stored in non-volatile memory.
+- Add unit test for the ``BMS_Trigger`` and the ``BMS_Process`` functions to
+  improve test coverage of the BMS state machine.
+- Add support for TDK B57334V5103F360 NTC thermistor.
+- Add a how-to for configuring SPI for multi-string systems.
+- Add a GUI for editing diagnosis-array settings in JSON configuration files.
+- Add fox CLI ``misc`` commands for opening unit-test reports.
+- Add database entries for cell-specific state-of-health results.
+- Add an initial Waf tool structure for MATLAB code generation.
+- Add embedded unit tests for CAN RX/TX handling.
+- Add embedded unit tests for the FTASK module.
+- Document the Waf toolchain and its configuration behavior.
+- Document CAN communication from the user's perspective, battery-system
+  setup, physical units, and how to reset the deep-discharge flag.
+- Add automatic sorting for lists in ``test.json`` (``source``, ``includes``,
+  ``mocks``) and ``wscript`` (``includes``\ -keyword) files via pre-commit.
+- Add validation to ensure all sources are referenced in test.json files
+  when building the unit tests
+
+Changed
+=======
+
+- Rework measurement processing to separate data validation from BMS control
+  logic.
+  The new ``BMS Values`` module prepares validated cell and pack measurements
+  fore the BMS state machine.
+  It also calculates minimum, maximum, and average cell voltages and
+  temperatures using only valid measurements.
+  The ``plausibility`` module now provides dedicated checks for current, power,
+  string voltage, battery voltage, high-voltage bus voltage, and cell voltage
+  and temperature spread, including measurement freshness where applicable.
+  Redundant cell voltage and temperature measurement is now optional and
+  disabled by default, allowing operation without a second measurement source.
+  The configuration is renamed from ``redundancy`` to
+  ``redundant_v_t_measurement`` in the BMS configuration model.
+  The configuration option in ``conf/bms/bms.json`` is renamed to
+  ``redundant-v-t-measurement``.
+  The unit tests and documentation are expanded to cover the revised processing
+  flow and operation with and without redundant measurements.
+- Split ``foxbms_config.h`` into focused configuration headers to reduce
+  unnecessary header dependencies.
+- Reorganize test variants into numbered configuration directories and ensure
+  each variant includes its required MCU settings.
+- Group CAN RX messages array meaningfully by sensor type in
+  ``src/app/driver/config/can_cfg_rx.c``.
+  This improves maintainability and readability of the CAN RX message
+  configuration.
+- Move ``plot_periods.py`` into the ``misc`` command of the ``fox CLI`` and
+  add the possibility to use trace files directly for plotting.
+- Move distributed common ADI AFE driver unit tests into single common testing.
+- Move distributed common NXP AFE driver unit tests into single common testing.
+- Improve build scripts of the bootloader.
+  The way the build scripts are structured and how information is passed is
+  now consistent across app and bootloader builds.
+- Enable ``-Wall -Wextra -Wno-unknown-pragmas`` compilation flags for unit test
+  builds.
+  This required cleaning up various compiler warnings, but did not lead to
+  functional or behavioral changes.
+- Propagate include paths via Waf's ``export_includes`` feature instead of
+  using environment variables.
+- Pass include paths as ``Node.Node`` objects instead of strings to improve
+  maintainability and processing integrity.
+- Replace ``cflags`` attribute usage with ``uselib`` references for ``FOXBMS``,
+  ``OS`` and ``HAL`` compiler flags to improve maintainability and consistency
+  in the build configuration.
+- Use a feature-based check (``"c"`` / ``"asm"`` in features) for
+  HAL source inclusion instead of an attribute check.
+- Use ``/opt/drawio/30.0.4`` as default search path for drawio.
+- Update dependencies:
+
+  - Internal:
+
+    - Waf: ``2.1.9``
+
+  - External:
+
+    - Python: 3.14
+    - Python environment: ``2026-07-pale-fox``
+    - pre-commit Hooks:
+
+      - cspell: ``v10.0.1``
+      - mirrors-clang-format: ``v22.1.5``
+      - ruff-pre-commit: ``v0.15.16``
+      - pyproject-fmt: ``v2.25.1``
+      - pygrep-hooks: ``v1.10.0``
+      - pyupgrade: ``v3.21.2``
+      - pymarkdown: ``v0.9.39``
+
+- Apply consistent formatting to ``pyproject.toml``.
+- Change the query order in ``CAN_ReadRxBuffer()`` to improve efficiency and
+  prevent it from blocking the 1 ms task.
+- Improve the build toolchain.
+  The embedded compiler tool for TI ARM CGT has been isolated from the generic
+  compiler implementation in Waf.
+  This improves the maintainability of the build system and makes it easier to
+  add support for other compilers in the future.
+  It will further enable code generators to improve the basic BMS
+  configuration.
+  The build toolchain is now also more tolerant if some parts of the toolchain
+  are not installed, i.e., if GCC is not installed, the configuration will
+  still succeed, but the build commands that require GCC will fail with an
+  error message indicating that this part of the toolchain is missing.
+  The installed compiler toolchain requires exactly the defined version (i.e.,
+  the lazy check has been removed).
+  This affected the following files in ``tools/waf_tools/``:
+  ``all_commands.py``, ``app_crc.py``, ``bin_gen.py``,
+  ``bms_config_validator.py``, ``bootstrap_library_project.py``,
+  ``app_build_config_generate.py``, ``version_generate.py``, ``hexgen.py``,
+  ``lauterbach.py``, ``nm.py``, ``size.py``, ``ti_arm_cgt.py``, ``vcs_git.py``,
+  and ``vscode.py``.
+  The build commands are now as follows (an \* for the **old command name**
+  indicates, that the command did previously not exist):
+
+  +-----------------------------------------+-------------------------------------------+
+  | Old command name                        | New command name                          |
+  +=========================================+===========================================+
+  | ``build_app_doxygen``                   | ``build_app_doxygen``                     |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_app_spa``                       | ``build_app_spa_ti_arm_cgt``              |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_app_embedded``                  | ``build_app_ti_arm_cgt``                  |
+  +-----------------------------------------+-------------------------------------------+
+  | ``app_doxygen_unit_test``               | ``build_app_unit_test_doxygen``           |
+  +-----------------------------------------+-------------------------------------------+
+  | \*                                      | ``build_app_unit_test_gcc``               |
+  +-----------------------------------------+-------------------------------------------+
+  | \*                                      | ``build_app_unit_test_spa_gcc``           |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_bootloader_doxygen``            | ``build_bootloader_doxygen``              |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_bootloader_spa``                | ``build_bootloader_spa_ti_arm_cgt``       |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_bootloader_embedded``           | ``build_bootloader_ti_arm_cgt``           |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_bootloader_unit_test_doxygen``  | ``build_bootloader_unit_test_doxygen``    |
+  +-----------------------------------------+-------------------------------------------+
+  | \*                                      | ``build_bootloader_unit_test_gcc``        |
+  +-----------------------------------------+-------------------------------------------+
+  | \*                                      | ``build_bootloader_unit_test_spa_gcc``    |
+  +-----------------------------------------+-------------------------------------------+
+  | ``bootloader_embedded --target-test``   | ``build_bootloader_unit_test_ti_arm_cgt`` |
+  +-----------------------------------------+-------------------------------------------+
+  | ``build_docs``                          | ``build_docs``                            |
+  +-----------------------------------------+-------------------------------------------+
+
+- Change the assertion in ``NetworkInterface.c`` from ``FAS_ASSERT`` to
+  FreeRTOS ``configASSERT`` to reduce coupling between FreeRTOS and foxBMS.
+- Replace ``#include "battery_cell_cfg.h"`` and
+  ``#include "battery_system_cfg.h"`` with their respective ``*_types.h``
+  counterparts where possible to reduce unnecessary header dependencies.
+- Configure Doxygen ``DOT_NUM_THREADS`` via template variable in
+  ``docs/doxygen.conf.in``.
+  The value is now provided by the Waf Doxygen tool and can be adjusted based
+  on platform and job settings.
+- Set ``DOT_MULTI_TARGETS`` to ``NO`` to improve Graphviz ``dot`` robustness.
+- Adjust Doxygen ``dot`` thread configuration in the Waf Doxygen tool based on
+  Waf job settings and reduce parallelism on Windows.
+- Move code from the ``BMS_Trigger`` function to separate processing functions
+  for each state.
+- Validate the project path already in ``fox.ps1`` and ``fox.sh`` to not
+  contain whitespace characters.
+- Make looping over the number of strings, modules per string, batteries per
+  module, and temperature sensors per module consistent.
+  The documentation is updated accordingly.
+- Expanded API for ``TSI_GetTemperature`` to include the resistor divider
+  supply voltage.
+- Rename diagnostic ID macros to better reflect their purpose:
+
+  - ``DIAG_ID_PLAUSIBILITY_CELL_TEMP`` -->
+    ``DIAG_ID_REDUNDANCY_CELL_TEMPERATURE``
+  - ``DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE`` -->
+    ``DIAG_ID_REDUNDANCY_CELL_VOLTAGE``
+
+- Improve DIAG module API
+
+  - Rename ``DIAG_CheckEvent()`` to ``DIAG_ReportResultToHandler()`` to better
+    reflect that the function reports a result instead of checking an event.
+  - Return the return value of the underlying ``DIAG_Handler()`` call instead
+    of discarding it, so callers can detect handler errors.
+
+- Make the redundancy module an optional compile-time feature.
+- Tighten Python linting and typing checks.
+
+- Move MCU cache setting from ``src/app/task/os/os.h`` to
+  ``conf/bms/bms.json``.
+- Deactivate mailboxes 41 and 42 on ``canREG1`` for the CAN bootloader because
+  of HALCoGen bugs.
+
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Remove ``Ceedling`` as a dependency.
+  Unit tests are now built using Waf (see **Added** section for details).
+- Remove ``test_ignore_list.h``.
+  This file is no longer needed as the compiler warning cleanup for
+  ``-Wall -Wextra -Wno-unknown-pragmas`` removed the need for suppressing
+  warnings via a global ignore list.
+- Remove ``sphinxcontrib-drawio`` as a dependency.
+  SVG files are now built using a Waf code generator.
+- Remove non-functional open wire check in BMS state machine.
+- Remove ``fox CLI`` command ``com-test``.
+
+Fixed
+=====
+
+- Fix open wire detection in ``BMS_CheckOpenSenseWire()``.
+  A misplaced closing bracket caused the comparison result (``0`` or ``1``) to
+  be used as the array index instead of the computed wire offset, so only the
+  first two sense wires of each string were ever evaluated.
+  In addition, the detection counter was not reset between strings, meaning
+  one open wire in any string marked all following strings as faulty.
+  The check now evaluates the number of open wires reported per string
+  directly.
+- Fix TMS570 cache handling when using FreeRTOS 11.1.0.
+- Fix a state-of-charge jump at the start of a charging cycle and correct
+  state-of-energy counting when using internal energy counting.
+- Fix FRAM reinitialization and calibration signal-conversion factors.
+- Fix GPIO 9 handling in the LTC6813-1 driver and remove invalid casts from
+  ``SOF_CalculateVoltageBasedCurrentLimit()``.
+- Fix a duplicate call to ``MRC_CalculateCellTemperatureMinMaxAverage()``.
+- Complete the lookup table for the Vishay NTCALUG01T103G temperature sensor.
+- Fix memory-region alignment in the linker configuration.
+- Fix invalid diagnosis-array configuration entries.
+- Fix fox CLI command discovery when unexpected programs are present in
+  ``PATH`` and fix bootloader invocation from the GUI.
+- Fix intermittent Windows build failures caused by stale battery-system
+  configuration from a previous variant.
+  Refresh copied file timestamps in ``tests/variants/apply-test-case.ps1`` so
+  Git detects same-size configuration changes and restores defaults on
+  subsequent checkouts.
+  This prevents mismatches between the selected AFE driver and the configured
+  number of battery cells.
+- Fix history-based balancing using inconsistent state-of-charge units.
+  Cell voltages are now passed to ``SE_GetStateOfChargeFromVoltage()`` in mV,
+  and the returned SOC percentage is converted to a 0.0 to 1.0 fraction before
+  calculating depth of discharge and charge differences.
+  Update the history-based balancing documentation and variable names to
+  reflect these units.
+  Add regression tests for the SOC-based imbalance calculation and
+  voltage-based balancing threshold activation.
+- Fix version update in source files in the ``release`` command of the
+  ``fox CLI``.
+- Fix bootloader invocation in the GUI.
+  The required file paths are now correctly passed as ``Path`` objects to the
+  bootloader thread.
+- Fix RTS library availability check at configuration time.
+- Fix SOE counting algorithm.
+  Algorithm counted energy wrong when BMS internal energy counting was used.
+- Complete operating range for NTCALUG01T103GA NTC lookup-table implementation.
+- Fix ``fox CLI`` invocation when unexpected programs are found in ``PATH``.
+  All programs that are found in the system ``PATH`` are now checked whether
+  they could interfere with foxBMS tools.
+  In such a case, they are ignored when setting up the ``PATH`` environment
+  variable for foxBMS tools.
+- Fix the bug that the voltage for GPIO9 in the LTC6813-1 driver was read out
+  incorrectly.
+- Fix reinitialization of the persistent flags in the FRAM.
+- Fix image indicating pin numbering of the Molex Micro-Fit 3.0 2-pin
+  connector.
+- Add timeout handling to the Doxygen execution in
+  ``tools/waf_tools/doxygen.py`` to prevent indefinitely hanging documentation
+  builds.
+- Add optional external command tracing for Doxygen to improve diagnostics of
+  Graphviz ``dot`` execution behavior in CI (``--extcmd``).
+- Configure the RX interrupt for mailbox 41 on ``canREG1`` explicitly after
+  generating HAL code with HalCoGen.
+  When HAL code is generated with HalCoGen, the RX interrupt configuration for
+  mailbox 41 on canREG1 is incorrect.
+  A dedicated initialization step for this mailbox was added to ``CAN_Init``.
+- Fix a sign loss caused by a cast to uint32_t in the SOC_SetValue function
+  of soc_counting when calculating ccOffset_perc.
+- Fix not catching interrupts in context switch when cache is enabled on the
+  TMS570. (see ``src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portasm.asm``
+  and ``src/os/freertos/freertos/portable/ccs/arm_cortex-r5/portmacro.h``).

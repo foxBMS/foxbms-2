@@ -28,8 +28,7 @@ of:
 - a switch or contactor in series to the precharge resistor to
   activate/deactivate precharging
 
-.. drawio-figure:: img/battery-system-setup-precharging.drawio
-   :format: svg
+.. figure:: ../../build/docs/docs/system/img/battery-system-setup-precharging.svg
    :alt: Precharging circuit in a battery system
    :name: battery-system-precharging
    :width: 350px
@@ -72,8 +71,7 @@ failure.
 Precharge Dimensioning
 **********************
 
-The project contains a tool to help with the dimensioning of the precharging
-resistor at ``tools/precharge/precharge_dimensioning.ipynb``.
+|tbc|
 
 ***************
 Further Reading

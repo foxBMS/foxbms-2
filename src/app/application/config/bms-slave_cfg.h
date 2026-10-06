@@ -43,8 +43,8 @@
  * @file    bms-slave_cfg.h
  * @author  foxBMS Team
  * @date    2025-01-08 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  SLV
  *
@@ -61,6 +61,10 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+/* if the application is *not* build for unit testing, i.e., the target build
+   is built use these settings */
+#ifndef UNITY_UNIT_TEST
+
 /*========== Macros and Definitions =========================================*/
 
 /**
@@ -73,7 +77,7 @@
  * @def SLV_USE_MUX_FOR_TEMP
  * @brief Use of mux for temperature measurement
  */
-#define SLV_USE_MUX_FOR_TEMP (true)
+#define SLV_USE_MUX_FOR_TEMP (false)
 
 /**
  * @def     SLV_NR_OF_GPAS_PER_MODULE
@@ -88,9 +92,20 @@
  *  board. Set to 0 if no capacitors are used at all */
 #define SLV_CELL_INPUT_CAPACITOR_CAPACITANCE_nF (0u)
 
+/** Value of resistor divider supply voltage for cell temperature measurement */
+#define SLV_NTC_TEMPERATURE_SENSOR_REFERENCE_VOLTAGE_V (3.0f)
+
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+
+#else
+/* in case of running the unit test suite, the configuration shall be entirely
+   read  from the unit test specific configuration files.
+   How the unit test configuration file is then actually used, is described
+   in the unit test configuration directory at */
+#include "bms-slave_cfg_unit_test.h"
+#endif
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

@@ -43,8 +43,8 @@
  * @file    adi_ades183x_commands.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -251,6 +251,24 @@ const uint16_t adi_cmdSrst[ADI_COMMAND_DEFINITION_LENGTH] =
     {ADI_SRST_BYTE0, ADI_SRST_BYTE1, ADI_SRST_INC, ADI_SRST_LEN};
 FAS_STATIC_ASSERT(
     (ADI_SRST_LEN <= ADI_MAX_REGISTER_SIZE_IN_BYTES),
+    "Register length must not be greater than ADI_MAX_REGISTER_SIZE_IN_BYTES");
+
+const uint16_t adi_cmdWrcomm[ADI_COMMAND_DEFINITION_LENGTH] =
+    {ADI_WRCOMM_BYTE0, ADI_WRCOMM_BYTE1, ADI_WRCOMM_INC, ADI_WRCOMM_LEN};
+FAS_STATIC_ASSERT(
+    (ADI_WRCOMM_LEN <= ADI_MAX_REGISTER_SIZE_IN_BYTES),
+    "Register length must not be greater than ADI_MAX_REGISTER_SIZE_IN_BYTES");
+
+const uint16_t adi_cmdRdcomm[ADI_COMMAND_DEFINITION_LENGTH] =
+    {ADI_RDCOMM_BYTE0, ADI_RDCOMM_BYTE1, ADI_RDCOMM_INC, ADI_RDCOMM_LEN};
+FAS_STATIC_ASSERT(
+    (ADI_RDCOMM_LEN <= ADI_MAX_REGISTER_SIZE_IN_BYTES),
+    "Register length must not be greater than ADI_MAX_REGISTER_SIZE_IN_BYTES");
+
+const uint16_t adi_cmdStcomm[ADI_COMMAND_DEFINITION_LENGTH] =
+    {ADI_STCOMM_BYTE0, ADI_STCOMM_BYTE1, ADI_STCOMM_INC, ADI_STCOMM_LEN};
+FAS_STATIC_ASSERT(
+    (ADI_STCOMM_LEN <= ADI_MAX_REGISTER_SIZE_IN_BYTES),
     "Register length must not be greater than ADI_MAX_REGISTER_SIZE_IN_BYTES");
 
 /*========== Static Function Prototypes =====================================*/

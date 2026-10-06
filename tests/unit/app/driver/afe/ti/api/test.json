@@ -1,0 +1,23 @@
+[
+  {
+    "source": [
+      "src/app/driver/afe/ti/api/ti_afe.c",
+      "src/app/driver/afe/ti/dummy/api/ti_dummy_afe.c"
+    ],
+    "test": "test_ti_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/ti/api",
+      "src/app/driver/afe/ti/dummy",
+      "src/app/driver/config"
+    ],
+    "mocks": [
+      "src/app/driver/afe/ti/dummy/ti_dummy.h",
+      "tests/unit/app/application/config/battery_system_cfg.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_TI=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=18u"
+    ]
+  }
+]

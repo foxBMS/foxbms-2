@@ -1,0 +1,18 @@
+[
+  {
+    "source": [
+      "src/app/driver/foxmath/foxmath.c",
+      "src/app/driver/ts/vishay/ntcalug01a103g/lookup-table/vishay_ntcalug01a103g_lookup-table.c"
+    ],
+    "test": "test_vishay_ntcalug01a103g_lookup-table.c",
+    "includes": [
+      "src/app/driver/foxmath",
+      "src/app/driver/ts/api",
+      "src/app/driver/ts/vishay/ntcalug01a103g"
+    ],
+    "mocks": [
+      "src/app/driver/ts/vishay/ntcalug01a103g/vishay_ntcalug01a103g.h"
+    ],
+    "use": "M"
+  }
+]

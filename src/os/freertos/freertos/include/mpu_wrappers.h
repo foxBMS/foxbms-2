@@ -262,10 +262,18 @@
 
 
 
-/* Ensure API functions go in the privileged execution section. */
-    #define PRIVILEGED_FUNCTION     __attribute__( ( section( ".kernelTEXT" ) ) )  /* keep TI naming */
-    #define PRIVILEGED_DATA         __attribute__( ( section( ".kernelBSS" ) ) )   /* keep TI naming */
-    #define FREERTOS_SYSTEM_CALL    __attribute__( ( section( ".syscallTEXT" ) ) ) /* Place the FreeRTOS System Calls FIRST in the unprivileged region. */
+/* Ensure API functions go in the privileged execution section.
+ * Unit-test builds do not use linker sections, and disabling attributes avoids
+ * conflicting redeclarations between task.h and mpu_prototypes.h. */
+    #if defined( UNITY_UNIT_TEST )
+        #define PRIVILEGED_FUNCTION
+        #define PRIVILEGED_DATA
+        #define FREERTOS_SYSTEM_CALL
+    #else
+        #define PRIVILEGED_FUNCTION     __attribute__( ( section( ".kernelTEXT" ) ) )  /* keep TI naming */
+        #define PRIVILEGED_DATA         __attribute__( ( section( ".kernelBSS" ) ) )   /* keep TI naming */
+        #define FREERTOS_SYSTEM_CALL    __attribute__( ( section( ".syscallTEXT" ) ) ) /* Place the FreeRTOS System Calls FIRST in the unprivileged region. */
+    #endif
 
 
 

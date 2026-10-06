@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -52,9 +52,11 @@
  * @details TODO
  */
 
+/* cspell:ignore SPIDATAFMT */
+
 /*========== Includes =======================================================*/
 
-#include "foxbms_config.h"
+#include "foxbms_config_bms_slave.h"
 
 #include "spi.h"
 
@@ -462,8 +464,15 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
                                         ((uint32)ChipSelect << SPI_HARDWARE_CHIP_SELECT_FIELD_POSITION) | (WDelay);
 
             /* Set Tx buffer address */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
             dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].txChannel].ISADDR =
                 (uint32_t)(&pTxBuff[1u]); /* First word sent manually to write configuration in SPIDAT1 register */
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             /**
              *  Set number of Tx words to send
              *  Last word sent in ISR to set CSHOLD = 0
@@ -472,7 +481,14 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
                 ((frameLength - 2u) << 16U) | 1U; /* Last word sent manually to write CSHOLD in SPIDAT1 register */
 
             /* Set Rx buffer address */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
             dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel].IDADDR = (uint32_t)pRxBuff;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
             /* Set number of Rx words to receive */
             dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel].ITCOUNT = (frameLength << 16U) | 1U;
 
@@ -594,15 +610,29 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
     pSpiInterface->pNode->DAT1 |= ((uint32)DataFormat << SPI_DATA_FORMAT_FIELD_POSITION);
 
     /* Set Tx buffer address */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel].ISADDR =
         (uint32_t)pTxBuff;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     /* Set number of Tx bytes to send */
     dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel].ITCOUNT =
         (frameLength << 16U) | 1U;
 
     /* Set Rx buffer address */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel].IDADDR =
         (uint32_t)pRxBuff;
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     /* Set number of Rx bytes to receive */
     dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel].ITCOUNT =
         (frameLength << 16U) | 1U;

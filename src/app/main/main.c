@@ -43,10 +43,10 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup MAIN
- * @prefix  TODO
+ * @prefix  NONE
  *
  * @brief   Main function
  * @details The main function implements the hardware initialization and
@@ -54,6 +54,9 @@
  */
 
 /*========== Includes =======================================================*/
+#include "foxbms_config_debug.h"
+#include "foxbms_config_rtos.h"
+
 #include "main.h"
 
 #include "HL_adc.h"

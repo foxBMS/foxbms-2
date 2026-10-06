@@ -44,6 +44,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
+from typing import ClassVar
 
 try:
     from cli.pre_commit_scripts import check_cpp_style_comment
@@ -55,25 +56,27 @@ except ModuleNotFoundError:
 class TestCppComments(unittest.TestCase):
     """Testing "forbid C++-style comments" script"""
 
+    tests_dir: ClassVar[Path]
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:  # noqa: D102
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
 
-    def test_ok(self):
+    def test_ok(self) -> None:
         """Line starts with comment"""
         ret = check_cpp_style_comment.main(
             [str(self.tests_dir / "no-cpp-style-comment.c")]
         )
         self.assertEqual(0, ret)
 
-    def test_ok_link(self):
+    def test_ok_link(self) -> None:
         """Line starts with comment"""
         ret = check_cpp_style_comment.main(
             [str(self.tests_dir / "no-cpp-style-comment-link.c")]
         )
         self.assertEqual(0, ret)
 
-    def test_not_ok_0(self):
+    def test_not_ok_0(self) -> None:
         """Line starts with comment"""
         test = "cpp-style-comment_0.c"
         err = io.StringIO()
@@ -86,7 +89,7 @@ class TestCppComments(unittest.TestCase):
             err.getvalue(),
         )
 
-    def test_not_ok_1(self):
+    def test_not_ok_1(self) -> None:
         """Line starts with comment"""
         test = "cpp-style-comment_1.c"
         err = io.StringIO()
@@ -99,7 +102,7 @@ class TestCppComments(unittest.TestCase):
             err.getvalue(),
         )
 
-    def test_not_ok_2(self):
+    def test_not_ok_2(self) -> None:
         """Line starts with comment"""
         test = "cpp-style-comment_2.c"
         err = io.StringIO()
@@ -112,7 +115,7 @@ class TestCppComments(unittest.TestCase):
             err.getvalue(),
         )
 
-    def test_not_ok_3(self):
+    def test_not_ok_3(self) -> None:
         """Line starts with comment"""
         test = "cpp-style-comment_3.c"
         err = io.StringIO()

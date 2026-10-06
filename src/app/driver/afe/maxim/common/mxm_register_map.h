@@ -43,8 +43,8 @@
  * @file    mxm_register_map.h
  * @author  foxBMS Team
  * @date    2019-03-05 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -52,6 +52,8 @@
  * @details Register map with named registers of the monitoring ICs
  *          MAX17852 and MAX17853 by Maxim Integrated
  */
+
+/* cspell:ignore BALAUTOUVTHR */
 
 #ifndef FOXBMS__MXM_REGISTER_MAP_H_
 #define FOXBMS__MXM_REGISTER_MAP_H_

@@ -3,7 +3,7 @@
 
 
 .. |local_bms_master_version| replace:: ``v1.2.2``
-.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|-based |bms-master|
 .. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
 
 .. _TI_TMS570_BASED_BMS_MASTER_V1_2_2_BLOCK_DIAGRAM:
@@ -14,11 +14,10 @@
 A block diagram of the |bms-master| is shown in figure
 :numref:`foxbms-2-master-hardware-block-diagram-v1.2.2`.
 
-.. drawio-figure:: img/ti-tms570lc4357-v1.2.2._block-diagram.drawio
+.. figure:: ../../../../../build/docs/docs/hardware/master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-v1.2.2/img/ti-tms570lc4357-v1.2.2._block-diagram.svg
    :alt: Block diagram of the |bms-master| hardware
    :name: foxbms-2-master-hardware-block-diagram-v1.2.2
    :width: 80 %
-   :format: svg
    :align: center
 
    Block diagram of the |local_bms_master_identifier_full| hardware

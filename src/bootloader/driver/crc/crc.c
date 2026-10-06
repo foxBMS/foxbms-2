@@ -43,8 +43,8 @@
  * @file    crc.c
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -183,7 +183,14 @@ uint64_t CRC_SemiAutoCrcCalculation(uint32_t programAddress, uint32_t dataSizeIn
     /* initial source address */
     g_dmaCTRLPKT.SADD = programAddress;
     /* initial destination address */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
     g_dmaCTRLPKT.DADD = (uint32_t)(&(crcREG1->PSA_SIGREGL1));
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
     /* channel control */
     g_dmaCTRLPKT.CHCTRL = 1u;
     /* read size */

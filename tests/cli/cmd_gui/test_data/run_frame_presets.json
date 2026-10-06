@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "Program",
+    "target": "program.exe",
+    "args": "",
+    "cwd": "D:\\"
+  },
+  {
+    "mode": "Script",
+    "target": "script.py",
+    "args": "--help",
+    "cwd": "C:\\"
+  }
+]

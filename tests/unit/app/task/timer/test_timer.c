@@ -43,8 +43,8 @@
  * @file    test_timer.c
  * @author  foxBMS Team
  * @date    2024-10-31 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,14 +68,6 @@
 #include "timer.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("timer.c")
-
-TEST_INCLUDE_PATH("../../src/app/task/timer")
-TEST_INCLUDE_PATH("../../src/os/freertos/freertos/include")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 StaticTimer_t buffer;
@@ -87,6 +79,7 @@ void *test_idPointer  = &test_timerID;
 
 /* Empty Callback for the tests*/
 void EmptyTestCallBack(TimerHandle_t xTimer) {
+    (void)xTimer;
 }
 
 /*========== Setup and Teardown =============================================*/

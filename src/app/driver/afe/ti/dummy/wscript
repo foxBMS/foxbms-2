@@ -37,45 +37,56 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
 
     bld.recurse("api")
-    includes = (
-        [
-            "../../../config",
-            "../../../dma",
-            "../../../io",
-            "../../../mcu",
-            "../../../rtc",
-            "../../../spi",
-            "../../../ts",
-            "../../../ts/api",
-            "../../../../application/config",
-            "../../../../engine/config",
-            "../../../../engine/database",
-            "../../../../engine/diag",
-            "../../../../main/include",
-            "../../../../task/config",
-            "../../../../task/config",
-            "../../../../task/ftask",
-            "../../../../task/os",
-        ]
-        + [
-            bld.root.find_node(i).path_from(bld.path)
-            for i in bld.env.FOXBMS_INCLUDES_AFE
-        ]
-        + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
-    )
 
+    includes = [
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/dma"),
+        bld.srcnode.find_node("src/app/driver/io"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/driver/spi"),
+        bld.srcnode.find_node("src/app/driver/ts"),
+        bld.srcnode.find_node("src/app/driver/ts/api"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/engine/database"),
+        bld.srcnode.find_node("src/app/engine/diag"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "ti_dummy"
+    use = [
+        f"{ip}afe",
+        f"{ip}rtos-kernel",
+    ]
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
+    )
+
+    bld(
+        export_includes=[
+            bld.path,
+            bld.path.find_node("api"),
+            bld.srcnode.find_node("src/app/driver/afe/ti/api"),
+            bld.srcnode.find_node("src/app/driver/afe/ti/common"),
+            bld.srcnode.find_node("src/app/driver/afe/api"),
+        ],
+        target=f"{ip}afe-ti_dummy",
     )
 
     use = [

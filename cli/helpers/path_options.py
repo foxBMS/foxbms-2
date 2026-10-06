@@ -37,7 +37,6 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-
 """Path definition decorators for foxBMS commands."""
 
 from dataclasses import dataclass
@@ -46,7 +45,7 @@ from pathlib import Path
 import click
 from click.decorators import FC
 
-from .misc import (
+from .project_context import (
     APP_DBC_FILE,
     BOOTLOADER_DBC_FILE,
     FOXBMS_APP_CRC_FILE,

@@ -37,6 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# ruff: noqa: T201
+# start-include-in-docs
 """Example for platform independent code"""
 
 import sys

@@ -58,21 +58,30 @@ except ModuleNotFoundError:
 class TestFoxCliMainCommandCliUnittest(unittest.TestCase):
     """Test of the 'cli-unittest' commands and options."""
 
-    def test_cli_unittest_0(self):
+    def test_cli_unittest_0(self) -> None:
         """Test 'fox.py cli-unittest --coverage-report' command."""
         runner = CliRunner()
         result = runner.invoke(main, ["cli-unittest", "--coverage-report"])
         self.assertEqual(result.exit_code, 1)
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_script_tests")
-    def test_cli_unittest_1(self, mock_run_script_tests: MagicMock):
+    def test_cli_unittest_1(self, mock_run_script_tests: MagicMock) -> None:
         """Test 'fox.py cli-unittest -s --coverage-report' command."""
         runner = CliRunner()
         mock_run_script_tests.return_value = SubprocessResult(0)
         result = runner.invoke(main, ["cli-unittest", "-s", "--coverage-report"])
         self.assertEqual(result.exit_code, 0)
 
-    def test_cli_unittest_2(self):
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_script_tests")
+    def test_cli_unittest_5(self, mock_run_script_tests: MagicMock) -> None:
+        r"""Test '.\\fox.ps1 cli-unittest -s --coverage-report' command."""
+        runner = CliRunner()
+        mock_run_script_tests.return_value = SubprocessResult(0)
+        result = runner.invoke(main, ["cli-unittest", "-s", "--coverage-report"])
+        self.assertEqual(result.exit_code, 0)
+        mock_run_script_tests.assert_called_once_with(True, 0)
+
+    def test_cli_unittest_2(self) -> None:
         """Test 'fox.py cli-unittest' command."""
         runner = CliRunner()
         result = runner.invoke(main, ["cli-unittest"])
@@ -80,7 +89,7 @@ class TestFoxCliMainCommandCliUnittest(unittest.TestCase):
         self.assertIn("Run unit-tests on the CLI tool itself.", result.stdout)
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_unittest_module")
-    def test_cli_unittest_3(self, mock_run_unittest_module: MagicMock):
+    def test_cli_unittest_3(self, mock_run_unittest_module: MagicMock) -> None:
         """Test 'fox.py cli-unittest discover -s tests/cli' command, i.e.
         arbitrary unittest command.
         """
@@ -92,7 +101,7 @@ class TestFoxCliMainCommandCliUnittest(unittest.TestCase):
             ["discover", "-s", "tests/cli"]
         )
 
-    def test_cli_unittest_4(self):
+    def test_cli_unittest_4(self) -> None:
         """Test 'fox.py cli-unittest' command."""
         runner = CliRunner()
         result = runner.invoke(main, ["cli-unittest"])

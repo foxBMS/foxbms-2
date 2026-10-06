@@ -61,7 +61,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Returns:
         Number of provided files whose basename occurs multiple times.
-
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")

@@ -66,7 +66,6 @@ These are the required steps:
 #. Install |python| (required for tools)
 #. Install |virtual-python-environment| (required for tools)
 #. Install |ruby| (required for unit testing)
-#. Install |ruby-gems| (required for unit testing)
 #. Install |mingw-w64| (required for unit testing)
 #. Install |doxygen| (required for building the documentation)
 #. Install |graphviz| (required for building the documentation)
@@ -202,40 +201,40 @@ Install |python|
 
    .. group-tab:: Windows
 
-         #. Install `Python 3.12 <https://www.python.org>`_.
-            If you have already installed Python 3.12 from https://www.python.org this
+         #. Install `Python 3.14 <https://www.python.org>`_.
+            If you have already installed Python 3.14 from https://www.python.org this
             step can be skipped.
 
             .. note::
 
-               The required Python version is exactly 3.12.x.
+               The required Python version is exactly 3.14.x.
 
-         #. Open a terminal and run ``py -3.12 --version``, this should print
-            something like ``Python 3.12.8`` or similar:
+         #. Open a terminal and run ``py -3.14 --version``, this should print
+            something like ``Python 3.14.6`` or similar:
 
             .. tabs::
 
                .. code-block:: powershell
 
-                  py -3.12 --version
-                  Python 3.12.8
+                  py -3.14 --version
+                  Python 3.14.6
 
    .. group-tab:: Linux
 
-      #. Install ``Python 3.12``.
-         If you have already installed Python 3.12 this step can be skipped.
+      #. Install ``Python 3.14``.
+         If you have already installed Python 3.14 this step can be skipped.
 
          .. note::
 
-            The required Python version is exactly 3.12.x.
+            The required Python version is exactly 3.14.x.
 
-      #. Open a terminal and run ``python3.12 --version``, this should print
-         something like ``Python 3.12.8`` or similar:
+      #. Open a terminal and run ``python3.14 --version``, this should print
+         something like ``Python 3.14.6`` or similar:
 
          .. code-block:: shell
 
-            python3.12 --version
-            Python 3.12.8
+            python3.14 --version
+            Python 3.14.6
 
 .. _install_venv:
 
@@ -243,7 +242,7 @@ Install |python|
 Install |virtual-python-environment|
 ************************************
 
-#. Create a virtual environment **2025-11-pale-fox** by running:
+#. Create a virtual environment **2026-07-pale-fox** by running:
 
    .. tabs::
 
@@ -255,19 +254,19 @@ Install |virtual-python-environment|
 
                .. code-block:: powershell
 
-                  py -3.12 -m venv C:\foxbms\envs\2025-11-pale-fox
+                  py -3.14 -m venv C:\foxbms\envs\2026-07-pale-fox
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  py -3.12 -m venv /C/foxbms/envs/2025-11-pale-fox
+                  py -3.14 -m venv /C/foxbms/envs/2026-07-pale-fox
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            python3.12 -m venv /opt/foxbms/envs/2025-11-pale-fox
+            python3.14 -m venv /opt/foxbms/envs/2026-07-pale-fox
 
 #. Activate the virtual environment by running:
 
@@ -281,19 +280,19 @@ Install |virtual-python-environment|
 
                .. code-block:: powershell
 
-                  C:\foxbms\envs\2025-11-pale-fox\Scripts\activate.ps1
+                  C:\foxbms\envs\2026-07-pale-fox\Scripts\activate.ps1
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  source /C/foxbms/envs/2025-11-pale-fox/Scripts/activate
+                  source /C/foxbms/envs/2026-07-pale-fox/Scripts/activate
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            source /opt/foxbms/envs/2025-11-pale-fox/bin/activate
+            source /opt/foxbms/envs/2026-07-pale-fox/bin/activate
 
 #. Install the required packages by running:
 
@@ -324,7 +323,7 @@ Install |ruby|
 
 .. note::
 
-   Installing MinGW64 requires 7-Zip to be installed.
+   Installing Ruby requires 7-Zip to be installed.
    7-Zip can be download from https://7-zip.org.
 
 .. tabs::
@@ -340,40 +339,6 @@ Install |ruby|
    .. group-tab:: Linux
 
       Use your distributions package manager to install |ruby|.
-
-.. _ruby_gem_install:
-
-*******************
-Install |ruby-gems|
-*******************
-
-Install the required Ruby packages, i.e., |ruby-gems| by running:
-
-.. tabs::
-
-   .. group-tab:: Windows
-
-      .. tabs::
-
-         .. group-tab:: PowerShell
-
-            .. code-block:: powershell
-
-               C:\foxbms\Ruby\Ruby34-x64\bin\gem.cmd install --install-dir C:\foxbms\Ceedling\1.0.1 ceedling
-
-         .. group-tab:: Git bash
-
-            .. code-block:: shell
-
-               /C/foxbms/Ruby/Ruby34-x64/bin/gem.cmd install --install-dir /C/foxbms/Ceedling/1.0.1 ceedling
-
-   .. group-tab:: Linux
-
-      .. code-block:: shell
-
-         # adapt the path to the gem binary accordingly to the Ruby
-         # installation from the previous step
-         gem install --install-dir /opt/foxbms/Ceedling/1.0.1 ceedling
 
 *******************
 Install |mingw-w64|
@@ -394,7 +359,7 @@ Install |mingw-w64|
          `7z-archive <https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z>`_).
 
       #. Extract the archive.
-      #. Copy the extracted ``mingw-w64`` directory to
+      #. Copy the extracted content of the ``mingw64`` directory to
          ``C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0``.
       #. Verify that ``gcc.exe`` is available at
          ``C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gcc.exe``.
@@ -543,19 +508,19 @@ To update the build environment the following steps must be done:
 
                .. code-block:: powershell
 
-                  py -3.12 -m venv C:\foxbms\envs\<name-of-the-new-env>
+                  py -3.14 -m venv C:\foxbms\envs\<name-of-the-new-env>
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  py -3.12 -m venv /C/foxbms/envs/<name-of-the-new-env>
+                  py -3.14 -m venv /C/foxbms/envs/<name-of-the-new-env>
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            python3.12 -m venv /opt/foxbms/envs/<name-of-the-new-env>
+            python3.14 -m venv /opt/foxbms/envs/<name-of-the-new-env>
 
 #. Activate the virtual environment by running:
 
@@ -621,18 +586,81 @@ found in :ref:`DEBUGGING_THE_APPLICATION`.
 Install the |fox-cli-package|
 *****************************
 
+The |fox-cli-package| (package name: |fox-cli-package-name|) is a Python
+package that provides the |fox-cli| tools.
+The import name of the package is |fox-cli-package-name-import|.
+
 .. note::
 
    Information on the usage of the |fox-cli-package| can be found
    :ref:`here<FOX_CLI_PACKAGE>`.
 
 #. Install :ref:`Python<INSTALL_PYTHON>`
-#. Install a :ref:`virtual Python environment<INSTALL_VENV>` and activate it
-#. Install the |fox-cli-package| by running:
+#. Create a
+   `virtual Python environment <https://docs.python.org/3/library/venv.html#creating-virtual-environments>`__
+   for the |fox-cli-package| using following paths depending on the host
+   operating system (replace ``<foxbms-version>`` with the actual version of
+   the |fox-cli-package|):
+
+   - Linux: ``/opt/foxbms/envs/local/<foxbms-version>``
+   - Windows: ``C:\foxbms\envs\local\<foxbms-version>``
+
+#. Activate the virtual environment by running:
+
+   .. tabs::
+
+      .. group-tab:: Windows
+
+         .. tabs::
+
+            .. group-tab:: PowerShell
+
+               .. code-block:: powershell
+
+                  C:\foxbms\envs\local\<foxbms-version>\Scripts\activate.ps1
+
+            .. group-tab:: Git bash
+
+               .. code-block:: shell
+
+                  source /C/foxbms/envs/local/<foxbms-version>/Scripts/activate
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            source /opt/foxbms/envs/local/<foxbms-version>/bin/activate
+
+
+#. Install the |fox-cli-package| by running (all operating systems):
 
    .. code-block:: shell
 
-      python -m pip install fox-cli
+      python -m pip install foxbms-fox-cli
+
+The package can then be used as follows
+
+- as script:
+
+  .. code-block:: shell
+
+     fox-cli --version
+     fox-cli, version 120.121.122
+
+- as module:
+
+  .. code-block:: shell
+
+     python -m fox_cli --version
+     python -m fox_cli, version 120.121.122
+
+- programmatically:
+
+  .. code-block:: shell
+
+     >>> from fox_cli import cli
+     >>> cli.__version__
+     '120.121.122'
 
 If the repository has already been cloned and Python has been installed, the
 :ref:`install tool<FOX_INSTALL>` can be used to install the |fox-cli-package|

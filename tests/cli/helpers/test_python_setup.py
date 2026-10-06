@@ -37,6 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# cspell:ignore ifcpp
+
 """Testing file 'cli/helpers/python_setup.py'."""
 
 import io
@@ -58,7 +60,7 @@ class TestGetPythonVersion(unittest.TestCase):
 
     @patch("sys.platform", new="linux")
     @patch("cli.helpers.python_setup.Popen")
-    def test_get_python_version_linux_raises(self, mock_popen: MagicMock):
+    def test_get_python_version_linux_raises(self, mock_popen: MagicMock) -> None:
         """Test env creation"""
         mock_process = MagicMock()
         mock_process.communicate.return_value = (b"stdout", b"stderr")
@@ -76,15 +78,15 @@ class TestGetPythonVersion(unittest.TestCase):
         self.assertEqual(cm.exception.code, 1)
         self.assertEqual(
             err.getvalue(),
-            "Go To python.org and download the latest version of Python 3.12.\n"
+            "Go To python.org and download the latest version of Python 3.14.\n"
             "Then re-run the command.\n",
         )
-        self.assertEqual(out.getvalue(), "\nRunning:\n -> cmd: python3.12 --version\n")
+        self.assertEqual(out.getvalue(), "\nRunning:\n -> cmd: python3.14 --version\n")
         self.assertEqual(mock_process.communicate.call_count, 1)
 
     @patch("sys.platform", new="win32")
     @patch("cli.helpers.python_setup.Popen")
-    def test_get_python_version_win32_raises(self, mock_popen: MagicMock):
+    def test_get_python_version_win32_raises(self, mock_popen: MagicMock) -> None:
         """Test env creation"""
         mock_process = MagicMock()
         mock_process.communicate.return_value = (b"stdout", b"stderr")
@@ -102,18 +104,18 @@ class TestGetPythonVersion(unittest.TestCase):
         self.assertEqual(cm.exception.code, 1)
         self.assertEqual(
             err.getvalue(),
-            "Go To python.org and download the latest version of Python 3.12.\n"
+            "Go To python.org and download the latest version of Python 3.14.\n"
             "Then re-run the command.\n",
         )
-        self.assertEqual(out.getvalue(), "\nRunning:\n -> cmd: py -3.12 --version\n")
+        self.assertEqual(out.getvalue(), "\nRunning:\n -> cmd: py -3.14 --version\n")
         self.assertEqual(mock_process.communicate.call_count, 1)
 
     @patch("sys.platform", new="win32")
     @patch("cli.helpers.python_setup.Popen")
-    def test_get_python_version_succeeds(self, mock_popen: MagicMock):
+    def test_get_python_version_succeeds(self, mock_popen: MagicMock) -> None:
         """Test env creation"""
         mock_process = MagicMock()
-        mock_process.communicate.return_value = (b"Python 3.12.10", b"")
+        mock_process.communicate.return_value = (b"Python 3.14.10", b"")
         mock_process.returncode = 0
         mock_popen.return_value.__enter__.return_value = mock_process
 
@@ -122,38 +124,40 @@ class TestGetPythonVersion(unittest.TestCase):
 
         with redirect_stderr(err), redirect_stdout(out):
             ret = python_setup.get_python_version(dry_run=False)
-        self.assertEqual(ret, ("py", "-3.12"))
+        self.assertEqual(ret, ("py", "-3.14"))
         self.assertEqual(err.getvalue(), "")
         self.assertEqual(
             out.getvalue(),
-            "\nRunning:\n -> cmd: py -3.12 --version\n -> out: Python version: Python 3.12.10\n\n",
+            "\nRunning:\n -> cmd: py -3.14 --version\n -> out: Python version: Python 3.14.10\n\n",
         )
         self.assertEqual(mock_process.communicate.call_count, 1)
 
     @patch("sys.platform", new="win32")
-    def test_get_python_version_succeeds_dry_run(self):
+    def test_get_python_version_succeeds_dry_run(self) -> None:
         """Test env creation"""
         out = io.StringIO()
         with redirect_stdout(out):
             ret = python_setup.get_python_version()
-        self.assertEqual(ret, ("py", "-3.12"))
+        self.assertEqual(ret, ("py", "-3.14"))
         self.assertEqual(
             out.getvalue(),
             "\nRunning (dry run):\n"
-            " -> cmd: py -3.12 --version\n"
-            " -> out: Python version: Python 3.12.10\n\n",
+            " -> cmd: py -3.14 --version\n"
+            " -> out: Python version: Python 3.14.10\n\n",
         )
 
 
 class TestInstallConfirmation(unittest.TestCase):
     """Test different options for install confirmation"""
 
-    def test_install_confirmation_conformation_as_arg(self):
+    def test_install_confirmation_conformation_as_arg(self) -> None:
         """Test user confirmation through command line argument"""
         self.assertIsNone(python_setup.install_confirmation(True))
 
     @patch("builtins.input")
-    def test_install_confirmation_answers_invalid_then_no(self, mock_input: MagicMock):
+    def test_install_confirmation_answers_invalid_then_no(
+        self, mock_input: MagicMock
+    ) -> None:
         """Test main, 'no' choice"""
         mock_input.side_effect = ["blu", "n"]
         err = io.StringIO()
@@ -182,7 +186,7 @@ class TestInstallConfirmation(unittest.TestCase):
         self.assertEqual(mock_input.call_count, 2)
 
     @patch("builtins.input")
-    def test_install_confirmation_answer_yes(self, mock_input: MagicMock):
+    def test_install_confirmation_answer_yes(self, mock_input: MagicMock) -> None:
         """Test main, 'yes' choice"""
         mock_input.return_value = "y"
         out = io.StringIO()
@@ -201,7 +205,7 @@ class TestInstallConfirmation(unittest.TestCase):
 class TestRunCmd(unittest.TestCase):
     """Test (dry-running) commands (i.e., processes)"""
 
-    def test_run_cmd_dry_run(self):
+    def test_run_cmd_dry_run(self) -> None:
         """Test dry-running a command"""
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
@@ -213,7 +217,7 @@ class TestRunCmd(unittest.TestCase):
         )
 
     @patch("cli.helpers.python_setup.Popen")
-    def test_run_cmd(self, mock_popen: MagicMock):
+    def test_run_cmd(self, mock_popen: MagicMock) -> None:
         """Test a command"""
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
@@ -230,11 +234,11 @@ class TestCreateEnv(unittest.TestCase):
     """Test env creation command"""
 
     @patch("cli.helpers.python_setup.run_cmd")
-    def test_create_env(self, _mock_run_cmd: MagicMock):
+    def test_create_env(self, _mock_run_cmd: MagicMock) -> None:
         """Test env creation"""
         _err, _out = io.StringIO(), io.StringIO()
         with redirect_stderr(_err), redirect_stdout(_out):
-            python_setup.create_env(py="py", env_dir="foo", ver="-3.12")
+            python_setup.create_env(py="py", env_dir="foo", ver="-3.14")
         err, out = _err.getvalue(), _out.getvalue()
         self.assertEqual(out, "")
         self.assertEqual(err, "")
@@ -248,7 +252,7 @@ class TestCreateEnvProcess(unittest.TestCase):
     @patch("cli.helpers.python_setup.Process")
     def test_create_env_process_fails(
         self, mock_process: MagicMock, _mock_sleep: MagicMock
-    ):
+    ) -> None:
         """Test main, 'no' choice"""
         # installing the virtual environment takes too long
         mock_instance_process = mock_process.return_value
@@ -270,7 +274,7 @@ class TestCreateEnvProcess(unittest.TestCase):
     @patch("cli.helpers.python_setup.Process")
     def test_create_env_process_succeeds(
         self, mock_process: MagicMock, _mock_sleep: MagicMock
-    ):
+    ) -> None:
         """Test main, 'no' choice"""
         # installing the virtual environment takes too long
         mock_instance_process = mock_process.return_value
@@ -292,7 +296,7 @@ class TestInstallPackages(unittest.TestCase):
 
     @patch("sys.platform", new="win32")
     @patch("cli.helpers.python_setup.Popen")
-    def test_install_packages_win32(self, mock_popen: MagicMock):
+    def test_install_packages_win32(self, mock_popen: MagicMock) -> None:
         """Test env creation"""
         out = io.StringIO()
         with redirect_stdout(out):
@@ -319,7 +323,7 @@ class TestInstallPackages(unittest.TestCase):
 
     @patch("sys.platform", new="linux")
     @patch("cli.helpers.python_setup.Popen")
-    def test_install_packages_linux(self, mock_popen: MagicMock):
+    def test_install_packages_linux(self, mock_popen: MagicMock) -> None:
         """Test env creation"""
         out = io.StringIO()
         with redirect_stdout(out):
@@ -352,7 +356,7 @@ class TestInstallPackagesProcess(unittest.TestCase):
     @patch("cli.helpers.python_setup.Process")
     def test_install_packages_process_fails(
         self, mock_process: MagicMock, _mock_sleep: MagicMock
-    ):
+    ) -> None:
         """Test main, 'no' choice"""
         # installing the virtual environment takes too long
         mock_instance_process = mock_process.return_value
@@ -375,7 +379,7 @@ class TestInstallPackagesProcess(unittest.TestCase):
 
     @patch("cli.helpers.python_setup.MAX_SLEEP_TIME", 3)
     @patch("cli.helpers.python_setup.Process")
-    def test_install_packages_process_succeeds(self, mock_process: MagicMock):
+    def test_install_packages_process_succeeds(self, mock_process: MagicMock) -> None:
         """Test main, 'no' choice"""
         # installing the virtual environment takes too long
         mock_instance_process = mock_process.return_value
@@ -398,7 +402,7 @@ class TestInstallFoxCliPackage(unittest.TestCase):
     """Test fox_cli package installation"""
 
     @patch("cli.helpers.python_setup.run_cmd")
-    def test_install_fox_cli_package(self, mock_run_cmd: MagicMock):
+    def test_install_fox_cli_package(self, mock_run_cmd: MagicMock) -> None:
         """Test main, 'no' choice"""
         python_setup.install_fox_cli_package("py", cwd="foo")
         mock_run_cmd.assert_called_once_with(
@@ -414,7 +418,7 @@ class TestInstallFoxCliPackageProcess(unittest.TestCase):
     @patch("cli.helpers.python_setup.Process")
     def test_install_fox_cli_package_process_fails(
         self, mock_process: MagicMock, _mock_sleep: MagicMock
-    ):
+    ) -> None:
         """Test main, 'no' choice"""
         # installing co_cli package in the virtual environment takes too long
         mock_instance_process = mock_process.return_value
@@ -435,7 +439,9 @@ class TestInstallFoxCliPackageProcess(unittest.TestCase):
 
     @patch("cli.helpers.python_setup.MAX_SLEEP_TIME", 1)
     @patch("cli.helpers.python_setup.Process")
-    def test_install_fox_cli_package_process_succeeds(self, mock_process: MagicMock):
+    def test_install_fox_cli_package_process_succeeds(
+        self, mock_process: MagicMock
+    ) -> None:
         """Test main, 'no' choice"""
         # installing co_cli package in the virtual environment takes too long
         mock_instance_process = mock_process.return_value
@@ -456,7 +462,7 @@ class TestInstallFoxCliPackageProcess(unittest.TestCase):
 class TestMain(unittest.TestCase):
     """Test python_setup.py as script"""
 
-    def setUp(self):
+    def setUp(self) -> None:  # noqa: D102
         self.out_header = "foxBMS 2 Install Helper\n"
         self.python_determined = "--> Successfully determined Python version\n"
         self.env_installed = "--> Successfully installed the Python environment\n"
@@ -474,9 +480,9 @@ class TestMain(unittest.TestCase):
         mock_cep: MagicMock,
         mock_ic: MagicMock,
         mock_gpv: MagicMock,
-    ):
+    ) -> None:
         """Installing the environment fails."""
-        mock_gpv.side_effect = [("py", "-3.12")]
+        mock_gpv.side_effect = [("py", "-3.14")]
         mock_ic.return_value = 0
         mock_cep.return_value = 1
         _err, _out = io.StringIO(), io.StringIO()
@@ -496,9 +502,9 @@ class TestMain(unittest.TestCase):
         mock_cep: MagicMock,
         mock_ic: MagicMock,
         mock_gpv: MagicMock,
-    ):
+    ) -> None:
         """Installing the environment fails."""
-        mock_gpv.side_effect = [("py", "-3.12")]
+        mock_gpv.side_effect = [("py", "-3.14")]
         mock_ic.return_value = 0
         mock_cep.return_value = 1
         _err, _out = io.StringIO(), io.StringIO()
@@ -521,9 +527,9 @@ class TestMain(unittest.TestCase):
         mock_cep: MagicMock,
         mock_ic: MagicMock,
         mock_gpv: MagicMock,
-    ):
+    ) -> None:
         """Installing packages in the environment fails."""
-        mock_gpv.side_effect = [("python3.12", "")]
+        mock_gpv.side_effect = [("python3.14", "")]
         mock_ic.return_value = 0
         mock_cep.return_value = 0
         mock_ipp.return_value = 1
@@ -548,9 +554,9 @@ class TestMain(unittest.TestCase):
         mock_cep: MagicMock,
         mock_ic: MagicMock,
         mock_gpv: MagicMock,
-    ):
+    ) -> None:
         """Installing the environment and its packages succeeds."""
-        mock_gpv.side_effect = [("py", "-3.12")]
+        mock_gpv.side_effect = [("py", "-3.14")]
         mock_ic.return_value = 0
         mock_cep.return_value = 0
         mock_ipp.return_value = 0
@@ -573,7 +579,6 @@ class TestMain(unittest.TestCase):
     @patch("cli.helpers.python_setup.create_env_process")
     @patch("cli.helpers.python_setup.install_packages_process")
     @patch("cli.helpers.python_setup.install_fox_cli_package_process")
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
     def test_main_self_install_fails(
         self,
         mock_ifcpp: MagicMock,
@@ -581,9 +586,9 @@ class TestMain(unittest.TestCase):
         mock_cep: MagicMock,
         mock_ic: MagicMock,
         mock_gpv: MagicMock,
-    ):
+    ) -> None:
         """Installing the environment and its packages succeeds."""
-        mock_gpv.side_effect = [("py", "-3.12")]
+        mock_gpv.side_effect = [("py", "-3.14")]
         mock_ic.return_value = 0
         mock_cep.return_value = 0
         mock_ipp.return_value = 0
@@ -607,7 +612,6 @@ class TestMain(unittest.TestCase):
     @patch("cli.helpers.python_setup.create_env_process")
     @patch("cli.helpers.python_setup.install_packages_process")
     @patch("cli.helpers.python_setup.install_fox_cli_package_process")
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
     def test_main_self_install_succeeds(
         self,
         mock_ifcpp: MagicMock,
@@ -615,9 +619,9 @@ class TestMain(unittest.TestCase):
         mock_cep: MagicMock,
         mock_ic: MagicMock,
         mock_gpv: MagicMock,
-    ):
+    ) -> None:
         """Installing the environment and its packages succeeds."""
-        mock_gpv.side_effect = [("py", "-3.12")]
+        mock_gpv.side_effect = [("py", "-3.14")]
         mock_ic.return_value = 0
         mock_cep.return_value = 0
         mock_ipp.return_value = 0
@@ -642,7 +646,7 @@ class TestAsScript(unittest.TestCase):
     """Test invocation as script/module"""
 
     @patch("cli.helpers.python_setup.main")
-    def test_as_script_no_args(self, mock_main: MagicMock):
+    def test_as_script_no_args(self, mock_main: MagicMock) -> None:
         """Test invocation as script/module with defaults"""
         with patch("sys.argv", new=["python", "env-name"]):
             python_setup._as_script()  # pylint: disable=protected-access
@@ -651,7 +655,7 @@ class TestAsScript(unittest.TestCase):
         )
 
     @patch("cli.helpers.python_setup.main")
-    def test_as_script_args(self, mock_main: MagicMock):
+    def test_as_script_args(self, mock_main: MagicMock) -> None:
         """Test invocation as script/module with command line arguments/options"""
         with patch(
             "sys.argv",

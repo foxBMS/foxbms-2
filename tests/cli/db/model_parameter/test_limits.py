@@ -55,7 +55,7 @@ except ModuleNotFoundError:
     from cli.db.model_parameter.limits import CurrentLimitModel, CurrentLimits
 
 
-def valid_limits_dict():
+def valid_limits_dict() -> dict[str, list[float]]:
     """Return a valid limits dict for constructing CurrentLimits via kwargs."""
     return {
         "currents": [1.0, 2.0, 3.5],
@@ -66,37 +66,13 @@ def valid_limits_dict():
 class TestCurrentLimitsPostInit(unittest.TestCase):
     """Tests for CurrentLimits.__post_init__ validation."""
 
-    def test_valid_lists_of_floats_same_length(self):
+    def test_valid_lists_of_floats_same_length(self) -> None:
         """Should construct when both lists are floats and lengths match."""
         cl = CurrentLimits(**valid_limits_dict())
         self.assertEqual(cl.currents, [1.0, 2.0, 3.5])
         self.assertEqual(cl.temperatures, [-10.0, 25.0, 45.0])
 
-    def test_currents_not_list_raises_typeerror(self):
-        """Should raise TypeError if currents is not a list."""
-        with self.assertRaises(TypeError) as ctx:
-            CurrentLimits(currents=("1.0", "2.0"), temperatures=[0.0, 25.0])
-        self.assertIn("current are not provided as a list", str(ctx.exception))
-
-    def test_currents_contains_non_float_raises_typeerror(self):
-        """Should raise TypeError if any current is not a float."""
-        with self.assertRaises(TypeError) as ctx:
-            CurrentLimits(currents=[1.0, 2], temperatures=[0.0, 25.0])
-        self.assertIn("current are not floats", str(ctx.exception))
-
-    def test_temperatures_not_list_raises_typeerror(self):
-        """Should raise TypeError if temperatures is not a list."""
-        with self.assertRaises(TypeError) as ctx:
-            CurrentLimits(currents=[1.0, 2.0], temperatures=(0.0, 25.0))
-        self.assertIn("temperatures are not provided as a list", str(ctx.exception))
-
-    def test_temperatures_contains_non_float_raises_typeerror(self):
-        """Should raise TypeError if any temperature is not a float."""
-        with self.assertRaises(TypeError) as ctx:
-            CurrentLimits(currents=[1.0, 2.0], temperatures=[0.0, "25.0"])
-        self.assertIn("temperatures are not floats", str(ctx.exception))
-
-    def test_length_mismatch_raises_typeerror(self):
+    def test_length_mismatch_raises_typeerror(self) -> None:
         """Should raise TypeError if list lengths do not match."""
         with self.assertRaises(TypeError) as ctx:
             CurrentLimits(currents=[1.0], temperatures=[0.0, 25.0])
@@ -106,7 +82,7 @@ class TestCurrentLimitsPostInit(unittest.TestCase):
 class TestCurrentLimitModelPostInit(unittest.TestCase):
     """Tests for CurrentLimitModel.__post_init__ including BaseModel behavior."""
 
-    def test_dicts_are_converted_and_sources_normalized(self):
+    def test_dicts_are_converted_and_sources_normalized(self) -> None:
         """Should convert charge/discharge dicts to CurrentLimits and normalize sources."""
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
@@ -130,27 +106,7 @@ class TestCurrentLimitModelPostInit(unittest.TestCase):
             self.assertEqual(model.sources[0], src)
             self.assertTrue(model.sources[0].exists())
 
-    def test_nested_validation_error_in_charge(self):
-        """Should raise TypeError if nested CurrentLimits in 'charge' is invalid."""
-        with tempfile.TemporaryDirectory() as tmp:
-            directory = Path(tmp)
-            (directory / "ok.txt").write_text("ok", encoding="utf-8")
-
-            bad_charge = {
-                "currents": [1.0, 2],
-                "temperatures": [0.0, 25.0],
-            }  # int present
-            with self.assertRaises(TypeError) as ctx:
-                CurrentLimitModel(
-                    name="m",
-                    sources=["ok.txt"],
-                    _directory=directory,
-                    charge=bad_charge,
-                    discharge=valid_limits_dict(),
-                )
-            self.assertIn("current are not floats", str(ctx.exception))
-
-    def test_existing_instances_pass_through(self):
+    def test_existing_instances_pass_through(self) -> None:
         """Should keep provided CurrentLimits instances and validate BaseModel fields."""
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
@@ -174,23 +130,7 @@ class TestCurrentLimitModelPostInit(unittest.TestCase):
             # Path identity preserved by BaseModel for non-string sources
             self.assertIs(model.sources[0], p)
 
-    def test_base_validation_error_name_type(self):
-        """Should raise TypeError when name is not a string."""
-        with tempfile.TemporaryDirectory() as tmp:
-            directory = Path(tmp)
-            (directory / "ok.txt").write_text("ok", encoding="utf-8")
-
-            with self.assertRaises(TypeError) as ctx:
-                CurrentLimitModel(
-                    name=123,  # not a string
-                    sources=["ok.txt"],
-                    _directory=directory,
-                    charge=valid_limits_dict(),
-                    discharge=valid_limits_dict(),
-                )
-            self.assertIn("Modelname", str(ctx.exception))
-
-    def test_base_validation_error_missing_source(self):
+    def test_base_validation_error_missing_source(self) -> None:
         """Should raise ValueError when a resolved source path does not exist."""
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
@@ -204,7 +144,7 @@ class TestCurrentLimitModelPostInit(unittest.TestCase):
                 )
             self.assertIn("At least one source", str(ctx.exception))
 
-    def test_zipfile_directory_and_source_resolution(self):
+    def test_zipfile_directory_and_source_resolution(self) -> None:
         """Should resolve string sources against a zipfile.Path _directory and keep zip paths."""
         with tempfile.TemporaryDirectory() as tmp:
             zpath = Path(tmp) / "db.zip"

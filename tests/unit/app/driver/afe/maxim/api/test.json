@@ -1,0 +1,25 @@
+[
+  {
+    "source": "src/app/driver/afe/maxim/api/mxm_afe.c",
+    "test": "test_mxm_afe.c",
+    "includes": [
+      "src/app/driver/afe/api",
+      "src/app/driver/afe/maxim/common",
+      "src/app/driver/afe/maxim/common/config",
+      "src/app/driver/config",
+      "src/app/driver/spi"
+    ],
+    "mocks": [
+      "HL_sys_dma.h",
+      "src/app/driver/afe/maxim/common/config/mxm_cfg.h",
+      "src/app/driver/afe/maxim/common/mxm_17841b.h",
+      "src/app/driver/afe/maxim/common/mxm_1785x.h",
+      "src/app/driver/afe/maxim/common/mxm_battery_management.h",
+      "src/app/task/os/os.h"
+    ],
+    "defines": [
+      "FOXBMS_AFE_DRIVER_MAXIM=1u",
+      "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+    ]
+  }
+]

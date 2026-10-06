@@ -42,7 +42,7 @@
 from pathlib import Path
 from typing import IO, Any
 
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.project_context import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 
@@ -61,6 +61,7 @@ def run_program(
         stdout: Optional stream configuration for standard output.
 
     Returns:
-        A :class:`SubprocessResult` containing process execution details.
+        A :class:`cli.helpers.spr.SubprocessResult` containing process
+        execution details.
     """
     return run_process(args, cwd=cwd, stdout=stdout, stderr=stderr)

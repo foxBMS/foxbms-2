@@ -43,14 +43,17 @@
  * @file    boot_helper.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  BOOT
  *
  * @brief   Header for the boot_helper.c that contains the implementation of
  *          the functions that can assist the functions in boot.c and boot.h
- * @details TODO
+ * @details Declares helper services used by the bootloader state machine for
+ *          loading, storing, resetting, and cleaning boot-related data. The
+ *          interface covers persistent boot metadata, RAM cleanup, and MCU
+ *          reset support.
  */
 
 #ifndef FOXBMS__BOOT_HELPER_H_

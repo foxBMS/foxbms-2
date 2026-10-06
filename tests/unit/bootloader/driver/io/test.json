@@ -1,0 +1,10 @@
+[
+  {
+    "source": "src/bootloader/driver/io/io.c",
+    "test": "test_io.c",
+    "includes": [
+      "src/bootloader/driver/io",
+      "src/bootloader/driver/mcu"
+    ]
+  }
+]

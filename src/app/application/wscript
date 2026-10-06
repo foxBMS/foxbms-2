@@ -37,8 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
     lp = f"{bld.env.APPNAME.lower()}-"
 
@@ -49,16 +51,26 @@ def build(bld):
             "bms",
             "config",
             "plausibility",
-            "redundancy",
             "soa",
         ]
     )
+
+    if bld.env.FOXBMS_REDUNDANT_V_T_MEASUREMENT:
+        bld.recurse("redundancy")
+
     if bld.env.FOXBMS_TCP_SUPPORT:
         bld.recurse("ethernet")
+
     use = [
+        f"{op}bms-values",
         f"{op}bms",
-        f"{op}plausibility",
-        f"{op}redundancy",
+        f"{op}validate-battery-voltage",  # Plausibility module
+        f"{op}validate-cell-temperature",  # Plausibility module
+        f"{op}validate-cell-voltage",  # Plausibility module
+        f"{op}validate-current-measurement",  # Plausibility module
+        f"{op}validate-high-voltage-bus",  # Plausibility module
+        f"{op}validate-power-measurement",  # Plausibility module
+        f"{op}validate-string-voltage",  # Plausibility module
         f"{op}soa",
         f"{op}soa_cfg",
         f"{op}bal",
@@ -68,6 +80,11 @@ def build(bld):
         f"{op}battery_system_cfg",
         f"{lp}algorithm",
     ]
+
+    if bld.env.FOXBMS_REDUNDANT_V_T_MEASUREMENT:
+        use.append(f"{op}redundancy")
+        use.append(f"{op}redundancy-validation")
+
     if bld.env.FOXBMS_TCP_SUPPORT:
         use.extend(
             [

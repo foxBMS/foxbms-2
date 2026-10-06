@@ -1,0 +1,41 @@
+Minor release of foxBMS 2 (v1.12.0)
+
+This release introduces a significant build toolchain refactor and separates
+measurement validation from BMS control logic.
+The new 'BMS Values' module prepares validated cell and pack measurements,
+while plausibility checks cover current, power, voltage, and temperature
+measurements. Redundant cell voltage and temperature measurements are now
+optional and disabled by default.
+The Python environment is updated to ``2026-07-pale-fox``.
+Additional dependencies were updated.
+See INSTALL.md for information on updating the toolchain.
+
+* Add BMS measurement preparation and dedicated plausibility checks.
+* Add support for temperature-sensor multiplexing in the ADI AFE driver.
+* Add FRAM-backed tuning values and offset/gain calibration via CAN.
+* Add support for the TDK B57334V5103F360 NTC.
+* Add a GUI for editing diagnosis-array settings in JSON configuration files.
+* Add embedded unit tests for CAN RX/TX handling and the FTASK module.
+* Improve unit test coverage and build support with GCC, CMock, Unity, and
+  CException.
+* Improve the build toolchain, including TI ARM CGT support, compiler
+  detection, and renamed build commands.
+* Improve documentation, including BMS measurement processing, CAN
+  communication, and multi-string SPI configuration.
+* Update dependencies:
+  * Internal:
+    * Waf: ``2.1.9``
+  * External:
+    * Python: 3.14
+    * Python environment: ``2026-07-pale-fox``
+    * pre-commit Hooks:
+      * cspell: ``v10.0.1``
+      * mirrors-clang-format: ``v22.1.5``
+      * ruff-pre-commit: ``v0.15.16``
+      * pyproject-fmt: ``v2.25.1``
+      * pygrep-hooks: ``v1.10.0``
+      * pyupgrade: ``v3.21.2``
+      * pymarkdown: ``v0.9.39``
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.12.0/general/changelog.html.

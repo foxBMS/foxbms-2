@@ -1,0 +1,7 @@
+{
+  "source": "src/bootloader/hal/bootloader-hl_notification.c",
+  "test": "test_bootloader-hl_notification.c",
+  "mocks": [
+    "src/bootloader/main/include/infinite-loop-helper.h"
+  ]
+}

@@ -37,44 +37,56 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext) -> None:
     op = f"{bld.env.APPNAME.lower()}-object-"
+    lp = f"{bld.env.APPNAME.lower()}-"
+    ip = f"{bld.env.APPNAME.lower()}-incpath-"
+    cp = f"{bld.env.APPNAME.lower()}-config-"
+
+    use = [
+        f"{lp}hal",
+        f"{ip}rtos-kernel",
+        f"{cp}battery_system_cfg",
+        "foxbms_config",
+    ]
 
     includes = [
-        ".",
-        "../config",
-        "../../application/config",
-        "../../driver/mcu",
-        "../../main/include",
-        "../../task/os",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "database_helper"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )
 
     includes = [
-        ".",
-        "../config",
-        "../../application/config",
-        "../../driver/config",
-        "../../driver/mcu",
-        "../../driver/rtc",
-        "../../main/include",
-        "../../task/config",
-        "../../task/os",
-        "../../task/ftask",
-    ] + bld.env.FOXBMS_INCLUDES_RTOS_KERNEL
+        bld.path,
+        bld.srcnode.find_node("src/app/application/config"),
+        bld.srcnode.find_node("src/app/driver/config"),
+        bld.srcnode.find_node("src/app/driver/mcu"),
+        bld.srcnode.find_node("src/app/driver/rtc"),
+        bld.srcnode.find_node("src/app/engine/config"),
+        bld.srcnode.find_node("src/app/main/include"),
+        bld.srcnode.find_node("src/app/task/config"),
+        bld.srcnode.find_node("src/app/task/ftask"),
+        bld.srcnode.find_node("src/app/task/os"),
+    ]
     source = "database"
     bld.objects(
         source=f"{source}.c",
         includes=includes,
-        cflags=bld.env.CFLAGS_FOXBMS,
+        use=use,
+        uselib="FOXBMS",
         target=f"{op}{source}",
-        idx=1,
     )

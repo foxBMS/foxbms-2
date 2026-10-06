@@ -43,8 +43,8 @@
  * @file    test_can_cbs.c
  * @author  foxBMS Team
  * @date    2024-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,17 +68,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs.c")
-
-TEST_INCLUDE_PATH("../../src/bootloader/driver/can")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/config")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/crc")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/flash")
-TEST_INCLUDE_PATH("../../src/bootloader/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/bootloader/engine/boot")
-TEST_INCLUDE_PATH("../../src/bootloader/engine/can")
-TEST_INCLUDE_PATH("../../src/bootloader/main/include")
-TEST_INCLUDE_PATH("C:/ti/Hercules/F021 Flash API/02.01.01/include")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** Initialize the state machine of can module */
@@ -894,9 +883,9 @@ void testCAN_RxData8Bytes(void) {
     /* ======= RT2/8: if the current can fsm state is CAN_FSM_STATE_RECEIVED_LOOP_NUMBER,
     can_infoOfDataTransfer.sectorBufferCurrentAddressU8 is in its address range,
     the current loop number is not the last loop number in the current sub sector. */
-    can_stateOfCanCommunication                    = CAN_FSM_STATE_RECEIVED_LOOP_NUMBER;
-    can_infoOfDataTransfer.programCurrentAddressU8 = BOOT_PROGRAM_START_ADDRESS +
-                                                     8 * (BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR - 2);
+    can_stateOfCanCommunication                         = CAN_FSM_STATE_RECEIVED_LOOP_NUMBER;
+    can_infoOfDataTransfer.programCurrentAddressU8      = BOOT_PROGRAM_START_ADDRESS +
+                                                          8 * (BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR - 2);
     can_infoOfDataTransfer.numOfCurrentLoop             = BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR - 1;
     can_infoOfDataTransfer.totalNumOfDataTransferLoops  = 10 * BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR;
     can_infoOfDataTransfer.sectorBufferCurrentAddressU8 = BOOT_SECTOR_BUFFER_START_ADDRESS +
@@ -966,9 +955,9 @@ void testCAN_RxData8Bytes(void) {
     can_infoOfDataTransfer.sectorBufferCurrentAddressU8 is in its address range,
     the current loop number is the last loop number in the current sub sector,
     it is not the last loop number among all data loops. */
-    can_stateOfCanCommunication                    = CAN_FSM_STATE_RECEIVED_LOOP_NUMBER;
-    can_infoOfDataTransfer.programCurrentAddressU8 = BOOT_PROGRAM_START_ADDRESS +
-                                                     8 * (BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR - 1);
+    can_stateOfCanCommunication                         = CAN_FSM_STATE_RECEIVED_LOOP_NUMBER;
+    can_infoOfDataTransfer.programCurrentAddressU8      = BOOT_PROGRAM_START_ADDRESS +
+                                                          8 * (BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR - 1);
     can_infoOfDataTransfer.numOfCurrentLoop             = BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR;
     can_infoOfDataTransfer.totalNumOfDataTransferLoops  = 10 * BOOT_NUM_OF_LOOPS_IN_ONE_SUB_SECTOR;
     can_infoOfDataTransfer.sectorBufferCurrentAddressU8 = BOOT_SECTOR_BUFFER_START_ADDRESS +
@@ -1137,8 +1126,11 @@ void testCAN_RxCrc8Bytes(void) {
         &canSignal,
         testMessage.endianness);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, testFlashSector);
+#pragma GCC diagnostic pop
     _enable_IRQ_interrupt__Expect();
     CAN_RxCrc8Bytes(testMessage, testData);
     TEST_ASSERT_EQUAL(CAN_FSM_STATE_RECEIVED_8_BYTES_DATA, can_stateOfCanCommunication);
@@ -1160,8 +1152,11 @@ void testCAN_RxCrc8Bytes(void) {
         testMessage.endianness);
     CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&crc8Bytes);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, testFlashSector);
+#pragma GCC diagnostic pop
     _enable_IRQ_interrupt__Expect();
     CAN_SendAcknowledgeMessage_ExpectAndReturn(RECEIVED, RECEIVED_8_BYTES_CRC, RECEIVED_AND_IN_PROCESSING, NO, STD_OK);
     crc8Bytes = 123u;
@@ -1184,8 +1179,11 @@ void testCAN_RxCrc8Bytes(void) {
     crc8Bytes = 123u;
     CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&crc8Bytes);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, testFlashSector);
+#pragma GCC diagnostic pop
     _enable_IRQ_interrupt__Expect();
     CAN_SendAcknowledgeMessage_ExpectAndReturn(RECEIVED, RECEIVED_8_BYTES_CRC, RECEIVED_AND_IN_PROCESSING, NO, STD_OK);
 
@@ -1209,8 +1207,11 @@ void testCAN_RxCrc8Bytes(void) {
     crc8Bytes = 123u;
     CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&crc8Bytes);
     _disable_IRQ_interrupt__Expect();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
     FLASH_GetFlashSector_ExpectAndReturn(
         (uint32_t *)can_infoOfDataTransfer.programCurrentSectorAddressU8, testFlashSector);
+#pragma GCC diagnostic pop
     _enable_IRQ_interrupt__Expect();
     CAN_SendAcknowledgeMessage_ExpectAndReturn(RECEIVED, RECEIVED_8_BYTES_CRC, RECEIVED_AND_IN_PROCESSING, NO, STD_OK);
 

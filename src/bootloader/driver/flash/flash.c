@@ -43,13 +43,17 @@
  * @file    flash.c
  * @author  foxBMS Team
  * @date    2024-08-01 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FLASH
  *
  * @brief   Implementation of Flash software
- * @details TODO
+ * @details Implements the flash driver on top of the TI F021 programming
+ *          library. The implementation resolves sector metadata, prepares flash
+ *          banks, erases sectors, programs data with ECC generation, verifies
+ *          programmed content, and provides bootloader-specific erase and write
+ *          helpers.
  */
 
 /*========== Includes =======================================================*/
@@ -283,8 +287,15 @@ uint8_t FLASH_WriteFlashSector(uint32_t *pU32SectorStartAddress, uint8_t *pU8Dat
      * input argument is to provide the functionality to verify the sector
      * size, in case the sector size is also used in other function). */
     if (gotoNext) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#endif /* __GNUC__ */
         uint32_t currentSectorSize = (uint32_t)(currentFlashSector.pU8SectorAddressEnd + 1u) -
                                      (uint32_t)(currentFlashSector.pU32SectorAddressStart);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
         if (sectorSize != currentSectorSize) {
             retVal   = FLASH_EXCEPTION_WRONG_SECTOR_SIZE;
             gotoNext = false;

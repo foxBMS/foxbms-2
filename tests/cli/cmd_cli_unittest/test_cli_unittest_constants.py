@@ -45,7 +45,7 @@ import unittest
 class TestCliUnittestConstants(unittest.TestCase):
     """Test of 'cli_unittest_constants.py'"""
 
-    def test_dummy(self):
+    def test_dummy(self) -> None:
         """Dummy test"""
         # this test is necessary because otherwise the exit code is non-zero
 

@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_deep-discharge.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,11 +64,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("diag_cbs_deep-discharge.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/fram")
-TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
@@ -111,15 +106,15 @@ void testDIAG_ErrorDeepDischarge(void) {
     DIAG_ID_e diagId   = DIAG_ID_DEEP_DISCHARGE_DETECTED;
     DIAG_EVENT_e event = DIAG_EVENT_RESET;
 
-    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, FRAM_ACCESS_OK);
     DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
     /* Tests with event reset */
     event = DIAG_EVENT_NOT_OK;
-    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, FRAM_ACCESS_OK);
     DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
 
     event = UINT8_MAX;
-    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, STD_OK);
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, FRAM_ACCESS_OK);
     DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
 
     /* else branch */

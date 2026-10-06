@@ -1,7 +1,7 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _SBC:
+.. _SBC_DRIVER:
 
 SBC
 ===
@@ -60,8 +60,7 @@ power the MCU. The MCU will then initialize the SBC, which will return to
 normal operation in Running mode after the initialization is complete.
 This sequence is shown in :numref:`sbc_state_machine_wakeup`.
 
-.. drawio-figure:: sbc_state_machine_wakeup.drawio
-   :format: svg
+.. figure:: ../../../../../build/docs/docs/software/modules/driver/sbc/sbc_state_machine_wakeup.svg
    :alt: SBC wakeup state chart
    :name: sbc_state_machine_wakeup
    :width: 480px

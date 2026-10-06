@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_cs_isabellenhuette-ivt-s.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,16 +70,6 @@
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("can_cbs_rx_cs_isabellenhuette-ivt-s.c")
-
-TEST_INCLUDE_PATH("../../src/app/driver/can")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
-TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/imd")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -474,8 +464,8 @@ void testCANRX_CsIsabellenhuetteIvtS(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/7 ======= */
     CAN_MESSAGE_PROPERTIES_s testTooLowIdMessage = {
-        .id = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ID -
-              1u, /* CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ID is lowest id in valid range */
+        .id         = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ID -
+                      1u, /* CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ID is lowest id in valid range */
         .idType     = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ID_TYPE,
         .dlc        = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_DLC,
         .endianness = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ENDIANNESS,
@@ -483,8 +473,8 @@ void testCANRX_CsIsabellenhuetteIvtS(void) {
     TEST_ASSERT_FAIL_ASSERT(CANRX_CsIsabellenhuetteIvtS(testTooLowIdMessage, &testCanData, &can_kShim));
     /* ======= AT2/7 ======= */
     CAN_MESSAGE_PROPERTIES_s testTooHighIdMessage = {
-        .id = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_ID +
-              1u, /* CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_ID is highest id in valid range */
+        .id         = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_ID +
+                      1u, /* CANRX_CS_ISABELLENHUETTE_IVT_STRING0_EC_ID is highest id in valid range */
         .idType     = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ID_TYPE,
         .dlc        = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_DLC,
         .endianness = CANRX_CS_ISABELLENHUETTE_IVT_STRING0_CURR_ENDIANNESS,

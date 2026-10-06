@@ -41,7 +41,7 @@
 
 
 def main() -> None:
-    """This script does this and that"""
+    """Print a greeting for the generated Python script."""
     print("Hello foxBMS!")
 
 

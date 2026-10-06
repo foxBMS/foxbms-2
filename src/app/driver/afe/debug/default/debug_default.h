@@ -43,8 +43,8 @@
  * @file    debug_default.h
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2026-04-20 (date of last update)
- * @version v1.11.0
+ * @updated 2026-10-06 (date of last update)
+ * @version v1.12.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -109,7 +109,7 @@ typedef struct {
     FAKE_FSM_SUBSTATES_e nextSubstate;     /*!< next substate of the FSM */
     FAKE_FSM_SUBSTATES_e currentSubstate;  /*!< current substate of the FSM */
     FAKE_FSM_SUBSTATES_e previousSubstate; /*!< previous substate of the FSM */
-    bool firstMeasurementFinished;         /*!< indicator if the fist measurement has been successful */
+    bool firstMeasurementFinished;         /*!< indicator if the first measurement has been successful */
     FAKE_DATABASE_ENTRIES_s data;          /*!< contains pointers to the local data buffer */
 } FAKE_STATE_s;
 

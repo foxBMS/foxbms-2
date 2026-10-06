@@ -1,10 +1,10 @@
 .. include:: ../../../../macros.txt
 .. include:: ../../../../units.txt
 
-.. _BALANCING_MODULE:
+.. _BALANCING_APPLICATION:
 
-Balancing Module
-================
+Balancing
+=========
 
 Module Files
 ------------
@@ -33,7 +33,7 @@ Unit Test
 Detailed Description
 --------------------
 
-.. _BALANCING_MODULE_VOLTAGE_BASED_BALANCING:
+.. _BALANCING_APPLICATION_VOLTAGE_BASED_BALANCING:
 
 Voltage-based Balancing
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -43,7 +43,7 @@ and activates balancing for all the cells whose voltage is above the minimum + `
 have been balanced, the threshold is set to ``BAL_GetBalancingThreshold_mV()`` + ``BAL_HYSTERESIS_mV`` to avoid an oscillating
 behavior between balancing and not balancing.
 
-.. _BALANCING_MODULE_HISTORY_BASED_BALANCING:
+.. _BALANCING_APPLICATION_HISTORY_BASED_BALANCING:
 
 History-based Balancing
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -87,9 +87,9 @@ The correspondence between cell voltage and SOC must be defined by the user depe
 used.
 Currently, it is done in the function ``SE_GetStateOfChargeFromVoltage()`` in
 ``soc_counting.c``, ``soc_debug.c``, ``soc_none.c``, or ``state_estimation.h``.
-This function gets a voltage in V and return an SOC between 0.0 and 1.0.
+This function gets a voltage in mV and returns an SOC in percent between 0.0 and 100.0.
 
-.. _BALANCING_MODULE_NO_BALANCING:
+.. _BALANCING_APPLICATION_NO_BALANCING:
 
 No Balancing
 ^^^^^^^^^^^^

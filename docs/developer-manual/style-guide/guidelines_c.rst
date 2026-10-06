@@ -33,8 +33,8 @@ Using VS Code files are automatically saved correctly (see
 
 The following list shows more detailed rules for |foxbms|.
 Every rule has some context and/or rationale and notes that clearly state the
-rules, followed by a correct examples.
-If it supports the clarification incorrect examples may also be shown.
+rules, followed by correct examples.
+If it supports clarification, incorrect examples may also be shown.
 
 The following rules generally apply and follow the naming pattern
 ``C:<ongoing-number>``.
@@ -58,8 +58,8 @@ Additional to the general file naming rules the following **MUST** be applied.
       These configuration files **MUST** end with ``_cfg.c`` or ``_cfg.h``
       respectively.
 
-For example the valid file names for an implementation of ``driver``, that is
-split into a driver and a configuration part, is:
+For example, valid file names for an implementation of ``driver`` that is
+split into a driver and a configuration part are:
 
 - ``driver.c``
 - ``driver.h``
@@ -90,7 +90,8 @@ Line length (``C:003``)
 .. admonition:: Line length rules
 
    - Each line of text in your code **SHOULD** be at most 120 characters
-     long. A line **MAY** exceed 120 characters if it is
+     long.
+     A line **MAY** exceed 120 characters if it is
 
      - a comment line which is not feasible to split without harming
        readability, ease of cut and paste or auto-linking, e.g., if a line
@@ -126,7 +127,7 @@ File level doxygen (``C:004``)
       ``@file``, ``@author``, ``@date``, ``@updated``, ``@ingroup``,
       ``@prefix``, ``@brief``, ``@details``
     - All doxygen parameter arguments **MUST** be whitespace aligned.
-    - After ``@prefix``, ``@brief`` and ``@details`` there **MUST** be an blank
+    - After ``@prefix``, ``@brief`` and ``@details`` there **MUST** be a blank
       line.
     - The ``@prefix`` argument **MUST** use between two and five
       uppercase alphanumericals starting with an uppercase character.
@@ -186,8 +187,8 @@ C Sections (``C:006``)
 
 .. admonition:: C sections
 
-    Every .c and .h file **MUST** contain all specific section comments in the
-    correct order.
+    Every ``.c`` and ``.h`` file **MUST** contain all specific section comments
+    in the correct order.
     There are different section comments for sources and headers for source
     files (files in ``src/**``) and test files (files in ``tests/unit/**``).
 
@@ -350,7 +351,7 @@ Function names (``C:009``)
     - Function names **MUST** start with the uppercase module prefix followed
       by a capital letter with capital letters for each new word (Pascal Case).
     - The only exception are the :ref:`unit-test-functions <UNIT_TESTS>` which
-      start with ``test`` due to ceedling requiring it.
+      start with ``test`` due to |cmock| requiring it.
     - Function names **SHOULD** start with a verb followed by a noun
       (*verb-noun* pattern).
       After the verb-noun pattern additional words **MAY** follow.
@@ -625,7 +626,7 @@ Pointer rules (``C:018``)
       placed adjacent to the variable name.
     - As function-pointer syntax can get complicated and lead to errors, a
       function pointer **MUST** use a typedef.
-      The typedef of a function has to use the suffix ``_f``.
+      The typedef of a function **MUST** use the suffix ``_f``.
     - Spaces around ``.`` or ``->`` **MUST NOT** be used when accessing
       pointers.
       The following listing contains examples of correctly-formatted pointer
@@ -861,7 +862,7 @@ Conditionals (``C:026``)
 
 .. _rule_c_switch:
 
-switch Statements (``C:027``)
+Switch statements (``C:027``)
 -----------------------------
 
 .. admonition:: Switch statement rules
@@ -887,25 +888,29 @@ switch Statements (``C:027``)
 
 .. _rule_c_loop:
 
-loop Statements (``C:028``)
+Loop statements (``C:028``)
 -----------------------------
 
-.. admonition:: loop rules
+.. admonition:: Loop rules
 
-    - Parentheses **MUST** be used for all loops, at all times.
-      This is valid for single-statement loops.
-    - Empty loop bodies **MUST** use an empty pair of brackets and explain why
-      they are empty.
+   - Parentheses **MUST** be used for all loops, at all times.
+     This is valid for single-statement loops.
+   - Empty loop bodies **MUST** use an empty pair of brackets and explain why
+     they are empty.
 
 .. literalinclude:: ./examples/c-028.c
    :language: C
-   :lines: 70-80
+   :lines: 70-85
    :linenos:
    :caption: Correct usage of spaces and parentheses in loop statements.
 
-There are three defines that are typically looped over: the number of strings
-(``BS_NR_OF_STRINGS``), the number of modules (``BS_NR_OF_MODULES_PER_STRING``)
-and the number of batteries per module (``BS_NR_OF_CELL_BLOCKS_PER_MODULE``).
+There are four defines that are typically looped over:
+
+- the number of strings (``BS_NR_OF_STRINGS``),
+- the number of modules (``BS_NR_OF_MODULES_PER_STRING``),
+- the number of batteries per module (``BS_NR_OF_CELL_BLOCKS_PER_MODULE``), and
+- the number of temperature sensors per module
+  (``BS_NR_OF_TEMP_SENSORS_PER_MODULE``).
 
 These loops **MUST** follow the pattern as shown in
 :numref:`special-counter-variables` and
@@ -915,17 +920,17 @@ These loops **MUST** follow the pattern as shown in
    :name: special-counter-variables
    :widths: grid
 
-   +--------------------------------------+-------------------+
-   | Define                               | Counter variable  |
-   +======================================+===================+
-   | ``BS_NR_OF_STRINGS``                 | ``s``             |
-   +--------------------------------------+-------------------+
-   | ``BS_NR_OF_MODULES_PER_STRING``      | ``m``             |
-   +--------------------------------------+-------------------+
-   | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE``  | ``cb``            |
-   +--------------------------------------+-------------------+
-   | ``BS_NR_OF_TEMP_SENSORS_PER_MODULE`` | ``ts``            |
-   +--------------------------------------+-------------------+
+   +--------------------------------------+-------------------+-----------------------+
+   | Define                               | Counter variable  | Counter variable type |
+   +======================================+===================+=======================+
+   | ``BS_NR_OF_STRINGS``                 | ``s``             | ``uint8_t``           |
+   +--------------------------------------+-------------------+-----------------------+
+   | ``BS_NR_OF_MODULES_PER_STRING``      | ``m``             | ``uint8_t``           |
+   +--------------------------------------+-------------------+-----------------------+
+   | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE``  | ``cb``            | ``uint8_t``           |
+   +--------------------------------------+-------------------+-----------------------+
+   | ``BS_NR_OF_TEMP_SENSORS_PER_MODULE`` | ``ts``            | ``uint8_t``           |
+   +--------------------------------------+-------------------+-----------------------+
 
 .. literalinclude:: ./examples/c-028-battery-defines.c
    :language: C
@@ -977,7 +982,7 @@ C Formatting (``C:031``)
 State machines (``C:032``)
 --------------------------
 
-If a driver (or similar) requires to be implemented in a state machine there
+If a driver (or similar) needs to be implemented as a state machine, there
 are some hints found in :ref:`HOW_TO_WRITE_STATE_MACHINES`.
 
 .. _rule_c_unit_testing_framework_directives:
@@ -985,14 +990,24 @@ are some hints found in :ref:`HOW_TO_WRITE_STATE_MACHINES`.
 Unit Testing Framework Directives (``C:033``)
 ---------------------------------------------
 
-If a driver (or similar) requires to be implemented in a state machine there
-are some hints found in :ref:`HOW_TO_WRITE_STATE_MACHINES`.
+Directives for a unit testing framework (for example framework-specific
+attributes, pragmas or compatibility macros) are sometimes necessary in shared
+code.
+
+.. admonition:: Unit testing framework directives rules
+
+   - Unit testing framework directives **MUST** be guarded so that production
+     builds are not affected.
+   - Unit testing framework directives **MUST** be kept local to the smallest
+     possible scope.
+   - If test-only directives are required in production source files, a short
+     rationale **MUST** be documented in a comment near the directive.
 
 File Templates
 --------------
 
-These file templates below show how these rules are correctly applied. They
-**SHOULD** be used as basis for new files.
+These file templates below show how these rules are correctly applied.
+They **SHOULD** be used as basis for new files.
 
 - C header file :download:`c.h <../../../conf/tpl/c.h>`
 - C source file :download:`c.c <../../../conf/tpl/c.c>`

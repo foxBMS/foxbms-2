@@ -37,6 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+
 """Click commands for miscellaneous foxBMS repository utilities."""
 
 from pathlib import Path
@@ -45,6 +46,11 @@ import click
 
 from ..cmd_misc.check_repository_depth import check_repository_depth
 from ..cmd_misc.list_prefixes import get_prefixes
+from ..cmd_misc.open_unit_test_reports import (
+    open_cli_unit_test_report,
+    open_embedded_unit_test_report,
+)
+from ..cmd_misc.plot_periods import run_plot_periods
 from ..cmd_misc.run_uncrustify import lint_freertos
 from ..cmd_misc.verify_checksums import verify
 from ..helpers.click_helpers import HELP_NAMES, echo, recho, verbosity_option
@@ -53,27 +59,39 @@ CONTEXT_SETTINGS = HELP_NAMES | {"ignore_unknown_options": True}
 
 
 @click.group(context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
-@click.option(
-    "--list-prefixes",
-    is_flag=True,
-    default=False,
-    help="List all @prefix markers found in C source files.",
-)
 @click.pass_context
-def misc(ctx: click.Context, list_prefixes: bool) -> None:
-    """Miscellaneous command group entry point.
-
-    Args:
-        ctx: Active Click context.
-        list_prefixes: If ``True``, print all discovered prefixes.
-    """
-    if list_prefixes:
-        for prefix in get_prefixes():
-            echo(prefix)
-        ctx.exit(0)
-
+def misc(ctx: click.Context) -> None:
+    """Miscellaneous command group entry point."""
     if not ctx.invoked_subcommand:
         echo(misc.get_help(ctx))
+
+
+@misc.command("ut-er")
+@verbosity_option
+@click.pass_context
+def cmd_open_unit_test_results(ctx: click.Context, verbose: int = 0) -> None:
+    """Open unit test report."""
+    open_embedded_unit_test_report()
+    ctx.exit()
+
+
+@misc.command("ut-cli")
+@verbosity_option
+@click.pass_context
+def cmd_open_cli_unit_test_results(ctx: click.Context, verbose: int = 0) -> None:
+    """Open CLI unit test report."""
+    open_cli_unit_test_report()
+    ctx.exit()
+
+
+@misc.command("list-prefixes")
+@verbosity_option
+@click.pass_context
+def cmd_list_prefixes(ctx: click.Context, verbose: int = 0) -> None:
+    """List all @prefix markers found in C source files."""
+    for prefix in get_prefixes():
+        echo(prefix)
+    ctx.exit()
 
 
 @misc.command("check-repository-depth")
@@ -115,3 +133,33 @@ def cmd_verify_checksum(
 def cmd_uncrustify_freertos(ctx: click.Context, check: bool) -> None:
     """Run uncrustify on FreeRTOS sources."""
     ctx.exit(lint_freertos(check))
+
+
+@misc.command("plot-periods")
+@click.argument(
+    "log_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument("target_ids", nargs=-1, required=True, type=click.STRING)
+@click.option(
+    "--show",
+    is_flag=True,
+    default=False,
+    help="Show plots interactively instead of saving them.",
+)
+@click.option(
+    "--output_path",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=Path(),
+    help="Path where to save the plot.",
+)
+@click.pass_context
+def cmd_plot_periods(
+    ctx: click.Context,
+    log_file: Path,
+    target_ids: tuple[str, ...],
+    show: bool,
+    output_path: Path,
+) -> None:
+    """Plot the time period between consecutive CAN signals."""
+    ctx.exit(run_plot_periods(log_file, list(target_ids), show, output_path))
